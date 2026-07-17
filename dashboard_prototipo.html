@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Transacciones y Facturación</title>
+    <!-- Google Fonts: Nunito (para emular la tipografía redondeada de la imagen) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            50: '#f4f6fa',
+                            100: '#e9edf5',
+                            200: '#cbd6e6',
+                            300: '#9cb3d1',
+                            400: '#688bb7',
+                            500: '#44689b',
+                            600: '#33507d',
+                            700: '#273e63',
+                            800: '#1b2a45',
+                            900: '#162035',
+                            sidebar: '#183162',
+                            active: '#27437c'
+                        },
+                        brand: {
+                            bg: '#f1f5f9'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f4f6f9;
+            color: #1e293b;
+        }
+        .sidebar-shadow {
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row font-sans overflow-x-hidden">
+
+    <!-- BARRA LATERAL (LADO IZQUIERDO - Según la imagen de referencia) -->
+    <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:min-h-screen sidebar-shadow text-white">
+        <div>
+            <!-- Header con Logo (Farmacia La Merced style) -->
+            <div class="flex flex-col items-center text-center mt-4 mb-8">
+                <!-- Círculo blanco para el Logo -->
+                <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center shadow-lg p-2 mb-3">
+                    <svg class="w-12 h-12 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <!-- Icono cruz médica / farmacia -->
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-md font-extrabold tracking-wide uppercase leading-tight text-white">Farmacia La Merced</h2>
+                <span class="text-xs text-slate-300 font-semibold mt-1">Panel de Control</span>
+            </div>
+
+            <!-- Menú de Opciones -->
+            <nav class="space-y-1.5 px-1">
+                <!-- Dashboard (Activo) -->
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-navy-active text-white font-bold transition-all">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <!-- Usuarios -->
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white transition-all font-semibold">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span>Usuarios</span>
+                </a>
+
+                <!-- Empleados -->
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white transition-all font-semibold">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-7 4h10" />
+                    </svg>
+                    <span>Empleados</span>
+                </a>
+
+                <!-- Roles y Permisos -->
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/5 hover:text-white transition-all font-semibold">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <span>Roles y Permisos</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Botón Cerrar Sesión (Estilo borde blanco de la imagen) -->
+        <div class="px-1 mb-4">
+            <a href="#" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/40 hover:border-white hover:bg-white/5 transition-all text-sm font-semibold">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL (LADO DERECHO - Según la imagen de referencia) -->
+    <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+        <!-- Encabezado de Página -->
+        <header class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight">Panel de Control</h1>
+            
+            <!-- Botón Vista General (Estilo cápsula azul de la imagen) -->
+            <button class="flex items-center gap-2 mt-4 px-4 py-2 bg-navy-sidebar text-white rounded-full font-bold text-sm hover:bg-navy-active shadow-md transition-all">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                <span>Vista General</span>
+            </button>
+        </header>
+
+        <!-- Sección de Tarjetas (Fichas 3 columnas de la imagen) -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Card 1: Usuarios -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow hover:scale-[1.01] transition-transform">
+                <!-- Icono azul -->
+                <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 mb-4">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.07-.47.1-1 .1-1.5 0-.85-.1-1.72-.28-2.54C14.07 12.35 15.42 12 17 12c1.66 0 3.32.74 3.73 2.23C20.9 14.88 21 15.42 21 16c0 .58-.1 1.12-.27 1.63a.5.5 0 01-.46.37H12.93zM10.47 18a.5.5 0 01-.47-.37C9.9 17.12 9.9 16.58 9.9 16c0-1.63-.44-3.12-1.18-4.23C10.02 11.26 11.42 11 13 11c1.58 0 2.98.26 3.98.77C17.72 12.88 18.16 14.37 18.16 16c0 .58-.04 1.12-.1 1.63a.5.5 0 01-.46.37H10.47zM3.63 18a.5.5 0 01-.46-.37C3.1 17.12 3 16.58 3 16c0-1.66 1.66-2.23 3.73-2.23 2.07 0 3.73.57 3.73 2.23 0 .58-.1 1.12-.27 1.63a.5.5 0 01-.46.37H3.63z" />
+                    </svg>
+                </div>
+                <h3 class="text-4xl font-extrabold text-navy-800 leading-none">2</h3>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Usuarios en Sistema</p>
+                <div class="border-t border-slate-100 mt-5 pt-3">
+                    <a href="#" class="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1">
+                        <span>Gestionar</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2: Alertas de Vencimiento -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow hover:scale-[1.01] transition-transform">
+                <!-- Icono verde -->
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 mb-4">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7H5V5zm4 9a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <h3 class="text-4xl font-extrabold text-navy-800 leading-none">6</h3>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Alertas de Vencimiento</p>
+                <div class="border-t border-slate-100 mt-5 pt-3">
+                    <a href="#" class="text-emerald-500 hover:text-emerald-700 text-sm font-bold flex items-center gap-1">
+                        <span>Ver Inventario</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 3: Roles Definidos -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow hover:scale-[1.01] transition-transform">
+                <!-- Icono gris -->
+                <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 mb-4">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2 4a1 1 0 000 2h8a1 1 0 100-2H6zm0 4a1 1 0 100 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <h3 class="text-4xl font-extrabold text-navy-800 leading-none">1</h3>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Roles Definidos</p>
+                <div class="border-t border-slate-100 mt-5 pt-3">
+                    <a href="#" class="text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center gap-1">
+                        <span>Configurar</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fila de Rendimiento Mensual (Ancho Completo) -->
+        <section class="w-full">
+            <!-- Gráfico: Rendimiento Mensual -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-extrabold text-navy-800">Rendimiento Mensual</h2>
+                    <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">Ventas / Tiempo</span>
+                </div>
+                
+                <!-- Área de Gráfico SVG Dinámico -->
+                <div class="w-full h-56 relative flex items-end">
+                    <!-- Eje Y Lineas de Guía -->
+                    <div class="absolute inset-x-0 top-0 border-b border-slate-100 h-0"></div>
+                    <div class="absolute inset-x-0 top-1/4 border-b border-slate-100 h-0"></div>
+                    <div class="absolute inset-x-0 top-2/4 border-b border-slate-100 h-0"></div>
+                    <div class="absolute inset-x-0 top-3/4 border-b border-slate-100 h-0"></div>
+                    
+                    <!-- SVG Curva de Gráfico -->
+                    <svg class="w-full h-full absolute" viewBox="0 0 600 200" preserveAspectRatio="none">
+                        <!-- Sombra del área del gráfico -->
+                        <path d="M 0,90 Q 150,100 300,140 T 600,195 L 600,200 L 0,200 Z" fill="url(#chart-gradient)" opacity="0.15" />
+                        <!-- Línea del gráfico -->
+                        <path d="M 0,90 Q 150,100 300,140 T 600,195" fill="none" stroke="#183162" stroke-width="4" stroke-linecap="round" />
+                        
+                        <!-- Puntos de Datos (Círculos) -->
+                        <circle cx="20" cy="91" r="5" fill="#183162" />
+                        <circle cx="300" cy="140" r="5" fill="#183162" />
+                        <circle cx="580" cy="193" r="5" fill="#183162" />
+                        
+                        <defs>
+                            <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#183162" />
+                                <stop offset="100%" stop-color="#ffffff" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <!-- Valores a la Izquierda -->
+                    <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-slate-400 font-bold">
+                        <span>250</span>
+                        <span>200</span>
+                        <span>150</span>
+                        <span>100</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
