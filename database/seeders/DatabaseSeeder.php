@@ -15,11 +15,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // Administrador por defecto
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin Sistema',
+            'email' => 'admin@facturacion.com',
+            'role' => 'admin',
+            'status' => 'active',
         ]);
+
+        // Editor por defecto
+        User::factory()->create([
+            'name' => 'Editor Facturación',
+            'email' => 'editor@facturacion.com',
+            'role' => 'editor',
+            'status' => 'active',
+        ]);
+
+        // Más usuarios aleatorios
+        User::factory(15)->create();
     }
 }
