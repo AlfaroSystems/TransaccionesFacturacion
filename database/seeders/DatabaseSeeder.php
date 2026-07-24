@@ -19,8 +19,10 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Admin Sistema',
             'email' => 'admin@facturacion.com',
-            'role' => 'admin',
             'status' => 'active',
         ]);
+
+        // Cargar Roles y Permisos
+        $this->call(RoleAndPermissionSeeder::class);
     }
 }

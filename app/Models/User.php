@@ -22,7 +22,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'status',
     ];
 
@@ -47,5 +46,29 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relación con los roles asignados al usuario.
+     */
+    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Role::class)->withPivot('assigned_at');
+    }
+
+    /**
+     * Verifica si el usuario tiene un rol determinado.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles->contains('name', $role);
+    }
+
+    /**
+     * Verifica si el usuario tiene un permiso determinado a través de sus roles.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->roles->flatMap->permissions->contains('id', $permission);
     }
 }
