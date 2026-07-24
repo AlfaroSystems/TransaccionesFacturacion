@@ -69,6 +69,11 @@ class RoleAndPermissionSeeder extends Seeder
             ['description' => 'Editor de contenido y gestión básica de usuarios.']
         );
 
+        $userRole = Role::updateOrCreate(
+            ['name' => 'user'],
+            ['description' => 'Usuario regular / Lector con permisos básicos.']
+        );
+
         // 3. Asignar Permisos a Roles
         // El administrador obtiene todos los permisos
         $allPermissionIds = Permission::pluck('id')->toArray();

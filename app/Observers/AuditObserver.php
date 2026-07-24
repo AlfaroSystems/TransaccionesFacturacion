@@ -49,6 +49,11 @@ class AuditObserver
      */
     protected function logActivity(Model $model, string $event, ?array $originalData, ?array $modifiedData): void
     {
+        // Evitar bucle infinito si se audita el propio modelo de logs
+        if ($model instanceof \App\Models\AuditLog) {
+            return;
+        }
+
         // 1. Filtrar campos sensibles por seguridad
         if ($originalData) {
             $originalData = $this->filterSensibleFields($originalData);

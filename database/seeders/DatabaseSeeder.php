@@ -16,11 +16,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Administrador por defecto
-        User::factory()->create([
-            'name' => 'Admin Sistema',
-            'email' => 'admin@facturacion.com',
-            'status' => 'active',
-        ]);
+        if (!User::where('email', 'admin@facturacion.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Admin Sistema',
+                'email' => 'admin@facturacion.com',
+                'status' => 'active',
+            ]);
+        }
 
         // Cargar Roles y Permisos
         $this->call(RoleAndPermissionSeeder::class);

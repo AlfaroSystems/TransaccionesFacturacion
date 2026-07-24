@@ -125,19 +125,15 @@
 
                             <!-- Rol del Usuario -->
                             <td class="px-6 py-4">
-                                @if($user->role === 'admin')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/10">
-                                        Administrador
+                                @forelse($user->roles as $role)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10 mr-1 last:mr-0">
+                                        {{ $role->name }}
                                     </span>
-                                @elseif($user->role === 'editor')
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-teal-50 text-teal-700 ring-1 ring-inset ring-teal-600/10">
-                                        Editor
+                                @empty
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-500 ring-1 ring-inset ring-slate-500/10">
+                                        Sin Rol
                                     </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/10">
-                                        Usuario
-                                    </span>
-                                @endif
+                                @endforelse
                             </td>
 
                             <!-- Estado del Usuario -->

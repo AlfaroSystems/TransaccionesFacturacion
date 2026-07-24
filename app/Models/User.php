@@ -65,6 +65,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Obtiene el nombre del primer rol asignado al usuario.
+     */
+    public function getRoleAttribute(): ?string
+    {
+        return $this->roles->first()?->name;
+    }
+
+    /**
      * Verifica si el usuario tiene un permiso determinado a través de sus roles.
      */
     public function hasPermission(string $permission): bool

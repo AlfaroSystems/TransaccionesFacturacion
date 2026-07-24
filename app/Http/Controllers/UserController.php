@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,7 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.ver');
 
-        $query = User::query();
+        $query = User::with('roles');
 
         // Búsqueda por nombre o email
         if ($request->filled('search')) {
@@ -30,7 +31,9 @@ class UserController extends Controller
 
         // Filtro por rol
         if ($request->filled('role')) {
-            $query->where('role', $request->input('role'));
+            $query->whereHas('roles', function($q) use ($request) {
+                $q->where('name', $request->input('role'));
+            });
         }
 
         // Filtro por estado
@@ -51,7 +54,9 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.crear');
 
-        return view('users.create');
+        $roles = Role::all();
+
+        return view('users.create', compact('roles'));
     }
 
     /**
@@ -65,17 +70,19 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', Rule::in(['admin', 'editor', 'user'])],
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])],
+            'roles' => ['required', 'array'],
+            'roles.*' => ['exists:roles,id'],
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
             'status' => $validated['status'],
         ]);
+
+        $user->roles()->sync($validated['roles']);
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario creado exitosamente.');
@@ -96,7 +103,10 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.editar');
 
-        return view('users.edit', compact('user'));
+        $roles = Role::all();
+        $userRoles = $user->roles->pluck('id')->toArray();
+
+        return view('users.edit', compact('user', 'roles', 'userRoles'));
     }
 
     /**
@@ -110,14 +120,14 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'string', Rule::in(['admin', 'editor', 'user'])],
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])],
+            'roles' => ['required', 'array'],
+            'roles.*' => ['exists:roles,id'],
         ]);
 
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'role' => $validated['role'],
             'status' => $validated['status'],
         ];
 
@@ -126,6 +136,7 @@ class UserController extends Controller
         }
 
         $user->update($data);
+        $user->roles()->sync($validated['roles']);
 
         return redirect()->route('users.index')
             ->with('success', 'Usuario actualizado exitosamente.');

@@ -39,15 +39,18 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Rol -->
+                <!-- Roles -->
                 <div>
-                    <label for="role" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol del Usuario</label>
-                    <select name="role" id="role" class="w-full bg-slate-50 border @error('role') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-navy-sidebar @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
-                        <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Usuario / Lector</option>
-                        <option value="editor" {{ old('role', $user->role) === 'editor' ? 'selected' : '' }}>Editor</option>
-                        <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrador</option>
-                    </select>
-                    @error('role')
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Roles del Usuario</label>
+                    <div class="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        @foreach($roles as $role)
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="roles[]" value="{{ $role->id }}" {{ in_array($role->id, old('roles', $userRoles)) ? 'checked' : '' }} class="rounded text-navy-sidebar focus:ring-navy-sidebar border-slate-300 w-4 h-4">
+                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">{{ $role->name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('roles')
                         <p class="text-xs text-rose-500 font-bold mt-1">{{ $message }}</p>
                     @enderror
                 </div>
