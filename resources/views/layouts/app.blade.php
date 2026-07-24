@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - Sistema de Transacciones y Facturación</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Sistema de Transacciones y Facturación') }}</title>
     <!-- Google Fonts: Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,9 +51,13 @@
     <!-- BARRA LATERAL -->
     <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:min-h-screen sidebar-shadow text-white">
         <div>
-            <!-- Header con Logo -->
-            <div class="flex flex-col items-center text-center mt-4 mb-8">
-                <span class="text-xs text-slate-300 font-semibold mt-1">Panel de Control</span>
+            <!-- Header con Logo y Usuario Autenticado -->
+            <div class="flex flex-col items-center text-center mt-4 mb-8 border-b border-white/10 pb-6">
+                <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center font-bold text-lg text-white mb-2 uppercase border border-white/20">
+                    {{ auth()->check() ? substr(auth()->user()->name, 0, 2) : 'US' }}
+                </div>
+                <span class="text-sm font-bold text-white block">{{ auth()->check() ? auth()->user()->name : 'Usuario de Prueba' }}</span>
+                <span class="text-xs text-slate-300 font-semibold mt-1">{{ auth()->check() ? auth()->user()->email : 'correo@ejemplo.com' }}</span>
             </div>
 
             <!-- Menú de Opciones -->
@@ -94,7 +99,7 @@
         <!-- Botón Cerrar Sesión (Estilo borde blanco de la imagen) -->
         <div class="px-1 mb-4">
             <!-- Formulario de Logout Laravel -->
-            <form method="POST" action="/logout" id="logout-form" class="hidden">
+            <form method="POST" action="{{ route('logout') }}" id="logout-form" class="hidden">
                 @csrf
             </form>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/40 hover:border-white hover:bg-white/5 transition-all text-sm font-semibold">
@@ -106,9 +111,20 @@
         </div>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL (LADO DERECHO - Según la imagen de referencia) -->
+    <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+        @isset($header)
+            <header class="bg-white shadow mb-6 rounded-xl p-4 border border-slate-100 card-shadow">
+                <div class="max-w-7xl mx-auto">
+                    {{ $header }}
+                </div>
+            </header>
+        @endisset
+
         @yield('content')
+        @if(isset($slot))
+            {{ $slot }}
+        @endif
     </main>
 
 </body>
