@@ -22,16 +22,5 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'status' => 'active',
         ]);
-
-        // Editor por defecto
-        User::factory()->create([
-            'name' => 'Editor Facturación',
-            'email' => 'editor@facturacion.com',
-            'role' => 'editor',
-            'status' => 'active',
-        ]);
-
-        // Más usuarios aleatorios
-        User::factory(15)->create();
     }
 }
