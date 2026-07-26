@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\EmpleadoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +24,9 @@ Route::middleware('auth')->group(function () {
 
     // Gestión de Roles y Permisos (CRUD) protegida por autenticación
     Route::resource('roles', RoleController::class);
+
+    // Gestión de Empleados (CRUD) protegida por autenticación
+    Route::resource('empleados', EmpleadoController::class);
 
     // Bitácora de Auditoría (protegida por autenticación y permiso)
     Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])
