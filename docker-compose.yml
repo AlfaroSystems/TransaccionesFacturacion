@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: transacciones-facturacion-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE:-transacciones_facturacion}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-1234}
+    depends_on:
+      - db
+    networks:
+      - transacciones_network
+
+  web:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - transacciones_network
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-transacciones_facturacion}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
+    volumes:
+      - transacciones_pgsql_data:/var/lib/postgresql/data
+    networks:
+      - transacciones_network
+
+networks:
+  transacciones_network:
+    driver: bridge
+
+volumes:
+  transacciones_pgsql_data:
+    driver: local

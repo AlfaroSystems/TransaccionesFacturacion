@@ -1,0 +1,31 @@
+# Git and documentation
+.git
+.github
+README.md
+
+# Dependencies
+node_modules
+vendor
+
+# Environment files and logs
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+*.log
+npm-debug.log
+yarn-error.log
+
+# Laravel local specific files
+storage/*.key
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*.php
+storage/framework/testing/*
+storage/logs/*.log
+bootstrap/cache/*.php
+
+# Docker files themselves
+docker-compose*.yml
+Dockerfile
+.dockerignore
