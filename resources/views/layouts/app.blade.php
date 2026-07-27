@@ -86,6 +86,23 @@
                     <span>Empleados</span>
                 </a>
 
+                <!-- Ubicaciones -->
+                <a href="{{ route('locations.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Ubicaciones</span>
+                </a>
+
+                <!-- Mapa de Bodega -->
+                <a href="{{ route('locations.map') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('locations.map') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ request()->routeIs('locations.map') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                    <span>Mapa de Bodega</span>
+                </a>
+
                 <!-- Roles y Permisos -->
                 <a href="{{ route('roles.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('roles.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
                     <svg class="w-5 h-5 {{ request()->routeIs('roles.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">

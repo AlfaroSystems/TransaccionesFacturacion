@@ -3,8 +3,8 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Run composer install if vendor directory doesn't exist
-if [ ! -d "vendor" ]; then
+# Run composer install if vendor/autoload.php doesn't exist
+if [ ! -f "vendor/autoload.php" ]; then
     echo "Installing composer dependencies..."
     composer install --no-interaction --prefer-dist --optimize-autoloader
 fi
@@ -53,9 +53,11 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Ensure storage and bootstrap cache permissions are correct
-echo "Setting folder permissions..."
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+if [ ! -w "storage" ] || [ ! -w "bootstrap/cache" ]; then
+    echo "Setting folder permissions (this may take a few seconds)..."
+    chmod -R 775 storage bootstrap/cache
+    chown -R www-data:www-data storage bootstrap/cache
+fi
 
 # Execute the main container command
 exec "$@"
