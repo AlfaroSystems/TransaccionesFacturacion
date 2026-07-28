@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\WarehouseCategoryController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -32,6 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])
         ->middleware('can:bitacora.ver')
         ->name('audit-logs.index');
+
+    // Gestión de Almacenes (CRUD) protegida por autenticación
+    Route::resource('warehouses', WarehouseController::class);
+
+    // Gestión de Categorías de Almacenes (CRUD) protegida por autenticación
+    Route::resource('warehouse_categories', WarehouseCategoryController::class);
 });
 
 require __DIR__.'/auth.php';
