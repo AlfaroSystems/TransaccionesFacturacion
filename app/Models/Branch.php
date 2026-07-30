@@ -14,6 +14,9 @@ class Branch extends Model
         'company_id',
         'name',
         'address',
+        'department_id',
+        'municipality_id',
+        'district_id',
         'phone',
         'email',
         'description',
@@ -30,5 +33,20 @@ class Branch extends Model
     public function warehouses()
     {
         return $this->hasMany(Warehouse::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function municipality()
+    {
+        return $this->belongsTo(Municipality::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
     }
 }
