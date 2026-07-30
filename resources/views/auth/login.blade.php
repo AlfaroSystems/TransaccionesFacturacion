@@ -48,36 +48,7 @@
         <!-- LEFT SIDE: Form & Navbar -->
         <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
             
-            <!-- Navbar Header -->
-            <header class="flex items-center justify-between mb-8">
-                <!-- Logo -->
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 flex items-center justify-center border-2 border-customTeal-500 rounded-lg p-1.5">
-                        <svg class="w-full h-full text-customTeal-500" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/>
-                        </svg>
-                    </div>
-                </div>
-                <!-- Nav Links -->
-                <nav class="hidden sm:flex items-center gap-6 text-xs font-semibold text-customTeal-700">
-                    <a href="/" class="hover:text-customTeal-500 transition-colors">Home</a>
-                    <a href="#" class="hover:text-customTeal-500 transition-colors">Our products</a>
-                    <a href="#" class="hover:text-customTeal-500 transition-colors">About US</a>
-                    <a href="#" class="hover:text-customTeal-500 transition-colors">Contact US</a>
-                </nav>
-                <!-- CTA Button -->
-                <div>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="bg-customTeal-800 hover:bg-customTeal-700 text-white px-5 py-1.5 rounded-full text-xs font-bold transition-all shadow-md">
-                            Registrarse
-                        </a>
-                    @else
-                        <span class="bg-customTeal-800 text-white px-5 py-1.5 rounded-full text-xs font-bold">
-                            Acceso
-                        </span>
-                    @endif
-                </div>
-            </header>
+
 
             <!-- Form Wrapper -->
             <div class="w-full max-w-sm mx-auto my-auto py-4">
