@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\BranchController;
+
+Route::resource('branches', BranchController::class);
 
 Route::get('/', function () {
     return redirect()->route('login');
