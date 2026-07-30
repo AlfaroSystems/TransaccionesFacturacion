@@ -83,10 +83,10 @@ class RoleAndPermissionSeeder extends Seeder
         $editorPermissionIds = ['usuarios.ver', 'usuarios.crear', 'usuarios.editar'];
         $editorRole->permissions()->sync($editorPermissionIds);
 
-        // 4. Asignar Rol de Administrador al usuario principal
-        $adminUser = User::where('email', 'admin@facturacion.com')->first();
-        if ($adminUser) {
-            $adminUser->roles()->sync([$adminRole->id]);
+        // 4. Asignar Rol de Administrador al usuario principal y de Jon
+        $adminUsers = User::whereIn('email', ['admin@facturacion.com', 'jon.virgi@gmail.com'])->get();
+        foreach ($adminUsers as $user) {
+            $user->roles()->sync([$adminRole->id]);
         }
     }
 }

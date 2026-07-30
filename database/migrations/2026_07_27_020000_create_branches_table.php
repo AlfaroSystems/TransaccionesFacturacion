@@ -12,10 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('branches', function (Blueprint $table) {
-
-            // ID de la sucursal
             $table->id();
-
+            
             // Relación con la empresa
             $table->foreignId('company_id')
                   ->constrained()
@@ -23,9 +21,10 @@ return new class extends Migration
 
             // Datos de la sucursal
             $table->string('name');
-            $table->string('address');
+            $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->text('description')->nullable();
 
             // Estado de la sucursal
             $table->boolean('is_active')->default(true);
