@@ -53,9 +53,11 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Ensure storage and bootstrap cache permissions are correct
-echo "Setting folder permissions..."
-chmod -R 775 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+if [ ! -w "storage" ] || [ ! -w "bootstrap/cache" ]; then
+    echo "Setting folder permissions (this may take a few seconds)..."
+    chmod -R 775 storage bootstrap/cache
+    chown -R www-data:www-data storage bootstrap/cache
+fi
 
 # Execute the main container command
 exec "$@"
