@@ -79,4 +79,15 @@ class User extends Authenticatable
     {
         return $this->roles->flatMap->permissions->contains('id', $permission);
     }
+
+    /**
+     * Envía la notificación de restablecimiento de contraseña en español con diseño premium.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }

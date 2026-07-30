@@ -53,8 +53,15 @@
             <!-- Form Wrapper -->
             <div class="w-full max-w-sm mx-auto my-auto py-4">
                 
-                <!-- Title Header -->
-                <h2 class="text-xl font-extrabold text-customTeal-800 text-center mb-8">Iniciar Sesión</h2>
+                <!-- Tab Headers -->
+                <div class="flex border-b border-gray-100 mb-8">
+                    <button class="flex-1 text-center pb-3 text-sm font-bold border-b-2 border-customTeal-500 text-customTeal-700">
+                        Iniciar sesión
+                    </button>
+                    <button onclick="window.location.href='{{ route('password.request') }}'" class="flex-1 text-center pb-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-all">
+                        Recuperar contraseña
+                    </button>
+                </div>
 
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
