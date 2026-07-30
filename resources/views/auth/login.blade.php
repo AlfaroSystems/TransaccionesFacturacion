@@ -56,10 +56,10 @@
                 <!-- Tab Headers -->
                 <div class="flex border-b border-gray-100 mb-8">
                     <button class="flex-1 text-center pb-3 text-sm font-bold border-b-2 border-customTeal-500 text-customTeal-700">
-                        Login
+                        Iniciar sesión
                     </button>
                     <button onclick="window.location.href='{{ route('register') }}'" class="flex-1 text-center pb-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition-all">
-                        Sign up
+                        Registrarse
                     </button>
                 </div>
 
@@ -78,7 +78,7 @@
                                 </svg>
                             </span>
                             <input id="email" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 text-gray-700 font-medium" 
-                                   type="email" name="email" :value="old('email')" placeholder="Email or phone number" required autofocus autocomplete="username" />
+                                   type="email" name="email" :value="old('email')" placeholder="Correo electrónico" required autofocus autocomplete="username" />
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs ml-4" />
                     </div>
@@ -92,7 +92,7 @@
                                 </svg>
                             </span>
                             <input id="password" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 text-gray-700 font-medium"
-                                   type="password" name="password" placeholder="Password" required autocomplete="current-password" />
+                                   type="password" name="password" placeholder="Contraseña" required autocomplete="current-password" />
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs ml-4" />
                     </div>
@@ -100,19 +100,19 @@
                     <!-- Remember Me -->
                     <div class="flex items-center ml-4">
                         <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-customTeal-500 shadow-sm focus:ring-customTeal-400" name="remember">
-                        <label for="remember_me" class="ms-2 text-xs text-gray-500 font-medium cursor-pointer">{{ __('Remember me') }}</label>
+                        <label for="remember_me" class="ms-2 text-xs text-gray-500 font-medium cursor-pointer">Recordarme</label>
                     </div>
 
                     <!-- Footer Actions -->
                     <div class="flex items-center justify-between pt-2">
                         @if (Route::has('password.request'))
                             <a class="text-xs text-customTeal-700 hover:text-customTeal-500 hover:underline font-bold transition-all" href="{{ route('password.request') }}">
-                                Forgot your password?
+                                ¿Olvidaste tu contraseña?
                             </a>
                         @endif
 
                         <button type="submit" class="bg-customTeal-500 hover:bg-customTeal-600 text-white rounded-full px-9 py-2.5 text-sm font-bold transition-all shadow-lg shadow-customTeal-500/20 active:scale-95">
-                            Login
+                            Iniciar sesión
                         </button>
                     </div>
                 </form>
@@ -121,7 +121,7 @@
 
             <!-- Footer terms -->
             <footer class="text-center md:text-left">
-                <span class="text-[10px] text-gray-400 font-medium">&copy; 2026 {{ config('app.name', 'Laravel') }}. All rights reserved.</span>
+                <span class="text-[10px] text-gray-400 font-medium">&copy; 2026 {{ config('app.name', 'Laravel') }}. Todos los derechos reservados.</span>
             </footer>
 
         </div>
