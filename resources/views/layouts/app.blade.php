@@ -21,9 +21,9 @@
                         fontFamily: { sans: ['Nunito', 'sans-serif'] },
                         colors: {
                             navy: {
-                                sidebar: '#183162',
-                                active: '#27437c',
-                                800: '#1b2a45'
+                                sidebar: '#005e66', // Deep dark teal
+                                active: '#3cb0a4',  // Primary teal
+                                800: '#00474f'      // Darkest teal
                             }
                         }
                     }
@@ -60,10 +60,9 @@
                 <span class="text-sm font-bold text-white block">{{ auth()->check() ? auth()->user()->name : 'Usuario de Prueba' }}</span>
                 <span class="text-xs text-slate-300 font-semibold mt-1">{{ auth()->check() ? auth()->user()->email : 'correo@ejemplo.com' }}</span>
             </div>
-
             <!-- Menú de Opciones -->
             <nav class="space-y-1.5 px-1">
-                <!-- Dashboard (Activo) -->
+                <!-- Dashboard -->
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('dashboard') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -71,80 +70,40 @@
                     <span>Dashboard</span>
                 </a>
 
-                <!-- Usuarios -->
-                <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('users.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('users.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+
+                <!-- Inventario -->
+                @php
+                    $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
+                @endphp
+                <a href="{{ route('warehouses.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isInventario ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ $isInventario ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
-                    <span>Usuarios</span>
+                    <span>Inventario</span>
                 </a>
 
-                <!-- Empleados -->
-                <a href="{{ route('empleados.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('empleados.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('empleados.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-7 4h10" />
-                    </svg>
-                    <span>Empleados</span>
-                </a>
-
-                <!-- Sucursales -->
-                <a href="{{ route('branches.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('branches.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('branches.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Empresa -->
+                @php
+                    $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*');
+                @endphp
+                <a href="{{ route('branches.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isEmpresa ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ $isEmpresa ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    <span>Sucursales</span>
+                    <span>Empresa</span>
                 </a>
 
-                <!-- Bodegas -->
-                <a href="{{ route('warehouses.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('warehouses.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('warehouses.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4M4 10h16v8H4v-8z" />
+                <!-- Administración -->
+                @php
+                    $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
+                @endphp
+                <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isAdministracion ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ $isAdministracion ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span>Bodegas</span>
+                    <span>Administración</span>
                 </a>
-
-                <!-- Categorías de Bodega -->
-                <a href="{{ route('warehouse_categories.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('warehouse_categories.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('warehouse_categories.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    <span>Categorías de Bodega</span>
-                </a>
-
-                <!-- Ubicaciones -->
-                <a href="{{ route('locations.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>Ubicaciones</span>
-                </a>
-
-                <!-- Mapa de Bodega -->
-                <a href="{{ route('locations.map') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('locations.map') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('locations.map') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                    <span>Mapa de Bodega</span>
-                </a>
-
-                <!-- Roles y Permisos -->
-                <a href="{{ route('roles.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('roles.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('roles.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    <span>Roles y Permisos</span>
-                </a>
-
-                <!-- Bitácora de Auditoría -->
-                @can('bitacora.ver')
-                <a href="{{ route('audit-logs.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('audit-logs.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('audit-logs.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6M12 9v6m-7 6h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span>Bitácora de Logs</span>
-                </a>
-                @endcan
             </nav>
         </div>
 
@@ -165,9 +124,80 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+        @php
+            $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
+            $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
+            $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*');
+        @endphp
+
+        @if($isEmpresa)
+            <!-- Horizontal Submenu for Empresa -->
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                <!-- Tab: Sucursales -->
+                <a href="{{ route('branches.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('branches.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                    <span>Sucursales</span>
+                </a>
+                <!-- Tab: Empleados -->
+                <a href="{{ route('empleados.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('empleados.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-7 4h10" /></svg>
+                    <span>Empleados</span>
+                </a>
+            </div>
+        @endif
+
+        @if($isAdministracion)
+            <!-- Horizontal Submenu for Administración -->
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                <!-- Tab: Usuarios -->
+                <a href="{{ route('users.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('users.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <span>Usuarios</span>
+                </a>
+                <!-- Tab: Roles y Permisos -->
+                <a href="{{ route('roles.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('roles.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    <span>Roles y Permisos</span>
+                </a>
+                <!-- Tab: Bitácora -->
+                @can('bitacora.ver')
+                <a href="{{ route('audit-logs.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('audit-logs.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6M12 9v6m-7 6h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    <span>Bitácora</span>
+                </a>
+                @endcan
+            </div>
+        @endif
+
+        @if($isInventario)
+            <!-- Horizontal Submenu for Inventario -->
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                <!-- Tab: Bodegas -->
+                <a href="{{ route('warehouses.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouses.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l9-4 9 4M4 10h16v8H4v-8z" /></svg>
+                    <span>Bodegas</span>
+                </a>
+                <!-- Tab: Categorías -->
+                <a href="{{ route('warehouse_categories.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouse_categories.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                    <span>Categorías</span>
+                </a>
+                <!-- Tab: Ubicaciones -->
+                <a href="{{ route('locations.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span>Ubicaciones</span>
+                </a>
+                <!-- Tab: Mapa -->
+                <a href="{{ route('locations.map') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.map') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                    <span>Mapa</span>
+                </a>
+            </div>
+        @endif
+
         @isset($header)
             <header class="bg-white shadow mb-6 rounded-xl p-4 border border-slate-100 card-shadow">
-                <div class="max-w-7xl mx-auto">
+                <div class="max-w-7xl mx-auto flex items-center justify-between">
                     {{ $header }}
                 </div>
             </header>
