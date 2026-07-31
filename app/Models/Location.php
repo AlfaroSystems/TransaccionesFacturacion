@@ -50,20 +50,7 @@ class Location extends Model
         return implode(' - ', $parts);
     }
 
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::saving(function ($location) {
-            $location->code = static::generateCode(
-                $location->warehouse_id,
-                $location->pasillo,
-                $location->rack,
-                $location->level,
-                $location->position
-            );
-        });
-    }
 
     /**
      * Relación con el almacén (warehouse) al que pertenece la ubicación.

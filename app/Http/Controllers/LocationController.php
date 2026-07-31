@@ -42,16 +42,6 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.crear');
 
-        // Generar el código automáticamente para validación y almacenamiento
-        $generatedCode = Location::generateCode(
-            $request->warehouse_id,
-            $request->pasillo,
-            $request->rack,
-            $request->level,
-            $request->position
-        );
-        $request->merge(['code' => $generatedCode]);
-
         $request->validate([
             'warehouse_id' => 'required|exists:warehouses,id',
             'code' => 'required|string|max:255|unique:locations,code',
@@ -110,16 +100,6 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.editar');
 
-        // Generar el código automáticamente para validación y almacenamiento
-        $generatedCode = Location::generateCode(
-            $request->warehouse_id,
-            $request->pasillo,
-            $request->rack,
-            $request->level,
-            $request->position
-        );
-        $request->merge(['code' => $generatedCode]);
-
         $request->validate([
             'warehouse_id' => 'required|exists:warehouses,id',
             'code' => 'required|string|max:255|unique:locations,code,' . $location->id,
@@ -161,24 +141,5 @@ class LocationController extends Controller
         return redirect()
             ->route('locations.index')
             ->with('success', 'Ubicación eliminada correctamente.');
-    }
-
-    /**
-     * Mostrar el mapa de la bodega (agrupado por Pasillo y Estante).
-     */
-    public function map()
-    {
-        Gate::authorize('locations.ver');
-
-        $locationsGrouped = Location::with('warehouse')
-            ->where('is_active', true)
-            ->orderBy('pasillo')
-            ->orderBy('rack')
-            ->orderBy('level')
-            ->orderBy('position')
-            ->get()
-            ->groupBy(['pasillo', 'rack']);
-
-        return view('locations.map', compact('locationsGrouped'));
     }
 }

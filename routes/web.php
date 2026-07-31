@@ -38,9 +38,6 @@ Route::middleware('auth')->group(function () {
     // Gestión de Empleados (CRUD) protegida por autenticación
     Route::resource('empleados', EmpleadoController::class);
 
-    // Mapa de Bodega
-    Route::get('locations/map', [LocationController::class, 'map'])->name('locations.map');
-
     // Gestión de Ubicaciones (CRUD) protegida por autenticación
     Route::resource('locations', LocationController::class);
 

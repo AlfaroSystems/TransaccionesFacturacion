@@ -17,10 +17,13 @@ class BranchController extends Controller
 {
     Gate::authorize('branches.ver');
 
-    $branches = Branch::with('company')->get();
+    $branches = Branch::with(['company', 'department', 'municipality', 'district'])->orderBy('id', 'desc')->get();
     $companies = Company::all();
+    $departments = \App\Models\Department::orderBy('name')->get();
+    $municipalities = \App\Models\Municipality::orderBy('name')->get();
+    $districts = \App\Models\District::orderBy('name')->get();
 
-    return view('branches.index', compact('branches', 'companies'));
+    return view('branches.index', compact('branches', 'companies', 'departments', 'municipalities', 'districts'));
 }
 
     /**

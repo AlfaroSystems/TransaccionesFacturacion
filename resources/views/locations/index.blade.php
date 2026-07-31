@@ -29,10 +29,6 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('locations.map') }}"
-               class="bg-slate-700 hover:bg-slate-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
-                <span>🗺️ Ver Mapa de Bodega</span>
-            </a>
             @can('locations.crear')
             <button type="button" onclick="openModal('create-location-modal')"
                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
@@ -189,6 +185,17 @@
                 @enderror
             </div>
 
+            <!-- Código de Ubicación -->
+            <div>
+                <label for="code" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Código de Ubicación *</label>
+                <input type="text" name="code" id="code" value="{{ old('modal_type') === 'create' ? old('code') : '' }}" placeholder="Ej: UB-A1" class="w-full bg-slate-50 border @error('code') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white text-slate-700 font-semibold" required>
+                @error('code')
+                    @if(old('modal_type') === 'create')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <!-- Pasillo -->
                 <div>
@@ -292,6 +299,17 @@
                 @enderror
             </div>
 
+            <!-- Código de Ubicación -->
+            <div>
+                <label for="edit-code" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Código de Ubicación *</label>
+                <input type="text" name="code" id="edit-code" value="{{ old('modal_type') === 'edit' ? old('code') : '' }}" placeholder="Ej: UB-A1" class="w-full bg-slate-50 border @error('code') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white text-slate-700 font-semibold" required>
+                @error('code')
+                    @if(old('modal_type') === 'edit')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <!-- Pasillo -->
                 <div>
@@ -368,6 +386,7 @@
         modal.querySelector('form').action = actionUrl;
         document.getElementById('edit-id').value = location.id;
         document.getElementById('edit-warehouse_id').value = location.warehouse_id;
+        document.getElementById('edit-code').value = location.code || '';
         document.getElementById('edit-pasillo').value = location.pasillo || '';
         document.getElementById('edit-rack').value = location.rack || '';
         document.getElementById('edit-level').value = location.level || '';
@@ -403,6 +422,7 @@
                 const oldLocation = {
                     id: "{{ old('id') }}",
                     warehouse_id: "{{ old('warehouse_id') }}",
+                    code: "{{ old('code') }}",
                     pasillo: "{{ old('pasillo') }}",
                     rack: "{{ old('rack') }}",
                     level: "{{ old('level') }}",

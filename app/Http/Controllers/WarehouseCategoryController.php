@@ -41,7 +41,7 @@ class WarehouseCategoryController extends Controller
         WarehouseCategory::create([
             'name'=>$validated['name'],
             'description'=>$validated['description'] ?? null,
-            'is_active'=>$request->has('is_active')
+            'is_active'=>$request->has('is_active') ? $request->boolean('is_active') : true
         ]);
 
         return redirect()

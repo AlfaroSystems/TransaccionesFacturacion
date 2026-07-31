@@ -23,12 +23,15 @@ class BranchRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'company_id' => 'required|exists:companies,id',
-        'name' => 'required|string|max:255',
-        'address' => 'required|string|max:255',
-        'phone' => 'nullable|string|max:20',
-        'email' => 'nullable|email',
-        'is_active' => 'boolean'
+            'company_id' => 'required|exists:companies,id',
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'department_id' => 'nullable|exists:departments,id',
+            'municipality_id' => 'nullable|exists:municipalities,id',
+            'district_id' => 'nullable|exists:districts,id',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email',
+            'is_active' => 'boolean'
         ];
     }
 }
