@@ -21,10 +21,12 @@ class WarehouseController extends Controller
         ->orderBy('name')
         ->get();
 
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
+        $categories = WarehouseCategory::where('is_active', true)->orderBy('name')->get();
 
         return view(
             'warehouses.index',
-            compact('warehouses')
+            compact('warehouses', 'branches', 'categories')
         );
     }
 

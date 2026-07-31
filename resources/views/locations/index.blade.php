@@ -33,102 +33,384 @@
                class="bg-slate-700 hover:bg-slate-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
                 <span>🗺️ Ver Mapa de Bodega</span>
             </a>
-            <a href="{{ route('locations.create') }}"
+            <button type="button" onclick="openModal('create-location-modal')"
                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
                 <span>+ Nueva Ubicación</span>
-            </a>
+            </button>
         </div>
     </div>
 
     <!-- Tarjeta / Tabla -->
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-4 text-left font-bold text-slate-600 text-sm uppercase tracking-wider">Código Autogenerado</th>
-                        <th class="px-6 py-4 text-left font-bold text-slate-600 text-sm uppercase tracking-wider">Almacén</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Pasillo</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Estante</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Nivel</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Posición</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Capacidad</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-sm uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
+    <section class="overflow-x-auto">
+        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+            <thead>
+                <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <th class="px-6 py-3 pl-10">ID</th>
+                    <th class="px-6 py-3">Código Autogenerado</th>
+                    <th class="px-6 py-3">Almacén</th>
+                    <th class="px-6 py-3 text-center">Pasillo</th>
+                    <th class="px-6 py-3 text-center">Estante</th>
+                    <th class="px-6 py-3 text-center">Nivel</th>
+                    <th class="px-6 py-3 text-center">Posición</th>
+                    <th class="px-6 py-3 text-center">Capacidad</th>
+                    <th class="px-6 py-3 text-center">Estado</th>
+                    <th class="px-6 py-3 text-center">Acciones</th>
+                </tr>
+            </thead>
 
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($locations as $location)
-                    <tr class="hover:bg-blue-50/50 transition">
-                        <td class="px-6 py-4 text-center text-slate-500 font-medium">
-                            {{ $location->id }}
+            <tbody>
+                @forelse($locations as $location)
+                    <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
+                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm text-slate-400 font-bold">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <span>#{{ $location->id }}</span>
+                            </div>
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100">
                             <span class="font-mono bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg text-sm font-semibold border border-slate-200">
                                 {{ $location->code }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-slate-700 font-medium">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-700 font-bold">
                             {{ $location->warehouse->name ?? 'Bodega ' . $location->warehouse_id }}
                         </td>
-                        <td class="px-6 py-4 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
                             {{ $location->pasillo ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
                             {{ $location->rack ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
                             {{ $location->level ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
                             {{ $location->position ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 text-center text-slate-600 font-semibold">
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-700 font-bold">
                             {{ number_format($location->capacity) }}
                         </td>
-                        <td class="px-6 py-4 text-center">
-                            @if($location->is_active)
-                                <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">Activo</span>
-                            @else
-                                <span class="bg-rose-100 text-rose-800 text-xs px-2.5 py-1 rounded-full font-bold">Inactivo</span>
-                            @endif
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $location->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $location->is_active ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+                                {{ $location->is_active ? 'Activo' : 'Inactivo' }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex justify-center items-center gap-2">
-                                <a href="{{ route('locations.show', $location->id) }}"
-                                   class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow transition text-xs font-semibold flex items-center gap-1">
-                                    👁️ Ver
+                                <!-- Ver -->
+                                <a href="{{ route('locations.show', $location->id) }}" class="p-2 text-teal-600 bg-teal-50 hover:bg-teal-100 border border-teal-100/50 rounded-xl transition-all" title="Ver Detalles">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
                                 </a>
-                                <a href="{{ route('locations.edit', $location->id) }}"
-                                   class="bg-amber-500 hover:bg-amber-600 text-white p-2 rounded-lg shadow transition text-xs font-semibold flex items-center gap-1">
-                                    ✏️ Editar
-                                </a>
-                                <form action="{{ route('locations.destroy', $location->id) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('¿Está seguro de que desea eliminar esta ubicación?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="bg-rose-600 hover:bg-rose-700 text-white p-2 rounded-lg shadow transition text-xs font-semibold flex items-center gap-1">
-                                        🗑️ Eliminar
-                                    </button>
-                                </form>
+
+                                <!-- Editar -->
+                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id) }}', {{ json_encode($location) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Ubicación">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+
+                                <!-- Eliminar -->
+                                <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ $location->code }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Eliminar Ubicación">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </div>
                         </td>
                     </tr>
-                    @empty
+                @empty
                     <tr>
-                        <td colspan="10" class="py-12 text-center text-slate-400 text-lg">
+                        <td colspan="10" class="py-12 bg-white rounded-2xl border border-slate-100 text-center text-slate-400 font-semibold shadow-sm">
                             No hay ubicaciones registradas en el sistema.
                         </td>
                     </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                @endforelse
+            </tbody>
+        </table>
+    </section>
+</div>
+
+<!-- MODAL DE REGISTRO DE UBICACIÓN -->
+<div id="create-location-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+        <!-- Close Button -->
+        <button type="button" onclick="closeModal('create-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Registrar Ubicación</h2>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Define las coordenadas espaciales para el inventario.</p>
+            </div>
         </div>
+
+        <form action="{{ route('locations.store') }}" method="POST" class="space-y-4">
+            @csrf
+            <input type="hidden" name="modal_type" value="create">
+
+            <!-- Almacén / Bodega -->
+            <div>
+                <label for="warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
+                <select name="warehouse_id" id="warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <option value="">Seleccione un almacén...</option>
+                    @forelse($warehouses as $warehouse)
+                        <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'create' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
+                            {{ $warehouse->name }}
+                        </option>
+                    @empty
+                        <option value="1">Bodega Principal (Predeterminada)</option>
+                    @endforelse
+                </select>
+                @error('warehouse_id')
+                    @if(old('modal_type') === 'create')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Pasillo -->
+                <div>
+                    <label for="pasillo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
+                    <input type="text" name="pasillo" id="pasillo" value="{{ old('modal_type') === 'create' ? old('pasillo') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+
+                <!-- Estante -->
+                <div>
+                    <label for="rack" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estante (Rack)</label>
+                    <input type="text" name="rack" id="rack" value="{{ old('modal_type') === 'create' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Nivel -->
+                <div>
+                    <label for="level" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nivel (Level)</label>
+                    <input type="text" name="level" id="level" value="{{ old('modal_type') === 'create' ? old('level') : '' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+
+                <!-- Posición -->
+                <div>
+                    <label for="position" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Posición (Position)</label>
+                    <input type="text" name="position" id="position" value="{{ old('modal_type') === 'create' ? old('position') : '' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+            </div>
+
+            <!-- Capacidad -->
+            <div>
+                <label for="capacity" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacidad Máxima *</label>
+                <input type="number" name="capacity" id="capacity" min="0" value="{{ old('modal_type') === 'create' ? old('capacity') : '' }}" placeholder="Ej: 50" class="w-full bg-slate-50 border @error('capacity') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white text-slate-700 font-semibold" required>
+                @error('capacity')
+                    @if(old('modal_type') === 'create')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label for="notes" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas adicionales</label>
+                <textarea name="notes" id="notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#005e66] text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('notes') : '' }}</textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="closeModal('create-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                    Guardar Ubicación
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- MODAL DE EDICIÓN DE UBICACIÓN -->
+<div id="edit-location-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+        <!-- Close Button -->
+        <button type="button" onclick="closeModal('edit-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Editar Ubicación</h2>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Modifica los parámetros de la ubicación física.</p>
+            </div>
+        </div>
+
+        <form action="" method="POST" class="space-y-4">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="modal_type" value="edit">
+            <input type="hidden" name="id" id="edit-id" value="{{ old('modal_type') === 'edit' ? old('id') : '' }}">
+
+            <!-- Almacén / Bodega -->
+            <div>
+                <label for="edit-warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
+                <select name="warehouse_id" id="edit-warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <option value="">Seleccione un almacén...</option>
+                    @foreach($warehouses as $warehouse)
+                        <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'edit' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
+                            {{ $warehouse->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('warehouse_id')
+                    @if(old('modal_type') === 'edit')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Pasillo -->
+                <div>
+                    <label for="edit-pasillo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
+                    <input type="text" name="pasillo" id="edit-pasillo" value="{{ old('modal_type') === 'edit' ? old('pasillo') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+
+                <!-- Estante -->
+                <div>
+                    <label for="edit-rack" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estante (Rack)</label>
+                    <input type="text" name="rack" id="edit-rack" value="{{ old('modal_type') === 'edit' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Nivel -->
+                <div>
+                    <label for="edit-level" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nivel (Level)</label>
+                    <input type="text" name="level" id="edit-level" value="{{ old('modal_type') === 'edit' ? old('level') : '' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+
+                <!-- Posición -->
+                <div>
+                    <label for="edit-position" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Posición (Position)</label>
+                    <input type="text" name="position" id="edit-position" value="{{ old('modal_type') === 'edit' ? old('position') : '' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                </div>
+            </div>
+
+            <!-- Capacidad -->
+            <div>
+                <label for="edit-capacity" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacidad Máxima *</label>
+                <input type="number" name="capacity" id="edit-capacity" min="0" value="{{ old('modal_type') === 'edit' ? old('capacity') : '' }}" placeholder="Ej: 50" class="w-full bg-slate-50 border @error('capacity') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white text-slate-700 font-semibold" required>
+                @error('capacity')
+                    @if(old('modal_type') === 'edit')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label for="edit-notes" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas adicionales</label>
+                <textarea name="notes" id="edit-notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#005e66] text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('notes') : '' }}</textarea>
+            </div>
+
+            <!-- Estado -->
+            <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Estado de la Ubicación</label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" name="is_active" id="edit-is_active" value="1" class="sr-only peer" {{ old('modal_type') === 'edit' ? (old('is_active') ? 'checked' : '') : '' }}>
+                    <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    <span class="text-sm font-semibold text-slate-600" id="edit-is_active_label">Ubicación Activa</span>
+                </label>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="closeModal('edit-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditLocationModal(actionUrl, location) {
+        const modal = document.getElementById('edit-location-modal');
+        modal.querySelector('form').action = actionUrl;
+        document.getElementById('edit-id').value = location.id;
+        document.getElementById('edit-warehouse_id').value = location.warehouse_id;
+        document.getElementById('edit-pasillo').value = location.pasillo || '';
+        document.getElementById('edit-rack').value = location.rack || '';
+        document.getElementById('edit-level').value = location.level || '';
+        document.getElementById('edit-position').value = location.position || '';
+        document.getElementById('edit-capacity').value = location.capacity;
+        document.getElementById('edit-notes').value = location.notes || '';
+        
+        const isActiveChk = document.getElementById('edit-is_active');
+        isActiveChk.checked = location.is_active == 1;
+        
+        const label = document.getElementById('edit-is_active_label');
+        label.textContent = location.is_active == 1 ? 'Ubicación Activa' : 'Ubicación Inactiva';
+        
+        openModal('edit-location-modal');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const isActiveChk = document.getElementById('edit-is_active');
+        const label = document.getElementById('edit-is_active_label');
+        if (isActiveChk && label) {
+            isActiveChk.addEventListener('change', () => {
+                label.textContent = isActiveChk.checked ? 'Ubicación Activa' : 'Ubicación Inactiva';
+            });
+        }
+    });
+</script>
+
+@if($errors->any())
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            @if(old('modal_type') === 'edit')
+                const editRoute = "{{ route('locations.update', old('id', 0)) }}";
+                const oldLocation = {
+                    id: "{{ old('id') }}",
+                    warehouse_id: "{{ old('warehouse_id') }}",
+                    pasillo: "{{ old('pasillo') }}",
+                    rack: "{{ old('rack') }}",
+                    level: "{{ old('level') }}",
+                    position: "{{ old('position') }}",
+                    capacity: "{{ old('capacity') }}",
+                    notes: "{{ old('notes') }}",
+                    is_active: "{{ old('is_active', '0') }}"
+                };
+                openEditLocationModal(editRoute, oldLocation);
+            @else
+                openModal('create-location-modal');
+            @endif
+        });
+    </script>
+@endif
 
 @endsection

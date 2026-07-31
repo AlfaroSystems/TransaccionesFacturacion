@@ -43,8 +43,9 @@ class UserController extends Controller
 
         // Paginación y mantenimiento de los parámetros de búsqueda/filtro
         $users = $query->latest()->paginate(10)->withQueryString();
+        $roles = Role::all();
 
-        return view('users.index', compact('users'));
+        return view('users.index', compact('users', 'roles'));
     }
 
     /**

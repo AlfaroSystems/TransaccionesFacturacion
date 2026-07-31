@@ -14,8 +14,9 @@ class LocationController extends Controller
     public function index()
     {
         $locations = Location::with('warehouse')->orderBy('id', 'desc')->get();
+        $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
 
-        return view('locations.index', compact('locations'));
+        return view('locations.index', compact('locations', 'warehouses'));
     }
 
     /**

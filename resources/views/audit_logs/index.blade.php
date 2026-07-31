@@ -69,140 +69,146 @@
     </section>
 
     <!-- Listado de Logs -->
-    <section class="bg-white rounded-2xl border border-slate-100 card-shadow overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50/50">
-                        <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-wider">Fecha y Hora</th>
-                        <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-wider">Usuario</th>
-                        <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-wider">Controlador</th>
-                        <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-wider">Acción</th>
-                        <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-wider">ID Reg.</th>
-                        <th class="px-6 py-4 text-xs font-extrabold text-slate-400 uppercase tracking-wider text-right">Detalle</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 text-sm">
-                    @forelse($logs as $log)
-                        <tr class="hover:bg-slate-50/30 transition-colors group">
-                            <!-- Fecha y Hora -->
-                            <td class="px-6 py-4 text-slate-500 font-semibold">
-                                {{ $log->created_at ? $log->created_at->format('d/m/Y H:i:s') : 'N/D' }}
-                            </td>
-
-                            <!-- Usuario -->
-                            <td class="px-6 py-4">
-                                @if($log->user)
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-full bg-slate-100 text-navy-sidebar border border-slate-200 flex items-center justify-center font-bold text-xs uppercase">
-                                            {{ substr($log->user->name, 0, 2) }}
-                                        </div>
-                                        <div>
-                                            <span class="font-bold text-slate-700 block">{{ $log->user->name }}</span>
-                                            <span class="text-[10px] text-slate-400 font-semibold">{{ $log->user->email }}</span>
-                                        </div>
-                                    </div>
-                                @else
-                                    <span class="text-slate-400 font-semibold italic">Sistema / Consola</span>
-                                @endif
-                            </td>
-
-                            <!-- Controlador -->
-                            <td class="px-6 py-4 text-slate-600 font-bold">
-                                {{ $log->controller }}
-                            </td>
-
-                            <!-- Acción -->
-                            <td class="px-6 py-4">
-                                @if(in_array($log->action, ['created', 'store', 'assign_role']))
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
-                                        {{ $log->action }}
-                                    </span>
-                                @elseif(in_array($log->action, ['updated', 'update', 'sync_role']))
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10">
-                                        {{ $log->action }}
-                                    </span>
-                                @elseif(in_array($log->action, ['deleted', 'destroy']))
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/10">
-                                        {{ $log->action }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/10">
-                                        {{ $log->action }}
-                                    </span>
-                                @endif
-                            </td>
-
-                            <!-- Registro ID -->
-                            <td class="px-6 py-4 text-slate-500 font-bold">
-                                #{{ $log->id_record ?? 'N/D' }}
-                            </td>
-
-                            <!-- Botón Ver Detalles -->
-                            <td class="px-6 py-4 text-right">
-                                <button type="button" onclick="toggleDetails({{ $log->id }})" class="px-3.5 py-1.5 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl text-xs font-bold hover:bg-navy-sidebar hover:text-white hover:border-navy-sidebar transition-all flex items-center gap-1.5 ml-auto">
-                                    <span>Inspeccionar</span>
-                                    <svg id="icon-{{ $log->id }}" class="w-3 h-3 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+    <section class="overflow-x-auto">
+        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+            <thead>
+                <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    <th class="px-6 py-3 pl-10">Fecha y Hora</th>
+                    <th class="px-6 py-3">Usuario</th>
+                    <th class="px-6 py-3">Controlador</th>
+                    <th class="px-6 py-3">Acción</th>
+                    <th class="px-6 py-3">ID Reg.</th>
+                    <th class="px-6 py-3 text-right">Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($logs as $log)
+                    <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
+                        <!-- Fecha y Hora -->
+                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-slate-500 font-semibold">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                </button>
-                            </td>
-                        </tr>
+                                </div>
+                                <span>{{ $log->created_at ? $log->created_at->format('d/m/Y H:i:s') : 'N/D' }}</span>
+                            </div>
+                        </td>
 
-                        <!-- Fila de Detalles Oculta / Expandible -->
-                        <tr id="details-{{ $log->id }}" class="hidden bg-slate-50/30">
-                            <td colspan="6" class="px-6 py-5 border-t border-b border-slate-100">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in duration-200">
-                                    <!-- Datos Originales -->
-                                    <div class="bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-                                        <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                                            Estado Original (Antes)
-                                        </h4>
-                                        @if($log->original_data && count($log->original_data) > 0)
-                                            <pre class="text-xs text-slate-700 bg-slate-50/70 p-3 rounded-lg font-mono overflow-x-auto max-h-56 leading-relaxed select-all">@json($log->original_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
-                                        @else
-                                            <div class="text-xs text-slate-400 font-semibold italic bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 text-center">
-                                                Sin datos anteriores o registro nuevo.
-                                            </div>
-                                        @endif
+                        <!-- Usuario -->
+                        <td class="px-6 py-4 bg-white border-y border-slate-100">
+                            @if($log->user)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-full bg-slate-100 text-navy-sidebar border border-slate-200 flex items-center justify-center font-bold text-xs uppercase">
+                                        {{ substr($log->user->name, 0, 2) }}
                                     </div>
-
-                                    <!-- Datos Modificados -->
-                                    <div class="bg-white p-4 rounded-xl border border-slate-150 shadow-sm">
-                                        <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                            <span class="w-2 h-2 rounded-full bg-navy-sidebar animate-pulse"></span>
-                                            Nuevos Datos Guardados (Después)
-                                        </h4>
-                                        @if($log->modified_data && count($log->modified_data) > 0)
-                                            <pre class="text-xs text-slate-700 bg-slate-50/70 p-3 rounded-lg font-mono overflow-x-auto max-h-56 leading-relaxed select-all">@json($log->modified_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
-                                        @else
-                                            <div class="text-xs text-slate-400 font-semibold italic bg-slate-50 p-3 rounded-lg border border-dashed border-slate-200 text-center">
-                                                Sin datos nuevos (por ejemplo, eliminación).
-                                            </div>
-                                        @endif
+                                    <div>
+                                        <span class="font-bold text-slate-700 block">{{ $log->user->name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-semibold">{{ $log->user->email }}</span>
                                     </div>
                                 </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-12">
-                                <div class="flex flex-col items-center justify-center">
-                                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6M12 9v6m-7 6h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <h3 class="text-slate-600 font-bold">No se encontraron logs de auditoría</h3>
-                                    <p class="text-slate-400 text-xs mt-1">Intente ajustar los filtros de búsqueda.</p>
+                            @else
+                                <span class="text-slate-400 font-semibold italic">Sistema / Consola</span>
+                            @endif
+                        </td>
+
+                        <!-- Controlador -->
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-600 font-bold">
+                            {{ $log->controller }}
+                        </td>
+
+                        <!-- Acción -->
+                        <td class="px-6 py-4 bg-white border-y border-slate-100">
+                            @if(in_array($log->action, ['created', 'store', 'assign_role']))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
+                                    {{ $log->action }}
+                                </span>
+                            @elseif(in_array($log->action, ['updated', 'update', 'sync_role']))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10">
+                                    {{ $log->action }}
+                                </span>
+                            @elseif(in_array($log->action, ['deleted', 'destroy']))
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/10">
+                                    {{ $log->action }}
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-500/10">
+                                    {{ $log->action }}
+                                </span>
+                            @endif
+                        </td>
+
+                        <!-- Registro ID -->
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-500 font-bold">
+                            #{{ $log->id_record ?? 'N/D' }}
+                        </td>
+
+                        <!-- Botón Ver Detalles -->
+                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
+                            <button type="button" onclick="toggleDetails({{ $log->id }})" class="px-3 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ml-auto">
+                                <span>Inspeccionar</span>
+                                <svg id="icon-{{ $log->id }}" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Fila de Detalles Oculta / Expandible -->
+                    <tr id="details-{{ $log->id }}" class="hidden">
+                        <td colspan="6" class="px-6 py-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in duration-200">
+                                <!-- Datos Originales -->
+                                <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-150">
+                                    <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                        Estado Original (Antes)
+                                    </h4>
+                                    @if($log->original_data && count($log->original_data) > 0)
+                                        <pre class="text-xs text-slate-700 bg-white p-3 rounded-lg font-mono overflow-x-auto max-h-56 border border-slate-100 leading-relaxed select-all">@json($log->original_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
+                                    @else
+                                        <div class="text-xs text-slate-400 font-semibold italic bg-white p-3 rounded-lg border border-dashed border-slate-200 text-center">
+                                            Sin datos anteriores o registro nuevo.
+                                        </div>
+                                    @endif
                                 </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+
+                                <!-- Datos Modificados -->
+                                <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-150">
+                                    <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                                        <span class="w-2 h-2 rounded-full bg-[#005e66] animate-pulse"></span>
+                                        Nuevos Datos Guardados (Después)
+                                    </h4>
+                                    @if($log->modified_data && count($log->modified_data) > 0)
+                                        <pre class="text-xs text-slate-700 bg-white p-3 rounded-lg font-mono overflow-x-auto max-h-56 border border-slate-100 leading-relaxed select-all">@json($log->modified_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
+                                    @else
+                                        <div class="text-xs text-slate-400 font-semibold italic bg-white p-3 rounded-lg border border-dashed border-slate-200 text-center">
+                                            Sin datos nuevos (por ejemplo, eliminación).
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6M12 9v6m-7 6h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-slate-600 font-bold">No se encontraron logs de auditoría</h3>
+                                <p class="text-slate-400 text-xs mt-1">Intente ajustar los filtros de búsqueda.</p>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </section>
 
         <!-- Enlaces de Paginación -->
         @if($logs->hasPages())

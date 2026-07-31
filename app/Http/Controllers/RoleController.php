@@ -18,9 +18,10 @@ class RoleController extends Controller
         Gate::authorize('roles.administrar');
 
         // Paginación de roles cargando el conteo de permisos y usuarios
-        $roles = Role::withCount(['permissions', 'users'])->paginate(10);
+        $roles = Role::with(['permissions'])->withCount(['permissions', 'users'])->paginate(10);
+        $permissions = Permission::all();
 
-        return view('roles.index', compact('roles'));
+        return view('roles.index', compact('roles', 'permissions'));
     }
 
     /**

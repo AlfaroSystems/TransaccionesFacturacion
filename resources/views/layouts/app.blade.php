@@ -47,10 +47,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row font-sans overflow-x-hidden">
+<body class="min-h-screen md:h-screen md:overflow-hidden flex flex-col md:flex-row font-sans overflow-x-hidden">
 
     <!-- BARRA LATERAL -->
-    <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:min-h-screen sidebar-shadow text-white">
+    <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:h-screen md:min-h-0 flex-shrink-0 sidebar-shadow text-white">
         <div>
             <!-- Header con Logo y Usuario Autenticado -->
             <div class="flex flex-col items-center text-center mt-4 mb-8 border-b border-white/10 pb-6">
@@ -209,5 +209,103 @@
         @endif
     </main>
 
+    <!-- MODAL DE ELIMINACIÓN GLOBAL -->
+    <div id="global-delete-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200" id="global-delete-card">
+            <!-- Icono de Advertencia -->
+            <div class="w-16 h-16 rounded-full border-2 border-orange-400 flex items-center justify-center mx-auto text-orange-400 mb-6">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            
+            <!-- Título -->
+            <h3 class="text-xl font-bold text-slate-800 mb-2" id="global-delete-title">¿Eliminar Registro?</h3>
+            
+            <!-- Descripción -->
+            <p class="text-slate-500 text-sm mb-8" id="global-delete-description">Estás a punto de eliminar este registro de forma permanente. Esta acción no se puede deshacer.</p>
+            
+            <!-- Botones -->
+            <div class="flex justify-center gap-3">
+                <button type="button" onclick="closeGlobalDeleteModal()" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-all">
+                    Cancelar
+                </button>
+                <form id="global-delete-form" action="" method="POST" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-6 py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl text-sm transition-all shadow-md">
+                        Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE MANEJO DE MODALES GLOBAL -->
+    <script>
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Si el modal contiene una tarjeta que queremos animar
+            const card = modal.querySelector('.transform');
+            if (card) {
+                setTimeout(() => {
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                }, 10);
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            
+            const card = modal.querySelector('.transform');
+            if (card) {
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 150);
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function confirmDelete(actionUrl, resourceName, descriptionText = null) {
+            const modal = document.getElementById('global-delete-modal');
+            const card = document.getElementById('global-delete-card');
+            const form = document.getElementById('global-delete-form');
+            const title = document.getElementById('global-delete-title');
+            const desc = document.getElementById('global-delete-description');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            form.action = actionUrl;
+            title.textContent = `¿Eliminar ${resourceName}?`;
+            if (descriptionText) {
+                desc.textContent = descriptionText;
+                submitBtn.textContent = 'Sí, desactivar';
+            } else {
+                desc.textContent = `Estás a punto de eliminar el registro de '${resourceName}'. Esta acción no se puede deshacer.`;
+                submitBtn.textContent = 'Sí, eliminar';
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeGlobalDeleteModal() {
+            closeModal('global-delete-modal');
+        }
+    </script>
 </body>
 </html>

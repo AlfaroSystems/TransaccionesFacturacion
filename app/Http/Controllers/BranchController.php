@@ -15,8 +15,9 @@ class BranchController extends Controller
    public function index()
 {
     $branches = Branch::with('company')->get();
+    $companies = Company::all();
 
-    return view('branches.index', compact('branches'));
+    return view('branches.index', compact('branches', 'companies'));
 }
 
     /**
