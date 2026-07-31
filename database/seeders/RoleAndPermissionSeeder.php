@@ -64,27 +64,13 @@ class RoleAndPermissionSeeder extends Seeder
             ['description' => 'Administrador General del Sistema con acceso total.']
         );
 
-        $editorRole = Role::updateOrCreate(
-            ['name' => 'editor'],
-            ['description' => 'Editor de contenido y gestión básica de usuarios.']
-        );
-
-        $userRole = Role::updateOrCreate(
-            ['name' => 'user'],
-            ['description' => 'Usuario regular / Lector con permisos básicos.']
-        );
-
         // 3. Asignar Permisos a Roles
         // El administrador obtiene todos los permisos
         $allPermissionIds = Permission::pluck('id')->toArray();
         $adminRole->permissions()->sync($allPermissionIds);
 
-        // El editor obtiene solo permisos de ver, crear y editar usuarios
-        $editorPermissionIds = ['usuarios.ver', 'usuarios.crear', 'usuarios.editar'];
-        $editorRole->permissions()->sync($editorPermissionIds);
-
         // 4. Asignar Rol de Administrador al usuario principal y de Jon
-        $adminUsers = User::whereIn('email', ['admin@facturacion.com', 'jon.virgi@gmail.com'])->get();
+        $adminUsers = User::whereIn('email', ['jon.virgi@gmail.com'])->get();
         foreach ($adminUsers as $user) {
             $user->roles()->sync([$adminRole->id]);
         }
