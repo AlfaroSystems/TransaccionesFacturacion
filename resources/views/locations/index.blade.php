@@ -168,13 +168,11 @@
                 <label for="warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
                 <select name="warehouse_id" id="warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
-                    @forelse($warehouses as $warehouse)
+                    @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'create' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
                             {{ $warehouse->name }}
                         </option>
-                    @empty
-                        <option value="1">Bodega Principal (Predeterminada)</option>
-                    @endforelse
+                    @endforeach
                 </select>
                 @error('warehouse_id')
                     @if(old('modal_type') === 'create')

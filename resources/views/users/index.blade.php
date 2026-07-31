@@ -66,9 +66,11 @@
                 <label for="role" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol</label>
                 <select name="role" id="role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todos los Roles</option>
-                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Administrador</option>
-                    <option value="editor" {{ request('role') === 'editor' ? 'selected' : '' }}>Editor</option>
-                    <option value="user" {{ request('role') === 'user' ? 'selected' : '' }}>Usuario</option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>
+                            {{ ucfirst($role->name) }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
