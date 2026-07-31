@@ -26,12 +26,14 @@
             <p class="text-slate-400 text-sm font-semibold mt-1">Administra los locales físicos y los puntos de operación de tu empresa.</p>
         </div>
 
+        @can('branches.crear')
         <button type="button" onclick="openModal('create-branch-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
             <span>Crear Nueva Sucursal</span>
         </button>
+        @endcan
     </header>
 
     <!-- Listado de Sucursales -->
@@ -79,18 +81,22 @@
                         <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <!-- Editar -->
+                                @can('branches.editar')
                                 <button type="button" onclick="openEditBranchModal('{{ route('branches.update', $branch) }}', {{ json_encode($branch) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Sucursal">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </button>
+                                @endcan
 
                                 <!-- Eliminar -->
+                                @can('branches.eliminar')
                                 <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ $branch->name }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Eliminar Sucursal">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
+                                @endcan
                             </div>
                         </td>
                     </tr>

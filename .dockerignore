@@ -24,6 +24,7 @@ storage/framework/views/*.php
 storage/framework/testing/*
 storage/logs/*.log
 bootstrap/cache/*.php
+public/storage
 
 # Docker files themselves
 docker-compose*.yml

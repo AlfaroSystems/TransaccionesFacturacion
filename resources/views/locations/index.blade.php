@@ -33,10 +33,12 @@
                class="bg-slate-700 hover:bg-slate-800 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
                 <span>🗺️ Ver Mapa de Bodega</span>
             </a>
+            @can('locations.crear')
             <button type="button" onclick="openModal('create-location-modal')"
                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
                 <span>+ Nueva Ubicación</span>
             </button>
+            @endcan
         </div>
     </div>
 
@@ -104,26 +106,32 @@
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex justify-center items-center gap-2">
                                 <!-- Ver -->
+                                @can('locations.ver')
                                 <a href="{{ route('locations.show', $location->id) }}" class="p-2 text-teal-600 bg-teal-50 hover:bg-teal-100 border border-teal-100/50 rounded-xl transition-all" title="Ver Detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                 </a>
+                                @endcan
 
                                 <!-- Editar -->
+                                @can('locations.editar')
                                 <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id) }}', {{ json_encode($location) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Ubicación">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </button>
+                                @endcan
 
                                 <!-- Eliminar -->
+                                @can('locations.eliminar')
                                 <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ $location->code }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Eliminar Ubicación">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
+                                @endcan
                             </div>
                         </td>
                     </tr>

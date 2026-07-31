@@ -16,6 +16,7 @@ class RoleAndPermissionSeeder extends Seeder
     {
         // 1. Crear Permisos
         $permissions = [
+            // Usuarios
             [
                 'id' => 'usuarios.ver',
                 'name' => 'Ver Usuarios',
@@ -40,6 +41,7 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar usuarios del sistema.',
                 'action' => 'destroy'
             ],
+            // Roles y Bitácora
             [
                 'id' => 'roles.administrar',
                 'name' => 'Administrar Roles y Permisos',
@@ -51,6 +53,156 @@ class RoleAndPermissionSeeder extends Seeder
                 'name' => 'Ver Bitácora de Logs',
                 'description' => 'Permite revisar la bitácora de auditoría de actividad del sistema.',
                 'action' => 'logs'
+            ],
+            // Empleados
+            [
+                'id' => 'empleados.ver',
+                'name' => 'Ver Empleados',
+                'description' => 'Permite ver el listado y detalle de los empleados.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'empleados.crear',
+                'name' => 'Crear Empleados',
+                'description' => 'Permite registrar nuevos empleados.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'empleados.editar',
+                'name' => 'Editar Empleados',
+                'description' => 'Permite modificar la información de los empleados.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'empleados.eliminar',
+                'name' => 'Eliminar Empleados',
+                'description' => 'Permite eliminar empleados del sistema.',
+                'action' => 'destroy'
+            ],
+            // Sucursales
+            [
+                'id' => 'branches.ver',
+                'name' => 'Ver Sucursales',
+                'description' => 'Permite ver el listado y detalle de las sucursales.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'branches.crear',
+                'name' => 'Crear Sucursales',
+                'description' => 'Permite registrar nuevas sucursales.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'branches.editar',
+                'name' => 'Editar Sucursales',
+                'description' => 'Permite modificar la información de las sucursales.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'branches.eliminar',
+                'name' => 'Eliminar Sucursales',
+                'description' => 'Permite eliminar sucursales del sistema.',
+                'action' => 'destroy'
+            ],
+            // Bodegas
+            [
+                'id' => 'warehouses.ver',
+                'name' => 'Ver Bodegas',
+                'description' => 'Permite ver el listado y detalle de las bodegas.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'warehouses.crear',
+                'name' => 'Crear Bodegas',
+                'description' => 'Permite registrar nuevas bodegas.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'warehouses.editar',
+                'name' => 'Editar Bodegas',
+                'description' => 'Permite modificar la información de las bodegas.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'warehouses.eliminar',
+                'name' => 'Eliminar Bodegas',
+                'description' => 'Permite eliminar bodegas del sistema.',
+                'action' => 'destroy'
+            ],
+            // Categorías de Bodega
+            [
+                'id' => 'warehouse_categories.ver',
+                'name' => 'Ver Categorías de Bodegas',
+                'description' => 'Permite ver el listado de categorías de bodegas.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'warehouse_categories.crear',
+                'name' => 'Crear Categorías de Bodegas',
+                'description' => 'Permite registrar nuevas categorías de bodegas.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'warehouse_categories.editar',
+                'name' => 'Editar Categorías de Bodegas',
+                'description' => 'Permite modificar las categorías de bodegas.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'warehouse_categories.eliminar',
+                'name' => 'Eliminar Categorías de Bodegas',
+                'description' => 'Permite eliminar categorías de bodegas.',
+                'action' => 'destroy'
+            ],
+            // Ubicaciones
+            [
+                'id' => 'locations.ver',
+                'name' => 'Ver Ubicaciones y Mapa',
+                'description' => 'Permite ver el listado y mapa de ubicaciones físicas de bodega.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'locations.crear',
+                'name' => 'Crear Ubicaciones',
+                'description' => 'Permite crear nuevas ubicaciones físicas.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'locations.editar',
+                'name' => 'Editar Ubicaciones',
+                'description' => 'Permite modificar ubicaciones físicas existentes.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'locations.eliminar',
+                'name' => 'Eliminar Ubicaciones',
+                'description' => 'Permite eliminar ubicaciones físicas.',
+                'action' => 'destroy'
+            ],
+            // Empresas
+            [
+                'id' => 'companies.ver',
+                'name' => 'Ver Empresas',
+                'description' => 'Permite ver el listado y detalle de las empresas.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'companies.crear',
+                'name' => 'Crear Empresas',
+                'description' => 'Permite registrar nuevas empresas.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'companies.editar',
+                'name' => 'Editar Empresas',
+                'description' => 'Permite modificar la información de las empresas.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'companies.eliminar',
+                'name' => 'Eliminar Empresas',
+                'description' => 'Permite eliminar empresas del sistema.',
+                'action' => 'destroy'
             ]
         ];
 

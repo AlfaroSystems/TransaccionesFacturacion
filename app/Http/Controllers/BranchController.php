@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Branch;
 use App\Models\Company;
 use App\Http\Requests\BranchRequest;
+use Illuminate\Support\Facades\Gate;
 
 class BranchController extends Controller
 {
@@ -14,6 +15,8 @@ class BranchController extends Controller
      */
    public function index()
 {
+    Gate::authorize('branches.ver');
+
     $branches = Branch::with('company')->get();
     $companies = Company::all();
 
@@ -25,6 +28,8 @@ class BranchController extends Controller
      */
    public function create()
 {
+    Gate::authorize('branches.crear');
+
     $companies = Company::all();
 
     return view('branches.create', compact('companies'));
@@ -35,6 +40,8 @@ class BranchController extends Controller
      */
     public function store(BranchRequest $request)
 {
+    Gate::authorize('branches.crear');
+
     Branch::create($request->validated());
 
     return redirect()
@@ -47,6 +54,8 @@ class BranchController extends Controller
      */
    public function show(Branch $branch)
 {
+    Gate::authorize('branches.ver');
+
     return view('branches.show', compact('branch'));
 }
 
@@ -55,6 +64,8 @@ class BranchController extends Controller
      */
 public function edit(Branch $branch)
 {
+    Gate::authorize('branches.editar');
+
     $companies = Company::all();
 
     return view('branches.edit', compact('branch', 'companies'));
@@ -64,6 +75,8 @@ public function edit(Branch $branch)
      */
    public function update(BranchRequest $request, Branch $branch)
 {
+    Gate::authorize('branches.editar');
+
     $branch->update($request->validated());
 
     return redirect()
@@ -76,6 +89,8 @@ public function edit(Branch $branch)
      */
     public function destroy(Branch $branch)
 {
+    Gate::authorize('branches.eliminar');
+
     $branch->delete();
 
     return redirect()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class LocationController extends Controller
 {
@@ -13,6 +14,8 @@ class LocationController extends Controller
      */
     public function index()
     {
+        Gate::authorize('locations.ver');
+
         $locations = Location::with('warehouse')->orderBy('id', 'desc')->get();
         $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
 
@@ -24,6 +27,8 @@ class LocationController extends Controller
      */
     public function create()
     {
+        Gate::authorize('locations.crear');
+
         // Si el modelo Warehouse no existe aún en el sistema, manejamos una colección vacía.
         $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
 
@@ -35,6 +40,8 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('locations.crear');
+
         // Generar el código automáticamente para validación y almacenamiento
         $generatedCode = Location::generateCode(
             $request->warehouse_id,
@@ -79,6 +86,8 @@ class LocationController extends Controller
      */
     public function show(Location $location)
     {
+        Gate::authorize('locations.ver');
+
         $location->load('warehouse');
         return view('locations.show', compact('location'));
     }
@@ -88,6 +97,8 @@ class LocationController extends Controller
      */
     public function edit(Location $location)
     {
+        Gate::authorize('locations.editar');
+
         $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
         return view('locations.edit', compact('location', 'warehouses'));
     }
@@ -97,6 +108,8 @@ class LocationController extends Controller
      */
     public function update(Request $request, Location $location)
     {
+        Gate::authorize('locations.editar');
+
         // Generar el código automáticamente para validación y almacenamiento
         $generatedCode = Location::generateCode(
             $request->warehouse_id,
@@ -141,6 +154,8 @@ class LocationController extends Controller
      */
     public function destroy(Location $location)
     {
+        Gate::authorize('locations.eliminar');
+
         $location->delete();
 
         return redirect()
@@ -153,6 +168,8 @@ class LocationController extends Controller
      */
     public function map()
     {
+        Gate::authorize('locations.ver');
+
         $locationsGrouped = Location::with('warehouse')
             ->where('is_active', true)
             ->orderBy('pasillo')

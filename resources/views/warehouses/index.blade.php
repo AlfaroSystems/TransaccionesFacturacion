@@ -17,9 +17,11 @@
             </p>
         </div>
 
+        @can('warehouses.crear')
         <button type="button" onclick="openModal('create-warehouse-modal')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition">
             + Nueva Bodega
         </button>
+        @endcan
     </div>
 
     @if(session('success'))
@@ -76,18 +78,22 @@
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex justify-center gap-2">
                                 <!-- Editar -->
+                                @can('warehouses.editar')
                                 <button type="button" onclick="openEditWarehouseModal('{{ route('warehouses.update', $warehouse->id) }}', {{ json_encode($warehouse) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Bodega">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </button>
+                                @endcan
 
                                 <!-- Eliminar -->
+                                @can('warehouses.eliminar')
                                 <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ $warehouse->name }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Eliminar Bodega">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
+                                @endcan
                             </div>
                         </td>
                     </tr>

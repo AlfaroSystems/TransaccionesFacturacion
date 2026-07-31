@@ -6,6 +6,7 @@ use App\Models\Warehouse;
 use App\Models\Branch;
 use App\Models\WarehouseCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class WarehouseController extends Controller
 {
@@ -13,6 +14,7 @@ class WarehouseController extends Controller
 
     public function index()
     {
+        Gate::authorize('warehouses.ver');
 
         $warehouses = Warehouse::with([
             'branch',
@@ -34,6 +36,7 @@ class WarehouseController extends Controller
 
     public function create()
     {
+        Gate::authorize('warehouses.crear');
 
         $branches = Branch::where('is_active',true)
             ->orderBy('name')
@@ -59,6 +62,7 @@ class WarehouseController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('warehouses.crear');
 
 
         $validated = $request->validate([
@@ -100,6 +104,7 @@ class WarehouseController extends Controller
 
     public function edit(Warehouse $warehouse)
     {
+        Gate::authorize('warehouses.editar');
 
 
         $branches = Branch::where('is_active',true)
@@ -133,6 +138,7 @@ class WarehouseController extends Controller
         Warehouse $warehouse
     )
     {
+        Gate::authorize('warehouses.editar');
 
 
         $validated=$request->validate([
@@ -174,6 +180,7 @@ class WarehouseController extends Controller
 
     public function destroy(Warehouse $warehouse)
     {
+        Gate::authorize('warehouses.eliminar');
 
         $warehouse->delete();
 

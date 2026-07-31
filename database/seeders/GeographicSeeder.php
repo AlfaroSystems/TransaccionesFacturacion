@@ -278,36 +278,63 @@ class GeographicSeeder extends Seeder
             ],
         ];
 
-        // Recorrer e insertar datos de departamentos, municipios y distritos
+        // Recorrer e insertar datos masivamente
+        // 1. Insertar Departamentos
+        $departmentsData = [];
         foreach ($data as $deptCode => $deptInfo) {
-            $department = Department::firstOrCreate(
-                ['code' => $deptCode],
-                [
-                    'name' => $deptInfo['name'],
-                    'short_name' => $deptInfo['short']
-                ]
-            );
+            $departmentsData[] = [
+                'code' => $deptCode,
+                'name' => $deptInfo['name'],
+                'short_name' => $deptInfo['short'],
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        }
+        Department::insert($departmentsData);
 
+        // Mapear código de departamento -> ID
+        $departmentsMap = Department::pluck('id', 'code')->toArray();
+
+        // 2. Insertar Municipios
+        $municipalitiesData = [];
+        foreach ($data as $deptCode => $deptInfo) {
+            $deptId = $departmentsMap[$deptCode];
             foreach ($deptInfo['municipalities'] as $muniCode => $muniInfo) {
-                $municipality = Municipality::firstOrCreate(
-                    ['code' => $muniCode],
-                    [
-                        'department_id' => $department->id,
-                        'name' => $muniInfo['name']
-                    ]
-                );
+                $municipalitiesData[] = [
+                    'code' => $muniCode,
+                    'department_id' => $deptId,
+                    'name' => $muniInfo['name'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+        }
+        Municipality::insert($municipalitiesData);
 
+        // Mapear código de municipio -> ID
+        $municipalitiesMap = Municipality::pluck('id', 'code')->toArray();
+
+        // 3. Insertar Distritos
+        $districtsData = [];
+        foreach ($data as $deptCode => $deptInfo) {
+            foreach ($deptInfo['municipalities'] as $muniCode => $muniInfo) {
+                $muniId = $municipalitiesMap[$muniCode];
                 foreach ($muniInfo['districts'] as $index => $districtName) {
                     $distCode = $muniCode . str_pad($index + 1, 2, '0', STR_PAD_LEFT);
-                    District::firstOrCreate(
-                        ['code' => $distCode],
-                        [
-                            'municipality_id' => $municipality->id,
-                            'name' => $districtName
-                        ]
-                    );
+                    $districtsData[] = [
+                        'code' => $distCode,
+                        'municipality_id' => $muniId,
+                        'name' => $districtName,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
                 }
             }
+        }
+
+        // Insertar en lotes de 100 para evitar límites de parámetros SQL
+        foreach (array_chunk($districtsData, 100) as $chunk) {
+            District::insert($chunk);
         }
     }
 }

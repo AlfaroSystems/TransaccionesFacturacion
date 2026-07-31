@@ -9,6 +9,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\CompanyController;
 
 Route::resource('branches', BranchController::class);
 
@@ -25,6 +26,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
+    // Gestión de Empresas (CRUD) protegida por autenticación y permisos
+    Route::resource('companies', CompanyController::class);
+
     // Gestión de Usuarios (CRUD) protegida por autenticación
     Route::resource('users', UserController::class);
 

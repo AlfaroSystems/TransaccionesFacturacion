@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Empleado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class EmpleadoController extends Controller
 {
@@ -12,6 +13,8 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
+        Gate::authorize('empleados.ver');
+
         $empleados = Empleado::orderBy('id', 'desc')->get();
 
         return view('empleados.index', compact('empleados'));
@@ -22,6 +25,8 @@ class EmpleadoController extends Controller
      */
     public function create()
     {
+        Gate::authorize('empleados.crear');
+
         return view('empleados.create');
     }
 
@@ -30,6 +35,8 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('empleados.crear');
+
         $request->validate([
             'nombre_completo' => 'required|max:150',
             'correo' => 'required|email|unique:empleados',
@@ -54,6 +61,8 @@ class EmpleadoController extends Controller
      */
     public function show(Empleado $empleado)
     {
+        Gate::authorize('empleados.ver');
+
         return view('empleados.show', compact('empleado'));
     }
 
@@ -62,6 +71,8 @@ class EmpleadoController extends Controller
      */
     public function edit(Empleado $empleado)
     {
+        Gate::authorize('empleados.editar');
+
         return view('empleados.edit', compact('empleado'));
     }
 
@@ -70,6 +81,8 @@ class EmpleadoController extends Controller
      */
     public function update(Request $request, Empleado $empleado)
     {
+        Gate::authorize('empleados.editar');
+
         $request->validate([
             'nombre_completo' => 'required|max:150',
             'correo' => 'required|email|unique:empleados,correo,' . $empleado->id,
@@ -94,6 +107,8 @@ class EmpleadoController extends Controller
      */
     public function destroy(Empleado $empleado)
     {
+        Gate::authorize('empleados.eliminar');
+
         $empleado->delete();
 
         return redirect()
