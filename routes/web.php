@@ -10,6 +10,13 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\SupplierController;
+
+
+Route::resource(
+    'suppliers',
+    SupplierController::class
+);
 
 Route::resource('branches', BranchController::class);
 

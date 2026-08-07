@@ -97,6 +97,29 @@
                 </a>
                 @endcanany
 
+                <!-- Proveedores -->
+               @php
+                $isSupplier = request()->routeIs('suppliers.*');
+               @endphp
+
+              @can('suppliers.ver')
+             <a href="{{ route('suppliers.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isSupplier ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+
+                <svg class="w-5 h-5 {{ $isSupplier ? 'text-white' : 'text-slate-400' }}"
+                   fill="none"
+                   stroke="currentColor"
+                   viewBox="0 0 24 24">
+                  <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+                </svg>
+
+                <span>Proveedores</span>
+              </a>
+                @endcan
+
                 <!-- Administración -->
                 @php
                     $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');

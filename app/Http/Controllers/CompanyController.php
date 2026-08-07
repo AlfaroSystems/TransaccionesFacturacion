@@ -11,13 +11,33 @@ class CompanyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('companies.ver');
 
-        $companies = Company::orderBy('id', 'desc')->get();
-        
-        // Cargar datos geográficos para los dropdowns de El Salvador
+        $search = trim((string) $request->input('search', ''));
+
+        $companies = Company::query()
+            ->with([
+                'department:id,name',
+                'municipality:id,name',
+                'district:id,name',
+            ])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($companyQuery) use ($search) {
+                    $companyQuery->where('name', 'like', "%{$search}%")
+                        ->orWhere('commercial_name', 'like', "%{$search}%")
+                        ->orWhere('nit', 'like', "%{$search}%")
+                        ->orWhere('nrc', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        // Cargar datos geográficos para los dropdowns de El Salvador.
         $departments = \App\Models\Department::orderBy('name')->get();
         $municipalities = \App\Models\Municipality::orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
@@ -58,19 +78,19 @@ class CompanyController extends Controller
 
         Company::create([
             'name' => $validated['name'],
-            'commercial_name' => $validated['commercial_name'],
-            'nit' => $validated['nit'],
-            'nrc' => $validated['nrc'],
-            'commercial_line_1' => $validated['commercial_line_1'],
-            'commercial_line_2' => $validated['commercial_line_2'],
-            'commercial_line_3' => $validated['commercial_line_3'],
-            'address' => $validated['address'],
-            'department_id' => $validated['department_id'],
-            'municipality_id' => $validated['municipality_id'],
-            'district_id' => $validated['district_id'],
-            'phone' => $validated['phone'],
-            'email' => $validated['email'],
-            'web_site' => $validated['web_site'],
+            'commercial_name' => $validated['commercial_name'] ?? null,
+            'nit' => $validated['nit'] ?? null,
+            'nrc' => $validated['nrc'] ?? null,
+            'commercial_line_1' => $validated['commercial_line_1'] ?? null,
+            'commercial_line_2' => $validated['commercial_line_2'] ?? null,
+            'commercial_line_3' => $validated['commercial_line_3'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'department_id' => $validated['department_id'] ?? null,
+            'municipality_id' => $validated['municipality_id'] ?? null,
+            'district_id' => $validated['district_id'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'web_site' => $validated['web_site'] ?? null,
             'logo' => $logoPath,
             'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
         ]);
@@ -163,5 +183,21 @@ class CompanyController extends Controller
         return redirect()
             ->route('companies.index')
             ->with('success', 'Empresa eliminada correctamente.');
+    }
+
+    public function edit(Company $company)
+   {
+     Gate::authorize('companies.editar');
+
+     $departments = \App\Models\Department::orderBy('name')->get();
+     $municipalities = \App\Models\Municipality::orderBy('name')->get();
+     $districts = \App\Models\District::orderBy('name')->get();
+
+     return view('companies.edit', compact(
+        'company',
+        'departments',
+        'municipalities',
+        'districts'
+     ));
     }
 }
