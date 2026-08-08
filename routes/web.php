@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -35,10 +36,21 @@ Route::middleware('auth')->group(function () {
     // Gestión de Ubicaciones (CRUD) protegida por autenticación
     Route::resource('locations', LocationController::class);
 
+    // Gestión de Productos (CRUD) protegida por autenticación
+    Route::resource('products', ProductController::class);
+
     // Bitácora de Auditoría (protegida por autenticación y permiso)
     Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])
         ->middleware('can:bitacora.ver')
         ->name('audit-logs.index');
+
+    // API AJAX: Subcategorías por categoría (desarrollado por Dev 3)
+    Route::get('/api/categories/{id}/sub-categories', function ($id) {
+        $subCategories = \App\Models\SubCategory::where('id_category', $id)
+            ->where('is_active', true)
+            ->get(['id', 'name']);
+        return response()->json($subCategories);
+    })->name('api.categories.subcategories');
 });
 
 require __DIR__.'/auth.php';
