@@ -13,6 +13,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\ProductController;
 
 Route::resource('branches', BranchController::class);
 
@@ -44,8 +45,14 @@ Route::middleware('auth')->group(function () {
     // Gestión de Empleados (CRUD) protegida por autenticación
     Route::resource('empleados', EmpleadoController::class);
 
+    // Mapa de Bodega
+    Route::get('locations/map', [LocationController::class, 'map'])->name('locations.map');
+
     // Gestión de Ubicaciones (CRUD) protegida por autenticación
     Route::resource('locations', LocationController::class);
+
+    // Gestión de Productos (CRUD) protegida por autenticación
+    Route::resource('products', ProductController::class);
 
     // Bitácora de Auditoría (protegida por autenticación y permiso)
     Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])
@@ -64,6 +71,14 @@ Route::middleware('auth')->group(function () {
 
     // Gestión de Subcategorías (CRUD) protegida por autenticación
     Route::resource('subcategories', SubCategoryController::class);
+
+    // API AJAX: Subcategorías por categoría (desarrollado por Dev 3)
+    Route::get('/api/categories/{id}/sub-categories', function ($id) {
+        $subCategories = \App\Models\SubCategory::where('id_category', $id)
+            ->where('is_active', true)
+            ->get(['id', 'name']);
+        return response()->json($subCategories);
+    })->name('api.categories.subcategories');
 });
 
 require __DIR__.'/auth.php';
