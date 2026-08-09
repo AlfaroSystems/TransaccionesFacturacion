@@ -12,6 +12,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SupplierController;
 
 Route::resource('branches', BranchController::class);
 
@@ -30,6 +31,9 @@ Route::middleware('auth')->group(function () {
     
     // Gestión de Empresas (CRUD) protegida por autenticación y permisos
     Route::resource('companies', CompanyController::class);
+
+    // Gestión de Proveedores (CRUD) protegida por autenticación
+    Route::resource('suppliers', SupplierController::class);
 
     // Gestión de Usuarios (CRUD) protegida por autenticación
     Route::resource('users', UserController::class);

@@ -13,23 +13,18 @@ class WarehouseController extends Controller
 
 
     public function index()
-    {
-        Gate::authorize('warehouses.ver');
+   {
+      $warehouses = Warehouse::with(['branch', 'warehouseCategory'])->get();
 
-        $warehouses = Warehouse::with([
-            'branch',
-            'warehouseCategory'
-        ])
-        ->orderBy('name')
-        ->get();
+      $branches = Branch::where('is_active', true)->get();
 
-        $branches = Branch::where('is_active', true)->orderBy('name')->get();
-        $categories = WarehouseCategory::where('is_active', true)->orderBy('name')->get();
+      $categories = WarehouseCategory::where('is_active', true)->get();
 
-        return view(
-            'warehouses.index',
-            compact('warehouses', 'branches', 'categories')
-        );
+      return view('warehouses.index', compact(
+        'warehouses',
+        'branches',
+        'categories'
+     ));
     }
 
 

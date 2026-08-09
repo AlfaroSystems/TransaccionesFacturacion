@@ -86,16 +86,29 @@ class WarehouseCategoryController extends Controller
     }
 
     public function destroy(WarehouseCategory $warehouseCategory)
-    {
-        Gate::authorize('warehouse_categories.eliminar');
+   {
+     Gate::authorize('warehouse_categories.eliminar');
 
-        $warehouseCategory->delete();
+
+      if ($warehouseCategory->warehouses()->exists()) {
 
         return redirect()
+            ->route('warehouse_categories.index')
+            ->with(
+                'error',
+                'No se puede eliminar la categoría porque tiene almacenes asociados.'
+            );
+    }
+
+
+    $warehouseCategory->delete();
+
+
+    return redirect()
         ->route('warehouse_categories.index')
         ->with(
             'success',
-            'Categoría eliminada'
+            'Categoría eliminada correctamente.'
         );
     }
 }
