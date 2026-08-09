@@ -10,6 +10,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\SubCategoryController;
 
 Route::resource('branches', BranchController::class);
 
@@ -51,6 +52,9 @@ Route::middleware('auth')->group(function () {
 
     // Gestión de Categorías de Almacenes (CRUD) protegida por autenticación
     Route::resource('warehouse_categories', WarehouseCategoryController::class);
+
+    // Gestión de Subcategorías (CRUD) protegida por autenticación
+    Route::resource('subcategories', SubCategoryController::class);
 });
 
 require __DIR__.'/auth.php';
