@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // Cargar Catálogo Geográfico Primero
         $this->call(GeographicSeeder::class);
+        $this->call(CategorySeeder::class);
 
         // Registrar también el usuario del cliente
         if (!User::where('email', 'jon.virgi@gmail.com')->exists()) {

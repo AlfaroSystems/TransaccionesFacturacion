@@ -10,6 +10,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CategoryController;
 
 Route::resource('branches', BranchController::class);
 
@@ -51,6 +52,12 @@ Route::middleware('auth')->group(function () {
 
     // Gestión de Categorías de Almacenes (CRUD) protegida por autenticación
     Route::resource('warehouse_categories', WarehouseCategoryController::class);
+
+    // Gestión de Categorías de Productos (CRUD) protegida por autenticación
+     Route::resource('categories', CategoryController::class);
+
+// Cambio rápido de estado activo/inactivo
+     Route::patch('/categories/{category}/toggle',[CategoryController::class, 'toggleStatus'])->name('categories.toggle');
 });
 
 require __DIR__.'/auth.php';
