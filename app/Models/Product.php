@@ -23,8 +23,13 @@ class Product extends Model
     protected $fillable = [
         'uuid',
         'sku',
+        'original_code',
+        'internal_code',
         'barcode',
         'name',
+        'size',
+        'dimensions',
+        'presentation',
         'description',
         'id_category',
         'id_sub_category',

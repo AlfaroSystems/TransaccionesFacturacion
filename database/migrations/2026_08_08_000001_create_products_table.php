@@ -17,9 +17,14 @@ return new class extends Migration
             // UUID único autogenerado y SKU controlado único
             $table->uuid('uuid')->unique();
             $table->string('sku', 50)->unique();
+            $table->string('original_code', 100)->nullable();
+            $table->string('internal_code', 100)->nullable();
             $table->string('barcode', 100)->nullable();
             
             $table->string('name', 200);
+            $table->string('size', 100)->nullable();
+            $table->string('dimensions', 100)->nullable();
+            $table->string('presentation', 100)->nullable();
             $table->text('description')->nullable();
             
             // Claves foráneas solicitadas

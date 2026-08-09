@@ -11,14 +11,16 @@ class SupplierContact extends Model
 
 
     protected $fillable = [
-
         'id_supplier',
         'full_name',
         'phone',
-        'email'
-
+        'email',
+        'is_active',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function supplier()
     {

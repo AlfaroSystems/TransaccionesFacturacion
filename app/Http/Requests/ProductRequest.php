@@ -31,6 +31,16 @@ class ProductRequest extends FormRequest
                 'max:50',
                 Rule::unique('products', 'sku')->ignore($productId),
             ],
+            'original_code' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'internal_code' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
             'barcode' => [
                 'nullable',
                 'string',
@@ -40,6 +50,21 @@ class ProductRequest extends FormRequest
                 'required',
                 'string',
                 'max:200',
+            ],
+            'size' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'dimensions' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'presentation' => [
+                'nullable',
+                'string',
+                'max:100',
             ],
             'description' => [
                 'nullable',

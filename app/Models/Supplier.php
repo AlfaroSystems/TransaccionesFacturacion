@@ -8,13 +8,19 @@ class Supplier extends Model
 {
     protected $primaryKey = 'id_supplier';
 
-
     protected $fillable = [
+        'code',
         'name',
         'email',
         'phone',
         'country',
-        'website'
+        'address',
+        'website',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
 
