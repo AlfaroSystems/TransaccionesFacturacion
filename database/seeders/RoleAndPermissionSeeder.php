@@ -198,12 +198,38 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite modificar la información de las empresas.',
                 'action' => 'edit'
             ],
-            [
-                'id' => 'companies.eliminar',
-                'name' => 'Eliminar Empresas',
-                'description' => 'Permite eliminar empresas del sistema.',
-                'action' => 'destroy'
-            ]
+           [
+    'id' => 'companies.eliminar',
+    'name' => 'Eliminar Empresas',
+    'description' => 'Permite eliminar empresas del sistema.',
+    'action' => 'destroy'
+],
+
+// Categorías de Productos
+[
+    'id' => 'categories.ver',
+    'name' => 'Ver Categorías',
+    'description' => 'Permite ver el listado de categorías de productos.',
+    'action' => 'index'
+],
+[
+    'id' => 'categories.crear',
+    'name' => 'Crear Categorías',
+    'description' => 'Permite registrar nuevas categorías de productos.',
+    'action' => 'create'
+],
+[
+    'id' => 'categories.editar',
+    'name' => 'Editar Categorías',
+    'description' => 'Permite modificar categorías de productos.',
+    'action' => 'edit'
+],
+[
+    'id' => 'categories.eliminar',
+    'name' => 'Eliminar Categorías',
+    'description' => 'Permite eliminar categorías de productos.',
+    'action' => 'destroy'
+]
         ];
 
         foreach ($permissions as $permissionData) {
@@ -221,10 +247,15 @@ class RoleAndPermissionSeeder extends Seeder
         $allPermissionIds = Permission::pluck('id')->toArray();
         $adminRole->permissions()->sync($allPermissionIds);
 
-        // 4. Asignar Rol de Administrador al usuario principal y de Jon
-        $adminUsers = User::whereIn('email', ['jon.virgi@gmail.com'])->get();
-        foreach ($adminUsers as $user) {
-            $user->roles()->sync([$adminRole->id]);
-        }
+       // 4. Asignar Rol de Administrador a usuarios
+
+      $adminUsers = User::whereIn('email', [
+    'gracia@login.com',
+    'jon.virgi@gmail.com'
+    ])->get();
+
+   foreach ($adminUsers as $user) {
+    $user->roles()->sync([$adminRole->id]);
+  }
     }
 }
