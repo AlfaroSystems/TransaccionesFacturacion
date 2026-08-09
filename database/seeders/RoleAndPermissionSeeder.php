@@ -203,6 +203,31 @@ class RoleAndPermissionSeeder extends Seeder
                 'name' => 'Eliminar Empresas',
                 'description' => 'Permite eliminar empresas del sistema.',
                 'action' => 'destroy'
+            ],
+            // Unidades de Medida
+            [
+                'id' => 'units.ver',
+                'name' => 'Ver Unidades de Medida',
+                'description' => 'Permite ver el listado de unidades de medida.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'units.crear',
+                'name' => 'Crear Unidades de Medida',
+                'description' => 'Permite registrar nuevas unidades de medida.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'units.editar',
+                'name' => 'Editar Unidades de Medida',
+                'description' => 'Permite modificar unidades de medida existentes.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'units.desactivar',
+                'name' => 'Activar/Desactivar Unidades',
+                'description' => 'Permite cambiar el estado (activo/inactivo) de una unidad de medida.',
+                'action' => 'toggle'
             ]
         ];
 
