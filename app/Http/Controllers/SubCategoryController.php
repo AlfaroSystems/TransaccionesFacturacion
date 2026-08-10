@@ -30,7 +30,7 @@ class SubCategoryController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('sub_categories.index', compact(
+        return view('subcategories.index', compact(
             'subCategories',
             'categories'
         ));

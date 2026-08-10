@@ -177,10 +177,12 @@
                 </a>
                 @endcan
                 <!-- Tab: Subcategorías -->
+                @can('categories.ver')
                 <a href="{{ route('subcategories.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('subcategories.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
                     <span>Subcategorías</span>
                 </a>
+                @endcan
                 <!-- Tab: Unidades de Medida -->
                 @can('units.ver')
                 <a href="{{ route('units.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('units.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
