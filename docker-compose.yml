@@ -36,7 +36,7 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${FORWARD_DB_PORT:-5434}:5432"
     environment:
       POSTGRES_DB: ${DB_DATABASE:-transacciones_facturacion}
       POSTGRES_USER: ${DB_USERNAME:-postgres}

@@ -9,6 +9,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\CategoryController;
@@ -71,6 +72,9 @@ Route::middleware('auth')->group(function () {
 
     // Gestión de Subcategorías (CRUD) protegida por autenticación
     Route::resource('subcategories', SubCategoryController::class);
+
+    // Gestión de Unidades de Medida (CRUD) protegida por autenticación
+    Route::resource('units', UnitController::class);
 
     // API AJAX: Subcategorías por categoría (desarrollado por Dev 3)
     Route::get('/api/categories/{id}/sub-categories', function ($id) {

@@ -198,38 +198,62 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite modificar la información de las empresas.',
                 'action' => 'edit'
             ],
-           [
-    'id' => 'companies.eliminar',
-    'name' => 'Eliminar Empresas',
-    'description' => 'Permite eliminar empresas del sistema.',
-    'action' => 'destroy'
-],
-
-// Categorías de Productos
-[
-    'id' => 'categories.ver',
-    'name' => 'Ver Categorías',
-    'description' => 'Permite ver el listado de categorías de productos.',
-    'action' => 'index'
-],
-[
-    'id' => 'categories.crear',
-    'name' => 'Crear Categorías',
-    'description' => 'Permite registrar nuevas categorías de productos.',
-    'action' => 'create'
-],
-[
-    'id' => 'categories.editar',
-    'name' => 'Editar Categorías',
-    'description' => 'Permite modificar categorías de productos.',
-    'action' => 'edit'
-],
-[
-    'id' => 'categories.eliminar',
-    'name' => 'Eliminar Categorías',
-    'description' => 'Permite eliminar categorías de productos.',
-    'action' => 'destroy'
-]
+            [
+                'id' => 'companies.eliminar',
+                'name' => 'Eliminar Empresas',
+                'description' => 'Permite eliminar empresas del sistema.',
+                'action' => 'destroy'
+            ],
+            // Categorías de Productos
+            [
+                'id' => 'categories.ver',
+                'name' => 'Ver Categorías',
+                'description' => 'Permite ver el listado de categorías de productos.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'categories.crear',
+                'name' => 'Crear Categorías',
+                'description' => 'Permite registrar nuevas categorías de productos.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'categories.editar',
+                'name' => 'Editar Categorías',
+                'description' => 'Permite modificar categorías de productos.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'categories.eliminar',
+                'name' => 'Eliminar Categorías',
+                'description' => 'Permite eliminar categorías de productos.',
+                'action' => 'destroy'
+            ],
+            // Unidades de Medida
+            [
+                'id' => 'units.ver',
+                'name' => 'Ver Unidades de Medida',
+                'description' => 'Permite ver el listado de unidades de medida.',
+                'action' => 'index'
+            ],
+            [
+                'id' => 'units.crear',
+                'name' => 'Crear Unidades de Medida',
+                'description' => 'Permite registrar nuevas unidades de medida.',
+                'action' => 'create'
+            ],
+            [
+                'id' => 'units.editar',
+                'name' => 'Editar Unidades de Medida',
+                'description' => 'Permite modificar unidades de medida existentes.',
+                'action' => 'edit'
+            ],
+            [
+                'id' => 'units.desactivar',
+                'name' => 'Activar/Desactivar Unidades',
+                'description' => 'Permite cambiar el estado (activo/inactivo) de una unidad de medida.',
+                'action' => 'toggle'
+            ]
         ];
 
         foreach ($permissions as $permissionData) {
@@ -249,13 +273,13 @@ class RoleAndPermissionSeeder extends Seeder
 
        // 4. Asignar Rol de Administrador a usuarios
 
-      $adminUsers = User::whereIn('email', [
+    adminUsers = User::whereIn('email', [
     'gracia@login.com',
     'jon.virgi@gmail.com'
     ])->get();
 
-   foreach ($adminUsers as $user) {
-    $user->roles()->sync([$adminRole->id]);
-  }
+    foreach ($adminUsers as $user) {
+        $user->roles()->sync([$adminRole->id]);
     }
+  }
 }

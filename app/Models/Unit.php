@@ -12,12 +12,23 @@ class Unit extends Model
 
     protected $table = 'units';
 
+    /**
+     * Atributos asignables en masa.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'name',
         'abbreviation',
+        'type',
         'is_active',
     ];
 
+    /**
+     * Casts de atributos.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'is_active' => 'boolean',
     ];

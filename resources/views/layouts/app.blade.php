@@ -126,6 +126,16 @@
                 </a>
                 @endcan
 
+                <!-- Unidades de Medida -->
+                @can('units.ver')
+                <a href="{{ route('units.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('units.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ request()->routeIs('units.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01M15 7h.01" />
+                    </svg>
+                    <span>Unidades de Medida</span>
+                </a>
+                @endcan
+
                 <!-- Administración -->
                 @php
                     $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
@@ -243,6 +253,26 @@
                     <span>Ubicaciones</span>
                 </a>
                 @endcan
+|               @can('units.ver')
+    <a href="{{ route('units.index') }}"
+       class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('units.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+
+        <svg class="w-4 h-4"
+             fill="none"
+             stroke="currentColor"
+             viewBox="0 0 24 24">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+
+        </svg>
+
+        <span>Unidades de Medida</span>
+
+    </a>
+@endcan
             </div>
         @endif
 
