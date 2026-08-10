@@ -15,7 +15,11 @@ RUN apk add --no-cache \
     npm
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_pgsql pgsql bcmath gd zip
+RUN docker-php-ext-install pdo_pgsql pgsql bcmath gd zip opcache
+
+# Copy OPcache configuration
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

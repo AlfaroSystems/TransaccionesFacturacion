@@ -16,8 +16,6 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ProductController;
 
-Route::resource('branches', BranchController::class);
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -31,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
+    // Gestión de Sucursales (CRUD) protegida por autenticación
+    Route::resource('branches', BranchController::class);
+
     // Gestión de Empresas (CRUD) protegida por autenticación y permisos
     Route::resource('companies', CompanyController::class);
 

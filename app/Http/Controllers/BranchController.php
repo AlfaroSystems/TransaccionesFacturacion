@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\Department;
+use App\Models\Municipality;
+use App\Models\District;
 use App\Http\Requests\BranchRequest;
 use Illuminate\Support\Facades\Gate;
 
 class BranchController extends Controller
 {
     /**
-     * / Listar sucursales
+     * Listar sucursales
      */
     public function index()
     {
@@ -19,19 +22,25 @@ class BranchController extends Controller
 
         $branches = Branch::with(['company', 'department', 'municipality', 'district'])->orderBy('id', 'desc')->get();
         $companies = Company::all();
-        $departments = \App\Models\Department::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get();
+        $municipalities = Municipality::orderBy('name')->get();
+        $districts = District::orderBy('name')->get();
 
-        return view('branches.index', compact('branches', 'companies', 'departments'));
+        return view('branches.index', compact('branches', 'companies', 'departments', 'municipalities', 'districts'));
     }
 
     /**
-     *  Mostrar formulario para crear
+     * Mostrar formulario para crear
      */
     public function create()
     {
         Gate::authorize('branches.crear');
         $companies = Company::all();
-        return view('branches.create', compact('companies'));
+        $departments = Department::orderBy('name')->get();
+        $municipalities = Municipality::orderBy('name')->get();
+        $districts = District::orderBy('name')->get();
+
+        return view('branches.create', compact('companies', 'departments', 'municipalities', 'districts'));
     }
 
     /**
@@ -39,11 +48,11 @@ class BranchController extends Controller
      */
     public function store(BranchRequest $request)
     {
-    Gate::authorize('branches.crear');
-    Branch::create($request->validated());
-    return redirect()
-        ->route('branches.index')
-        ->with('success', 'Sucursal creada correctamente.');
+        Gate::authorize('branches.crear');
+        Branch::create($request->validated());
+        return redirect()
+            ->route('branches.index')
+            ->with('success', 'Sucursal creada correctamente.');
     }
 
     /**
@@ -62,7 +71,11 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.editar');
         $companies = Company::all();
-        return view('branches.edit', compact('branch', 'companies'));
+        $departments = Department::orderBy('name')->get();
+        $municipalities = Municipality::orderBy('name')->get();
+        $districts = District::orderBy('name')->get();
+
+        return view('branches.edit', compact('branch', 'companies', 'departments', 'municipalities', 'districts'));
     }
 
     /**
@@ -87,5 +100,5 @@ class BranchController extends Controller
         return redirect()
         ->route('branches.index')
         ->with('success', 'Sucursal eliminada correctamente.');
-}
+    }
 }
