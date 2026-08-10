@@ -11,8 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
     
-    <!-- Tailwind CSS (Vite o CDN local) -->
-    @if(app()->environment('local'))
+    <!-- Tailwind CSS (Vite precompilado para velocidad máxima) -->
+    @if(file_exists(public_path('build/manifest.json')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
@@ -21,17 +23,15 @@
                         fontFamily: { sans: ['Nunito', 'sans-serif'] },
                         colors: {
                             navy: {
-                                sidebar: '#005e66', // Deep dark teal
-                                active: '#3cb0a4',  // Primary teal
-                                800: '#00474f'      // Darkest teal
+                                sidebar: '#005e66',
+                                active: '#3cb0a4',
+                                800: '#00474f'
                             }
                         }
                     }
                 }
             }
         </script>
-    @else
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
 
     <style>

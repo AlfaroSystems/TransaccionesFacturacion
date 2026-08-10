@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+    .bg-navy-sidebar {
+        background-color: #005e66;
+    }
+    .bg-navy-active {
+        background-color: #3cb0a4;
+    }
+    .text-navy-sidebar {
+        color: #005e66;
+    }
+    .text-navy-active {
+        color: #3cb0a4;
+    }
+}
