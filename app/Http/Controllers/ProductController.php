@@ -41,8 +41,10 @@ class ProductController extends Controller
 
         $products = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
         $categories = class_exists(Category::class) ? Category::where('is_active', true)->get() : collect();
+        $subCategories = class_exists(SubCategory::class) ? SubCategory::where('is_active', true)->get() : collect();
+        $units = class_exists(Unit::class) ? Unit::where('is_active', true)->get() : collect();
 
-        return view('products.index', compact('products', 'categories'));
+        return view('products.index', compact('products', 'categories', 'subCategories', 'units'));
     }
 
     /**
