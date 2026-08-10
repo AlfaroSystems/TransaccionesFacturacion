@@ -23,6 +23,19 @@ class LocationController extends Controller
     }
 
     /**
+     * Mostrar el mapa esquemático de ubicaciones en bodega.
+     */
+    public function map()
+    {
+        Gate::authorize('locations.ver');
+
+        $locations = Location::with('warehouse')->where('is_active', true)->get();
+        $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
+
+        return view('locations.map', compact('locations', 'warehouses'));
+    }
+
+    /**
      * Mostrar formulario de creación.
      */
     public function create()
