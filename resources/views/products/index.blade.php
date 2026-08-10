@@ -26,7 +26,7 @@
                 <span class="text-xs font-semibold text-slate-500">Módulo de Productos</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
-                Catálogo de Medicamentos & Productos
+                Catálogo General de Productos
             </h1>
             <p class="text-slate-500 text-sm mt-0.5">
                 Consulte, filtre y gestione el catálogo general, precios y niveles de existencias.

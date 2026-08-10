@@ -8,31 +8,27 @@ use App\Models\Category;
 class CategorySeeder extends Seeder
 {
     /**
-     * Crear categorías iniciales de farmacia.
+     * Crear categorías generales de catálogo.
      */
     public function run(): void
     {
-        Category::create([
-            'name' => 'Analgésicos',
-            'description' => 'Medicamentos utilizados para aliviar dolores leves, moderados y fiebre.',
+        Category::updateOrCreate(['name' => 'Bebidas y Alimentos'], [
+            'description' => 'Productos alimenticios, refrescos y suministros generales.',
             'is_active' => true,
         ]);
 
-        Category::create([
-            'name' => 'Antibióticos',
-            'description' => 'Medicamentos utilizados para tratar infecciones bacterianas.',
+        Category::updateOrCreate(['name' => 'Electrónica y Tecnología'], [
+            'description' => 'Dispositivos electrónicos, cables y accesorios.',
             'is_active' => true,
         ]);
 
-        Category::create([
-            'name' => 'Pediatría',
-            'description' => 'Productos y medicamentos destinados para niños.',
+        Category::updateOrCreate(['name' => 'Ferretería y Materiales'], [
+            'description' => 'Herramientas, repuestos y materiales generales.',
             'is_active' => true,
         ]);
 
-        Category::create([
-            'name' => 'Higiene Personal',
-            'description' => 'Productos de cuidado e higiene personal.',
+        Category::updateOrCreate(['name' => 'Limpieza y Hogar'], [
+            'description' => 'Productos de limpieza, desinfección e insumos generales del hogar.',
             'is_active' => true,
         ]);
     }

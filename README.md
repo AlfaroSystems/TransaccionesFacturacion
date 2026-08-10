@@ -1,4 +1,4 @@
-# Sistema de Transacciones y Facturación (Farmacia La Merced)
+# Sistema de Transacciones y Facturación
 
 Este proyecto está construido en **PHP 8.2** utilizando el framework **Laravel 11** y **PostgreSQL** como motor de base de datos. Sigue la guía a continuación para configurar y levantar el proyecto en tu entorno local.
 
@@ -96,6 +96,6 @@ npm run dev
 ---
 
 ## 📂 Estructura del Diseño
-El diseño del panel de control sigue el estilo del dashboard de **Farmacia La Merced** (Menú lateral izquierdo, métricas en 3 columnas y gráfico de rendimiento en ancho completo).
+El diseño del panel de control sigue el estilo del dashboard empresarial (Menú lateral izquierdo, métricas en 3 columnas y gráfico de rendimiento en ancho completo).
 *   **Layout principal:** `resources/views/layouts/app.blade.php`
 *   **Dashboard view:** `resources/views/dashboard.blade.php`
