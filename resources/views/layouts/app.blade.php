@@ -98,19 +98,14 @@
                 @endcanany
 
                 <!-- Productos -->
-                <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('products.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('products.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @php
+                    $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
+                @endphp
+                <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isProductos ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
+                    <svg class="w-5 h-5 {{ $isProductos ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     <span>Productos</span>
-                </a>
-
-                <!-- Mapa de Bodega -->
-                <a href="{{ route('locations.map') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('locations.map') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('locations.map') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                    <span>Mapa de Bodega</span>
                 </a>
 
                 <!-- Proveedores -->
@@ -120,19 +115,9 @@
                 @can('suppliers.ver')
                 <a href="{{ route('suppliers.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isSupplier ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
                     <svg class="w-5 h-5 {{ $isSupplier ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span>Proveedores</span>
-                </a>
-                @endcan
-
-                <!-- Unidades de Medida -->
-                @can('units.ver')
-                <a href="{{ route('units.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('units.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-300 hover:bg-white/5 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 {{ request()->routeIs('units.*') ? 'text-white' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01M15 7h.01" />
-                    </svg>
-                    <span>Unidades de Medida</span>
                 </a>
                 @endcan
 
@@ -173,7 +158,38 @@
             $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
             $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
             $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*') || request()->routeIs('companies.*');
+            $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
         @endphp
+
+        @if($isProductos)
+            <!-- Horizontal Submenu for Productos -->
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                <!-- Tab: Catálogo Productos -->
+                <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('products.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    <span>Productos</span>
+                </a>
+                <!-- Tab: Categorías -->
+                @can('categories.ver')
+                <a href="{{ route('categories.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('categories.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h7M13 11h7M13 15h7" /></svg>
+                    <span>Categorías</span>
+                </a>
+                @endcan
+                <!-- Tab: Subcategorías -->
+                <a href="{{ route('subcategories.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('subcategories.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    <span>Subcategorías</span>
+                </a>
+                <!-- Tab: Unidades de Medida -->
+                @can('units.ver')
+                <a href="{{ route('units.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('units.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01M15 7h.01" /></svg>
+                    <span>Unidades de Medida</span>
+                </a>
+                @endcan
+            </div>
+        @endif
 
         @if($isEmpresa)
             <!-- Horizontal Submenu for Empresa -->
@@ -252,27 +268,11 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     <span>Ubicaciones</span>
                 </a>
+                <a href="{{ route('locations.map') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.map') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+                    <span>Mapa Visual</span>
+                </a>
                 @endcan
-|               @can('units.ver')
-    <a href="{{ route('units.index') }}"
-       class="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all {{ request()->routeIs('units.*') ? 'bg-[#005e66] text-white shadow-md' : 'bg-slate-100 hover:bg-slate-200 text-slate-600' }}">
-
-        <svg class="w-4 h-4"
-             fill="none"
-             stroke="currentColor"
-             viewBox="0 0 24 24">
-
-            <path stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-
-        </svg>
-
-        <span>Unidades de Medida</span>
-
-    </a>
-@endcan
             </div>
         @endif
 
