@@ -42,12 +42,7 @@ class SubCategoryController extends Controller
      */
     public function create()
     {
-        // Solo categorías activas
-        $categories = Category::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        return view('sub_categories.create', compact('categories'));
+        return redirect()->route('subcategories.index');
     }
 
 
@@ -59,7 +54,7 @@ class SubCategoryController extends Controller
         $validated = $request->validate([
             'id_category' => [
                 'required',
-                'exists:categories,id_category',
+                'exists:categories,id',
             ],
 
             'name' => [
@@ -85,7 +80,7 @@ class SubCategoryController extends Controller
          * y además esté activa.
          */
         $category = Category::where(
-                'id_category',
+                'id',
                 $validated['id_category']
             )
             ->where('is_active', true)
@@ -110,7 +105,7 @@ class SubCategoryController extends Controller
 
 
         return redirect()
-            ->route('sub-categories.index')
+            ->route('subcategories.index')
             ->with(
                 'success',
                 'Subcategoría creada correctamente.'
@@ -123,12 +118,7 @@ class SubCategoryController extends Controller
      */
     public function show(SubCategory $subCategory)
     {
-        $subCategory->load('category');
-
-        return view(
-            'sub_categories.show',
-            compact('subCategory')
-        );
+        return redirect()->route('subcategories.index');
     }
 
 
@@ -137,18 +127,7 @@ class SubCategoryController extends Controller
      */
     public function edit(SubCategory $subCategory)
     {
-        // Solo categorías activas
-        $categories = Category::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        return view(
-            'sub_categories.edit',
-            compact(
-                'subCategory',
-                'categories'
-            )
-        );
+        return redirect()->route('subcategories.index');
     }
 
 
@@ -162,7 +141,7 @@ class SubCategoryController extends Controller
         $validated = $request->validate([
             'id_category' => [
                 'required',
-                'exists:categories,id_category',
+                'exists:categories,id',
             ],
 
             'name' => [
@@ -188,7 +167,7 @@ class SubCategoryController extends Controller
          * exista y esté activa.
          */
         $category = Category::where(
-                'id_category',
+                'id',
                 $validated['id_category']
             )
             ->where('is_active', true)
@@ -212,7 +191,7 @@ class SubCategoryController extends Controller
 
 
         return redirect()
-            ->route('sub-categories.index')
+            ->route('subcategories.index')
             ->with(
                 'success',
                 'Subcategoría actualizada correctamente.'
@@ -228,7 +207,7 @@ class SubCategoryController extends Controller
         $subCategory->delete();
 
         return redirect()
-            ->route('sub-categories.index')
+            ->route('subcategories.index')
             ->with(
                 'success',
                 'Subcategoría eliminada correctamente.'
@@ -245,7 +224,7 @@ class SubCategoryController extends Controller
     {
         // Verificar que la categoría exista
         $category = Category::where(
-            'id_category',
+            'id',
             $id
         )->first();
 

@@ -97,9 +97,9 @@
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="py-3 px-6 pl-10">Empresa</th>
                     <th class="py-3 px-6">NIT / NRC</th>
-                    <th class="py-3 px-6">UbicaciÃ³n / GeografÃ­a</th>
+                    <th class="py-3 px-6">Ubicación / Geografía</th>
                     <th class="py-3 px-6">Giros Registrados</th>
-                    <th class="py-3 px-6">TelÃ©fono / Email</th>
+                    <th class="py-3 px-6">Teléfono / Email</th>
                     <th class="py-3 px-6 text-center">Estado</th>
                     <th class="py-3 px-6 text-center">Acciones</th>
                 </tr>

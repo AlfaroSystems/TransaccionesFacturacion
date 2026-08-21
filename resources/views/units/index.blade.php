@@ -546,16 +546,10 @@
 @can('units.crear')
 
 <div id="create-unit-modal"
-     class="fixed inset-0 z-50 hidden overflow-y-auto">
+     class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
+     onclick="if(event.target === this) closeModal('create-unit-modal')">
 
-    <div class="flex items-center justify-center min-h-screen px-4 py-8">
-
-        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
-             onclick="closeModal('create-unit-modal')">
-        </div>
-
-
-        <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8">
+    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 transform scale-95 transition-all">
 
             {{-- ENCABEZADO --}}
             <div class="flex items-center gap-4 mb-6">
@@ -763,8 +757,6 @@
 
         </div>
 
-    </div>
-
 </div>
 
 @endcan
@@ -778,16 +770,10 @@
 @can('units.editar')
 
 <div id="edit-unit-modal"
-     class="fixed inset-0 z-50 hidden overflow-y-auto">
+     class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
+     onclick="if(event.target === this) closeModal('edit-unit-modal')">
 
-    <div class="flex items-center justify-center min-h-screen px-4 py-8">
-
-        <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
-             onclick="closeModal('edit-unit-modal')">
-        </div>
-
-
-        <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8">
+    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 transform scale-95 transition-all">
 
             {{-- ENCABEZADO --}}
             <div class="flex items-center gap-4 mb-6">
@@ -976,15 +962,14 @@
                             class="px-6 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2">
 
                         <svg class="w-4 h-4"
-                             fill="none"
-                             stroke="currentColor"
-                             viewBox="0 0 24 24">
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
 
                             <path stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
 
                         Guardar Cambios
@@ -996,8 +981,6 @@
             </form>
 
         </div>
-
-    </div>
 
 </div>
 
