@@ -30,8 +30,10 @@
 
         <div class="flex items-center gap-3">
             @can('locations.crear')
-            <button type="button" onclick="openModal('create-location-modal')"
-               class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
+            <button type="button" onclick="openModal('batch-location-modal')"class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
+                <span>⚡ Generación Masiva</span>
+            </button>
+            <button type="button" onclick="openModal('create-location-modal')"class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
                 <span>+ Nueva Ubicación</span>
             </button>
             @endcan
@@ -380,6 +382,101 @@
     </div>
 </div>
 
+<!-- MODAL DE GENERACIÓN MASIVA DE UBICACIONES -->
+<div id="batch-location-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+        <!-- Close Button -->
+        <button type="button" onclick="closeModal('batch-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Generación Masiva</h2>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Crea automáticamente todas las ubicaciones hasta los límites indicados.</p>
+            </div>
+        </div>
+
+        <form action="{{ route('locations.batch-store') }}" method="POST" class="space-y-4">
+            @csrf
+            <input type="hidden" name="modal_type" value="batch">
+
+            <!-- Almacén / Bodega -->
+            <div>
+                <label for="batch_warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
+                <select name="warehouse_id" id="batch_warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <option value="">Seleccione un almacén...</option>
+                    @foreach($warehouses as $warehouse)
+                        <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'batch' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
+                            {{ $warehouse->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Pasillo Hasta -->
+                <div>
+                    <label for="pasillo_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo Final *</label>
+                    <input type="text" name="pasillo_hasta" id="pasillo_hasta" value="{{ old('modal_type') === 'batch' ? old('pasillo_hasta') : 'B' }}" placeholder="Ej: B o 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold uppercase" required>
+                    <p class="text-[10px] text-slate-400 mt-1">Letra (ej. B) o Número (ej. 2)</p>
+                </div>
+
+                <!-- Estante Hasta -->
+                <div>
+                    <label for="rack_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estante Final *</label>
+                    <input type="number" name="rack_hasta" id="rack_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('rack_hasta') : '3' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold" required>
+                    <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Nivel Hasta -->
+                <div>
+                    <label for="level_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nivel Final *</label>
+                    <input type="number" name="level_hasta" id="level_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('level_hasta') : '4' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold" required>
+                    <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
+                </div>
+
+                <!-- Posición Hasta -->
+                <div>
+                    <label for="position_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Posición Final *</label>
+                    <input type="number" name="position_hasta" id="position_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('position_hasta') : '1' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold" required>
+                    <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
+                </div>
+            </div>
+
+            <!-- Capacidad -->
+            <div>
+                <label for="batch_capacity" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacidad por Ubicación *</label>
+                <input type="number" name="capacity" id="batch_capacity" min="0" value="{{ old('modal_type') === 'batch' ? old('capacity') : '10' }}" placeholder="Ej: 10" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold" required>
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label for="batch_notes" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas adicionales</label>
+                <textarea name="notes" id="batch_notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#005e66] text-slate-700 font-semibold">{{ old('modal_type') === 'batch' ? old('notes') : '' }}</textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button type="button" onclick="closeModal('batch-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    Generar Ubicaciones
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function openEditLocationModal(actionUrl, location) {
         const modal = document.getElementById('edit-location-modal');
@@ -432,6 +529,8 @@
                     is_active: "{{ old('is_active', '0') }}"
                 };
                 openEditLocationModal(editRoute, oldLocation);
+            @elseif(old('modal_type') === 'batch')
+                openModal('batch-location-modal');
             @else
                 openModal('create-location-modal');
             @endif

@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
 
     // Mapa de Bodega
     Route::get('locations/map', [LocationController::class, 'map'])->name('locations.map');
+    Route::post('locations/batch-store', [LocationController::class, 'batchStore'])->name('locations.batch-store');
 
     // Gestión de Ubicaciones (CRUD) protegida por autenticación
     Route::resource('locations', LocationController::class);

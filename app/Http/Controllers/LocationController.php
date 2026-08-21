@@ -85,6 +85,91 @@ class LocationController extends Controller
     }
 
     /**
+     * Generación masiva de ubicaciones por rangos.
+     */
+    public function batchStore(Request $request)
+    {
+        Gate::authorize('locations.crear');
+
+        $request->validate([
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'pasillo_hasta' => 'required|string|max:10',
+            'rack_hasta' => 'required|integer|min:1',
+            'level_hasta' => 'required|integer|min:1',
+            'position_hasta' => 'required|integer|min:1',
+            'capacity' => 'required|integer|min:0',
+            'notes' => 'nullable|string',
+        ]);
+
+        $pasilloHasta = strtoupper(trim($request->pasillo_hasta));
+        $rackHasta = (int) $request->rack_hasta;
+        $levelHasta = (int) $request->level_hasta;
+        $positionHasta = (int) $request->position_hasta;
+        $capacity = (int) $request->capacity;
+        $warehouseId = $request->warehouse_id;
+        $notes = $request->notes;
+
+        // Determinar el rango de pasillos (Alfabético A-Z o Numérico 1-N)
+        $pasillos = [];
+        if (ctype_alpha($pasilloHasta) && strlen($pasilloHasta) === 1) {
+            for ($char = ord('A'); $char <= ord($pasilloHasta); $char++) {
+                $pasillos[] = chr($char);
+            }
+        } elseif (is_numeric($pasilloHasta)) {
+            $maxPasillo = (int) $pasilloHasta;
+            for ($p = 1; $p <= $maxPasillo; $p++) {
+                $pasillos[] = (string) $p;
+            }
+        } else {
+            $pasillos[] = $pasilloHasta;
+        }
+
+        $createdCount = 0;
+        $skippedCount = 0;
+
+        foreach ($pasillos as $pasillo) {
+            for ($r = 1; $r <= $rackHasta; $r++) {
+                for ($l = 1; $l <= $levelHasta; $l++) {
+                    for ($pos = 1; $pos <= $positionHasta; $pos++) {
+                        $code = "{$pasillo}-{$r}-{$l}-{$pos}";
+
+                        $location = Location::firstOrCreate(
+                            [
+                                'warehouse_id' => $warehouseId,
+                                'code' => $code,
+                            ],
+                            [
+                                'pasillo' => $pasillo,
+                                'rack' => (string) $r,
+                                'level' => (string) $l,
+                                'position' => (string) $pos,
+                                'capacity' => $capacity,
+                                'notes' => $notes,
+                                'is_active' => true,
+                            ]
+                        );
+
+                        if ($location->wasRecentlyCreated) {
+                            $createdCount++;
+                        } else {
+                            $skippedCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        $msg = "Se generaron exitosamente {$createdCount} ubicaciones masivas.";
+        if ($skippedCount > 0) {
+            $msg .= " ({$skippedCount} ubicaciones ya existían y se omitieron).";
+        }
+
+        return redirect()
+            ->route('locations.index')
+            ->with('success', $msg);
+    }
+
+    /**
      * Mostrar una ubicación específica.
      */
     public function show(Location $location)
