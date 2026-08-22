@@ -25,7 +25,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        User::observe(AuditObserver::class);
+        // Registrar el observador de auditoría para todos los modelos de negocio del sistema
+        $modelFiles = glob(app_path('Models/*.php'));
+        foreach ($modelFiles as $file) {
+            $modelClass = 'App\\Models\\' . basename($file, '.php');
+            if (class_exists($modelClass) && is_subclass_of($modelClass, \Illuminate\Database\Eloquent\Model::class) && $modelClass !== \App\Models\AuditLog::class) {
+                $modelClass::observe(AuditObserver::class);
+            }
+        }
 
         // 1. Bypass global: Super Administrador obtiene acceso total por defecto
         Gate::before(function (User $user, string $ability) {
