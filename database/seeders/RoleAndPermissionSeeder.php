@@ -14,272 +14,287 @@ class RoleAndPermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Crear Permisos
+        // 1. Crear permisos
         $permissions = [
+
             // Usuarios
             [
                 'id' => 'usuarios.ver',
                 'name' => 'Ver Usuarios',
                 'description' => 'Permite listar y ver la información de los usuarios.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'usuarios.crear',
                 'name' => 'Crear Usuarios',
                 'description' => 'Permite crear nuevos usuarios en el sistema.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'usuarios.editar',
                 'name' => 'Editar Usuarios',
                 'description' => 'Permite modificar la información de los usuarios existentes.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'usuarios.eliminar',
                 'name' => 'Eliminar Usuarios',
                 'description' => 'Permite eliminar usuarios del sistema.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Roles y Bitácora
             [
                 'id' => 'roles.administrar',
                 'name' => 'Administrar Roles y Permisos',
                 'description' => 'Permite configurar roles y asignarles permisos.',
-                'action' => 'manage'
+                'action' => 'manage',
             ],
             [
                 'id' => 'bitacora.ver',
                 'name' => 'Ver Bitácora de Logs',
                 'description' => 'Permite revisar la bitácora de auditoría de actividad del sistema.',
-                'action' => 'logs'
+                'action' => 'logs',
             ],
+
             // Empleados
             [
                 'id' => 'empleados.ver',
                 'name' => 'Ver Empleados',
                 'description' => 'Permite ver el listado y detalle de los empleados.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'empleados.crear',
                 'name' => 'Crear Empleados',
                 'description' => 'Permite registrar nuevos empleados.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'empleados.editar',
                 'name' => 'Editar Empleados',
                 'description' => 'Permite modificar la información de los empleados.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'empleados.eliminar',
                 'name' => 'Eliminar Empleados',
                 'description' => 'Permite eliminar empleados del sistema.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Sucursales
             [
                 'id' => 'branches.ver',
                 'name' => 'Ver Sucursales',
                 'description' => 'Permite ver el listado y detalle de las sucursales.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'branches.crear',
                 'name' => 'Crear Sucursales',
                 'description' => 'Permite registrar nuevas sucursales.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'branches.editar',
                 'name' => 'Editar Sucursales',
                 'description' => 'Permite modificar la información de las sucursales.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'branches.eliminar',
                 'name' => 'Eliminar Sucursales',
                 'description' => 'Permite eliminar sucursales del sistema.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Bodegas
             [
                 'id' => 'warehouses.ver',
                 'name' => 'Ver Bodegas',
                 'description' => 'Permite ver el listado y detalle de las bodegas.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'warehouses.crear',
                 'name' => 'Crear Bodegas',
                 'description' => 'Permite registrar nuevas bodegas.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'warehouses.editar',
                 'name' => 'Editar Bodegas',
                 'description' => 'Permite modificar la información de las bodegas.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'warehouses.eliminar',
                 'name' => 'Eliminar Bodegas',
                 'description' => 'Permite eliminar bodegas del sistema.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Categorías de Bodega
             [
                 'id' => 'warehouse_categories.ver',
                 'name' => 'Ver Categorías de Bodegas',
                 'description' => 'Permite ver el listado de categorías de bodegas.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'warehouse_categories.crear',
                 'name' => 'Crear Categorías de Bodegas',
                 'description' => 'Permite registrar nuevas categorías de bodegas.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'warehouse_categories.editar',
                 'name' => 'Editar Categorías de Bodegas',
                 'description' => 'Permite modificar las categorías de bodegas.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'warehouse_categories.eliminar',
                 'name' => 'Eliminar Categorías de Bodegas',
                 'description' => 'Permite eliminar categorías de bodegas.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Ubicaciones
             [
                 'id' => 'locations.ver',
                 'name' => 'Ver Ubicaciones y Mapa',
                 'description' => 'Permite ver el listado y mapa de ubicaciones físicas de bodega.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'locations.crear',
                 'name' => 'Crear Ubicaciones',
                 'description' => 'Permite crear nuevas ubicaciones físicas.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'locations.editar',
                 'name' => 'Editar Ubicaciones',
                 'description' => 'Permite modificar ubicaciones físicas existentes.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'locations.eliminar',
                 'name' => 'Eliminar Ubicaciones',
                 'description' => 'Permite eliminar ubicaciones físicas.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Empresas
             [
                 'id' => 'companies.ver',
                 'name' => 'Ver Empresas',
                 'description' => 'Permite ver el listado y detalle de las empresas.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'companies.crear',
                 'name' => 'Crear Empresas',
                 'description' => 'Permite registrar nuevas empresas.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'companies.editar',
                 'name' => 'Editar Empresas',
                 'description' => 'Permite modificar la información de las empresas.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'companies.eliminar',
                 'name' => 'Eliminar Empresas',
                 'description' => 'Permite eliminar empresas del sistema.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Categorías de Productos
             [
                 'id' => 'categories.ver',
                 'name' => 'Ver Categorías',
                 'description' => 'Permite ver el listado de categorías de productos.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'categories.crear',
                 'name' => 'Crear Categorías',
                 'description' => 'Permite registrar nuevas categorías de productos.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'categories.editar',
                 'name' => 'Editar Categorías',
                 'description' => 'Permite modificar categorías de productos.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'categories.eliminar',
                 'name' => 'Eliminar Categorías',
                 'description' => 'Permite eliminar categorías de productos.',
-                'action' => 'destroy'
+                'action' => 'destroy',
             ],
+
             // Unidades de Medida
             [
                 'id' => 'units.ver',
                 'name' => 'Ver Unidades de Medida',
                 'description' => 'Permite ver el listado de unidades de medida.',
-                'action' => 'index'
+                'action' => 'index',
             ],
             [
                 'id' => 'units.crear',
                 'name' => 'Crear Unidades de Medida',
                 'description' => 'Permite registrar nuevas unidades de medida.',
-                'action' => 'create'
+                'action' => 'create',
             ],
             [
                 'id' => 'units.editar',
                 'name' => 'Editar Unidades de Medida',
                 'description' => 'Permite modificar unidades de medida existentes.',
-                'action' => 'edit'
+                'action' => 'edit',
             ],
             [
                 'id' => 'units.desactivar',
                 'name' => 'Activar/Desactivar Unidades',
                 'description' => 'Permite cambiar el estado (activo/inactivo) de una unidad de medida.',
-                'action' => 'toggle'
-            ]
+                'action' => 'toggle',
+            ],
         ];
 
+        // Guardar o actualizar permisos
         foreach ($permissions as $permissionData) {
-            Permission::updateOrCreate(['id' => $permissionData['id']], $permissionData);
+            Permission::updateOrCreate(
+                ['id' => $permissionData['id']],
+                $permissionData
+            );
         }
 
-        // 2. Crear Roles
+        // 2. Crear rol administrador
         $adminRole = Role::updateOrCreate(
             ['name' => 'admin'],
-            ['description' => 'Administrador General del Sistema con acceso total.']
+            [
+                'description' => 'Administrador General del Sistema con acceso total.',
+            ]
         );
 
-        // 3. Asignar Permisos a Roles
-        // El administrador obtiene todos los permisos
+        // 3. Asignar todos los permisos al administrador
         $allPermissionIds = Permission::pluck('id')->toArray();
+
         $adminRole->permissions()->sync($allPermissionIds);
 
-       // 4. Asignar Rol de Administrador a usuarios
+        // 4. Asignar rol administrador a usuarios
+        $adminUsers = User::whereIn('email', [
+            'gracia@login.com',
+            'jon.virgi@gmail.com',
+        ])->get();
 
-    adminUsers = User::whereIn('email', [
-    'gracia@login.com',
-    'jon.virgi@gmail.com'
-    ])->get();
-
-    foreach ($adminUsers as $user) {
-        $user->roles()->sync([$adminRole->id]);
+        foreach ($adminUsers as $user) {
+            $user->roles()->sync([$adminRole->id]);
+        }
     }
-  }
 }

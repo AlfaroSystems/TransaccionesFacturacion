@@ -23,7 +23,6 @@ class Supplier extends Model
         'is_active' => 'boolean',
     ];
 
-
     public function contacts()
     {
         return $this->hasMany(
@@ -31,5 +30,4 @@ class Supplier extends Model
             'id_supplier'
         );
     }
-} //
-
+}

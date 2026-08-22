@@ -85,7 +85,75 @@
                 </div>
 
                 <!-- Correo -->
-                <!-- Botones -->
+                <div>
+                    <label for="email" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Correo electrónico</label>
+                    <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="Ej. contacto@empresa.com" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all text-slate-700 font-semibold">
+                </div>
+
+                <!-- Sitio Web -->
+                <div>
+                    <label for="web_site" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sitio Web</label>
+                    <input type="url" name="web_site" id="web_site" value="{{ old('modal_type') === 'create' ? old('web_site') : '' }}" placeholder="Ej. https://www.empresa.com" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition-all text-slate-700 font-semibold">
+                </div>
+            </div>
+
+            <!-- Fila 5: Ubicación Geográfica (El Salvador) -->
+            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
+                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label for="create_department_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
+                        <select name="department_id" id="create_department_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                            <option value="">Seleccione departamento</option>
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}" @selected(old('modal_type') === 'create' && (int) old('department_id') === $dept->id)>{{ $dept->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="create_municipality_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
+                        <select name="municipality_id" id="create_municipality_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                            <option value="">Seleccione municipio</option>
+                            @foreach($municipalities as $muni)
+                                <option value="{{ $muni->id }}" data-parent="{{ $muni->department_id }}">{{ $muni->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="create_district_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
+                        <select name="district_id" id="create_district_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                            <option value="">Seleccione distrito</option>
+                            @foreach($districts as $dist)
+                                <option value="{{ $dist->id }}" data-parent="{{ $dist->municipality_id }}">{{ $dist->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fila 6: Dirección Detallada y Logo -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Dirección -->
+                <div>
+                    <label for="address" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dirección de la Empresa</label>
+                    <textarea name="address" id="address" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('address') : '' }}</textarea>
+                </div>
+
+                <!-- Logo -->
+                <div>
+                    <label for="logo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Logo</label>
+                    <input type="file" name="logo" id="logo" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-500 font-semibold">
+                    <p class="text-[10px] text-slate-400 mt-1">Formatos: JPG, PNG, GIF, SVG. Máx 2MB.</p>
+                </div>
+            </div>
+
+            <!-- Estado Activo -->
+            <div class="flex items-center gap-2 pt-2">
+                <input type="checkbox" name="is_active" id="is_active" value="1" checked class="rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                <label for="is_active" class="text-xs font-bold text-slate-500 uppercase tracking-wider cursor-pointer">Empresa Activa</label>
+            </div>
+
+            <!-- Botones -->
 <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
 
     <button
@@ -149,10 +217,6 @@
     </button>
 
 </div>
-            </div>
         </form>
     </div>
 </div>
-
-
-

@@ -6,9 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SupplierContact extends Model
 {
-
     protected $primaryKey = 'id_contact';
-
 
     protected $fillable = [
         'id_supplier',
@@ -29,5 +27,4 @@ class SupplierContact extends Model
             'id_supplier'
         );
     }
-
 }
