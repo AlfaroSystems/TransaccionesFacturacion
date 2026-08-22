@@ -16,11 +16,22 @@
     {{-- Encabezado --}}
     <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight">
-                {{ $supplier->name }}
-            </h1>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight">
+                    {{ $supplier->name }}
+                </h1>
+                @if($supplier->is_active)
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full border border-emerald-200">
+                        Activo
+                    </span>
+                @else
+                    <span class="px-3 py-1 bg-rose-100 text-rose-800 text-xs font-bold rounded-full border border-rose-200">
+                        Inactivo
+                    </span>
+                @endif
+            </div>
             <p class="text-slate-400 text-sm font-semibold mt-1">
-                Ficha de detalle del proveedor y sus contactos.
+                Ficha de detalle del proveedor y sus contactos comerciales asociados.
             </p>
         </div>
 
@@ -30,10 +41,11 @@
                 ← Regresar
             </a>
 
-            <a href="{{ route('suppliers.edit', $supplier) }}"
+            <button type="button"
+                onclick="openModal('edit-supplier-modal-{{ $supplier->id_supplier }}')"
                 class="px-5 py-3 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md transition-all">
                 Editar Proveedor
-            </a>
+            </button>
         </div>
     </header>
 
@@ -43,7 +55,12 @@
             Datos Generales
         </h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Código</p>
+                <p class="text-sm font-extrabold text-[#005e66] font-mono">{{ $supplier->code ?? '-' }}</p>
+            </div>
+
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Nombre del Proveedor</p>
                 <p class="text-sm font-semibold text-slate-700">{{ $supplier->name }}</p>
@@ -56,7 +73,7 @@
 
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Correo Electrónico</p>
-                <p class="text-sm font-semibold text-slate-700">{{ $supplier->email }}</p>
+                <p class="text-sm font-semibold text-slate-700 font-mono">{{ $supplier->email }}</p>
             </div>
 
             <div>
@@ -79,12 +96,24 @@
             </div>
 
             <div>
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Estado</p>
+                <p class="text-sm font-semibold text-slate-700">{{ $supplier->is_active ? 'Activo' : 'Inactivo' }}</p>
+            </div>
+
+            <div>
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Registrado el</p>
                 <p class="text-sm font-semibold text-slate-700">
                     {{ $supplier->created_at?->format('d/m/Y h:i A') ?? '-' }}
                 </p>
             </div>
         </div>
+
+        @if($supplier->address)
+            <div class="mt-6 pt-6 border-t border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Dirección</p>
+                <p class="text-sm font-semibold text-slate-700 leading-relaxed">{{ $supplier->address }}</p>
+            </div>
+        @endif
     </div>
 
     {{-- Contactos Asociados --}}
@@ -111,9 +140,16 @@
                             <div class="w-10 h-10 rounded-full bg-[#005e66] text-white flex items-center justify-center font-bold text-sm">
                                 {{ strtoupper(substr($contact->full_name, 0, 1)) }}
                             </div>
-                            <p class="font-bold text-slate-700 text-sm">
-                                {{ $contact->full_name }}
-                            </p>
+                            <div>
+                                <p class="font-bold text-slate-700 text-sm">
+                                    {{ $contact->full_name }}
+                                </p>
+                                @if(isset($contact->is_active))
+                                    <span class="text-[10px] font-bold uppercase {{ $contact->is_active ? 'text-emerald-600' : 'text-slate-400' }}">
+                                        {{ $contact->is_active ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="space-y-1">
