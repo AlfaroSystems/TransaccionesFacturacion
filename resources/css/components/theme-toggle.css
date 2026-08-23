@@ -1,0 +1,42 @@
+/* =========================================================================
+   COMPONENTE: BOTÓN FLOTANTE DE CAMBIO DE TEMA (MODO OSCURO / CLARO)
+   ========================================================================= */
+
+.theme-toggle-btn {
+    position: fixed;
+    top: 1.25rem; /* 20px */
+    right: 1.5rem; /* 24px */
+    z-index: 50;
+    width: 2.5rem; /* 40px */
+    height: 2.5rem; /* 40px */
+    border-radius: 0.75rem; /* 12px */
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.theme-toggle-btn:hover {
+    background-color: #f8fafc;
+    transform: scale(1.05);
+}
+
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+/* Estado del botón en Modo Oscuro */
+html.dark .theme-toggle-btn {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html.dark .theme-toggle-btn:hover {
+    background-color: #334155 !important;
+}

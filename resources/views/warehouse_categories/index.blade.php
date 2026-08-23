@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto">
+<div class="w-full space-y-6 animate-fade-in duration-300">
 
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-8">

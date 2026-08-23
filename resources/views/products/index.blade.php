@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-7xl mx-auto space-y-6">
+<div class="w-full space-y-6 animate-fade-in duration-300">
 
     <!-- Mensajes Flash -->
     @if(session('success'))
@@ -254,4 +254,12 @@
         </form>
     </div>
 </div>
+
+@if(request()->filled('edit'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            openModal('edit-product-modal-{{ request('edit') }}');
+        });
+    </script>
+@endif
 @endsection

@@ -24,8 +24,8 @@ class ProductController extends Controller
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('barcode', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('barcode', 'like', "%{$search}%");
             });
         }
 
@@ -87,7 +87,13 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load(['category', 'subCategory', 'purchaseUnit', 'saleUnit', 'locations']);
+        $relations = ['category', 'subCategory', 'purchaseUnit', 'saleUnit'];
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('product_location')) {
+            $relations[] = 'locations';
+        }
+
+        $product->load($relations);
 
         return view('products.show', compact('product'));
     }
@@ -97,13 +103,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $categories = class_exists(Category::class) ? Category::all() : collect();
-        $subCategories = class_exists(SubCategory::class) 
-            ? SubCategory::where('id_category', $product->id_category)->orWhereNull('id_category')->get() 
-            : collect();
-        $units = class_exists(Unit::class) ? Unit::all() : collect();
-
-        return view('products.edit', compact('product', 'categories', 'subCategories', 'units'));
+        return redirect()->route('products.index', ['edit' => $product->id]);
     }
 
     /**

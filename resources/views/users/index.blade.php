@@ -35,13 +35,13 @@
     @endif
 
     <!-- Encabezado de Página -->
-    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <header class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight">Gestión de Usuarios</h1>
-            <p class="text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso y sus niveles de permisos.</p>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Gestión de Usuarios</h1>
+            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso y sus niveles de permisos.</p>
         </div>
 
-        <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-navy-sidebar text-white rounded-full font-bold text-sm hover:bg-navy-active shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+        <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>

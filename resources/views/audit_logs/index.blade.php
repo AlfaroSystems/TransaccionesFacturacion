@@ -5,20 +5,20 @@
 @section('content')
 <div class="animate-fade-in duration-300">
     <!-- Encabezado de Página -->
-    <header class="mb-8">
+    <header class="mb-6">
         <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight">Bitácora de Auditoría</h1>
-            <p class="text-slate-400 text-sm font-semibold mt-1">Revisa el historial detallado de cambios y actividades del sistema.</p>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Bitácora de Auditoría</h1>
+            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Revisa el historial detallado de cambios y actividades del sistema.</p>
         </div>
     </header>
 
     <!-- Barra de Búsqueda y Filtros -->
-    <section class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow mb-8">
-        <form action="{{ route('audit-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 items-end">
+    <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow mb-8">
+        <form action="{{ route('audit-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 items-end">
             <!-- Filtro por Usuario -->
             <div>
                 <label for="user_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usuario</label>
-                <select name="user_id" id="user_id" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700 font-semibold">
+                <select name="user_id" id="user_id" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
                     <option value="">Todos los Usuarios</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
@@ -28,42 +28,28 @@
                 </select>
             </div>
 
-            <!-- Filtro por Controlador -->
-            <div>
-                <label for="controller" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Controlador</label>
-                <input type="text" name="controller" id="controller" value="{{ request('controller') }}" placeholder="Ej. UserController" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700 font-semibold">
-            </div>
-
-            <!-- Filtro por Acción -->
-            <div>
-                <label for="action" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Acción</label>
-                <input type="text" name="action" id="action" value="{{ request('action') }}" placeholder="Ej. store" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700 font-semibold">
-            </div>
-
             <!-- Fecha Desde -->
             <div>
                 <label for="date_from" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Desde</label>
-                <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700 font-semibold">
+                <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
             </div>
 
-            <!-- Fecha Hasta & Botones -->
+            <!-- Fecha Hasta -->
+            <div>
+                <label for="date_to" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
+                <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+            </div>
+
+            <!-- Botones -->
             <div class="flex gap-2 w-full">
-                <div class="flex-1">
-                    <label for="date_to" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
-                    <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700 font-semibold">
-                </div>
-                <div class="flex flex-col justify-end">
-                    <div class="flex gap-2">
-                        <button type="submit" class="px-5 py-2.5 bg-navy-sidebar text-white rounded-xl text-sm font-bold hover:bg-navy-active transition-all shadow-sm">
-                            Filtrar
-                        </button>
-                        @if(request()->anyFilled(['user_id', 'controller', 'action', 'date_from', 'date_to']))
-                            <a href="{{ route('audit-logs.index') }}" class="px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
-                                Limpiar
-                            </a>
-                        @endif
-                    </div>
-                </div>
+                <button type="submit" class="flex-1 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] text-white rounded-xl text-sm font-bold transition-all shadow-sm">
+                    Filtrar
+                </button>
+                @if(request()->anyFilled(['user_id', 'date_from', 'date_to']))
+                    <a href="{{ route('audit-logs.index') }}" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
+                        Limpiar
+                    </a>
+                @endif
             </div>
         </form>
     </section>

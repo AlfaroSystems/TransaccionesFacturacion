@@ -34,13 +34,13 @@
     @endif
 
     <!-- Encabezado de Página -->
-    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <header class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight">Roles y Permisos</h1>
-            <p class="text-slate-400 text-sm font-semibold mt-1">Configura las etiquetas de roles y asóciales permisos del sistema.</p>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Roles y Permisos</h1>
+            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Configura las etiquetas de roles y asóciales permisos del sistema.</p>
         </div>
 
-        <button type="button" onclick="openModal('create-role-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-navy-sidebar text-white rounded-full font-bold text-sm hover:bg-navy-active shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+        <button type="button" onclick="openModal('create-role-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
@@ -303,6 +303,44 @@
                             @endforeach
                         </div>
                     </div>
+
+                    <!-- Grupo 7: Catálogo de Productos -->
+                    <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                        <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                            Catálogo de Productos y Unidades
+                        </h4>
+                        <div class="space-y-3 max-h-48 overflow-y-auto">
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'products.') || str_starts_with($p->id, 'categories.') || str_starts_with($p->id, 'subcategories.') || str_starts_with($p->id, 'units.')) as $permission)
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Grupo 8: Gestión de Proveedores -->
+                    <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                        <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                            Gestión de Proveedores
+                        </h4>
+                        <div class="space-y-3 max-h-48 overflow-y-auto">
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'suppliers.')) as $permission)
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -482,6 +520,44 @@
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
                             @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'roles.') || str_starts_with($p->id, 'bitacora.')) as $permission)
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Grupo 7: Catálogo de Productos -->
+                    <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                        <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                            Catálogo de Productos y Unidades
+                        </h4>
+                        <div class="space-y-3 max-h-48 overflow-y-auto">
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'products.') || str_starts_with($p->id, 'categories.') || str_starts_with($p->id, 'subcategories.') || str_starts_with($p->id, 'units.')) as $permission)
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Grupo 8: Gestión de Proveedores -->
+                    <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                        <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                            Gestión de Proveedores
+                        </h4>
+                        <div class="space-y-3 max-h-48 overflow-y-auto">
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'suppliers.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>

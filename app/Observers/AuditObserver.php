@@ -81,7 +81,7 @@ class AuditObserver
         // 3. Insertar el registro en la bitácora
         AuditLog::create([
             'user_id' => auth()->check() ? auth()->id() : null,
-            'id_record' => $model->getKey(),
+            'id_record' => is_numeric($model->getKey()) ? (int) $model->getKey() : null,
             'controller' => $controller,
             'action' => $action,
             'original_data' => $originalData,

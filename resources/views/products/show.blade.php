@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="w-full space-y-6 animate-fade-in duration-300">
 
     <!-- Encabezado de Navegación y Acciones -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -21,17 +21,12 @@
 
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <a href="{{ route('products.index') }}"
-               class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-sm">
+                class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-sm">
                 ← Volver
             </a>
-            
-            <button onclick="window.print()"
-                    class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-sm">
-                🖨️ Imprimir Ficha
-            </button>
 
-            <a href="{{ route('products.edit', $product->id) }}"
-               class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20">
+            <a href="{{ route('products.index', ['edit' => $product->id]) }}"
+                class="bg-[#005e66] hover:bg-[#3cb0a4] text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg">
                 ✏️ Editar Producto
             </a>
         </div>

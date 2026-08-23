@@ -264,6 +264,84 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite cambiar el estado (activo/inactivo) de una unidad de medida.',
                 'action' => 'toggle',
             ],
+
+            // Productos
+            [
+                'id' => 'products.ver',
+                'name' => 'Ver Productos',
+                'description' => 'Permite ver el catálogo general y ficha técnica de productos.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'products.crear',
+                'name' => 'Crear Productos',
+                'description' => 'Permite registrar nuevos productos en el catálogo.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'products.editar',
+                'name' => 'Editar Productos',
+                'description' => 'Permite modificar los datos de los productos.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'products.eliminar',
+                'name' => 'Eliminar Productos',
+                'description' => 'Permite eliminar productos del catálogo.',
+                'action' => 'destroy',
+            ],
+
+            // Subcategorías
+            [
+                'id' => 'subcategories.ver',
+                'name' => 'Ver Subcategorías',
+                'description' => 'Permite ver el listado de subcategorías.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'subcategories.crear',
+                'name' => 'Crear Subcategorías',
+                'description' => 'Permite registrar nuevas subcategorías.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'subcategories.editar',
+                'name' => 'Editar Subcategorías',
+                'description' => 'Permite modificar subcategorías.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'subcategories.eliminar',
+                'name' => 'Eliminar Subcategorías',
+                'description' => 'Permite eliminar subcategorías.',
+                'action' => 'destroy',
+            ],
+
+            // Proveedores
+            [
+                'id' => 'suppliers.ver',
+                'name' => 'Ver Proveedores',
+                'description' => 'Permite ver el listado y detalle de los proveedores.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'suppliers.crear',
+                'name' => 'Crear Proveedores',
+                'description' => 'Permite registrar nuevos proveedores.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'suppliers.editar',
+                'name' => 'Editar Proveedores',
+                'description' => 'Permite modificar información de proveedores.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'suppliers.eliminar',
+                'name' => 'Eliminar Proveedores',
+                'description' => 'Permite eliminar proveedores del sistema.',
+                'action' => 'destroy',
+            ],
         ];
 
         // Guardar o actualizar permisos
