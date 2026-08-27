@@ -1,0 +1,12 @@
+{
+    "Your password has been reset.": "¡Tu contraseña ha sido restablecida!",
+    "We have emailed your password reset link.": "Hemos enviado por correo electrónico el enlace para restablecer tu contraseña.",
+    "This password reset token is invalid.": "Este token de restablecimiento de contraseña no es válido.",
+    "Please wait before retrying.": "Por favor espera antes de intentar de nuevo.",
+    "We can't find a user with that email address.": "No hemos podido encontrar ningún usuario con esa dirección de correo electrónico.",
+    "passwords.reset": "¡Tu contraseña ha sido restablecida!",
+    "passwords.sent": "Hemos enviado por correo electrónico el enlace para restablecer tu contraseña.",
+    "passwords.throttled": "Por favor espera antes de intentar de nuevo.",
+    "passwords.token": "Este token de restablecimiento de contraseña no es válido.",
+    "passwords.user": "No hemos podido encontrar ningún usuario con esa dirección de correo electrónico."
+}

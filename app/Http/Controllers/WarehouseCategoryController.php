@@ -24,9 +24,7 @@ class WarehouseCategoryController extends Controller
     {
         Gate::authorize('warehouse_categories.crear');
 
-        return view(
-            'warehouse_categories.create'
-        );
+        return redirect()->route('warehouse_categories.index');
     }
 
     public function store(Request $request)
@@ -56,10 +54,7 @@ class WarehouseCategoryController extends Controller
     {
         Gate::authorize('warehouse_categories.editar');
 
-        return view(
-            'warehouse_categories.edit',
-            compact('warehouseCategory')
-        );
+        return redirect()->route('warehouse_categories.index');
     }
 
     public function update(Request $request, WarehouseCategory $warehouseCategory)
@@ -86,11 +81,11 @@ class WarehouseCategoryController extends Controller
     }
 
     public function destroy(WarehouseCategory $warehouseCategory)
-   {
-     Gate::authorize('warehouse_categories.eliminar');
+    {
+        Gate::authorize('warehouse_categories.eliminar');
 
 
-      if ($warehouseCategory->warehouses()->exists()) {
+        if ($warehouseCategory->warehouses()->exists()) {
 
         return redirect()
             ->route('warehouse_categories.index')

@@ -478,6 +478,34 @@
 </div>
 
 <script>
+    function setupAutoCodeGenerator(prefix) {
+        const pasilloInput = document.getElementById(prefix ? `${prefix}-pasillo` : 'pasillo');
+        const rackInput = document.getElementById(prefix ? `${prefix}-rack` : 'rack');
+        const levelInput = document.getElementById(prefix ? `${prefix}-level` : 'level');
+        const positionInput = document.getElementById(prefix ? `${prefix}-position` : 'position');
+        const codeInput = document.getElementById(prefix ? `${prefix}-code` : 'code');
+
+        if (!codeInput) return;
+
+        function generateCode() {
+            const parts = [];
+            if (pasilloInput && pasilloInput.value.trim() !== '') parts.push(pasilloInput.value.trim().toUpperCase());
+            if (rackInput && rackInput.value.trim() !== '') parts.push(rackInput.value.trim());
+            if (levelInput && levelInput.value.trim() !== '') parts.push(levelInput.value.trim());
+            if (positionInput && positionInput.value.trim() !== '') parts.push(positionInput.value.trim());
+
+            if (parts.length > 0) {
+                codeInput.value = parts.join('-');
+            }
+        }
+
+        [pasilloInput, rackInput, levelInput, positionInput].forEach(input => {
+            if (input) {
+                input.addEventListener('input', generateCode);
+            }
+        });
+    }
+
     function openEditLocationModal(actionUrl, location) {
         const modal = document.getElementById('edit-location-modal');
         modal.querySelector('form').action = actionUrl;
@@ -501,6 +529,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        setupAutoCodeGenerator('');
+        setupAutoCodeGenerator('edit');
+
         const isActiveChk = document.getElementById('edit-is_active');
         const label = document.getElementById('edit-is_active_label');
         if (isActiveChk && label) {

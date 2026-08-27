@@ -31,7 +31,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('categories.crear');
 
-        return view('categories.create');
+        return redirect()->route('categories.index');
     }
 
     /**
@@ -66,7 +66,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('categories.editar');
 
-        return view('categories.edit', compact('category'));
+        return redirect()->route('categories.index');
     }
 
     /**
