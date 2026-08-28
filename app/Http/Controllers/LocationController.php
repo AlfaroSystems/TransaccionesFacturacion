@@ -233,10 +233,12 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.eliminar');
 
-        $location->delete();
+        $location->update([
+            'is_active' => false,
+        ]);
 
         return redirect()
             ->route('locations.index')
-            ->with('success', 'Ubicación eliminada correctamente.');
+            ->with('success', 'Ubicación inactivada correctamente.');
     }
 }

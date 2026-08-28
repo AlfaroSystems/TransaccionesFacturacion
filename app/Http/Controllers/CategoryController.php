@@ -114,10 +114,12 @@ class CategoryController extends Controller
     {
         Gate::authorize('categories.eliminar');
 
-        $category->delete();
+        $category->update([
+            'is_active' => false,
+        ]);
 
         return redirect()
             ->route('categories.index')
-            ->with('success', 'Categoría eliminada correctamente');
+            ->with('success', 'Categoría inactivada correctamente');
     }
 }

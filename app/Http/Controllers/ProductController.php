@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\SubCategory;
 use App\Models\Unit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Exception;
 
 class ProductController extends Controller
@@ -16,6 +17,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('products.ver');
+
         $query = Product::with(['category', 'subCategory', 'purchaseUnit', 'saleUnit']);
 
         // Filtro por búsqueda (nombre, sku, código de barras)
@@ -51,6 +54,8 @@ class ProductController extends Controller
      */
     public function create()
     {
+        Gate::authorize('products.crear');
+
         $categories = class_exists(Category::class) ? Category::all() : collect();
         $subCategories = class_exists(SubCategory::class) ? SubCategory::all() : collect();
         $units = class_exists(Unit::class) ? Unit::all() : collect();
@@ -63,6 +68,8 @@ class ProductController extends Controller
      */
     public function store(ProductRequest $request)
     {
+        Gate::authorize('products.crear');
+
         try {
             $data = $request->validated();
             
@@ -86,6 +93,8 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        Gate::authorize('products.ver');
+
         $relations = ['category', 'subCategory', 'purchaseUnit', 'saleUnit'];
 
         if (\Illuminate\Support\Facades\Schema::hasTable('product_location')) {
@@ -102,6 +111,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        Gate::authorize('products.editar');
+
         return redirect()->route('products.index', ['edit' => $product->id]);
     }
 
@@ -110,6 +121,8 @@ class ProductController extends Controller
      */
     public function update(ProductRequest $request, Product $product)
     {
+        Gate::authorize('products.editar');
+
         try {
             $data = $request->validated();
             $data['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : false;
@@ -131,16 +144,15 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        try {
-            $productName = $product->name;
-            $product->delete();
+        Gate::authorize('products.eliminar');
 
-            return redirect()
-                ->route('products.index')
-                ->with('success', "Producto '{$productName}' eliminado correctamente.");
-        } catch (Exception $e) {
-            return back()
-                ->withErrors(['error' => 'No se pudo eliminar el producto: ' . $e->getMessage()]);
-        }
+        $productName = $product->name;
+        $product->update([
+            'is_active' => false,
+        ]);
+
+        return redirect()
+            ->route('products.index')
+            ->with('success', "Producto '{$productName}' inactivado correctamente.");
     }
 }

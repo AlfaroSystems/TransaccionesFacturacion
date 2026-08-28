@@ -95,9 +95,13 @@ class BranchController extends Controller
     public function destroy(Branch $branch)
     {
         Gate::authorize('branches.eliminar');
-        $branch->delete();
+
+        $branch->update([
+            'is_active' => false,
+        ]);
+
         return redirect()
-        ->route('branches.index')
-        ->with('success', 'Sucursal eliminada correctamente.');
+            ->route('branches.index')
+            ->with('success', 'Sucursal inactivada correctamente.');
     }
 }

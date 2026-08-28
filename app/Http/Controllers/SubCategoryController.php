@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class SubCategoryController extends Controller
 {
@@ -13,6 +14,8 @@ class SubCategoryController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('subcategories.ver');
+
         $query = SubCategory::with('category');
 
         // Filtro por categoría
@@ -48,6 +51,8 @@ class SubCategoryController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('subcategories.crear');
+
         $validated = $request->validate([
             'id_category' => [
                 'required',
@@ -128,6 +133,8 @@ class SubCategoryController extends Controller
         Request $request,
         SubCategory $subCategory
     ) {
+        Gate::authorize('subcategories.editar');
+
         $validated = $request->validate([
             'id_category' => [
                 'required',
@@ -188,13 +195,17 @@ class SubCategoryController extends Controller
      */
     public function destroy(SubCategory $subCategory)
     {
-        $subCategory->delete();
+        Gate::authorize('subcategories.eliminar');
+
+        $subCategory->update([
+            'is_active' => false,
+        ]);
 
         return redirect()
             ->route('subcategories.index')
             ->with(
                 'success',
-                'Subcategoría eliminada correctamente.'
+                'Subcategoría inactivada correctamente.'
             );
     }
 

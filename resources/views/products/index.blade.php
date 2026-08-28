@@ -17,6 +17,7 @@
                 Consulte, filtre y gestione el catálogo general, precios y niveles de existencias.
             </p>
         </div>
+        @can('products.crear')
         <div class="flex items-center gap-3 w-full md:w-auto">
             <button type="button" onclick="openModal('create-product-modal')" class="w-full md:w-auto bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,6 +26,7 @@
                 <span>Nuevo Producto</span>
             </button>
         </div>
+        @endcan
     </div>
 
     <!-- Tarjetas de Métricas Rápidas -->
@@ -85,9 +87,8 @@
                     <th class="py-3 px-6 text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                @forelse($products as $product)
-                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200">
+                    @forelse($products as $product)
+                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$product->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
                         <td class="py-4 px-6 bg-white rounded-l-2xl border-l border-y border-slate-100">
                             <div class="font-extrabold text-slate-800 text-sm">{{ $product->name }}</div>
                             <div class="text-xs text-slate-400 font-mono">SKU: {{ $product->sku }}</div>
@@ -105,23 +106,37 @@
                             @if($product->is_active)
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">● Activo</span>
                             @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">○ Inactivo</span>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">● Inactivo</span>
                             @endif
                         </td>
                         <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex items-center justify-center gap-2">
+                                @can('products.ver')
                                 <a href="{{ route('products.show', $product) }}" class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold text-xs transition-all" title="Ver Detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                 </a>
+                                @endcan
+
+                                @can('products.editar')
                                 <button type="button" onclick="openModal('edit-product-modal-{{ $product->id }}')" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
-                                <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', 'Producto {{ $product->name }}')" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all" title="Eliminar">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
+                                @endcan
+
+                                @can('products.eliminar')
+                                    @if($product->is_active)
+                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', 'Producto {{ $product->name }}')" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all" title="Inactivar Producto">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                        </button>
+                                    @else
+                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', 'Producto {{ $product->name }}')" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all" title="Reactivar Producto">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </button>
+                                    @endif
+                                @endcan
                             </div>
                         </td>
-                    </tr>
+                    </tr>                  </tr>
 
                     <!-- Modal de Edición de Producto -->
                     <div id="edit-product-modal-{{ $product->id }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm">

@@ -78,7 +78,7 @@
             </thead>
             <tbody>
                 @forelse($companies as $company)
-                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200">
+                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$company->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-l-2xl border-l border-y border-slate-100 dark:border-slate-700/80 text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-300">
                             <div class="flex items-center gap-3">
                                 @if($company->logo)
@@ -157,20 +157,35 @@
                                 </button>
                                 @endcan
 
-                                <!-- Eliminar -->
+                                <!-- Eliminar / Inactivar -->
                                 @can('companies.eliminar')
-                                <button
-                                    type="button"
-                                    data-action="{{ route('companies.destroy', $company) }}"
-                                    data-company-name="{{ $company->name }}"
-                                    onclick="confirmDelete(this.dataset.action, this.dataset.companyName)"
-                                    class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all"
-                                    title="Eliminar Empresa"
-                                >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                                    @if($company->is_active)
+                                        <button
+                                            type="button"
+                                            data-action="{{ route('companies.destroy', $company) }}"
+                                            data-company-name="{{ $company->name }}"
+                                            onclick="confirmDelete(this.dataset.action, this.dataset.companyName)"
+                                            class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all"
+                                            title="Inactivar Empresa"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                            </svg>
+                                        </button>
+                                    @else
+                                        <button
+                                            type="button"
+                                            data-action="{{ route('companies.destroy', $company) }}"
+                                            data-company-name="{{ $company->name }}"
+                                            onclick="confirmDelete(this.dataset.action, this.dataset.companyName)"
+                                            class="p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-100/50 dark:border-emerald-800/60 rounded-xl transition-all"
+                                            title="Reactivar Empresa"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </button>
+                                    @endif
                                 @endcan
                             </div>
                         </td>

@@ -14,6 +14,9 @@ class Supplier extends Model
         'phone',
         'country',
         'address',
+        'department_id',
+        'municipality_id',
+        'district_id',
         'website',
         'is_active',
     ];
@@ -28,5 +31,20 @@ class Supplier extends Model
             SupplierContact::class,
             'id_supplier'
         );
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function municipality()
+    {
+        return $this->belongsTo(Municipality::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
     }
 }

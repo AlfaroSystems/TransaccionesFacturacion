@@ -108,10 +108,12 @@ class EmpleadoController extends Controller
     {
         Gate::authorize('empleados.eliminar');
 
-        $empleado->delete();
+        $empleado->update([
+            'is_active' => false,
+        ]);
 
         return redirect()
             ->route('empleados.index')
-            ->with('success', 'Empleado eliminado correctamente.');
+            ->with('success', 'Empleado inactivado correctamente.');
     }
 }

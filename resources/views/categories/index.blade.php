@@ -58,7 +58,7 @@
             </thead>
             <tbody id="categories-table-body">
                 @forelse($categories as $category)
-                    <tr class="table-row-item group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
+                    <tr class="table-row-item group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$category->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-l-2xl border-l border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-400 dark:text-slate-400 font-bold transition-colors duration-300">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-900/40 flex items-center justify-center text-[#005e66] dark:text-teal-400 font-bold">

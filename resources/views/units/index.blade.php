@@ -182,7 +182,7 @@
             </thead>
             <tbody>
                 @forelse($units as $unit)
-                    <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
+                    <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$unit->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
                         {{-- UNIDAD --}}
                         <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100">
                             <div class="flex items-center gap-3">
@@ -198,33 +198,29 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-800 text-sm group-hover:text-[#005e66] transition-colors">
+                                    <span class="font-extrabold text-slate-800 block text-sm">
                                         {{ $unit->name }}
-                                    </div>
-                                    <div class="text-xs text-slate-400 font-semibold">
-                                        ID: {{ $unit->id }}
-                                    </div>
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-mono">
+                                        Símbolo: {{ $unit->symbol ?? 'N/D' }}
+                                    </span>
                                 </div>
                             </div>
                         </td>
                         {{-- TIPO --}}
-                        <td class="px-6 py-4 bg-white border-y border-slate-100">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10">
-                                {{ ucfirst($unit->type) }}
-                            </span>
+                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm font-semibold text-slate-600 capitalize">
+                            {{ $unit->type }}
                         </td>
 
                         {{-- ESTADO --}}
                         <td class="px-6 py-4 bg-white border-y border-slate-100">
                             @if($unit->is_active)
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    Activa
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                    ● Activa
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/10">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-                                    Inactiva
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                                    ● Inactiva
                                 </span>
                             @endif
                         </td>
@@ -251,7 +247,7 @@
                                     </button>
                                 @endcan
 
-                                {{-- DESACTIVAR --}}
+                                {{-- DESACTIVAR / REACTIVAR --}}
                                 @can('units.desactivar')
                                     @if($unit->is_active)
                                         <button type="button"
@@ -260,6 +256,15 @@
                                                 title="Desactivar Unidad">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                            </svg>
+                                        </button>
+                                    @else
+                                        <button type="button"
+                                                onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}')"
+                                                class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100/50 rounded-xl transition-all"
+                                                title="Reactivar Unidad">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </button>
                                     @endif

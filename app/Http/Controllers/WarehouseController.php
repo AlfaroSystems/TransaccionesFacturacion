@@ -11,6 +11,8 @@ class WarehouseController extends Controller
 {
     public function index()
     {
+        Gate::authorize('warehouses.ver');
+
         $warehouses = Warehouse::with(['branch', 'warehouseCategory'])->get();
         $branches = Branch::where('is_active', true)->get();
         $categories = WarehouseCategory::where('is_active', true)->get();
@@ -123,13 +125,15 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.eliminar');
 
-        $warehouse->delete();
+        $warehouse->update([
+            'is_active' => false,
+        ]);
 
         return redirect()
             ->route('warehouses.index')
             ->with(
                 'success',
-                'Bodega eliminada'
+                'Bodega inactivada correctamente'
             );
     }
 }

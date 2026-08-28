@@ -107,12 +107,16 @@ class UnitController extends Controller
     {
         Gate::authorize('units.desactivar');
 
+        $newStatus = !$unit->is_active;
+
         $unit->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $msg = $newStatus ? 'Unidad de medida reactivada exitosamente.' : 'Unidad de medida desactivada exitosamente.';
 
         return redirect()
             ->route('units.index')
-            ->with('success', 'Unidad de medida desactivada exitosamente.');
+            ->with('success', $msg);
     }
 }

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 use App\Models\Supplier;
 use App\Models\SupplierContact;
+use App\Models\Department;
+use App\Models\Municipality;
+use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -17,7 +20,7 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.ver');
 
         $search = $request->input('search');
-        $suppliers = Supplier::with('contacts')
+        $suppliers = Supplier::with(['contacts', 'department', 'municipality', 'district'])
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
@@ -35,7 +38,11 @@ class SupplierController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('suppliers.index', compact('suppliers'));
+        $departments = Department::orderBy('name')->get();
+        $municipalities = Municipality::orderBy('name')->get();
+        $districts = District::orderBy('name')->get();
+
+        return view('suppliers.index', compact('suppliers', 'departments', 'municipalities', 'districts'));
     }
 
     /**
@@ -61,6 +68,9 @@ class SupplierController extends Controller
             'email' => 'required|email|max:255|unique:suppliers,email',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
+            'department_id' => 'nullable|exists:departments,id',
+            'municipality_id' => 'nullable|exists:municipalities,id',
+            'district_id' => 'nullable|exists:districts,id',
             'address' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
             'is_active' => 'nullable|boolean',
@@ -72,13 +82,18 @@ class SupplierController extends Controller
             'contacts.*.is_active' => 'nullable|boolean',
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
+        $isElSalvador = trim($validated['country']) === 'El Salvador';
+
+        DB::transaction(function () use ($validated, $request, $isElSalvador) {
             $supplier = Supplier::create([
                 'code' => $validated['code'],
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'country' => $validated['country'],
+                'department_id' => $isElSalvador ? ($request->input('department_id') ?: null) : null,
+                'municipality_id' => $isElSalvador ? ($request->input('municipality_id') ?: null) : null,
+                'district_id' => $isElSalvador ? ($request->input('district_id') ?: null) : null,
                 'address' => $validated['address'] ?? null,
                 'website' => $validated['website'] ?? null,
                 'is_active' => $request->boolean('is_active', true),
@@ -107,9 +122,13 @@ class SupplierController extends Controller
     {
         Gate::authorize('suppliers.ver');
 
-        $supplier->load('contacts');
+        $supplier->load(['contacts', 'department', 'municipality', 'district']);
 
-        return view('suppliers.show', compact('supplier'));
+        $departments = Department::orderBy('name')->get();
+        $municipalities = Municipality::orderBy('name')->get();
+        $districts = District::orderBy('name')->get();
+
+        return view('suppliers.show', compact('supplier', 'departments', 'municipalities', 'districts'));
     }
 
     /**
@@ -119,7 +138,7 @@ class SupplierController extends Controller
     {
         Gate::authorize('suppliers.editar');
 
-        $supplier->load('contacts');
+        $supplier->load(['contacts', 'department', 'municipality', 'district']);
 
         return view('suppliers.edit', compact('supplier'));
     }
@@ -137,6 +156,9 @@ class SupplierController extends Controller
             'email' => 'required|email|max:255|unique:suppliers,email,' . $supplier->id_supplier . ',id_supplier',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
+            'department_id' => 'nullable|exists:departments,id',
+            'municipality_id' => 'nullable|exists:municipalities,id',
+            'district_id' => 'nullable|exists:districts,id',
             'address' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
             'is_active' => 'nullable|boolean',
@@ -149,7 +171,9 @@ class SupplierController extends Controller
             'contacts.*.is_active' => 'nullable|boolean',
         ]);
 
-        DB::transaction(function () use ($validated, $supplier, $request) {
+        $isElSalvador = trim($validated['country']) === 'El Salvador';
+
+        DB::transaction(function () use ($validated, $supplier, $request, $isElSalvador) {
             // 1. Actualizar datos del proveedor
             $supplier->update([
                 'code' => $validated['code'],
@@ -157,6 +181,9 @@ class SupplierController extends Controller
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'country' => $validated['country'],
+                'department_id' => $isElSalvador ? ($request->input('department_id') ?: null) : null,
+                'municipality_id' => $isElSalvador ? ($request->input('municipality_id') ?: null) : null,
+                'district_id' => $isElSalvador ? ($request->input('district_id') ?: null) : null,
                 'address' => $validated['address'] ?? null,
                 'website' => $validated['website'] ?? null,
                 'is_active' => $request->boolean('is_active', true),
@@ -216,13 +243,16 @@ class SupplierController extends Controller
     {
         Gate::authorize('suppliers.eliminar');
 
-        DB::transaction(function () use ($supplier) {
-            $supplier->contacts()->delete();
-            $supplier->delete();
-        });
+        $newStatus = !$supplier->is_active;
+
+        $supplier->update([
+            'is_active' => $newStatus,
+        ]);
+
+        $message = $newStatus ? 'Proveedor reactivado correctamente.' : 'Proveedor inactivado correctamente.';
 
         return redirect()
             ->route('suppliers.index')
-            ->with('success', 'Proveedor eliminado correctamente.');
+            ->with('success', $message);
     }
 }

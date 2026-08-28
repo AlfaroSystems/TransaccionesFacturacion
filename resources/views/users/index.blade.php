@@ -9,12 +9,14 @@
             <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Gestión de Usuarios</h1>
             <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso y sus niveles de permisos.</p>
         </div>
-        <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Crear Nuevo Usuario</span>
-        </button>
+        @can('usuarios.crear')
+            <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Crear Nuevo Usuario</span>
+            </button>
+        @endcan
     </header>
 
     <!-- Barra de Búsqueda y Filtros -->
@@ -127,19 +129,29 @@
                         <!-- Acciones -->
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <!-- Botón Editar -->
-                                <button type="button" onclick="openEditUserModal('{{ route('users.update', $user) }}', {{ json_encode($user) }}, {{ json_encode($user->roles->pluck('id')->toArray()) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Usuario">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
+                                @can('usuarios.editar')
+                                    <!-- Botón Editar -->
+                                    <button type="button" onclick="openEditUserModal('{{ route('users.update', $user) }}', {{ json_encode($user) }}, {{ json_encode($user->roles->pluck('id')->toArray()) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Usuario">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                @endcan
 
-                                <!-- Botón Eliminar -->
-                                <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', '{{ $user->name }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Eliminar Usuario">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                                @can('usuarios.eliminar')
+                                    <!-- Botón Eliminar -->
+                                    <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', '{{ $user->name }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Eliminar Usuario">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                @endcan
+
+                                @cannot('usuarios.editar')
+                                    @cannot('usuarios.eliminar')
+                                        <span class="text-xs text-slate-400 font-semibold italic">Solo Lectura</span>
+                                    @endcannot
+                                @endcannot
                             </div>
                         </td>
                     </tr>
@@ -262,15 +274,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
                 <!-- Roles -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
-                    <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <label for="create-role-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
+                    <select name="roles[]" id="create-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <option value="">Seleccionar rol</option>
                         @foreach($roles as $role)
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="roles[]" value="{{ $role->id }}" {{ (old('modal_type') === 'create' && is_array(old('roles')) && in_array($role->id, old('roles'))) ? 'checked' : '' }} class="rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4">
-                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">{{ $role->name }}</span>
-                            </label>
+                            <option value="{{ $role->id }}" {{ (old('modal_type') === 'create' && is_array(old('roles')) && in_array($role->id, old('roles'))) ? 'selected' : '' }}>
+                                {{ strtoupper($role->name) }}
+                            </option>
                         @endforeach
-                    </div>
+                    </select>
                     @error('roles')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -396,15 +408,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
                 <!-- Roles -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
-                    <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200" id="edit-roles-container">
+                    <label for="edit-role-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
+                    <select name="roles[]" id="edit-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <option value="">Seleccionar rol</option>
                         @foreach($roles as $role)
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="roles[]" value="{{ $role->id }}" id="edit-role-{{ $role->id }}" class="edit-role-checkbox rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4">
-                                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">{{ $role->name }}</span>
-                            </label>
+                            <option value="{{ $role->id }}">
+                                {{ strtoupper($role->name) }}
+                            </option>
                         @endforeach
-                    </div>
+                    </select>
                     @error('roles')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -448,11 +460,11 @@
         document.getElementById('edit-password').value = '';
         document.getElementById('edit-password_confirmation').value = '';
         
-        // Reset all checkbox states
-        const checkboxes = document.querySelectorAll('.edit-role-checkbox');
-        checkboxes.forEach(chk => {
-            chk.checked = roleIds.includes(parseInt(chk.value));
-        });
+        // Seleccionar rol en el desplegable
+        const roleSelect = document.getElementById('edit-role-select');
+        if (roleSelect) {
+            roleSelect.value = (roleIds && roleIds.length > 0) ? roleIds[0] : '';
+        }
         
         const statusChk = document.getElementById('edit-status');
         statusChk.checked = user.status === 'active';

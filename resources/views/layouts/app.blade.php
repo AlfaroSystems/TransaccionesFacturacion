@@ -58,6 +58,12 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
+        /* Utilidades de conmutación de tema */
+        html.dark .show-on-dark { display: flex !important; }
+        html.dark .hide-on-dark { display: none !important; }
+        html:not(.dark) .show-on-dark { display: none !important; }
+        html:not(.dark) .hide-on-dark { display: flex !important; }
+
         /* REGLAS GLOBALES AUTOMÁTICAS PARA MODO OSCURO */
         html.dark body,
         html.dark main {
@@ -209,14 +215,16 @@
                     $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
                 @endphp
 
-                <a href="{{ route('products.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isProductos ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                    <span>Productos</span>
-                </a>
+                @canany(['products.ver', 'categories.ver', 'subcategories.ver', 'units.ver'])
+                    <a href="{{ route('products.index') }}"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isProductos ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        <span>Productos</span>
+                    </a>
+                @endcanany
 
                 <!-- Proveedores -->
                 @php
@@ -254,8 +262,35 @@
             </nav>
         </div>
 
-        <!-- Botón Cerrar Sesión -->
-        <div class="px-1 mb-4">
+        <!-- Pie del Sidebar: Modo Oscuro y Cerrar Sesión -->
+        <div class="px-1 mb-4 space-y-2">
+            <!-- Botón Cambiar Tema (Modo Oscuro / Claro) -->
+            <button
+                type="button"
+                onclick="toggleDarkMode()"
+                class="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl bg-white/10 dark:bg-slate-800/80 border border-white/20 dark:border-slate-700/80 hover:bg-white/20 dark:hover:bg-slate-700/80 transition-all text-sm font-semibold text-white shadow-sm"
+                title="Cambiar tema"
+            >
+                <!-- Modo Claro activo -> icono de Luna + "Modo Oscuro" -->
+                <div class="hide-on-dark items-center justify-center gap-2 text-white">
+                    <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                    <span class="text-white text-sm font-semibold">Modo Oscuro</span>
+                </div>
+
+                <!-- Modo Oscuro activo -> icono de Sol + "Modo Claro" -->
+                <div class="show-on-dark items-center justify-center gap-2 text-white">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    <span class="text-white text-sm font-semibold">Modo Claro</span>
+                </div>
+            </button>
+
+            <!-- Botón Cerrar Sesión -->
             <form method="POST" action="{{ route('logout') }}" id="logout-form" class="hidden">
                 @csrf
             </form>
@@ -274,26 +309,6 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="relative flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-
-        <!-- BOTÓN MODO OSCURO -->
-        <button
-            type="button"
-            onclick="toggleDarkMode()"
-            class="fixed top-5 right-6 z-40 w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
-            title="Cambiar tema"
-        >
-            <!-- Luna -->
-            <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-            </svg>
-
-            <!-- Sol -->
-            <svg class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-            </svg>
-        </button>
 
         @php
             $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
@@ -545,6 +560,30 @@
         function closeGlobalDeleteModal() {
             closeModal('global-delete-modal');
         }
+
+        // Personalización de mensajes de validación HTML5 al español
+        document.addEventListener('invalid', (function () {
+            return function (e) {
+                if (e.target && e.target.setCustomValidity) {
+                    e.target.setCustomValidity("");
+                    if (!e.target.validity.valid) {
+                        if (e.target.validity.valueMissing) {
+                            e.target.setCustomValidity("Por favor complete este campo.");
+                        } else if (e.target.validity.typeMismatch && e.target.type === 'email') {
+                            e.target.setCustomValidity("Por favor ingrese un correo electrónico válido.");
+                        } else if (e.target.validity.typeMismatch && e.target.type === 'url') {
+                            e.target.setCustomValidity("Por favor ingrese una URL válida.");
+                        }
+                    }
+                }
+            };
+        })(), true);
+
+        document.addEventListener('input', function (e) {
+            if (e.target && e.target.setCustomValidity) {
+                e.target.setCustomValidity("");
+            }
+        });
     </script>
 
     <!-- Componente de Notificaciones Sileo Flotantes -->

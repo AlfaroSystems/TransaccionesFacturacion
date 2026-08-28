@@ -94,13 +94,15 @@ class WarehouseCategoryController extends Controller
             );
     }
 
-    $warehouseCategory->delete();
+    $warehouseCategory->update([
+        'is_active' => false,
+    ]);
 
     return redirect()
         ->route('warehouse_categories.index')
         ->with(
             'success',
-            'Categoría eliminada correctamente.'
+            'Categoría inactivada correctamente.'
         );
     }
 }

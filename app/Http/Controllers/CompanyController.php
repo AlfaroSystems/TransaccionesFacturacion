@@ -177,11 +177,13 @@ class CompanyController extends Controller
             \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo);
         }
 
-        $company->delete();
+        $company->update([
+            'is_active' => false,
+        ]);
 
         return redirect()
             ->route('companies.index')
-            ->with('success', 'Empresa eliminada correctamente.');
+            ->with('success', 'Empresa inactivada correctamente.');
     }
 
     public function edit(Company $company)

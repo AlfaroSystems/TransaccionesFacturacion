@@ -29,5 +29,8 @@ class DatabaseSeeder extends Seeder
 
         // Cargar Roles y Permisos
         $this->call(RoleAndPermissionSeeder::class);
+
+        // Cargar Catálogo de Países
+        $this->call(CountrySeeder::class);
     }
 }
