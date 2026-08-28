@@ -125,11 +125,11 @@
 
                                 @can('products.eliminar')
                                     @if($product->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', 'Producto {{ $product->name }}')" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all" title="Inactivar Producto">
+                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', false)" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all" title="Inactivar Producto">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', 'Producto {{ $product->name }}')" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all" title="Reactivar Producto">
+                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', true)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all" title="Reactivar Producto">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         </button>
                                     @endif

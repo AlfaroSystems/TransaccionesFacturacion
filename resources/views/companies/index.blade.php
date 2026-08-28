@@ -164,7 +164,7 @@
                                             type="button"
                                             data-action="{{ route('companies.destroy', $company) }}"
                                             data-company-name="{{ $company->name }}"
-                                            onclick="confirmDelete(this.dataset.action, this.dataset.companyName)"
+                                            onclick="confirmDelete(this.dataset.action, this.dataset.companyName, false)"
                                             class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all"
                                             title="Inactivar Empresa"
                                         >
@@ -177,7 +177,7 @@
                                             type="button"
                                             data-action="{{ route('companies.destroy', $company) }}"
                                             data-company-name="{{ $company->name }}"
-                                            onclick="confirmDelete(this.dataset.action, this.dataset.companyName)"
+                                            onclick="confirmDelete(this.dataset.action, this.dataset.companyName, true)"
                                             class="p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-100/50 dark:border-emerald-800/60 rounded-xl transition-all"
                                             title="Reactivar Empresa"
                                         >

@@ -915,7 +915,7 @@
                 const actionText = isActive ? 'inactivar' : 'reactivar';
 
                 if (typeof confirmDelete === 'function') {
-                    confirmDelete(url, `Proveedor ${name}`, `Se va a ${actionText} este proveedor.`);
+                    confirmDelete(url, `Proveedor ${name}`, !isActive);
                 } else {
                     if (confirm(`¿Está seguro de ${actionText} el proveedor "${name}"?`)) {
                         const form = document.createElement('form');

@@ -79,13 +79,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('branches.eliminar')
                                     @if($branch->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ $branch->name }}')" class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all" title="Inactivar Sucursal">
+                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', false)" class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all" title="Inactivar Sucursal">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ $branch->name }}')" class="p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-100/50 dark:border-emerald-800/60 rounded-xl transition-all" title="Reactivar Sucursal">
+                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', true)" class="p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-100/50 dark:border-emerald-800/60 rounded-xl transition-all" title="Reactivar Sucursal">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>

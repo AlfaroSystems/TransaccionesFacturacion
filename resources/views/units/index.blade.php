@@ -251,7 +251,7 @@
                                 @can('units.desactivar')
                                     @if($unit->is_active)
                                         <button type="button"
-                                                onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}')"
+                                                onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}', false)"
                                                 class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all"
                                                 title="Desactivar Unidad">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,7 +260,7 @@
                                         </button>
                                     @else
                                         <button type="button"
-                                                onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}')"
+                                                onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}', true)"
                                                 class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100/50 rounded-xl transition-all"
                                                 title="Reactivar Unidad">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

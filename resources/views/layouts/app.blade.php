@@ -530,23 +530,37 @@
             }
         }
 
-        function confirmDelete(actionUrl, resourceName, descriptionText = null) {
+        function confirmDelete(actionUrl, resourceName, isReactivate = false, customDescription = null) {
             const modal = document.getElementById('global-delete-modal');
             const card = document.getElementById('global-delete-card');
             const form = document.getElementById('global-delete-form');
             const title = document.getElementById('global-delete-title');
             const desc = document.getElementById('global-delete-description');
             const submitBtn = form.querySelector('button[type="submit"]');
+            const iconContainer = card ? card.querySelector('.w-14.h-14') : null;
 
             form.action = actionUrl;
-            title.textContent = `¿Eliminar ${resourceName}?`;
 
-            if (descriptionText) {
-                desc.textContent = descriptionText;
-                submitBtn.textContent = 'Sí, desactivar';
+            if (isReactivate) {
+                title.textContent = `¿Reactivar ${resourceName}?`;
+                desc.textContent = customDescription || `El estado del registro '${resourceName}' pasará a estar activo nuevamente.`;
+                submitBtn.textContent = 'Sí, reactivar';
+                submitBtn.className = 'px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                
+                if (iconContainer) {
+                    iconContainer.className = 'w-14 h-14 rounded-full border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-500 dark:text-emerald-400 mb-5';
+                    iconContainer.innerHTML = '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+                }
             } else {
-                desc.textContent = `Estás a punto de eliminar el registro de '${resourceName}'. Esta acción no se puede deshacer.`;
-                submitBtn.textContent = 'Sí, eliminar';
+                title.textContent = `¿Inactivar ${resourceName}?`;
+                desc.textContent = customDescription || `El estado del registro '${resourceName}' pasará a estar inactivo.`;
+                submitBtn.textContent = 'Sí, inactivar';
+                submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                
+                if (iconContainer) {
+                    iconContainer.className = 'w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-500 dark:text-amber-400 mb-5';
+                    iconContainer.innerHTML = '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
+                }
             }
 
             modal.classList.remove('hidden');

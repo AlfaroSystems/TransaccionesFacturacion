@@ -64,11 +64,8 @@
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm font-bold text-slate-700">
                             {{ $location->warehouse->name ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm font-medium text-slate-600">
-                            {{ $location->type_label }}
-                        </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
-                            {{ $location->aisle ?? '-' }}
+                            {{ $location->pasillo ?? $location->aisle ?? '-' }}
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
                             {{ $location->rack ?? '-' }}
@@ -112,13 +109,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('locations.eliminar')
                                     @if($location->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ $location->code }}')" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Inactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', false)" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Inactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ $location->code }}')" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100/50 rounded-xl transition-all" title="Reactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', true)" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100/50 rounded-xl transition-all" title="Reactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
