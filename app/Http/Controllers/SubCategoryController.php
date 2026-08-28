@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
@@ -36,7 +35,6 @@ class SubCategoryController extends Controller
         ));
     }
 
-
     /**
      * Mostrar formulario para crear una subcategoría.
      */
@@ -44,7 +42,6 @@ class SubCategoryController extends Controller
     {
         return redirect()->route('subcategories.index');
     }
-
 
     /**
      * Guardar una nueva subcategoría.
@@ -74,7 +71,6 @@ class SubCategoryController extends Controller
             ],
         ]);
 
-
         /*
          * Verificar que la categoría exista
          * y además esté activa.
@@ -96,13 +92,10 @@ class SubCategoryController extends Controller
                 ]);
         }
 
-
         // Checkbox activo
         $validated['is_active'] = $request->boolean('is_active');
 
-
         SubCategory::create($validated);
-
 
         return redirect()
             ->route('subcategories.index')
@@ -112,7 +105,6 @@ class SubCategoryController extends Controller
             );
     }
 
-
     /**
      * Mostrar una subcategoría.
      */
@@ -121,7 +113,6 @@ class SubCategoryController extends Controller
         return redirect()->route('subcategories.index');
     }
 
-
     /**
      * Mostrar formulario para editar.
      */
@@ -129,7 +120,6 @@ class SubCategoryController extends Controller
     {
         return redirect()->route('subcategories.index');
     }
-
 
     /**
      * Actualizar una subcategoría.
@@ -161,7 +151,6 @@ class SubCategoryController extends Controller
             ],
         ]);
 
-
         /*
          * Verificar que la nueva categoría
          * exista y esté activa.
@@ -183,12 +172,8 @@ class SubCategoryController extends Controller
                 ]);
         }
 
-
         $validated['is_active'] = $request->boolean('is_active');
-
-
         $subCategory->update($validated);
-
 
         return redirect()
             ->route('subcategories.index')
@@ -197,7 +182,6 @@ class SubCategoryController extends Controller
                 'Subcategoría actualizada correctamente.'
             );
     }
-
 
     /**
      * Eliminar una subcategoría.
@@ -214,7 +198,6 @@ class SubCategoryController extends Controller
             );
     }
 
-
     /**
      * API:
      * Obtener las subcategorías activas
@@ -229,12 +212,10 @@ class SubCategoryController extends Controller
         )->first();
 
         if (!$category) {
-
             return response()->json([
                 'message' => 'Categoría no encontrada.'
             ], 404);
         }
-
 
         /*
          * Obtener únicamente las subcategorías
@@ -253,7 +234,6 @@ class SubCategoryController extends Controller
                 'description',
                 'is_active',
             ]);
-
 
         return response()->json($subCategories);
     }

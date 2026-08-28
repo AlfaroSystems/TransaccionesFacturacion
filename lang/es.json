@@ -8,5 +8,11 @@
     "passwords.sent": "Hemos enviado por correo electrónico el enlace para restablecer tu contraseña.",
     "passwords.throttled": "Por favor espera antes de intentar de nuevo.",
     "passwords.token": "Este token de restablecimiento de contraseña no es válido.",
-    "passwords.user": "No hemos podido encontrar ningún usuario con esa dirección de correo electrónico."
+    "passwords.user": "No hemos podido encontrar ningún usuario con esa dirección de correo electrónico.",
+    "validation.required": "El campo es obligatorio.",
+    "validation.email": "El campo debe ser una dirección de correo válida.",
+    "validation.unique": "Este valor ya ha sido registrado.",
+    "validation.min.string": "El campo debe contener al menos :min caracteres.",
+    "validation.max.string": "El campo no debe superar los :max caracteres.",
+    "validation.confirmed": "La confirmación no coincide."
 }

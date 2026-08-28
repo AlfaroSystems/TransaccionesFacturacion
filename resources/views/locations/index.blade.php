@@ -1,22 +1,8 @@
 @extends('layouts.app')
-
 @section('title', 'Ubicaciones')
-
 @section('content')
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
-
-    <!-- Mensajes de éxito -->
-    @if(session('success'))
-        <div class="mb-6 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 p-4 rounded-xl shadow-sm flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="text-xl">✅</span>
-                <p class="font-medium">{{ session('success') }}</p>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 font-bold">✕</button>
-        </div>
-    @endif
-
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-8">
         <div>
@@ -27,7 +13,6 @@
                 Gestione la distribución y capacidad de las ubicaciones en el almacén.
             </p>
         </div>
-
         <div class="flex items-center gap-3">
             @can('locations.crear')
             <button type="button" onclick="openModal('batch-location-modal')"class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
@@ -57,7 +42,6 @@
                     <th class="px-6 py-3 text-center">Acciones</th>
                 </tr>
             </thead>
-
             <tbody>
                 @forelse($locations as $location)
                     <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
@@ -152,7 +136,6 @@
         <button type="button" onclick="closeModal('create-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,11 +147,9 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Define las coordenadas espaciales para el inventario.</p>
             </div>
         </div>
-
         <form action="{{ route('locations.store') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="modal_type" value="create">
-
             <!-- Almacén / Bodega -->
             <div>
                 <label for="warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
@@ -264,7 +245,6 @@
         <button type="button" onclick="closeModal('edit-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -276,7 +256,6 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Modifica los parámetros de la ubicación física.</p>
             </div>
         </div>
-
         <form action="" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
@@ -311,7 +290,6 @@
                     @endif
                 @enderror
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <!-- Pasillo -->
                 <div>
@@ -325,7 +303,6 @@
                     <input type="text" name="rack" id="edit-rack" value="{{ old('modal_type') === 'edit' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <!-- Nivel -->
                 <div>
@@ -389,7 +366,6 @@
         <button type="button" onclick="closeModal('batch-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,11 +377,9 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Crea automáticamente todas las ubicaciones hasta los límites indicados.</p>
             </div>
         </div>
-
         <form action="{{ route('locations.batch-store') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="modal_type" value="batch">
-
             <!-- Almacén / Bodega -->
             <div>
                 <label for="batch_warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
@@ -434,7 +408,6 @@
                     <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-4">
                 <!-- Nivel Hasta -->
                 <div>
@@ -568,5 +541,4 @@
         });
     </script>
 @endif
-
 @endsection

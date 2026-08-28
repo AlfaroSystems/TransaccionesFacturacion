@@ -1,22 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Catálogo de Productos')
-
 @section('content')
-
 <div class="w-full space-y-6 animate-fade-in duration-300">
-
-    <!-- Mensajes Flash -->
-    @if(session('success'))
-        <div class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 p-4 rounded-2xl shadow-sm flex items-center justify-between transition-all">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold">✓</div>
-                <p class="font-semibold text-sm">{{ session('success') }}</p>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700 font-bold text-lg p-1">✕</button>
-        </div>
-    @endif
-
     <!-- Encabezado Principal -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -32,7 +17,6 @@
                 Consulte, filtre y gestione el catálogo general, precios y niveles de existencias.
             </p>
         </div>
-
         <div class="flex items-center gap-3 w-full md:w-auto">
             <button type="button" onclick="openModal('create-product-modal')" class="w-full md:w-auto bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +38,6 @@
                 <span class="text-xl font-extrabold text-slate-800">{{ $products->total() }}</span>
             </div>
         </div>
-
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
                 ●

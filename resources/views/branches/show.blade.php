@@ -33,12 +33,10 @@
                     Inactiva
                 @endif
             </p>
-            <a href="{{ route('branches.index') }}"
-               class="btn btn-secondary">
+            <a href="{{ route('branches.index') }}" class="btn btn-secondary">
                 Volver
             </a>
-            <a href="{{ route('branches.edit', $branch) }}"
-               class="btn btn-warning">
+            <a href="{{ route('branches.edit', $branch) }}" class="btn btn-warning">
                 Editar
             </a>
         </div>

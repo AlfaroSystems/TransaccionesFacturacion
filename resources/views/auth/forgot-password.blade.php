@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ config('app.name', 'Laravel') }} - Recuperar Contraseña</title>
-
     <!-- Google Fonts: Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +23,6 @@
     </script>
 </head>
 <body class="auth-body font-sans antialiased relative overflow-hidden">
-
     <!-- BOTÓN MODO OSCURO (Componente theme-toggle.css) -->
     <button
         type="button"
@@ -37,7 +34,6 @@
         <svg class="w-5 h-5 dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
         </svg>
-
         <!-- Sol (modo oscuro activo) -->
         <svg class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -51,13 +47,11 @@
 
     <!-- TARJETA PRINCIPAL (Componente auth.css) -->
     <div class="auth-card relative overflow-hidden">
-        
+
         <!-- LEFT SIDE: Form & Navbar -->
         <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
-
             <!-- Form Wrapper -->
             <div class="w-full max-w-sm mx-auto my-auto py-4">
-                
                 <!-- Tab Headers -->
                 <div class="flex border-b border-gray-100 dark:border-slate-700 mb-8">
                     <button onclick="window.location.href='{{ route('login') }}'" class="flex-1 text-center pb-3 text-sm font-semibold text-gray-400 dark:text-slate-400 border-b-2 border-transparent hover:text-gray-600 dark:hover:text-slate-200 transition-all">
@@ -75,10 +69,8 @@
 
                 <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
-
                 <form method="POST" action="{{ route('password.email') }}" class="space-y-6">
                     @csrf
-
                     <!-- Email Address -->
                     <div>
                         <div class="relative flex items-center shadow-sm border border-gray-200 dark:border-slate-700 rounded-full bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-[#4ebbb0] transition-all">
@@ -99,31 +91,25 @@
                         </button>
                     </div>
                 </form>
-
             </div>
 
             <!-- Footer terms -->
             <footer class="text-center md:text-left">
                 <span class="text-[10px] text-gray-400 dark:text-slate-500 font-medium">&copy; 2026 {{ config('app.name', 'Laravel') }}. Todos los derechos reservados.</span>
             </footer>
-
         </div>
         
         <!-- RIGHT SIDE: Isometric Illustration (Componente auth.css) -->
         <div class="auth-illustration-side relative overflow-hidden select-none">
-            
             <!-- Concentric design waves/borders -->
             <div class="absolute w-72 h-72 rounded-full border-2 border-white/20 dark:border-slate-700/30 pointer-events-none"></div>
             <div class="absolute w-96 h-96 rounded-full border-4 border-white/25 dark:border-slate-700/40 pointer-events-none"></div>
             <div class="absolute w-[450px] h-[450px] rounded-full border-8 border-white/30 dark:border-slate-700/50 pointer-events-none"></div>
-
             <!-- Illustration Asset -->
             <div class="relative z-10 w-full max-w-[280px] h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)] hover:scale-105 transition-transform duration-500">
                 <img src="{{ asset('images/login_illustration.png') }}" alt="Login Illustration" class="w-full h-auto object-contain opacity-90 dark:opacity-80" />
             </div>
-
         </div>
-
     </div>
 
     <!-- Toggle function for dark mode -->

@@ -15,10 +15,8 @@
 
         function filterMunicipalities() {
             const deptId = deptSelect.value;
-
             muniSelect.innerHTML = '<option value="">Seleccione municipio</option>';
             distSelect.innerHTML = '<option value="">Seleccione distrito</option>';
-
             allMunis
                 .filter((option) => option.dataset.parent === deptId)
                 .forEach((option) => muniSelect.appendChild(option.cloneNode(true)));
@@ -26,9 +24,7 @@
 
         function filterDistricts() {
             const muniId = muniSelect.value;
-
             distSelect.innerHTML = '<option value="">Seleccione distrito</option>';
-
             allDists
                 .filter((option) => option.dataset.parent === muniId)
                 .forEach((option) => distSelect.appendChild(option.cloneNode(true)));
@@ -76,29 +72,24 @@
                 company.district_id
             );
         }
-
         openModal('edit-company-modal');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         createGeographicFilter = setupGeographicFilters('create_');
         editGeographicFilter = setupGeographicFilters('edit_');
-
         const page = document.getElementById('companies-page');
-
         if (!page || !page.dataset.modalState) {
             return;
         }
 
         const modalState = JSON.parse(page.dataset.modalState);
-
         if (!modalState.hasErrors) {
             return;
         }
 
         if (modalState.modalType === 'create') {
             openModal('create-company-modal');
-
             if (createGeographicFilter) {
                 createGeographicFilter.setValues(
                     modalState.department_id,
@@ -106,7 +97,6 @@
                     modalState.district_id
                 );
             }
-
             return;
         }
 

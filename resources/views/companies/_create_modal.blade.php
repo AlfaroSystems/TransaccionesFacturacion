@@ -154,69 +154,60 @@
             </div>
 
             <!-- Botones -->
-<div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
-
-    <button
-        type="button"
-        onclick="closeModal('create-company-modal')"
-        class="px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100 transition-all duration-200"
-    >
-        Cancelar
-    </button>
-
-    <button
-        type="submit"
-        id="btn-save-company"
-        class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#005e66] text-white font-bold shadow-md hover:bg-[#0b7d88] hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-    >
-
-        <!-- Icono -->
-        <svg
-            id="btn-save-company-icon"
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-        >
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-            />
-        </svg>
-
-        <!-- Spinner -->
-        <svg
-            id="btn-save-company-spinner"
-            class="hidden w-5 h-5 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-        >
-            <circle
-                class="opacity-20"
-                cx="15"
-                cy="15"
-                r="13"
-                stroke="currentColor"
-                stroke-width="4">
-            </circle>
-
-            <path
-                class="opacity-90"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
-            </path>
-        </svg>
-
-        <span id="btn-save-company-text">
-            Guardar Empresa
-        </span>
-
-    </button>
-
-</div>
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
+                <button
+                    type="button"
+                    onclick="closeModal('create-company-modal')"
+                    class="px-6 py-3 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-100 transition-all duration-200"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    id="btn-save-company"
+                    class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#005e66] text-white font-bold shadow-md hover:bg-[#0b7d88] hover:shadow-lg active:scale-95 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <!-- Icono -->
+                    <svg
+                        id="btn-save-company-icon"
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                        />
+                    </svg>
+                    <!-- Spinner -->
+                    <svg
+                        id="btn-save-company-spinner"
+                        class="hidden w-5 h-5 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                            class="opacity-20"
+                            cx="15"
+                            cy="15"
+                            r="13"
+                            stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <path
+                            class="opacity-90"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+                        </path>
+                    </svg>
+                    <span id="btn-save-company-text">
+                        Guardar Empresa
+                    </span>
+                </button>
+            </div>
         </form>
     </div>
 </div>

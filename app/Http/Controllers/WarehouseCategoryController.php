@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\WarehouseCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -95,9 +94,7 @@ class WarehouseCategoryController extends Controller
             );
     }
 
-
     $warehouseCategory->delete();
-
 
     return redirect()
         ->route('warehouse_categories.index')

@@ -49,14 +49,12 @@
                                     </td>
                                 </tr>
                             </table>
-
                             <p style="margin: 0 0 15px 0; font-size: 13px; line-height: 1.6; color: #6a827f; font-weight: 500;">
                                 ⏰ Este enlace de recuperación expirará en <strong>60 minutos</strong>.
                             </p>
                             <p style="margin: 0 0 30px 0; font-size: 13px; line-height: 1.6; color: #879e9b;">
                                 Si tú no solicitaste este cambio, puedes ignorar este mensaje sin problemas; tu contraseña actual seguirá funcionando de manera segura.
                             </p>
-
                             <p style="margin: 0; font-size: 14px; color: #526b68; line-height: 1.5;">
                                 Saludos,<br>
                                 <strong style="color: #005e66;">El equipo de Soporte</strong>

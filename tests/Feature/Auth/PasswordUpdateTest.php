@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Hash;
 
 test('password can be updated', function () {
     $user = User::factory()->create();
-
     $response = $this
         ->actingAs($user)
         ->from('/profile')
@@ -14,7 +13,6 @@ test('password can be updated', function () {
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ]);
-
     $response
         ->assertSessionHasNoErrors()
         ->assertRedirect('/profile');
@@ -24,7 +22,6 @@ test('password can be updated', function () {
 
 test('correct password must be provided to update password', function () {
     $user = User::factory()->create();
-
     $response = $this
         ->actingAs($user)
         ->from('/profile')
@@ -33,7 +30,6 @@ test('correct password must be provided to update password', function () {
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ]);
-
     $response
         ->assertSessionHasErrorsIn('updatePassword', 'current_password')
         ->assertRedirect('/profile');

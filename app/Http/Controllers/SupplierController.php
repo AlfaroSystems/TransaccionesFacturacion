@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Supplier;
 use App\Models\SupplierContact;
 use Illuminate\Http\Request;
@@ -18,7 +17,6 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.ver');
 
         $search = $request->input('search');
-
         $suppliers = Supplier::with('contacts')
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {

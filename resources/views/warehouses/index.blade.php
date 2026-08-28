@@ -1,9 +1,6 @@
 @extends('layouts.app')
-
 @section('title', 'Bodegas')
-
 @section('content')
-
 <div class="w-full space-y-6 animate-fade-in duration-300">
 
     <!-- Encabezado -->
@@ -16,19 +13,12 @@
                 Administración de bodegas registradas.
             </p>
         </div>
-
         @can('warehouses.crear')
         <button type="button" onclick="openModal('create-warehouse-modal')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition">
             + Nueva Bodega
         </button>
         @endcan
     </div>
-
-    @if(session('success'))
-        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Tabla -->
     <section class="overflow-x-auto">
@@ -112,7 +102,6 @@
             </tbody>
         </table>
     </section>
-
 </div>
 
 <!-- MODAL DE REGISTRO DE BODEGA -->
@@ -122,7 +111,6 @@
         <button type="button" onclick="closeModal('create-warehouse-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,7 +122,6 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Ingresa los datos para habilitar el espacio en inventario.</p>
             </div>
         </div>
-
         <form action="{{ route('warehouses.store') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="modal_type" value="create">
@@ -218,7 +205,6 @@
         <button type="button" onclick="closeModal('edit-warehouse-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +216,6 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Modifica los detalles de la bodega seleccionada.</p>
             </div>
         </div>
-
         <form action="" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
@@ -371,5 +356,4 @@
         });
     </script>
 @endif
-
 @endsection

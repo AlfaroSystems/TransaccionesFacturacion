@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Notification;
 
 test('reset password link screen can be rendered', function () {
     $response = $this->get('/forgot-password');
-
     $response->assertStatus(200);
 });
 
@@ -29,9 +28,7 @@ test('reset password screen can be rendered', function () {
 
     Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
         $response = $this->get('/reset-password/'.$notification->token);
-
         $response->assertStatus(200);
-
         return true;
     });
 });

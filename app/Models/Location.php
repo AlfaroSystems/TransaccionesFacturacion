@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -49,8 +48,6 @@ class Location extends Model
 
         return implode(' - ', $parts);
     }
-
-
 
     /**
      * Relación con el almacén (warehouse) al que pertenece la ubicación.

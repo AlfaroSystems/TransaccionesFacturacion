@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Providers;
-
 use Illuminate\Support\ServiceProvider;
-
 use App\Models\User;
 use App\Models\Permission;
 use App\Observers\AuditObserver;

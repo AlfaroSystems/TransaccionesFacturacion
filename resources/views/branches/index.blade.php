@@ -1,23 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Gestión de Sucursales')
-
 @section('content')
 <div class="animate-fade-in duration-300">
-    <!-- Mensajes de Sesión -->
-    @if(session('success'))
-        <div class="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center justify-between shadow-sm animate-bounce-subtle transition-colors duration-300">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="font-semibold text-sm">{{ session('success') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove();" class="text-emerald-500 hover:text-emerald-800 dark:hover:text-emerald-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-    @endif
 
     <!-- Encabezado de Página -->
     <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -25,7 +9,6 @@
             <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight transition-colors duration-300">Gestión de Sucursales</h1>
             <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold mt-1">Administra y registra las sucursales, sucursales físicas y asignación de empresas.</p>
         </div>
-
         @can('branches.crear')
         <button type="button" onclick="openModal('create-branch-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +76,6 @@
                                     </svg>
                                 </button>
                                 @endcan
-
                                 <!-- Eliminar -->
                                 @can('branches.eliminar')
                                 <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ $branch->name }}')" class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all" title="Eliminar Sucursal">
@@ -145,7 +127,6 @@
         <form action="{{ route('branches.store') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="modal_type" value="create">
-
             <!-- Fila 1: Empresa y Nombre -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -187,7 +168,6 @@
                         @endif
                     @enderror
                 </div>
-
                 <div>
                     <label for="email" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Correo electrónico</label>
                     <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="Ej. sucursal@empresa.com" class="w-full bg-slate-50 dark:bg-slate-900 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
@@ -413,7 +393,6 @@
 
 <script>
     let createGeographicFilter, editGeographicFilter;
-
     function setupGeographicFilters(prefix) {
         const deptSelect = document.getElementById(`${prefix}department_id`);
         const muniSelect = document.getElementById(`${prefix}municipality_id`);
@@ -428,7 +407,6 @@
             const deptId = deptSelect.value;
             muniSelect.innerHTML = '<option value="">Seleccione municipio</option>';
             distSelect.innerHTML = '<option value="">Seleccione distrito</option>';
-
             const filteredMunis = allMunis.filter(opt => opt.getAttribute('data-parent') === deptId);
             filteredMunis.forEach(opt => muniSelect.appendChild(opt.cloneNode(true)));
         }
@@ -436,7 +414,6 @@
         function filterDistricts() {
             const muniId = muniSelect.value;
             distSelect.innerHTML = '<option value="">Seleccione distrito</option>';
-
             const filteredDists = allDists.filter(opt => opt.getAttribute('data-parent') === muniId);
             filteredDists.forEach(opt => distSelect.appendChild(opt.cloneNode(true)));
         }
@@ -474,14 +451,12 @@
         if (editGeographicFilter) {
             editGeographicFilter.setValues(branch.department_id, branch.municipality_id, branch.district_id);
         }
-        
         openModal('edit-branch-modal');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         createGeographicFilter = setupGeographicFilters('create_');
         editGeographicFilter = setupGeographicFilters('edit_');
-
         const isActiveChk = document.getElementById('edit-is_active');
         const label = document.getElementById('edit-is_active_label');
         if (isActiveChk && label) {
@@ -523,5 +498,4 @@
         });
     </script>
 @endif
-
 @endsection

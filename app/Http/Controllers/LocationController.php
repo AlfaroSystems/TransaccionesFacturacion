@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Location;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;

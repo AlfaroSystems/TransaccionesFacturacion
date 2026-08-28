@@ -58,11 +58,9 @@ it('logs creation, update, and deletion of different models', function () {
 
     // 4. Eliminar la Categoría y verificar el log de eliminación
     $category->delete();
-
     $deleteLog = AuditLog::where('id_record', $category->id)
         ->whereNull('modified_data')
         ->first();
-
     expect($deleteLog)->not->toBeNull();
     expect($deleteLog->original_data['name'])->toBe('Electrodomésticos');
 });

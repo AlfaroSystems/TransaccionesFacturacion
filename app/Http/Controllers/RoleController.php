@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -70,6 +69,11 @@ class RoleController extends Controller
     {
         Gate::authorize('roles.administrar');
 
+        if ($role->name === 'admin') {
+            return redirect()->route('roles.index')
+                ->with('error', 'El rol Administrador es un rol protegido del sistema y no se puede editar.');
+        }
+
         $permissions = Permission::all();
         $rolePermissions = $role->permissions->pluck('id')->toArray();
 
@@ -83,9 +87,9 @@ class RoleController extends Controller
     {
         Gate::authorize('roles.administrar');
 
-        // Evitar modificar el nombre del rol admin principal para mantener la consistencia
         if ($role->name === 'admin') {
-            $request->merge(['name' => 'admin']);
+            return redirect()->route('roles.index')
+                ->with('error', 'El rol Administrador es un rol protegido del sistema y no se puede editar.');
         }
 
         $validated = $request->validate([
@@ -114,10 +118,9 @@ class RoleController extends Controller
     {
         Gate::authorize('roles.administrar');
 
-        // Proteger el rol de administrador y editor por defecto de ser eliminados
-        if (in_array($role->name, ['admin', 'editor'])) {
+        if ($role->name === 'admin') {
             return redirect()->route('roles.index')
-                ->with('error', "No se puede eliminar el rol base '{$role->name}'.");
+                ->with('error', 'El rol Administrador es un rol protegido del sistema y no se puede eliminar.');
         }
 
         $role->delete();

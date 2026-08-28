@@ -4,7 +4,6 @@ import forms from '@tailwindcss/forms';
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: 'class',
-
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -12,7 +11,6 @@ export default {
         './resources/js/**/*.vue',
         './resources/js/**/*.js',
     ],
-
     theme: {
         extend: {
             fontFamily: {
@@ -44,6 +42,5 @@ export default {
             },
         },
     },
-
     plugins: [forms],
 };

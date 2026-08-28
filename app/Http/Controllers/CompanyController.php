@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -186,18 +185,17 @@ class CompanyController extends Controller
     }
 
     public function edit(Company $company)
-   {
-     Gate::authorize('companies.editar');
-
-     $departments = \App\Models\Department::orderBy('name')->get();
-     $municipalities = \App\Models\Municipality::orderBy('name')->get();
-     $districts = \App\Models\District::orderBy('name')->get();
-
-     return view('companies.edit', compact(
-        'company',
-        'departments',
-        'municipalities',
-        'districts'
-     ));
+    {
+        Gate::authorize('companies.editar');
+        $departments = \App\Models\Department::orderBy('name')->get();
+        $municipalities = \App\Models\Municipality::orderBy('name')->get();
+        $districts = \App\Models\District::orderBy('name')->get();
+        
+        return view('companies.edit', compact(
+            'company',
+            'departments',
+            'municipalities',
+            'districts'
+        ));
     }
 }

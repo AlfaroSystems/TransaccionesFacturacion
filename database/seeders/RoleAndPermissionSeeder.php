@@ -1,7 +1,6 @@
 <?php
 
 namespace Database\Seeders;
-
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -16,7 +15,6 @@ class RoleAndPermissionSeeder extends Seeder
     {
         // 1. Crear permisos
         $permissions = [
-
             // Usuarios
             [
                 'id' => 'usuarios.ver',
@@ -42,7 +40,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar usuarios del sistema.',
                 'action' => 'destroy',
             ],
-
             // Roles y Bitácora
             [
                 'id' => 'roles.administrar',
@@ -56,7 +53,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite revisar la bitácora de auditoría de actividad del sistema.',
                 'action' => 'logs',
             ],
-
             // Empleados
             [
                 'id' => 'empleados.ver',
@@ -82,7 +78,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar empleados del sistema.',
                 'action' => 'destroy',
             ],
-
             // Sucursales
             [
                 'id' => 'branches.ver',
@@ -108,7 +103,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar sucursales del sistema.',
                 'action' => 'destroy',
             ],
-
             // Bodegas
             [
                 'id' => 'warehouses.ver',
@@ -134,7 +128,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar bodegas del sistema.',
                 'action' => 'destroy',
             ],
-
             // Categorías de Bodega
             [
                 'id' => 'warehouse_categories.ver',
@@ -160,7 +153,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar categorías de bodegas.',
                 'action' => 'destroy',
             ],
-
             // Ubicaciones
             [
                 'id' => 'locations.ver',
@@ -186,7 +178,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar ubicaciones físicas.',
                 'action' => 'destroy',
             ],
-
             // Empresas
             [
                 'id' => 'companies.ver',
@@ -212,7 +203,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar empresas del sistema.',
                 'action' => 'destroy',
             ],
-
             // Categorías de Productos
             [
                 'id' => 'categories.ver',
@@ -238,7 +228,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar categorías de productos.',
                 'action' => 'destroy',
             ],
-
             // Unidades de Medida
             [
                 'id' => 'units.ver',
@@ -264,7 +253,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite cambiar el estado (activo/inactivo) de una unidad de medida.',
                 'action' => 'toggle',
             ],
-
             // Productos
             [
                 'id' => 'products.ver',
@@ -290,7 +278,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar productos del catálogo.',
                 'action' => 'destroy',
             ],
-
             // Subcategorías
             [
                 'id' => 'subcategories.ver',
@@ -316,7 +303,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar subcategorías.',
                 'action' => 'destroy',
             ],
-
             // Proveedores
             [
                 'id' => 'suppliers.ver',

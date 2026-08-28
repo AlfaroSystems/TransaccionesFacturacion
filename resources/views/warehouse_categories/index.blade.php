@@ -1,9 +1,6 @@
 @extends('layouts.app')
-
 @section('title', 'Categorías de Bodega')
-
 @section('content')
-
 <div class="w-full space-y-6 animate-fade-in duration-300">
 
     <!-- Encabezado -->
@@ -23,12 +20,6 @@
         </button>
         @endcan
     </div>
-
-    @if(session('success'))
-        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Tarjeta -->
     <section class="overflow-x-auto">
@@ -104,7 +95,6 @@
             </tbody>
         </table>
     </section>
-
 </div>
 
 <!-- MODAL DE REGISTRO DE CATEGORÍA -->
@@ -114,7 +104,6 @@
         <button type="button" onclick="closeModal('create-category-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,11 +115,9 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Crea una nueva clasificación para organizar tus bodegas.</p>
             </div>
         </div>
-
         <form action="{{ route('warehouse_categories.store') }}" method="POST" class="space-y-6">
             @csrf
             <input type="hidden" name="modal_type" value="create">
-
             <!-- Nombre -->
             <div>
                 <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre de la Categoría</label>
@@ -179,7 +166,6 @@
         <button type="button" onclick="closeModal('edit-category-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +177,6 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Modifica los detalles de la categoría seleccionada.</p>
             </div>
         </div>
-
         <form action="" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
@@ -297,5 +282,4 @@
         });
     </script>
 @endif
-
 @endsection

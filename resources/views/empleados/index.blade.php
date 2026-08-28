@@ -1,24 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Gestión de Empleados')
-
 @section('content')
 <div class="animate-fade-in duration-300">
-    <!-- Mensajes de Sesión -->
-    @if(session('success'))
-        <div class="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 flex items-center justify-between shadow-sm animate-bounce-subtle transition-colors duration-300">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="font-semibold text-sm">{{ session('success') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove();" class="text-emerald-500 hover:text-emerald-800 dark:hover:text-emerald-200">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-    @endif
-
     <!-- Encabezado de Página -->
     <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -133,7 +116,6 @@
         <button type="button" onclick="closeModal('create-empleado-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-blue-600 dark:bg-sky-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,11 +127,9 @@
                 <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Ingresa la información personal del nuevo colaborador.</p>
             </div>
         </div>
-
         <form action="{{ route('empleados.store') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="modal_type" value="create">
-
             <!-- Nombre Completo -->
             <div>
                 <label for="nombre_completo" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Nombre Completo</label>
@@ -235,7 +215,6 @@
         <button type="button" onclick="closeModal('edit-empleado-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-[#005e66] dark:bg-sky-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,7 +226,6 @@
                 <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Modifica los datos del colaborador seleccionado.</p>
             </div>
         </div>
-
         <form action="" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
@@ -341,14 +319,11 @@
         document.getElementById('edit-correo').value = empleado.correo;
         document.getElementById('edit-telefono').value = empleado.telefono;
         document.getElementById('edit-dui').value = empleado.dui;
-        
         openModal('edit-empleado-modal');
     }
-
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('search-empleados');
         const tableRows = document.querySelectorAll('.table-row-item');
-
         if (searchInput) {
             searchInput.addEventListener('input', function(e) {
                 const query = e.target.value.toLowerCase().trim();
@@ -389,5 +364,4 @@
         });
     </script>
 @endif
-
 @endsection

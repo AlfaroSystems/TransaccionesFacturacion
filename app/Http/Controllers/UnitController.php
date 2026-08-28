@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Unit;
 use App\Http\Requests\StoreUnitRequest;
 use App\Http\Requests\UpdateUnitRequest;
@@ -20,10 +19,9 @@ class UnitController extends Controller
         $units = Unit::query()
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->search;
-
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'ILIKE', "%{$search}%")
-                      ->orWhere('type', 'ILIKE', "%{$search}%");
+                        ->orWhere('type', 'ILIKE', "%{$search}%");
                 });
             })
             ->when($request->filled('status'), function ($query) use ($request) {
@@ -79,12 +77,6 @@ class UnitController extends Controller
         return redirect()->route('units.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * La edición se manejará mediante un modal
-     * dentro de units.index.
-     */
     public function edit(Unit $unit)
     {
         Gate::authorize('units.editar');

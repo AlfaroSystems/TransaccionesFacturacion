@@ -1,7 +1,6 @@
 <?php
 
 namespace Database\Seeders;
-
 use App\Models\Department;
 use App\Models\Municipality;
 use App\Models\District;

@@ -1,44 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Gestión de Proveedores')
-
 @section('content')
-
 <div class="animate-fade-in duration-300">
-
-    {{-- Mensajes Flash --}}
-    @if(session('success'))
-        <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="font-semibold text-sm">
-                    {{ session('success') }}
-                </span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 font-bold">
-                ✕
-            </button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span class="font-semibold text-sm">
-                    {{ session('error') }}
-                </span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-800 font-bold">
-                ✕
-            </button>
-        </div>
-    @endif
-
     {{-- ENCABEZADO --}}
     <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -77,7 +40,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
             </div>
-
             <div class="flex gap-2">
                 <button type="submit" class="px-5 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold rounded-xl text-sm transition-all">
                     Buscar
@@ -135,7 +97,6 @@
                                         </svg>
                                     </a>
                                 @endcan
-
                                 @can('suppliers.editar')
                                     <button
                                         type="button"
@@ -147,7 +108,6 @@
                                         </svg>
                                     </button>
                                 @endcan
-
                                 @can('suppliers.eliminar')
                                     <button
                                         type="button"
@@ -187,7 +147,6 @@
     @php
         $supplierId = $supplier->id_supplier;
     @endphp
-
     @can('suppliers.editar')
         <div id="edit-supplier-modal-{{ $supplierId }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm">
             <div class="bg-white rounded-3xl p-6 max-w-4xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -204,16 +163,13 @@
                         ✕
                     </button>
                 </div>
-
                 <form action="{{ route('suppliers.update', $supplier) }}" method="POST" class="space-y-6">
                     @csrf
                     @method('PUT')
-
                     <div class="space-y-4">
                         <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">
                             Datos Generales
                         </h4>
-
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
@@ -227,7 +183,6 @@
                                     maxlength="20"
                                     class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             </div>
-
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                                     Nombre del Proveedor *
@@ -240,7 +195,6 @@
                                     class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             </div>
                         </div>
-
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
@@ -253,7 +207,6 @@
                                     required
                                     class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             </div>
-
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                                     Teléfono
@@ -265,7 +218,6 @@
                                     maxlength="20"
                                     class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             </div>
-
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                                     Sitio Web
@@ -296,7 +248,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                                     Estado
@@ -327,7 +278,6 @@
                                     Puedes modificar o agregar contactos asociados a este proveedor.
                                 </p>
                             </div>
-
                             <button
                                 type="button"
                                 onclick="addEditContactRow({{ $supplierId }})"
@@ -343,7 +293,6 @@
                             @forelse($supplier->contacts as $index => $contact)
                                 <div class="edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
                                     <input type="hidden" name="contacts[{{ $index }}][id_contact]" value="{{ $contact->id_contact }}">
-
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                                             Nombre completo *
@@ -356,7 +305,6 @@
                                             placeholder="Nombre completo"
                                             class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
                                     </div>
-
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                                             Teléfono *
@@ -369,7 +317,6 @@
                                             placeholder="Teléfono"
                                             class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
                                     </div>
-
                                     <div>
                                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                                             Correo
@@ -381,7 +328,6 @@
                                             placeholder="Correo electrónico"
                                             class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
                                     </div>
-
                                     <div class="flex items-end">
                                         <button
                                             type="button"
@@ -432,12 +378,10 @@
 
         <form action="{{ route('suppliers.store') }}" method="POST" class="space-y-6">
             @csrf
-
             <div class="space-y-4">
                 <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">
                     Datos Generales
                 </h4>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
@@ -452,7 +396,6 @@
                             class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"
                             placeholder="Ej. PROV001">
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                             Nombre del Proveedor *
@@ -480,7 +423,6 @@
                             class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"
                             placeholder="contacto@proveedor.com">
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                             Teléfono
@@ -493,7 +435,6 @@
                             class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"
                             placeholder="Ej. 2222-2222">
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                             Sitio Web
@@ -525,7 +466,6 @@
                             @endforeach
                         </select>
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                             Estado
@@ -536,7 +476,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
                         Dirección
@@ -558,7 +497,6 @@
                         + Agregar Contacto
                     </button>
                 </div>
-
                 <div id="modal-contacts-container" class="space-y-3">
                     <div class="create-contact-row grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 relative group">
                         <div>
@@ -603,7 +541,6 @@
 {{-- JAVASCRIPT --}}
 <script>
     let modalContactIndex = 1;
-
     function addModalContactRow() {
         const container = document.getElementById('modal-contacts-container');
         if (!container) return;
@@ -686,17 +623,14 @@
                         const form = document.createElement('form');
                         form.method = 'POST';
                         form.action = url;
-
                         const csrf = document.createElement('input');
                         csrf.type = 'hidden';
                         csrf.name = '_token';
                         csrf.value = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
                         const method = document.createElement('input');
                         method.type = 'hidden';
                         method.name = '_method';
                         method.value = 'DELETE';
-
                         form.appendChild(csrf);
                         form.appendChild(method);
                         document.body.appendChild(form);

@@ -1,46 +1,14 @@
 @extends('layouts.app')
-
 @section('title', 'Gestión de Usuarios')
-
 @section('content')
 <!-- Contenedor Principal con animación de entrada -->
 <div class="animate-fade-in duration-300">
-    <!-- Mensajes de Sesión -->
-    @if(session('success'))
-        <div class="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-sm animate-bounce-subtle">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="font-semibold text-sm">{{ session('success') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove();" class="text-emerald-500 hover:text-emerald-800">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-sm animate-bounce-subtle">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span class="font-semibold text-sm">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove();" class="text-rose-500 hover:text-rose-800">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-        </div>
-    @endif
-
     <!-- Encabezado de Página -->
     <header class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Gestión de Usuarios</h1>
             <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso y sus niveles de permisos.</p>
         </div>
-
         <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -61,7 +29,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="w-full md:w-48">
                 <label for="role" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol</label>
                 <select name="role" id="role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
@@ -73,7 +40,6 @@
                     @endforeach
                 </select>
             </div>
-
             <div class="w-full md:w-48">
                 <label for="status" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado</label>
                 <select name="status" id="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
@@ -82,7 +48,6 @@
                     <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactivo</option>
                 </select>
             </div>
-
             <div class="w-full md:w-auto">
                 <button type="submit" class="w-full px-5 py-2.5 bg-navy-sidebar text-white rounded-xl text-sm font-bold hover:bg-navy-active transition-all shadow-sm">
                     Filtrar
@@ -212,7 +177,6 @@
         <button type="button" onclick="closeModal('create-user-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,11 +188,9 @@
                 <p class="text-slate-400 text-sm font-semibold mt-1">Ingresa los datos para habilitar el acceso al sistema.</p>
             </div>
         </div>
-
         <form action="{{ route('users.store') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="modal_type" value="create">
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Nombre -->
                 <div>
@@ -262,7 +224,6 @@
                     @enderror
                 </div>
             </div>
-
             <div class="border-t border-slate-100 pt-4">
                 <div class="flex items-center gap-2 mb-4">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -298,7 +259,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
                 <!-- Roles -->
                 <div>
@@ -349,7 +309,6 @@
         <button type="button" onclick="closeModal('edit-user-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
-
         <div class="flex items-center gap-4 mb-6">
             <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,7 +326,6 @@
             @method('PUT')
             <input type="hidden" name="modal_type" value="edit">
             <input type="hidden" name="id" id="edit-id" value="{{ old('modal_type') === 'edit' ? old('id') : '' }}">
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Nombre -->
                 <div>
@@ -401,13 +359,11 @@
                     @enderror
                 </div>
             </div>
-
             <div class="border-t border-slate-100 pt-4">
                 <div class="flex items-center gap-2 mb-2">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cambiar Contraseña (Opcional)</span>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Contraseña -->
                     <div>
@@ -424,7 +380,7 @@
                             @endif
                         @enderror
                     </div>
-
+                    
                     <!-- Confirmar Contraseña -->
                     <div>
                         <label for="edit-password_confirmation" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Confirmar Contraseña</label>
@@ -437,7 +393,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
                 <!-- Roles -->
                 <div>
@@ -538,5 +493,4 @@
         });
     </script>
 @endif
-
 @endsection

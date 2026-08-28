@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Requests\Auth;
-
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;

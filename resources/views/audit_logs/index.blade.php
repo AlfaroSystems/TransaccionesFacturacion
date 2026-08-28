@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('title', 'Bitácora de Auditoría')
-
 @section('content')
 <div class="animate-fade-in duration-300">
     <!-- Encabezado de Página -->

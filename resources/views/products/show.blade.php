@@ -1,11 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Ficha de Producto: ' . $product->name)
-
 @section('content')
-
 <div class="w-full space-y-6 animate-fade-in duration-300">
-
     <!-- Encabezado de Navegación y Acciones -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -18,13 +14,11 @@
                 <span>{{ $product->name }}</span>
             </h1>
         </div>
-
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <a href="{{ route('products.index') }}"
                 class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-sm">
                 ← Volver
             </a>
-
             <a href="{{ route('products.index', ['edit' => $product->id]) }}"
                 class="bg-[#005e66] hover:bg-[#3cb0a4] text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg">
                 ✏️ Editar Producto
@@ -82,10 +76,8 @@
 
         <!-- CUERPO DE LA FICHA EN BLOQUES ESTRUCTURADOS -->
         <div class="p-6 md:p-8 space-y-8">
-
             <!-- Grid de 4 Bloques Clave -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                 <!-- 1. Clasificación Farmacéutica / Comercial -->
                 <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
                     <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
@@ -201,7 +193,6 @@
                         @endif
                     </div>
                 </div>
-
             </div>
 
             <!-- 5. Descripción / Indicaciones Farmacéuticas -->
@@ -221,11 +212,7 @@
                 <span>Registrado en el sistema: <strong class="text-slate-600">{{ $product->created_at ? $product->created_at->format('d/m/Y H:i') : '-' }}</strong></span>
                 <span>Última actualización: <strong class="text-slate-600">{{ $product->updated_at ? $product->updated_at->format('d/m/Y H:i') : '-' }}</strong></span>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 @endsection
