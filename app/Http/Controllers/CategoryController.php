@@ -108,18 +108,22 @@ class CategoryController extends Controller
     }
 
     /**
-     * Eliminar categoría
+     * Eliminar (Inactivar/Reactivar) categoría
      */
     public function destroy(Category $category)
     {
         Gate::authorize('categories.eliminar');
 
+        $newStatus = !$category->is_active;
+
         $category->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $message = $newStatus ? 'Categoría reactivada correctamente' : 'Categoría inactivada correctamente';
 
         return redirect()
             ->route('categories.index')
-            ->with('success', 'Categoría inactivada correctamente');
+            ->with('success', $message);
     }
 }

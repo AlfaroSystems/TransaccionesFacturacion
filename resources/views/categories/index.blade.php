@@ -83,21 +83,6 @@
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-r-2xl border-r border-y border-slate-100 dark:border-slate-700/80 text-center transition-colors duration-300">
                             <div class="flex items-center justify-center gap-2">
-                                <!-- Cambiar Estado -->
-                                @can('categories.editar')
-                                <form action="{{ route('categories.toggle', $category) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="p-2 {{ $category->is_active ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-100/50 dark:border-amber-800/60' : 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-100/50 dark:border-emerald-800/60' }} rounded-xl transition-all" title="{{ $category->is_active ? 'Desactivar Categoría' : 'Activar Categoría' }}">
-                                        @if($category->is_active)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                                        @else
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        @endif
-                                    </button>
-                                </form>
-                                @endcan
-
                                 <!-- Editar -->
                                 @can('categories.editar')
                                 <button type="button" onclick="openEditCategoryModal('{{ route('categories.update', $category->id) }}', {{ json_encode($category) }})" class="p-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-100/50 dark:border-blue-800/60 rounded-xl transition-all" title="Editar Categoría">
