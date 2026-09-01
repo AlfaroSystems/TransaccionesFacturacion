@@ -18,7 +18,6 @@
     $userCount = class_exists(\App\Models\User::class) ? \App\Models\User::count() : 0;
     $roleCount = class_exists(\App\Models\Role::class) ? \App\Models\Role::count() : 0;
     $productCount = class_exists(\App\Models\Product::class) ? \App\Models\Product::count() : 0;
-    $lowStockCount = class_exists(\App\Models\Product::class) ? \App\Models\Product::lowStock()->count() : 0;
 @endphp
 
 <!-- Sección de Tarjetas (Fichas 3 columnas) -->
@@ -41,7 +40,7 @@
         </div>
     </div>
 
-    <!-- Card 2: Productos / Alertas -->
+    <!-- Card 2: Productos -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/80 card-shadow hover:scale-[1.01] transition-all duration-300">
         <!-- Icono verde -->
         <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 dark:text-emerald-400 mb-4">
@@ -49,8 +48,8 @@
                 <path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7H5V5zm4 9a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
             </svg>
         </div>
-        <h3 class="text-4xl font-extrabold text-navy-800 dark:text-slate-100 leading-none">{{ $lowStockCount > 0 ? $lowStockCount : $productCount }}</h3>
-        <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">{{ $lowStockCount > 0 ? 'Alertas de Stock Bajo' : 'Productos Registrados' }}</p>
+        <h3 class="text-4xl font-extrabold text-navy-800 dark:text-slate-100 leading-none">{{ $productCount }}</h3>
+        <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Productos Registrados</p>
         <div class="border-t border-slate-100 dark:border-slate-700/80 mt-5 pt-3">
             <a href="{{ route('products.index') }}" class="text-emerald-500 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 text-sm font-bold flex items-center gap-1">
                 <span>Ver Productos</span>
