@@ -242,6 +242,32 @@
                     </a>
                 @endcan
 
+                {{-- Tipos de Gastos --}}
+@php
+    $isExpenseTypes = request()->routeIs('expense-types.*');
+@endphp
+
+<a href="{{ route('expense-types.index') }}"
+    class="flex items-center gap-3 px-4 py-3 rounded-xl
+    {{ $isExpenseTypes
+        ? 'bg-navy-active text-white font-bold'
+        : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }}
+    transition-all">
+
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2
+            M9 5a3 3 0 006 0
+            M9 5h6
+            M9 12h6
+            M9 16h4" />
+    </svg>
+
+    <span>Tipos de Gastos</span>
+</a>
+
                 <!-- Administración -->
                 @php
                     $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');

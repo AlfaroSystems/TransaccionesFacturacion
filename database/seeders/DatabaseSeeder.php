@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([ExpenseTypeSeeder::class,]);
+
         // Cargar Catálogo Geográfico Primero
         $this->call(GeographicSeeder::class);
 

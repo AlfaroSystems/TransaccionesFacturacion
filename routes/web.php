@@ -15,6 +15,7 @@ use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ExpenseTypeController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -79,6 +80,10 @@ Route::middleware('auth')->group(function () {
     // Gestión de Unidades de Medida (CRUD) protegida por autenticación
     Route::resource('units', UnitController::class);
 
+   // Gestión de Tipos de Gastos Adicionales
+    Route::resource('expense-types', ExpenseTypeController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+    
     // API AJAX: Subcategorías por categoría (desarrollado por Dev 3)
     Route::get('/api/categories/{id}/sub-categories', function ($id) {
         $subCategories = \App\Models\SubCategory::where('id_category', $id)
