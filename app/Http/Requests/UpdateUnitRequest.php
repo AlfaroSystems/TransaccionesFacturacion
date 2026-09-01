@@ -32,7 +32,7 @@ class UpdateUnitRequest extends FormRequest
                 Rule::unique('units', 'name')->ignore($unit),
             ],
 
-            'type' => 'required|in:unidad,peso,volumen,longitud',
+            'type' => 'required|string|in:unidad,peso,volumen,longitud,superficie,servicio,tiempo,otro',
 
             'is_active' => 'required|boolean',
         ];

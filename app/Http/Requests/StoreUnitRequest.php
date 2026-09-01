@@ -23,7 +23,7 @@ class StoreUnitRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255|unique:units,name',
-            'type' => 'required|in:unidad,peso,volumen,longitud',
+            'type' => 'required|string|in:unidad,peso,volumen,longitud,superficie,servicio,tiempo,otro',
             'is_active' => 'required|boolean',
         ];
     }

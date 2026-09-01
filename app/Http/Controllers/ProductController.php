@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\SubCategory;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Exception;
 
 class ProductController extends Controller
@@ -19,15 +21,16 @@ class ProductController extends Controller
     {
         Gate::authorize('products.ver');
 
-        $query = Product::with(['category', 'subCategory', 'purchaseUnit', 'saleUnit']);
+        $query = Product::with(['category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images']);
 
-        // Filtro por búsqueda (nombre, sku, código de barras)
+        // Filtro por búsqueda (nombre, sku, código original, código interno)
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('sku', 'like', "%{$search}%")
-                    ->orWhere('barcode', 'like', "%{$search}%");
+                    ->orWhere('original_code', 'like', "%{$search}%")
+                    ->orWhere('internal_code', 'like', "%{$search}%");
             });
         }
 
@@ -76,7 +79,23 @@ class ProductController extends Controller
             // Si no se envía checkbox de is_active, por defecto es true
             $data['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : true;
 
+            // Extraer las imágenes del array de datos antes de crear el producto
+            unset($data['images']);
+
             $product = Product::create($data);
+
+            // Guardar imágenes si se proporcionaron
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    if ($file->isValid()) {
+                        $path = $file->store('products', 'public');
+                        $product->images()->create([
+                            'path' => $path,
+                            'is_active' => true,
+                        ]);
+                    }
+                }
+            }
 
             return redirect()
                 ->route('products.index')
@@ -95,7 +114,7 @@ class ProductController extends Controller
     {
         Gate::authorize('products.ver');
 
-        $relations = ['category', 'subCategory', 'purchaseUnit', 'saleUnit'];
+        $relations = ['category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images'];
 
         if (\Illuminate\Support\Facades\Schema::hasTable('product_location')) {
             $relations[] = 'locations';
@@ -127,7 +146,22 @@ class ProductController extends Controller
             $data = $request->validated();
             $data['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : false;
 
+            unset($data['images']);
+
             $product->update($data);
+
+            // Guardar nuevas imágenes si se subieron
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $file) {
+                    if ($file->isValid()) {
+                        $path = $file->store('products', 'public');
+                        $product->images()->create([
+                            'path' => $path,
+                            'is_active' => true,
+                        ]);
+                    }
+                }
+            }
 
             return redirect()
                 ->route('products.index')
@@ -154,5 +188,25 @@ class ProductController extends Controller
         return redirect()
             ->route('products.index')
             ->with('success', "Producto '{$productName}' inactivado correctamente.");
+    }
+
+    /**
+     * Eliminar una imagen de un producto.
+     */
+    public function destroyImage(ProductImage $image)
+    {
+        Gate::authorize('products.editar');
+
+        try {
+            if (Storage::disk('public')->exists($image->path)) {
+                Storage::disk('public')->delete($image->path);
+            }
+
+            $image->delete();
+
+            return back()->with('success', 'Imagen eliminada correctamente.');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Error al eliminar la imagen: ' . $e->getMessage()]);
+        }
     }
 }

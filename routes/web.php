@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
 
     // Gestión de Productos (CRUD) protegida por autenticación
     Route::resource('products', ProductController::class);
+    Route::delete('/product-images/{image}', [ProductController::class, 'destroyImage'])->name('product-images.destroy');
 
     // Bitácora de Auditoría (protegida por autenticación y permiso)
     Route::get('/audit-logs', [App\Http\Controllers\AuditLogController::class, 'index'])

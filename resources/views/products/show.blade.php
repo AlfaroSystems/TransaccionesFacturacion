@@ -39,7 +39,7 @@
                     @if($product->is_active)
                         <span class="bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            Activo para Dispensación
+                            Activo para Operaciones
                         </span>
                     @else
                         <span class="bg-rose-500/20 border border-rose-400/30 text-rose-300 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5">
@@ -51,13 +51,21 @@
                 <h2 class="text-2xl md:text-3xl font-extrabold text-white">{{ $product->name }}</h2>
             </div>
 
-            <!-- Código de barras simulado -->
-            @if($product->barcode)
-                <div class="bg-white text-slate-900 p-3 rounded-xl shadow-md text-center min-w-[170px]">
-                    <div class="font-mono text-xs font-bold tracking-[0.3em] uppercase mb-1">BARCODE</div>
-                    <div class="font-mono text-base font-extrabold tracking-wider">{{ $product->barcode }}</div>
-                </div>
-            @endif
+            <!-- Código de barras y códigos adicionales -->
+            <div class="flex flex-wrap gap-2">
+                @if($product->original_code)
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 text-white p-3 rounded-xl shadow-md text-center min-w-[130px]">
+                        <div class="font-mono text-[10px] font-bold tracking-wider uppercase text-slate-300">CÓDIGO FÁBRICA</div>
+                        <div class="font-mono text-sm font-extrabold tracking-wider mt-0.5">{{ $product->original_code }}</div>
+                    </div>
+                @endif
+                @if($product->internal_code)
+                    <div class="bg-white/10 backdrop-blur-md border border-white/10 text-white p-3 rounded-xl shadow-md text-center min-w-[130px]">
+                        <div class="font-mono text-[10px] font-bold tracking-wider uppercase text-slate-300">CÓDIGO INTERNO</div>
+                        <div class="font-mono text-sm font-extrabold tracking-wider mt-0.5">{{ $product->internal_code }}</div>
+                    </div>
+                @endif
+            </div>
         </div>
 
         <!-- Identificador UUID Global -->
@@ -68,17 +76,42 @@
                     {{ $product->uuid }}
                 </span>
             </div>
-            <button onclick="navigator.clipboard.writeText('{{ $product->uuid }}'); alert('UUID copiado al portapapeles');"
-                    class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
+            <button onclick="navigator.clipboard.writeText('{{ $product->uuid }}'); if(window.sileo) { window.sileo.success('Identificador UUID copiado al portapapeles.', '¡Copiado!'); }"
+                    class="text-xs text-[#005e66] hover:text-[#3cb0a4] font-bold flex items-center gap-1 transition-all cursor-pointer">
                 📋 Copiar UUID
             </button>
         </div>
 
         <!-- CUERPO DE LA FICHA EN BLOQUES ESTRUCTURADOS -->
         <div class="p-6 md:p-8 space-y-8">
-            <!-- Grid de 4 Bloques Clave -->
+
+            <!-- Galería de Imágenes -->
+            <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
+                <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
+                    <span class="text-base">🖼️</span>
+                    <h3>Galería de Imágenes</h3>
+                </div>
+                @if($product->images->count() > 0)
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                        @foreach($product->images as $img)
+                            <a href="{{ asset('storage/' . $img->path) }}" target="_blank" class="group relative block aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all">
+                                <img src="{{ asset('storage/' . $img->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-all">
+                                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white text-xs font-bold">
+                                    🔍 Ampliar
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-6 text-slate-400 text-xs font-semibold">
+                        No hay imágenes registradas para este producto.
+                    </div>
+                @endif
+            </div>
+
+            <!-- Grid de Bloques Clave -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- 1. Clasificación Farmacéutica / Comercial -->
+                <!-- 1. Clasificación Comercial -->
                 <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
                     <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
                         <span class="text-base">🏷️</span>
@@ -100,106 +133,40 @@
                     </dl>
                 </div>
 
-                <!-- 2. Unidades de Medida -->
+                <!-- 2. Especificaciones Técnicas y Unidades -->
                 <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
                     <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
-                        <span class="text-base">📦</span>
-                        <h3>Unidades de Medida</h3>
+                        <span class="text-base">📐</span>
+                        <h3>Especificaciones & Unidades</h3>
                     </div>
                     <dl class="space-y-3 text-sm">
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Unidad de Compra (Ingreso):</dt>
-                            <dd class="font-bold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
-                                {{ $product->purchaseUnit->name ?? 'No asignada' }}
-                                @if(isset($product->purchaseUnit->abbreviation))
-                                    <span class="text-xs text-slate-400 font-normal">({{ $product->purchaseUnit->abbreviation }})</span>
-                                @endif
+                            <dt class="text-slate-500 font-medium">Presentación:</dt>
+                            <dd class="font-semibold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                                {{ $product->presentation ?: 'N/A' }}
                             </dd>
                         </div>
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Unidad de Venta (Dispensación):</dt>
+                            <dt class="text-slate-500 font-medium">Talla / Tamaño / Dim.:</dt>
+                            <dd class="font-semibold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                                {{ $product->size ?: 'N/A' }} {{ $product->dimensions ? '('.$product->dimensions.')' : '' }}
+                            </dd>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <dt class="text-slate-500 font-medium">Unidad de Compra / Venta:</dt>
                             <dd class="font-bold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
-                                {{ $product->saleUnit->name ?? 'No asignada' }}
-                                @if(isset($product->saleUnit->abbreviation))
-                                    <span class="text-xs text-slate-400 font-normal">({{ $product->saleUnit->abbreviation }})</span>
-                                @endif
+                                {{ $product->purchaseUnit->name ?? 'N/A' }} / {{ $product->saleUnit->name ?? 'N/A' }}
                             </dd>
                         </div>
                     </dl>
                 </div>
-
-                <!-- 3. Finanzas & Precios -->
-                @php
-                    $cost = (float) $product->purchase_price;
-                    $price = (float) $product->sale_price;
-                    $margin = $price > 0 && $cost > 0 ? (($price - $cost) / $price) * 100 : 0;
-                    $unitProfit = $price - $cost;
-                @endphp
-                <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
-                    <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
-                        <span class="text-base">💵</span>
-                        <h3>Estructura de Precios</h3>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white p-3.5 rounded-xl border border-slate-200">
-                            <span class="text-xs text-slate-400 font-medium block">Precio de Compra</span>
-                            <span class="text-lg font-extrabold text-slate-700">${{ number_format($cost, 2) }}</span>
-                        </div>
-                        <div class="bg-white p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/20">
-                            <span class="text-xs text-emerald-600 font-bold block">Precio de Venta</span>
-                            <span class="text-xl font-extrabold text-emerald-600">${{ number_format($price, 2) }}</span>
-                        </div>
-                    </div>
-                    <div class="mt-3 flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-200/50">
-                        <span>Margen comercial estimado:</span>
-                        <span class="font-bold text-slate-700">{{ number_format($margin, 1) }}% (Ganancia: ${{ number_format($unitProfit, 2) }}/ud)</span>
-                    </div>
-                </div>
-
-                <!-- 4. Control de Inventario & Almacén -->
-                <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
-                    <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
-                        <span class="text-base">📊</span>
-                        <h3>Existencias en Almacén</h3>
-                    </div>
-                    <div class="flex items-center justify-between mb-2">
-                        <div>
-                            <span class="text-xs text-slate-400 block">Stock Actual</span>
-                            <span class="text-2xl font-black {{ $product->is_low_stock ? 'text-rose-600' : 'text-slate-800' }}">
-                                {{ $product->stock }}
-                            </span>
-                            <span class="text-xs text-slate-400 font-semibold">{{ $product->saleUnit->abbreviation ?? 'uds' }}</span>
-                        </div>
-
-                        <div class="text-right">
-                            <span class="text-xs text-slate-400 block">Stock Mínimo (Alerta)</span>
-                            <span class="text-lg font-bold text-slate-600">{{ $product->min_stock }}</span>
-                            <span class="text-xs text-slate-400 font-semibold">{{ $product->saleUnit->abbreviation ?? 'uds' }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Barra de nivel de existencias -->
-                    @php
-                        $stockPercent = $product->min_stock > 0 ? min(100, round(($product->stock / ($product->min_stock * 2)) * 100)) : 100;
-                    @endphp
-                    <div class="w-full bg-slate-200 rounded-full h-2 mt-3 overflow-hidden">
-                        <div class="h-2 rounded-full {{ $product->is_low_stock ? 'bg-rose-500' : 'bg-emerald-500' }}" style="width: {{ $stockPercent }}%"></div>
-                    </div>
-                    <div class="mt-2 text-right">
-                        @if($product->is_low_stock)
-                            <span class="text-xs font-bold text-rose-600">⚠️ Requiere reabastecimiento</span>
-                        @else
-                            <span class="text-xs font-bold text-emerald-600">✓ Nivel de existencias saludable</span>
-                        @endif
-                    </div>
-                </div>
             </div>
 
-            <!-- 5. Descripción / Indicaciones Farmacéuticas -->
+            <!-- 3. Descripción / Detalles -->
             @if($product->description)
-                <div class="bg-blue-50/40 p-6 rounded-2xl border border-blue-100">
+                <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/80 shadow-xs">
                     <h3 class="text-xs font-extrabold text-blue-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <span>📋</span> Descripción / Indicaciones Terapéuticas
+                        <span>📋</span> Descripción / Detalles
                     </h3>
                     <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
                         {{ $product->description }}
@@ -207,8 +174,8 @@
                 </div>
             @endif
 
-            <!-- 6. Información de Auditoría -->
-            <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 pt-6 border-t border-slate-100 gap-2">
+            <!-- 4. Información de Auditoría -->
+            <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 pt-6 border-t border-slate-100 gap-2 px-1">
                 <span>Registrado en el sistema: <strong class="text-slate-600">{{ $product->created_at ? $product->created_at->format('d/m/Y H:i') : '-' }}</strong></span>
                 <span>Última actualización: <strong class="text-slate-600">{{ $product->updated_at ? $product->updated_at->format('d/m/Y H:i') : '-' }}</strong></span>
             </div>

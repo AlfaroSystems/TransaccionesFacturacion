@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('sku', 50)->unique();
             $table->string('original_code', 100)->nullable();
             $table->string('internal_code', 100)->nullable();
-            $table->string('barcode', 100)->nullable();
-            
             $table->string('name', 200);
             $table->string('size', 100)->nullable();
             $table->string('dimensions', 100)->nullable();
@@ -33,11 +31,6 @@ return new class extends Migration
             $table->foreignId('purchase_unit')->nullable()->constrained('units')->nullOnDelete();
             $table->foreignId('sale_unit')->nullable()->constrained('units')->nullOnDelete();
 
-            // Control de precios e inventario
-            $table->decimal('purchase_price', 10, 2)->default(0.00);
-            $table->decimal('sale_price', 10, 2)->default(0.00);
-            $table->integer('stock')->default(0);
-            $table->integer('min_stock')->default(0);
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();

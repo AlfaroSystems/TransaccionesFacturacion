@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 class ProductRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Determinar si el usuario está autorizado para realizar esta solicitud.
      */
     public function authorize(): bool
     {
@@ -15,7 +15,7 @@ class ProductRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Obtener las reglas de validación que se aplican a la solicitud.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -36,11 +36,6 @@ class ProductRequest extends FormRequest
                 'max:100',
             ],
             'internal_code' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-            'barcode' => [
                 'nullable',
                 'string',
                 'max:100',
@@ -85,42 +80,34 @@ class ProductRequest extends FormRequest
                 'nullable',
                 'exists:units,id',
             ],
-            'purchase_price' => [
-                'nullable',
-                'numeric',
-                'min:0',
-            ],
-            'sale_price' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
-            'stock' => [
-                'nullable',
-                'integer',
-                'min:0',
-            ],
-            'min_stock' => [
-                'nullable',
-                'integer',
-                'min:0',
-            ],
             'is_active' => [
                 'nullable',
                 'boolean',
+            ],
+            'images' => [
+                'nullable',
+                'array',
+            ],
+            'images.*' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp,svg',
+                'max:5120',
             ],
         ];
     }
 
     /**
-     * Mensajes personalizados de error.
+     * Mensajes personalizados de error para la validación.
      */
     public function messages(): array
     {
         return [
             'sku.unique' => 'El código SKU ingresado ya está en uso por otro producto.',
             'name.required' => 'El nombre del producto es obligatorio.',
-            'sale_price.required' => 'El precio de venta es obligatorio.',
+            'images.*.image' => 'Los archivos seleccionados deben ser imágenes válidas.',
+            'images.*.mimes' => 'Las imágenes deben estar en formato JPEG, PNG, JPG, GIF, WEBP o SVG.',
+            'images.*.max' => 'Cada imagen no debe superar los 5MB de tamaño.',
         ];
     }
 }

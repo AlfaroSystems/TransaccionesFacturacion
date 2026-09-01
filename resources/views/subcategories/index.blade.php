@@ -102,48 +102,7 @@
                                 @endcan
                             </div>
                         </td>
-                    </tr>>
                     </tr>
-
-                    <!-- Modal de Edición de Subcategoría -->
-                    <div id="edit-subcategory-modal-{{ $subCategory->id }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-                        <div class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl mx-4 transform scale-95 transition-all">
-                            <div class="flex items-center justify-between border-b pb-4 mb-4">
-                                <h3 class="text-lg font-bold text-slate-800">Editar Subcategoría</h3>
-                                <button onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="text-slate-400 hover:text-slate-600">✕</button>
-                            </div>
-                            <form action="{{ route('subcategories.update', $subCategory) }}" method="POST" class="space-y-4">
-                                @csrf
-                                @method('PUT')
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Categoría Padre *</label>
-                                    <select name="id_category" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-                                        @foreach($categories as $category)
-                                            <option value="{{ $category->id }}" {{ old('id_category', $subCategory->id_category) == $category->id ? 'selected' : '' }}>
-                                                {{ $category->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre de la Subcategoría *</label>
-                                    <input type="text" name="name" value="{{ old('name', $subCategory->name) }}" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Descripción</label>
-                                    <textarea name="description" rows="3" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('description', $subCategory->description) }}</textarea>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input type="checkbox" name="is_active" id="sub_is_active_{{ $subCategory->id }}" value="1" {{ $subCategory->is_active ? 'checked' : '' }} class="rounded text-[#005e66]">
-                                    <label for="sub_is_active_{{ $subCategory->id }}" class="text-sm font-semibold text-slate-700">Subcategoría Activa</label>
-                                </div>
-                                <div class="flex justify-end gap-3 pt-4 border-t">
-                                    <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="px-5 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
-                                    <button type="submit" class="px-5 py-2 rounded-xl bg-[#005e66] text-white font-bold text-sm">Guardar Cambios</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                 @empty
                     <tr>
                         <td colspan="6" class="py-12 text-center text-slate-400 font-semibold">No se encontraron subcategorías registradas.</td>
@@ -153,6 +112,48 @@
         </table>
     </section>
 </div>
+
+<!-- MODALES DE EDICIÓN DE SUBCATEGORÍA -->
+@foreach($subCategories as $subCategory)
+    <div id="edit-subcategory-modal-{{ $subCategory->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+        <div class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl mx-4 transform scale-95 transition-all">
+            <div class="flex items-center justify-between border-b pb-4 mb-4">
+                <h3 class="text-lg font-bold text-slate-800">Editar Subcategoría</h3>
+                <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            <form action="{{ route('subcategories.update', $subCategory) }}" method="POST" class="space-y-4">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Categoría Padre *</label>
+                    <select name="id_category" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('id_category', $subCategory->id_category) == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre de la Subcategoría *</label>
+                    <input type="text" name="name" value="{{ old('name', $subCategory->name) }}" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Descripción</label>
+                    <textarea name="description" rows="3" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('description', $subCategory->description) }}</textarea>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="is_active" id="sub_is_active_{{ $subCategory->id }}" value="1" {{ $subCategory->is_active ? 'checked' : '' }} class="rounded text-[#005e66]">
+                    <label for="sub_is_active_{{ $subCategory->id }}" class="text-sm font-semibold text-slate-700">Subcategoría Activa</label>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="px-5 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-[#005e66] text-white font-bold text-sm">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endforeach
 
 <!-- Modal de Creación de Subcategoría -->
 <div id="create-subcategory-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm">

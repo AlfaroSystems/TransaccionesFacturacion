@@ -96,22 +96,14 @@
                     <option value="">
                         Todos los Tipos
                     </option>
-                    <option value="unidad"
-                        {{ request('type') === 'unidad' ? 'selected' : '' }}>
-                        Unidad
-                    </option>
-                    <option value="peso"
-                        {{ request('type') === 'peso' ? 'selected' : '' }}>
-                        Peso
-                    </option>
-                    <option value="volumen"
-                        {{ request('type') === 'volumen' ? 'selected' : '' }}>
-                        Volumen
-                    </option>
-                    <option value="longitud"
-                        {{ request('type') === 'longitud' ? 'selected' : '' }}>
-                        Longitud
-                    </option>
+                    <option value="unidad" {{ request('type') === 'unidad' ? 'selected' : '' }}>Unidad / Conteo</option>
+                    <option value="peso" {{ request('type') === 'peso' ? 'selected' : '' }}>Peso / Masa</option>
+                    <option value="volumen" {{ request('type') === 'volumen' ? 'selected' : '' }}>Volumen / Líquidos</option>
+                    <option value="longitud" {{ request('type') === 'longitud' ? 'selected' : '' }}>Longitud / Dimensión</option>
+                    <option value="superficie" {{ request('type') === 'superficie' ? 'selected' : '' }}>Superficie / Área</option>
+                    <option value="servicio" {{ request('type') === 'servicio' ? 'selected' : '' }}>Servicios / Asesoría</option>
+                    <option value="tiempo" {{ request('type') === 'tiempo' ? 'selected' : '' }}>Tiempo / Duración</option>
+                    <option value="otro" {{ request('type') === 'otro' ? 'selected' : '' }}>Otro / Genérico</option>
                 </select>
             </div>
 
@@ -357,21 +349,14 @@
                             class="w-full bg-slate-50 border @error('type') border-rose-300 @else border-slate-200 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold"
                             required>
                         <option value="">Seleccionar tipo</option>
-                        <option value="unidad" {{ old('modal_type') === 'create' && old('type') === 'unidad' ? 'selected' : '' }}>
-                            Unidad
-                        </option>
-                        <option value="peso"
-                            {{ old('modal_type') === 'create' && old('type') === 'peso' ? 'selected' : '' }}>
-                            Peso
-                        </option>
-                        <option value="volumen"
-                            {{ old('modal_type') === 'create' && old('type') === 'volumen' ? 'selected' : '' }}>
-                            Volumen
-                        </option>
-                        <option value="longitud"
-                            {{ old('modal_type') === 'create' && old('type') === 'longitud' ? 'selected' : '' }}>
-                            Longitud
-                        </option>
+                        <option value="unidad" {{ old('modal_type') === 'create' && old('type') === 'unidad' ? 'selected' : '' }}>Unidad / Conteo (ud, cja, paq, doc, bot)</option>
+                        <option value="peso" {{ old('modal_type') === 'create' && old('type') === 'peso' ? 'selected' : '' }}>Peso / Masa (kg, g, lb, oz, qq)</option>
+                        <option value="volumen" {{ old('modal_type') === 'create' && old('type') === 'volumen' ? 'selected' : '' }}>Volumen / Líquidos (l, ml, gal, m³)</option>
+                        <option value="longitud" {{ old('modal_type') === 'create' && old('type') === 'longitud' ? 'selected' : '' }}>Longitud / Dimensión (m, cm, mm, in, yd)</option>
+                        <option value="superficie" {{ old('modal_type') === 'create' && old('type') === 'superficie' ? 'selected' : '' }}>Superficie / Área (m², sq ft)</option>
+                        <option value="servicio" {{ old('modal_type') === 'create' && old('type') === 'servicio' ? 'selected' : '' }}>Servicio / Asesoría (srv, ses, prj)</option>
+                        <option value="tiempo" {{ old('modal_type') === 'create' && old('type') === 'tiempo' ? 'selected' : '' }}>Tiempo / Duración (hrs, días, mes)</option>
+                        <option value="otro" {{ old('modal_type') === 'create' && old('type') === 'otro' ? 'selected' : '' }}>Otro / Genérico</option>
                     </select>
 
                     @error('type')
@@ -474,10 +459,14 @@
                     </label>
                     <select name="type" id="edit-unit-type" class="w-full bg-slate-50 border @error('type') border-rose-300 @else border-slate-200 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar tipo</option>
-                        <option value="unidad">Unidad</option>
-                        <option value="peso">Peso</option>
-                        <option value="volumen">Volumen</option>
-                        <option value="longitud">Longitud</option>
+                        <option value="unidad">Unidad / Conteo (ud, cja, paq, doc, bot)</option>
+                        <option value="peso">Peso / Masa (kg, g, lb, oz, qq)</option>
+                        <option value="volumen">Volumen / Líquidos (l, ml, gal, m³)</option>
+                        <option value="longitud">Longitud / Dimensión (m, cm, mm, in, yd)</option>
+                        <option value="superficie">Superficie / Área (m², sq ft)</option>
+                        <option value="servicio">Servicio / Asesoría (srv, ses, prj)</option>
+                        <option value="tiempo">Tiempo / Duración (hrs, días, mes)</option>
+                        <option value="otro">Otro / Genérico</option>
                     </select>
 
                     @error('type')

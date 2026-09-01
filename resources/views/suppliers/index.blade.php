@@ -835,7 +835,7 @@
         const container = row.parentElement;
         const rows = container.querySelectorAll('.edit-contact-row');
         if (rows.length <= 1) {
-            alert('El proveedor debe tener al menos un contacto.');
+            if(window.sileo) { window.sileo.warning('El proveedor debe tener al menos un contacto.', 'Atención'); }
             return;
         }
         row.remove();

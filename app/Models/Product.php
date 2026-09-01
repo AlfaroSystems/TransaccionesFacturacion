@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -24,7 +25,6 @@ class Product extends Model
         'sku',
         'original_code',
         'internal_code',
-        'barcode',
         'name',
         'size',
         'dimensions',
@@ -34,10 +34,6 @@ class Product extends Model
         'id_sub_category',
         'purchase_unit',
         'sale_unit',
-        'purchase_price',
-        'sale_price',
-        'stock',
-        'min_stock',
         'is_active',
     ];
 
@@ -47,10 +43,6 @@ class Product extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'purchase_price' => 'decimal:2',
-        'sale_price' => 'decimal:2',
-        'stock' => 'integer',
-        'min_stock' => 'integer',
         'is_active' => 'boolean',
     ];
 
@@ -130,6 +122,14 @@ class Product extends Model
      * ========================================================================= */
 
     /**
+     * Relación con Imágenes del producto (ProductImage).
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class, 'id_product');
+    }
+
+    /**
      * Relación con Categoría (Category).
      */
     public function category(): BelongsTo
@@ -178,15 +178,5 @@ class Product extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
-    }
-
-    public function scopeLowStock($query)
-    {
-        return $query->whereColumn('stock', '<=', 'min_stock');
-    }
-
-    public function getIsLowStockAttribute(): bool
-    {
-        return $this->stock <= $this->min_stock;
     }
 }
