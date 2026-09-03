@@ -57,4 +57,16 @@ class PurchaseRequest extends Model
             'id_purchase_request'
         );
     }
+
+    /**
+     * Solicitudes de cotización vinculadas a esta solicitud de compra.
+     */
+    public function quotationRequests(): HasMany
+    {
+        return $this->hasMany(
+            PurchaseQuotationRequest::class,
+            'id_purchase_request',
+            'id_purchase_request'
+        );
+    }
 }

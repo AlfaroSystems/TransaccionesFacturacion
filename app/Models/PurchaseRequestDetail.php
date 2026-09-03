@@ -50,4 +50,16 @@ class PurchaseRequestDetail extends Model
             'id_unit'
         );
     }
+
+    /**
+     * Detalles de solicitudes de cotización vinculados a este ítem.
+     */
+    public function quotationRequestDetails(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(
+            PurchaseQuotationRequestDetail::class,
+            'id_purchase_request_detail',
+            'id_purchase_request_detail'
+        );
+    }
 }
