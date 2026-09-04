@@ -105,7 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::resource(
         'purchase-quotation-requests',
         PurchaseQuotationRequestController::class
-    )->only(['index', 'create', 'store', 'show']);
+    )->only(['index', 'store', 'show']);
     Route::get('/api/categories/{id}/sub-categories', function ($id) {
         $subCategories = \App\Models\SubCategory::where('id_category', $id)
             ->where('is_active', true)

@@ -44,18 +44,6 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Muestra el formulario para crear una solicitud de cotización.
-     */
-    public function create()
-    {
-        $approvedRequests = PurchaseRequest::where('status', 'approved')
-            ->orderByDesc('created_at')
-            ->get();
-
-        return view('purchase_quotation_requests.create', compact('approvedRequests'));
-    }
-
-    /**
      * Endpoint AJAX: Devuelve las Solicitudes de Compra en estado approved.
      */
     public function getApprovedPurchaseRequests(): JsonResponse
