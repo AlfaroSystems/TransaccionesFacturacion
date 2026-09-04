@@ -16,6 +16,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\PurchaseRequestController;
+use App\Http\Controllers\PurchaseQuotationRequestController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -90,6 +91,21 @@ Route::middleware('auth')->group(function () {
         'purchase-requests/{purchaseRequest}/status',
         [PurchaseRequestController::class, 'updateStatus']
     )->name('purchase-requests.update-status');
+    // Solicitudes de Cotización a Proveedores (Desarrollador 3)
+    Route::get(
+        'purchase-quotation-requests/approved-requests',
+        [PurchaseQuotationRequestController::class, 'getApprovedPurchaseRequests']
+    )->name('purchase-quotation-requests.approved-requests');
+
+    Route::get(
+        'purchase-quotation-requests/request-details/{id}',
+        [PurchaseQuotationRequestController::class, 'getPurchaseRequestDetails']
+    )->name('purchase-quotation-requests.request-details');
+
+    Route::resource(
+        'purchase-quotation-requests',
+        PurchaseQuotationRequestController::class
+    )->only(['index', 'create', 'store', 'show']);
     Route::get('/api/categories/{id}/sub-categories', function ($id) {
         $subCategories = \App\Models\SubCategory::where('id_category', $id)
             ->where('is_active', true)
