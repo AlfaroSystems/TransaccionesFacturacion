@@ -338,11 +338,14 @@ function loadModalRequestItems(purchaseRequestId) {
     fetch(url, {
         headers: { 'Accept': 'application/json' }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error('Error al consultar el servidor');
+        return res.json();
+    })
     .then(details => {
         loading.classList.add('hidden');
 
-        if (!details || details.length === 0) {
+        if (!Array.isArray(details) || details.length === 0) {
             placeholder.classList.remove('hidden');
             placeholder.innerHTML = '<p class="text-rose-500 font-bold">Esta solicitud no tiene productos registrados.</p>';
             counter.textContent = '0 ítems';
@@ -381,6 +384,7 @@ function loadModalRequestItems(purchaseRequestId) {
         loading.classList.add('hidden');
         placeholder.classList.remove('hidden');
         placeholder.innerHTML = '<p class="text-rose-500 font-bold">Error al cargar productos.</p>';
+        counter.textContent = '0 ítems';
     });
 }
 

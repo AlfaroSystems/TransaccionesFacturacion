@@ -126,8 +126,8 @@
                             </td>
                             <td class="py-4 px-6">
                                 <span class="font-extrabold text-slate-800 dark:text-white block">{{ $product->name ?? 'Producto no especificado' }}</span>
-                                @if($product?->sku || $product?->barcode)
-                                    <span class="text-xs font-mono text-slate-400">SKU: {{ $product->sku ?? $product->barcode }}</span>
+                                @if($product?->sku)
+                                    <span class="text-xs font-mono text-slate-400">SKU: {{ $product->sku }}</span>
                                 @endif
                             </td>
                             <td class="py-4 px-6">

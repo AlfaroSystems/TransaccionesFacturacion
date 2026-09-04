@@ -69,7 +69,7 @@ class PurchaseQuotationRequestController extends Controller
     {
         $details = PurchaseRequestDetail::where('id_purchase_request', $id)
             ->with([
-                'product:id,name,sku,barcode',
+                'product:id,name,sku',
                 'unit:id,name,abbreviation',
             ])
             ->get();
