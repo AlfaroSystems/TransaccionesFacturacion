@@ -7,9 +7,7 @@ use App\Models\Branch;
 use App\Models\Warehouse;
 use App\Models\Product;
 use App\Models\Unit;
-use App\Models\Supplier;
 use App\Models\PurchaseRequest;
-use App\Models\PurchaseRequestDetail;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequestDetail;
 use Illuminate\Support\Str;
@@ -17,7 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('invitacion a cotizar se puede crear y relacionar correctamente', function () {
+test('solicitud de cotizacion se puede crear y relacionar correctamente', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
 
@@ -37,21 +35,6 @@ test('invitacion a cotizar se puede crear y relacionar correctamente', function 
         'sku' => 'LAP-001',
         'id_unit' => $unit->id,
     ]);
-
-    $supplier1 = Supplier::firstOrCreate(
-        ['email' => 'tech@proveedor.com'],
-        [
-            'name' => 'Proveedor Tech S.A.',
-            'country' => 'El Salvador',
-        ]
-    );
-    $supplier2 = Supplier::firstOrCreate(
-        ['email' => 'global@proveedor.com'],
-        [
-            'name' => 'Distribuidora Global S.A.',
-            'country' => 'Guatemala',
-        ]
-    );
 
     // 3. Crear solicitud de compra aprobada
     $purchaseRequest = PurchaseRequest::create([
@@ -73,16 +56,13 @@ test('invitacion a cotizar se puede crear y relacionar correctamente', function 
         'description' => 'Equipos para desarrollo',
     ]);
 
-    // 4. Enviar petición para convocar a ambos proveedores
+    // 4. Enviar petición para crear la solicitud de cotización
     $response = $this->actingAs($user)->post(route('purchase-quotation-requests.store'), [
         'id_purchase_request' => $purchaseRequest->id_purchase_request,
-        'supplier_ids' => [$supplier1->id_supplier, $supplier2->id_supplier],
-        'notes' => 'Cotizar con entrega a más tardar el próximo viernes.',
         'items' => [
             [
                 'id_purchase_request_detail' => $detail->id_purchase_request_detail,
                 'quantity' => 5.0000,
-                'notes' => 'Garantía mínima de 2 años',
             ],
         ],
     ]);
@@ -90,23 +70,18 @@ test('invitacion a cotizar se puede crear y relacionar correctamente', function 
     $response->assertRedirect(route('purchase-quotation-requests.index'));
     $response->assertSessionHas('success');
 
-    // 5. Verificar que se crearon dos invitaciones (una por cada proveedor convocado)
+    // 5. Verificar que se creó la solicitud de cotización
     $this->assertDatabaseHas('purchase_quotation_requests', [
         'id_purchase_request' => $purchaseRequest->id_purchase_request,
-        'id_supplier' => $supplier1->id_supplier,
-        'status' => 'sent',
+        'id_purchase_quotation' => null,
     ]);
 
-    $this->assertDatabaseHas('purchase_quotation_requests', [
-        'id_purchase_request' => $purchaseRequest->id_purchase_request,
-        'id_supplier' => $supplier2->id_supplier,
-        'status' => 'sent',
+    // 6. Verificar que el detalle se guardó
+    $this->assertDatabaseHas('purchase_quotation_request_details', [
+        'id_purchase_request_detail' => $detail->id_purchase_request_detail,
+        'id_purchase_quotation_detail' => null,
+        'quantity' => 5.0000,
     ]);
-
-    // 6. Verificar que los ítems convocados se guardaron
-    $quotation1 = PurchaseQuotationRequest::where('id_supplier', $supplier1->id_supplier)->first();
-    expect($quotation1->details)->toHaveCount(1);
-    expect((float)$quotation1->details->first()->quantity)->toBe(5.0);
 
     // 7. Probar endpoint AJAX de solicitudes aprobadas
     $ajaxResponse = $this->actingAs($user)->getJson(route('purchase-quotation-requests.approved-requests'));
@@ -116,8 +91,8 @@ test('invitacion a cotizar se puede crear y relacionar correctamente', function 
     ]);
 
     // 8. Probar vista detalle show
-    $showResponse = $this->actingAs($user)->get(route('purchase-quotation-requests.show', $quotation1->id_purchase_quotation_request));
+    $quotation = PurchaseQuotationRequest::where('id_purchase_request', $purchaseRequest->id_purchase_request)->first();
+    $showResponse = $this->actingAs($user)->get(route('purchase-quotation-requests.show', $quotation->id_purchase_quotation_request));
     $showResponse->assertOk();
-    $showResponse->assertSee('Proveedor Tech S.A.');
     $showResponse->assertSee('REQ-2026-TEST');
 });

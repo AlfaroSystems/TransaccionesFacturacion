@@ -7,7 +7,6 @@ use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequestDetail;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestDetail;
-use App\Models\Supplier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,33 +14,21 @@ use Illuminate\Support\Facades\DB;
 class PurchaseQuotationRequestController extends Controller
 {
     /**
-     * Muestra el listado de solicitudes de cotización a proveedores.
+     * Muestra el listado de solicitudes de cotización.
      */
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $status = $request->input('status');
 
         $query = PurchaseQuotationRequest::with([
             'purchaseRequest',
-            'supplier',
-            'details.purchaseRequestDetail.product',
         ]);
 
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('purchaseRequest', function ($sub) use ($search) {
-                    $sub->where('purchase_request_code', 'like', "%{$search}%")
-                        ->orWhere('justification', 'like', "%{$search}%");
-                })->orWhereHas('supplier', function ($sub) use ($search) {
-                    $sub->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
+            $query->whereHas('purchaseRequest', function ($sub) use ($search) {
+                $sub->where('purchase_request_code', 'like', "%{$search}%")
+                    ->orWhere('justification', 'like', "%{$search}%");
             });
-        }
-
-        if ($status) {
-            $query->where('status', $status);
         }
 
         $quotationRequests = $query
@@ -49,31 +36,23 @@ class PurchaseQuotationRequestController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Métricas rápidas para tarjetas de resumen
         $metrics = [
             'total' => PurchaseQuotationRequest::count(),
-            'pending' => PurchaseQuotationRequest::where('status', 'pending')->count(),
-            'sent' => PurchaseQuotationRequest::where('status', 'sent')->count(),
-            'quoted' => PurchaseQuotationRequest::where('status', 'quoted')->count(),
         ];
 
-        return view('purchase_quotation_requests.index', compact('quotationRequests', 'metrics', 'search', 'status'));
+        return view('purchase_quotation_requests.index', compact('quotationRequests', 'metrics', 'search'));
     }
 
     /**
-     * Muestra el formulario para convocar a proveedores.
+     * Muestra el formulario para crear una solicitud de cotización.
      */
     public function create()
     {
-        $suppliers = Supplier::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
         $approvedRequests = PurchaseRequest::where('status', 'approved')
             ->orderByDesc('created_at')
             ->get();
 
-        return view('purchase_quotation_requests.create', compact('suppliers', 'approvedRequests'));
+        return view('purchase_quotation_requests.create', compact('approvedRequests'));
     }
 
     /**
@@ -111,7 +90,7 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Almacena las invitaciones de cotización formal para cada proveedor seleccionado.
+     * Almacena la solicitud de cotización y sus detalles.
      */
     public function store(StorePurchaseQuotationRequest $request)
     {
@@ -119,41 +98,29 @@ class PurchaseQuotationRequestController extends Controller
 
         DB::transaction(function () use ($validated) {
             $purchaseRequestId = $validated['id_purchase_request'];
-            $supplierIds = $validated['supplier_ids'];
             $items = $validated['items'];
-            $notes = $validated['notes'] ?? null;
 
-            foreach ($supplierIds as $supplierId) {
-                // Crear la cabecera de la solicitud de cotización por proveedor
-                $quotationRequest = PurchaseQuotationRequest::create([
-                    'id_purchase_request' => $purchaseRequestId,
-                    'id_supplier' => $supplierId,
-                    'id_purchase_quotation' => null,
-                    'status' => 'sent',
-                    'notes' => $notes,
+            $quotationRequest = PurchaseQuotationRequest::create([
+                'id_purchase_request' => $purchaseRequestId,
+                'id_purchase_quotation' => null,
+            ]);
+
+            foreach ($items as $item) {
+                PurchaseQuotationRequestDetail::create([
+                    'id_purchase_request_detail' => $item['id_purchase_request_detail'],
+                    'id_purchase_quotation_detail' => null,
+                    'quantity' => $item['quantity'],
                 ]);
-
-                // Crear los detalles de ítems requeridos
-                foreach ($items as $item) {
-                    $quotationRequest->details()->create([
-                        'id_purchase_request_detail' => $item['id_purchase_request_detail'],
-                        'id_purchase_quotation_detail' => null,
-                        'quantity' => $item['quantity'],
-                        'notes' => $item['notes'] ?? null,
-                    ]);
-                }
             }
         });
 
-        $supplierCount = count($validated['supplier_ids']);
-
         return redirect()
             ->route('purchase-quotation-requests.index')
-            ->with('success', "Se generaron exitosamente {$supplierCount} invitaciones de cotización a proveedores.");
+            ->with('success', 'Se generó exitosamente la solicitud de cotización.');
     }
 
     /**
-     * Muestra el detalle completo de una solicitud de cotización formal.
+     * Muestra el detalle completo de una solicitud de cotización.
      */
     public function show(int $id)
     {
@@ -161,11 +128,16 @@ class PurchaseQuotationRequestController extends Controller
             'purchaseRequest.branch',
             'purchaseRequest.warehouse',
             'purchaseRequest.user',
-            'supplier',
-            'details.purchaseRequestDetail.product',
-            'details.purchaseRequestDetail.unit',
+            'purchaseRequest.details.product',
+            'purchaseRequest.details.unit',
         ])->findOrFail($id);
 
-        return view('purchase_quotation_requests.show', compact('quotationRequest'));
+        $detailIds = $quotationRequest->purchaseRequest->details->pluck('id_purchase_request_detail');
+
+        $details = PurchaseQuotationRequestDetail::whereIn('id_purchase_request_detail', $detailIds)
+            ->with(['purchaseRequestDetail.product', 'purchaseRequestDetail.unit'])
+            ->get();
+
+        return view('purchase_quotation_requests.show', compact('quotationRequest', 'details'));
     }
 }

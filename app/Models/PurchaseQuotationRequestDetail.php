@@ -10,15 +10,15 @@ class PurchaseQuotationRequestDetail extends Model
 {
     use HasFactory;
 
+    const UPDATED_AT = null;
+
     protected $table = 'purchase_quotation_request_details';
     protected $primaryKey = 'id_purchase_quotation_request_detail';
 
     protected $fillable = [
-        'id_purchase_quotation_request',
-        'id_purchase_request_detail',
         'id_purchase_quotation_detail',
+        'id_purchase_request_detail',
         'quantity',
-        'notes',
     ];
 
     protected $casts = [
@@ -26,19 +26,7 @@ class PurchaseQuotationRequestDetail extends Model
     ];
 
     /**
-     * Invitación a cotizar a la que pertenece este detalle.
-     */
-    public function quotationRequest(): BelongsTo
-    {
-        return $this->belongsTo(
-            PurchaseQuotationRequest::class,
-            'id_purchase_quotation_request',
-            'id_purchase_quotation_request'
-        );
-    }
-
-    /**
-     * Detalle original de la solicitud de compra.
+     * Detalle de la solicitud de compra asociada.
      */
     public function purchaseRequestDetail(): BelongsTo
     {

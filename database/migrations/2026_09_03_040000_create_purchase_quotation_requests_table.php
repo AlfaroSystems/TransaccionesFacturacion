@@ -14,15 +14,6 @@ return new class extends Migration
         Schema::create('purchase_quotation_requests', function (Blueprint $table) {
             $table->id('id_purchase_quotation_request');
 
-            $table->foreignId('id_purchase_request')
-                ->constrained('purchase_requests', 'id_purchase_request')
-                ->cascadeOnDelete();
-
-            $table->foreignId('id_supplier')
-                ->nullable()
-                ->constrained('suppliers', 'id_supplier')
-                ->nullOnDelete();
-
             if (Schema::hasTable('purchase_quotations')) {
                 $table->foreignId('id_purchase_quotation')
                     ->nullable()
@@ -32,10 +23,11 @@ return new class extends Migration
                 $table->unsignedBigInteger('id_purchase_quotation')->nullable();
             }
 
-            $table->string('status')->default('pending');
-            $table->text('notes')->nullable();
+            $table->foreignId('id_purchase_request')
+                ->constrained('purchase_requests', 'id_purchase_request')
+                ->cascadeOnDelete();
 
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

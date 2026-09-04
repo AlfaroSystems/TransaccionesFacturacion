@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Solicitudes de Cotización a Proveedores')
+@section('title', 'Solicitudes de Cotización')
 
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
@@ -9,88 +9,50 @@
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Compras</span>
                 <span class="text-slate-400 dark:text-slate-600">•</span>
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Desarrollador 3</span>
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Cotizaciones</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Solicitudes de Cotización a Proveedores</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Vincule solicitudes de compra aprobadas con la invitación formal a uno o varios proveedores para cotizar.</p>
+            <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Solicitudes de Cotización</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Gestione las solicitudes de cotización vinculadas a las solicitudes de compra aprobadas.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
             <a href="{{ route('purchase-quotation-requests.create') }}" class="w-full md:w-auto bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                <span>Nueva Invitación a Cotizar</span>
+                <span>Nueva Solicitud de Cotización</span>
             </a>
         </div>
     </div>
 
     <!-- Tarjetas de Métricas -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-[#005e66] dark:text-teal-300 flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-[#005e66] dark:text-teal-300 flex items-center justify-center text-xl font-bold">
                 📨
             </div>
             <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Convocatorias</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Solicitudes</span>
                 <span class="text-2xl font-extrabold text-slate-800 dark:text-white">{{ $metrics['total'] }}</span>
-            </div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
-                ⏳
-            </div>
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Pendientes</span>
-                <span class="text-2xl font-extrabold text-slate-800 dark:text-white">{{ $metrics['pending'] }}</span>
-            </div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl font-bold">
-                🚀
-            </div>
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Enviadas</span>
-                <span class="text-2xl font-extrabold text-slate-800 dark:text-white">{{ $metrics['sent'] }}</span>
-            </div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
-                ✅
-            </div>
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Cotizadas</span>
-                <span class="text-2xl font-extrabold text-slate-800 dark:text-white">{{ $metrics['quoted'] }}</span>
             </div>
         </div>
     </div>
 
     <!-- Filtros y Búsqueda -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4">
-        <form method="GET" action="{{ route('purchase-quotation-requests.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            <div class="md:col-span-6 relative">
+        <form method="GET" action="{{ route('purchase-quotation-requests.index') }}" class="flex gap-3 items-center">
+            <div class="flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por código de solicitud o proveedor..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-none">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por código o justificación de solicitud de compra..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-none">
             </div>
-            <div class="md:col-span-4">
-                <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-none">
-                    <option value="">Todos los Estados</option>
-                    <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="sent" {{ $status === 'sent' ? 'selected' : '' }}>Enviada</option>
-                    <option value="quoted" {{ $status === 'quoted' ? 'selected' : '' }}>Cotizada</option>
-                    <option value="cancelled" {{ $status === 'cancelled' ? 'selected' : '' }}>Cancelada</option>
-                </select>
-            </div>
-            <div class="md:col-span-2 flex gap-2">
-                <button type="submit" class="flex-1 bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                    <span>Filtrar</span>
-                </button>
-                @if($search || $status)
-                    <a href="{{ route('purchase-quotation-requests.index') }}" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" title="Limpiar filtros">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </a>
-                @endif
-            </div>
+            <button type="submit" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-2.5 px-5 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                <span>Filtrar</span>
+            </button>
+            @if($search)
+                <a href="{{ route('purchase-quotation-requests.index') }}" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" title="Limpiar filtro">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </a>
+            @endif
         </form>
     </div>
 
@@ -102,10 +64,8 @@
                     <tr>
                         <th class="py-4 px-6">ID</th>
                         <th class="py-4 px-6">Solicitud de Compra</th>
-                        <th class="py-4 px-6">Proveedor Convocado</th>
-                        <th class="py-4 px-6 text-center">Ítems a Cotizar</th>
-                        <th class="py-4 px-6">Fecha Emisión</th>
-                        <th class="py-4 px-6">Estado</th>
+                        <th class="py-4 px-6">ID Cotización Asociada</th>
+                        <th class="py-4 px-6">Fecha Creación</th>
                         <th class="py-4 px-6 text-right">Acciones</th>
                     </tr>
                 </thead>
@@ -125,33 +85,12 @@
                                     {{ $quotation->purchaseRequest->justification ?? 'Sin justificación' }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6">
-                                <div class="font-bold text-slate-800 dark:text-white">
-                                    {{ $quotation->supplier->name ?? 'Proveedor no asignado' }}
-                                </div>
-                                <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
-                                    @if($quotation->supplier?->email)
-                                        <span>📧 {{ $quotation->supplier->email }}</span>
-                                    @endif
-                                    @if($quotation->supplier?->phone)
-                                        <span>📞 {{ $quotation->supplier->phone }}</span>
-                                    @endif
-                                </div>
-                            </td>
-                            <td class="py-4 px-6 text-center">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                                    {{ $quotation->details->count() }} producto(s)
-                                </span>
+                            <td class="py-4 px-6 font-mono text-xs font-bold text-slate-600 dark:text-slate-300">
+                                {{ $quotation->id_purchase_quotation ? '#' . $quotation->id_purchase_quotation : 'Pendiente' }}
                             </td>
                             <td class="py-4 px-6 whitespace-nowrap">
                                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ $quotation->created_at->format('d/m/Y') }}</span>
                                 <span class="text-xs text-slate-400 block">{{ $quotation->created_at->format('h:i A') }}</span>
-                            </td>
-                            <td class="py-4 px-6 whitespace-nowrap">
-                                @php $badge = $quotation->status_badge; @endphp
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border {{ $badge['class'] }}">
-                                    {{ $badge['label'] }}
-                                </span>
                             </td>
                             <td class="py-4 px-6 text-right whitespace-nowrap">
                                 <a href="{{ route('purchase-quotation-requests.show', $quotation->id_purchase_quotation_request) }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#005e66]/10 hover:bg-[#005e66] text-[#005e66] hover:text-white font-bold text-xs transition-all">
@@ -162,19 +101,19 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-16 text-center">
+                            <td colspan="5" class="py-16 text-center">
                                 <div class="max-w-sm mx-auto space-y-3">
                                     <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-3xl">
-                                        📦
+                                        📋
                                     </div>
-                                    <h3 class="font-extrabold text-slate-700 dark:text-slate-200 text-lg">No hay invitaciones a cotizar registradas</h3>
+                                    <h3 class="font-extrabold text-slate-700 dark:text-slate-200 text-lg">No hay solicitudes de cotización registradas</h3>
                                     <p class="text-sm text-slate-400">
-                                        {{ $search || $status ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience convocando a uno o varios proveedores para cotizar una solicitud de compra aprobada.' }}
+                                        {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización para una solicitud de compra aprobada.' }}
                                     </p>
                                     <div class="pt-2">
                                         <a href="{{ route('purchase-quotation-requests.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold text-sm shadow-md transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            <span>Nueva Convocatoria</span>
+                                            <span>Nueva Solicitud de Cotización</span>
                                         </a>
                                     </div>
                                 </div>

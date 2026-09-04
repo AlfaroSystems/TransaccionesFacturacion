@@ -31,9 +31,6 @@ class StorePurchaseQuotationRequest extends FormRequest
                     }
                 },
             ],
-            'supplier_ids' => ['required', 'array', 'min:1'],
-            'supplier_ids.*' => ['required', 'integer', 'exists:suppliers,id_supplier'],
-            'notes' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.id_purchase_request_detail' => [
                 'required',
@@ -41,7 +38,6 @@ class StorePurchaseQuotationRequest extends FormRequest
                 'exists:purchase_request_details,id_purchase_request_detail',
             ],
             'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
-            'items.*.notes' => ['nullable', 'string', 'max:500'],
         ];
     }
 
@@ -53,9 +49,6 @@ class StorePurchaseQuotationRequest extends FormRequest
         return [
             'id_purchase_request.required' => 'Debe seleccionar una solicitud de compra aprobada.',
             'id_purchase_request.exists' => 'La solicitud de compra seleccionada no existe.',
-            'supplier_ids.required' => 'Debe seleccionar al menos un proveedor para convocar.',
-            'supplier_ids.min' => 'Debe seleccionar al menos un proveedor para convocar.',
-            'supplier_ids.*.exists' => 'Uno de los proveedores seleccionados no es válido.',
             'items.required' => 'La solicitud de compra debe contener al menos un producto a cotizar.',
             'items.min' => 'Debe cotizar al menos un producto.',
             'items.*.quantity.required' => 'La cantidad a cotizar es obligatoria para cada ítem.',
