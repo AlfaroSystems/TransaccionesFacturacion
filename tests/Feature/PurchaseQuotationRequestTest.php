@@ -11,9 +11,9 @@ use App\Models\PurchaseRequest;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequestDetail;
 use Illuminate\Support\Str;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-uses(RefreshDatabase::class);
+uses(DatabaseTransactions::class);
 
 test('solicitud de cotizacion se puede crear y relacionar correctamente', function () {
     // 1. Simular usuario autenticado
