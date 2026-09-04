@@ -13,33 +13,22 @@ return new class extends Migration
     {
         Schema::create('purchase_requests', function (Blueprint $table) {
             $table->id('id_purchase_request');
-
             $table->uuid('uuid')->unique();
-
             $table->string('purchase_request_code')->unique();
-
             $table->foreignId('id_branch')
                 ->constrained('branches', 'id')
                 ->restrictOnDelete();
-
             $table->foreignId('id_warehouse')
                 ->constrained('warehouses', 'id')
                 ->restrictOnDelete();
-
             $table->foreignId('id_user')
                 ->constrained('users', 'id')
                 ->restrictOnDelete();
-
             $table->dateTime('request_date');
-
             $table->dateTime('required_date');
-
             $table->text('justification');
-
             $table->string('status')->default('draft');
-
             $table->text('notes')->nullable();
-
             $table->timestamps();
         });
     }

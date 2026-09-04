@@ -124,17 +124,12 @@
                 <div class="w-12 h-12 rounded-full bg-white/10 dark:bg-slate-800 flex items-center justify-center font-bold text-lg text-white mb-2 uppercase border border-white/20 dark:border-slate-700">
                     {{ auth()->check() ? substr(auth()->user()->name, 0, 2) : 'US' }}
                 </div>
-<<<<<<< HEAD
                 <span class="text-sm font-bold text-white block">
                     {{ auth()->check() ? auth()->user()->name : 'Usuario de Prueba' }}
                 </span>
                 <span class="text-xs text-slate-300 dark:text-slate-400 font-semibold mt-1">
                     {{ auth()->check() ? auth()->user()->email : 'correo@ejemplo.com' }}
                 </span>
-=======
-                <span class="text-sm font-bold text-white block">{{ auth()->check() ? auth()->user()->name : 'Usuario de Prueba' }}</span>
-                <span class="text-xs text-slate-300 dark:text-slate-400 font-semibold mt-1">{{ auth()->check() ? auth()->user()->email : 'correo@ejemplo.com' }}</span>
->>>>>>> origin/feature/solicitudes-compra
             </div>
             <!-- Menú de Opciones -->
             <nav class="space-y-1.5 px-1">
@@ -331,30 +326,6 @@
     </main>
     <!-- MODAL DE ELIMINACIÓN GLOBAL -->
     <div id="global-delete-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-all duration-200">
-<<<<<<< HEAD
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200"id="global-delete-card">
-            <div class="w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-400 mb-5">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-            </div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="global-delete-title">
-                ¿Eliminar Registro?
-            </h3>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mb-6" id="global-delete-description">
-                Estás a punto de eliminar este registro de forma permanente. Esta acción no se puede deshacer.
-            </p>
-            <div class="flex justify-center gap-3">
-                <button type="button" onclick="closeGlobalDeleteModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">
-                    Cancelar
-                </button>
-                <form id="global-delete-form" action="" method="POST" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm">
-                        Sí, eliminar
-                    </button>
-=======
         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200" id="global-delete-card">
             <div class="w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-400 mb-5">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,12 +336,6 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mb-6" id="global-delete-description">Estás a punto de eliminar este registro de forma permanente. Esta acción no se puede deshacer.</p>
             <div class="flex justify-center gap-3">
                 <button type="button" onclick="closeGlobalDeleteModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">Cancelar</button>
-                <form id="global-delete-form" action="" method="POST" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm">Sí, eliminar</button>
->>>>>>> origin/feature/solicitudes-compra
-                </form>
             </div>
         </div>
     </div>

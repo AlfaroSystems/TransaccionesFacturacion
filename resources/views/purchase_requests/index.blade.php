@@ -20,10 +20,7 @@
             </button>
         </div>
     </div>
-    <!-- Mensajes -->
-    @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-4 rounded-2xl font-semibold text-sm">{{ session('success') }}</div>
-    @endif
+
     @if(session('error'))
         <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl font-semibold text-sm">{{ session('error') }}</div>
     @endif
@@ -220,8 +217,8 @@
                         <thead>
                             <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                                 <th class="text-left py-3 px-2">Producto</th>
-                                <th class="text-left py-3 px-2 w-28">Cantidad</th>
-                                <th class="text-left py-3 px-2 w-44">Unidad</th>
+                                <th class="text-left py-3 px-2 w-24">Cantidad</th>
+                                <th class="text-left py-3 px-2 w-36">Unidad</th>
                                 <th class="text-left py-3 px-2">Descripción</th>
                                 <th class="text-left py-3 px-2">Notas</th>
                                 <th class="text-center py-3 px-2 w-16">Acción</th>
@@ -386,8 +383,8 @@
                         <thead>
                             <tr class="text-[10px] font-extrabold text-slate-400 uppercase border-b border-slate-200">
                                 <th class="text-left py-3 px-2">Producto</th>
-                                <th class="text-left py-3 px-2">Cantidad</th>
-                                <th class="text-left py-3 px-2">Unidad</th>
+                                <th class="text-left py-3 px-2 w-24">Cantidad</th>
+                                <th class="text-left py-3 px-2 w-36">Unidad</th>
                                 <th class="text-left py-3 px-2">Descripción</th>
                                 <th class="text-left py-3 px-2">Notas</th>
                                 <th class="text-center py-3 px-2">Acción</th>
@@ -404,10 +401,9 @@
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td class="p-2"><input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ $detail->quantity }}" required class="w-28 px-3 py-2 rounded-xl border border-slate-200 text-sm"></td>
+                                    <td class="p-2"><input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ $detail->quantity }}" required class="w-full min-w-[70px] px-2.5 py-2 text-center rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
                                     <td class="p-2">
-                                        <select name="details[{{ $index }}][id_unit]" required class="unit-select w-40 px-3 py-2 rounded-xl border border-slate-200 text-sm">
-                                            <option value="">Unidad...</option>
+                                        <select name="details[{{ $index }}][id_unit]" required class="unit-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:border-[#005e66]">
                                             @foreach($units as $unit)
                                                 <option value="{{ $unit->id }}" {{ $detail->id_unit == $unit->id ? 'selected' : '' }}>{{ $unit->abbreviation ?: $unit->name }}</option>
                                             @endforeach
@@ -443,10 +439,9 @@
                 @endforeach
             </select>
         </td>
-        <td class="p-2"><input type="number" data-field="quantity" step="0.0001" min="0.0001" required placeholder="0" class="w-28 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
+        <td class="p-2"><input type="number" data-field="quantity" step="0.0001" min="0.0001" required placeholder="0" class="w-full min-w-[70px] px-2.5 py-2 text-center rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
         <td class="p-2">
-            <select data-field="id_unit" required class="unit-select w-40 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-                <option value="">Unidad...</option>
+            <select data-field="id_unit" required class="unit-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66] bg-white">
                 @foreach($units as $unit)
                     <option value="{{ $unit->id }}">{{ $unit->abbreviation ?: $unit->name }}</option>
                 @endforeach
@@ -494,7 +489,7 @@ function setPurchaseUnit(productSelect) {
     if (!row) return;
     const unitSelect = row.querySelector('.unit-select');
     if (!unitSelect) return;
-    unitSelect.value = unitId || '';
+    if (unitId) unitSelect.value = unitId;
 }
 function filterWarehouses(branchSelect, warehouseSelect) {
     if (!branchSelect || !warehouseSelect) return;
