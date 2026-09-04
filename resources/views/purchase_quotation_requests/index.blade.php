@@ -15,10 +15,10 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Gestione las solicitudes de cotización vinculadas a las solicitudes de compra aprobadas.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
-            <a href="{{ route('purchase-quotation-requests.create') }}" class="w-full md:w-auto bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
+            <button type="button" onclick="openQuotationRequestModal()" class="w-full md:w-auto bg-[#005e66] hover:bg-[#00474f] text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 <span>Nueva Solicitud de Cotización</span>
-            </a>
+            </button>
         </div>
     </div>
 
@@ -111,10 +111,10 @@
                                         {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización para una solicitud de compra aprobada.' }}
                                     </p>
                                     <div class="pt-2">
-                                        <a href="{{ route('purchase-quotation-requests.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold text-sm shadow-md transition-all">
+                                        <button type="button" onclick="openQuotationRequestModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white font-bold text-sm shadow-md transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                             <span>Nueva Solicitud de Cotización</span>
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </td>
@@ -131,4 +131,286 @@
         @endif
     </div>
 </div>
+
+{{-- ========================================================= --}}
+{{-- MODAL CREAR SOLICITUD DE COTIZACIÓN --}}
+{{-- ========================================================= --}}
+<div id="quotation-request-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4">
+    <div id="quotation-request-card" class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        {{-- CABECERA DEL MODAL --}}
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+            <div>
+                <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Nueva Solicitud de Cotización</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Vincule una solicitud de compra aprobada.</p>
+            </div>
+            <button type="button" onclick="closeQuotationRequestModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        {{-- FORMULARIO --}}
+        <form id="quotation-request-form" method="POST" action="{{ route('purchase-quotation-requests.store') }}" class="flex flex-col flex-1 overflow-hidden">
+            @csrf
+            <div class="p-6 space-y-5 overflow-y-auto flex-1">
+                {{-- PASO 1: SELECCIONAR SOLICITUD DE COMPRA --}}
+                <div class="space-y-1.5">
+                    <label for="modal_id_purchase_request" class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        Solicitud de Compra Aprobada <span class="text-rose-500">*</span>
+                    </label>
+                    <select id="modal_id_purchase_request" name="id_purchase_request" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:ring-2 focus:ring-[#005e66] outline-none transition-all">
+                        <option value="">-- Cargar solicitudes aprobadas... --</option>
+                    </select>
+                </div>
+
+                <!-- Preview Solicitud Seleccionada -->
+                <div id="modal-request-preview" class="hidden p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/50 text-xs space-y-1">
+                    <div class="flex justify-between font-bold text-[#005e66] dark:text-teal-300">
+                        <span id="modal-prev-code"></span>
+                        <span id="modal-prev-date" class="text-slate-600 dark:text-slate-300"></span>
+                    </div>
+                    <p id="modal-prev-justification" class="text-slate-600 dark:text-slate-400 italic"></p>
+                </div>
+
+                {{-- PASO 2: TABLA DE ÍTEMS Y CANTIDADES --}}
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Ítems y Cantidades a Cotizar
+                        </label>
+                        <span id="modal-items-counter" class="text-xs font-extrabold text-slate-400">0 ítems</span>
+                    </div>
+
+                    <div id="modal-items-wrapper" class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden min-h-[140px] flex items-center justify-center p-3">
+                        <div id="modal-items-placeholder" class="text-center text-slate-400 text-xs space-y-1">
+                            <p class="font-semibold text-slate-500 dark:text-slate-400">Seleccione una solicitud de compra aprobada</p>
+                            <p>Los detalles se cargarán automáticamente.</p>
+                        </div>
+                        <div id="modal-items-loading" class="hidden text-center text-slate-400 text-xs space-y-2">
+                            <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-[#005e66] border-t-transparent"></div>
+                            <p>Cargando productos...</p>
+                        </div>
+                        <table id="modal-items-table" class="hidden w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                                <tr>
+                                    <th class="py-2.5 px-3">Producto</th>
+                                    <th class="py-2.5 px-3">Unidad</th>
+                                    <th class="py-2.5 px-3 text-center">Cant. Solicitada</th>
+                                    <th class="py-2.5 px-3 text-center w-32">Cant. a Cotizar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-items-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <!-- Dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {{-- BOTONES DEL MODAL --}}
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+                <button type="button" onclick="closeQuotationRequestModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Guardar Solicitud</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let approvedRequestsCache = [];
+
+function openQuotationRequestModal() {
+    const modal = document.getElementById('quotation-request-modal');
+    const card = document.getElementById('quotation-request-card');
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    setTimeout(() => {
+        card.classList.remove('scale-95');
+        card.classList.add('scale-100');
+    }, 10);
+
+    loadApprovedRequestsModal();
+}
+
+function closeQuotationRequestModal() {
+    const modal = document.getElementById('quotation-request-modal');
+    const card = document.getElementById('quotation-request-card');
+
+    card.classList.remove('scale-100');
+    card.classList.add('scale-95');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 150);
+}
+
+function loadApprovedRequestsModal(selectedId = null) {
+    const select = document.getElementById('modal_id_purchase_request');
+    select.disabled = true;
+
+    fetch('{{ route('purchase-quotation-requests.approved-requests') }}', {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        approvedRequestsCache = data;
+        select.innerHTML = '';
+
+        if (data.length === 0) {
+            select.innerHTML = '<option value="">No hay solicitudes de compra en estado approved</option>';
+            clearModalItemsTable();
+            return;
+        }
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '-- Seleccione una Solicitud de Compra --';
+        select.appendChild(defaultOption);
+
+        data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id_purchase_request;
+            const formattedDate = item.required_date ? new Date(item.required_date).toLocaleDateString() : 'N/A';
+            opt.textContent = `${item.purchase_request_code} - Requerida: ${formattedDate} (${item.justification ? item.justification.substring(0, 35) + '...' : 'Sin justificación'})`;
+            if (selectedId && selectedId == item.id_purchase_request) {
+                opt.selected = true;
+            }
+            select.appendChild(opt);
+        });
+
+        if (selectedId) {
+            handleModalRequestChange(selectedId);
+        }
+    })
+    .catch(err => {
+        console.error('Error al cargar solicitudes:', err);
+        select.innerHTML = '<option value="">Error al cargar solicitudes aprobadas</option>';
+    })
+    .finally(() => {
+        select.disabled = false;
+    });
+}
+
+function handleModalRequestChange(id) {
+    const preview = document.getElementById('modal-request-preview');
+    const prevCode = document.getElementById('modal-prev-code');
+    const prevDate = document.getElementById('modal-prev-date');
+    const prevJustification = document.getElementById('modal-prev-justification');
+
+    if (!id) {
+        preview.classList.add('hidden');
+        clearModalItemsTable();
+        return;
+    }
+
+    const found = approvedRequestsCache.find(r => r.id_purchase_request == id);
+    if (found) {
+        prevCode.textContent = found.purchase_request_code;
+        prevDate.textContent = 'Requerida: ' + (found.required_date ? new Date(found.required_date).toLocaleDateString() : 'N/A');
+        prevJustification.textContent = found.justification || 'Sin justificación';
+        preview.classList.remove('hidden');
+    }
+
+    loadModalRequestItems(id);
+}
+
+function loadModalRequestItems(purchaseRequestId) {
+    const placeholder = document.getElementById('modal-items-placeholder');
+    const loading = document.getElementById('modal-items-loading');
+    const table = document.getElementById('modal-items-table');
+    const tbody = document.getElementById('modal-items-tbody');
+    const counter = document.getElementById('modal-items-counter');
+
+    placeholder.classList.add('hidden');
+    table.classList.add('hidden');
+    loading.classList.remove('hidden');
+    tbody.innerHTML = '';
+
+    const url = '{{ url('purchase-quotation-requests/request-details') }}/' + purchaseRequestId;
+
+    fetch(url, {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(details => {
+        loading.classList.add('hidden');
+
+        if (!details || details.length === 0) {
+            placeholder.classList.remove('hidden');
+            placeholder.innerHTML = '<p class="text-rose-500 font-bold">Esta solicitud no tiene productos registrados.</p>';
+            counter.textContent = '0 ítems';
+            return;
+        }
+
+        counter.textContent = `${details.length} ítem(s)`;
+        table.classList.remove('hidden');
+
+        details.forEach((detail, idx) => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50/60 dark:hover:bg-slate-700/40 transition-colors';
+
+            const productName = detail.product ? detail.product.name : 'Producto no disponible';
+            const unitName = detail.unit ? detail.unit.name : 'Unidad';
+            const originalQty = parseFloat(detail.quantity) || 1;
+
+            tr.innerHTML = `
+                <td class="py-2.5 px-3">
+                    <span class="font-bold text-slate-800 dark:text-white">${productName}</span>
+                    <input type="hidden" name="items[${idx}][id_purchase_request_detail]" value="${detail.id_purchase_request_detail}">
+                </td>
+                <td class="py-2.5 px-3">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">${unitName}</span>
+                </td>
+                <td class="py-2.5 px-3 text-center font-bold font-mono">${originalQty}</td>
+                <td class="py-2.5 px-3 text-center">
+                    <input type="number" step="0.0001" min="0.0001" name="items[${idx}][quantity]" value="${originalQty}" required class="w-24 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    })
+    .catch(err => {
+        console.error('Error al cargar ítems:', err);
+        loading.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        placeholder.innerHTML = '<p class="text-rose-500 font-bold">Error al cargar productos.</p>';
+    });
+}
+
+function clearModalItemsTable() {
+    document.getElementById('modal-items-placeholder').classList.remove('hidden');
+    document.getElementById('modal-items-table').classList.add('hidden');
+    document.getElementById('modal-items-loading').classList.add('hidden');
+    document.getElementById('modal-items-tbody').innerHTML = '';
+    document.getElementById('modal-items-counter').textContent = '0 ítems';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('modal_id_purchase_request');
+    if (select) {
+        select.addEventListener('change', function() {
+            handleModalRequestChange(this.value);
+        });
+    }
+
+    const form = document.getElementById('quotation-request-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const itemsRows = document.getElementById('modal-items-tbody').querySelectorAll('tr').length;
+            if (itemsRows === 0) {
+                e.preventDefault();
+                alert('Debe seleccionar una solicitud de compra que contenga al menos un producto.');
+                return false;
+            }
+        });
+    }
+});
+</script>
 @endsection
