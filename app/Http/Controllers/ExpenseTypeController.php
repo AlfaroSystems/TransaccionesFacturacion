@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Http\Requests\StoreExpenseTypeRequest;
 use App\Http\Requests\UpdateExpenseTypeRequest;
 use App\Models\ExpenseType;
@@ -43,17 +42,17 @@ class ExpenseTypeController extends Controller
     }
 
     public function destroy(ExpenseType $expenseType): RedirectResponse
-   {
-      $expenseType->update([
-        'is_active' => !$expenseType->is_active,
-      ]);
+    {
+        $expenseType->update([
+            'is_active' => !$expenseType->is_active,
+        ]);
 
-      $message = $expenseType->is_active
-        ? 'Tipo de gasto reactivado correctamente.'
-        : 'Tipo de gasto inactivado correctamente.';
+        $message = $expenseType->is_active
+            ? 'Tipo de gasto reactivado correctamente.'
+            : 'Tipo de gasto inactivado correctamente.';
 
-      return redirect()
-        ->route('expense-types.index')
-        ->with('success', $message);
+        return redirect()
+            ->route('expense-types.index')
+            ->with('success', $message);
     }
 }

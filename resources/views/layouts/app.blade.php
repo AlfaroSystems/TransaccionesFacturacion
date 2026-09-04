@@ -144,22 +144,17 @@
 </head>
 
 <body class="min-h-screen md:h-screen md:overflow-hidden flex flex-col md:flex-row font-sans overflow-x-hidden bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
-
     <!-- BARRA LATERAL -->
     <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:h-screen md:min-h-0 flex-shrink-0 sidebar-shadow text-white transition-colors duration-300">
-
         <div>
             <!-- Header con Logo y Usuario Autenticado -->
             <div class="flex flex-col items-center text-center mt-4 mb-8 border-b border-white/10 dark:border-slate-800 pb-6">
-
                 <div class="w-12 h-12 rounded-full bg-white/10 dark:bg-slate-800 flex items-center justify-center font-bold text-lg text-white mb-2 uppercase border border-white/20 dark:border-slate-700">
                     {{ auth()->check() ? substr(auth()->user()->name, 0, 2) : 'US' }}
                 </div>
-
                 <span class="text-sm font-bold text-white block">
                     {{ auth()->check() ? auth()->user()->name : 'Usuario de Prueba' }}
                 </span>
-
                 <span class="text-xs text-slate-300 dark:text-slate-400 font-semibold mt-1">
                     {{ auth()->check() ? auth()->user()->email : 'correo@ejemplo.com' }}
                 </span>
@@ -167,7 +162,6 @@
 
             <!-- Menú de Opciones -->
             <nav class="space-y-1.5 px-1">
-
                 <!-- Dashboard -->
                 <a href="{{ route('dashboard') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('dashboard') ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
@@ -253,7 +247,6 @@
         ? 'bg-navy-active text-white font-bold'
         : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }}
     transition-all">
-
     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round"
             stroke-linejoin="round"
@@ -264,7 +257,6 @@
             M9 12h6
             M9 16h4" />
     </svg>
-
     <span>Tipos de Gastos</span>
 </a>
 
@@ -320,7 +312,6 @@
             <form method="POST" action="{{ route('logout') }}" id="logout-form" class="hidden">
                 @csrf
             </form>
-
             <a href="#"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                 class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-white/20 dark:border-slate-700 hover:border-white/50 hover:bg-white/5 dark:hover:bg-slate-800 transition-all text-sm font-semibold">
@@ -335,7 +326,6 @@
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="relative flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-
         @php
             $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
             $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
@@ -472,39 +462,27 @@
     </main>
 
     <!-- MODAL DE ELIMINACIÓN GLOBAL -->
-    <div id="global-delete-modal"
-        class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-all duration-200">
-
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200"
-            id="global-delete-card">
-
+    <div id="global-delete-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-all duration-200">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200"id="global-delete-card">
             <div class="w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-400 mb-5">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
             </div>
-
             <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="global-delete-title">
                 ¿Eliminar Registro?
             </h3>
-
             <p class="text-slate-500 dark:text-slate-400 text-sm mb-6" id="global-delete-description">
                 Estás a punto de eliminar este registro de forma permanente. Esta acción no se puede deshacer.
             </p>
-
             <div class="flex justify-center gap-3">
-                <button type="button"
-                        onclick="closeGlobalDeleteModal()"
-                        class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">
+                <button type="button" onclick="closeGlobalDeleteModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">
                     Cancelar
                 </button>
-
                 <form id="global-delete-form" action="" method="POST" class="inline">
                     @csrf
                     @method('DELETE')
-                    <button type="submit"
-                            class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm">
+                    <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm">
                         Sí, eliminar
                     </button>
                 </form>
