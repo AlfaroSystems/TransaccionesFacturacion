@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use App\Models\Company;
+use App\Models\WarehouseCategory;
 use App\Models\Branch;
 use App\Models\Warehouse;
 use App\Models\Product;
@@ -11,14 +13,24 @@ use App\Models\PurchaseRequestDetail;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequestDetail;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 test('invitacion a cotizar se puede crear y relacionar correctamente', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
 
     // 2. Crear datos base
-    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central']);
-    $warehouse = Warehouse::first() ?? Warehouse::create(['name' => 'Bodega Principal', 'id_branch' => $branch->id]);
+    $company = Company::first() ?? Company::create(['name' => 'Empresa Matriz']);
+    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'company_id' => $company->id]);
+    $warehouseCategory = WarehouseCategory::first() ?? WarehouseCategory::create(['name' => 'General', 'description' => 'General']);
+    $warehouse = Warehouse::first() ?? Warehouse::create([
+        'name' => 'Bodega Principal',
+        'branch_id' => $branch->id,
+        'id_branch' => $branch->id,
+        'warehouse_category_id' => $warehouseCategory->id
+    ]);
     $unit = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product = Product::first() ?? Product::create([
         'name' => 'Laptop Core i7',
@@ -26,16 +38,20 @@ test('invitacion a cotizar se puede crear y relacionar correctamente', function 
         'id_unit' => $unit->id,
     ]);
 
-    $supplier1 = Supplier::create([
-        'name' => 'Proveedor Tech S.A.',
-        'email' => 'tech@proveedor.com',
-        'country' => 'El Salvador',
-    ]);
-    $supplier2 = Supplier::create([
-        'name' => 'Distribuidora Global S.A.',
-        'email' => 'global@proveedor.com',
-        'country' => 'Guatemala',
-    ]);
+    $supplier1 = Supplier::firstOrCreate(
+        ['email' => 'tech@proveedor.com'],
+        [
+            'name' => 'Proveedor Tech S.A.',
+            'country' => 'El Salvador',
+        ]
+    );
+    $supplier2 = Supplier::firstOrCreate(
+        ['email' => 'global@proveedor.com'],
+        [
+            'name' => 'Distribuidora Global S.A.',
+            'country' => 'Guatemala',
+        ]
+    );
 
     // 3. Crear solicitud de compra aprobada
     $purchaseRequest = PurchaseRequest::create([
