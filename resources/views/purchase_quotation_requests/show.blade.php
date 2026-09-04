@@ -45,6 +45,12 @@
             </div>
             <div class="space-y-2.5 text-sm">
                 <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase">ID Solicitud Compra (id_purchase_request):</span>
+                    <span class="font-mono font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-xs">
+                        #{{ $quotationRequest->purchaseRequest->id_purchase_request ?? 'N/A' }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-slate-400 uppercase">Código Solicitud:</span>
                     <span class="font-mono font-extrabold text-[#005e66] dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-2.5 py-0.5 rounded-lg border border-teal-200 dark:border-teal-800">
                         {{ $quotationRequest->purchaseRequest->purchase_request_code ?? 'N/A' }}
@@ -107,7 +113,8 @@
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
                 <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
                     <tr>
-                        <th class="py-3.5 px-6">ID Detalle</th>
+                        <th class="py-3.5 px-6">ID Detalle Cot. Req.</th>
+                        <th class="py-3.5 px-6">ID Detalle Sol. Compra</th>
                         <th class="py-3.5 px-6">Producto</th>
                         <th class="py-3.5 px-6">Unidad</th>
                         <th class="py-3.5 px-6 text-center">Cantidad (quantity)</th>
@@ -123,6 +130,9 @@
                         <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
                             <td class="py-4 px-6 font-mono text-xs text-slate-400">
                                 #{{ $detail->id_purchase_quotation_request_detail }}
+                            </td>
+                            <td class="py-4 px-6 font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
+                                #{{ $detail->id_purchase_request_detail }}
                             </td>
                             <td class="py-4 px-6">
                                 <span class="font-extrabold text-slate-800 dark:text-white block">{{ $product->name ?? 'Producto no especificado' }}</span>
@@ -146,7 +156,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-8 text-center text-slate-400">
+                            <td colspan="6" class="py-8 text-center text-slate-400">
                                 No se encontraron detalles para esta solicitud de cotización.
                             </td>
                         </tr>

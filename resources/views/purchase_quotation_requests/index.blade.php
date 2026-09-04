@@ -80,6 +80,9 @@
                                     <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 text-xs font-mono border border-teal-200 dark:border-teal-800">
                                         {{ $quotation->purchaseRequest->purchase_request_code ?? 'N/A' }}
                                     </span>
+                                    <span class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
+                                        (ID: #{{ $quotation->purchaseRequest->id_purchase_request ?? 'N/A' }})
+                                    </span>
                                 </div>
                                 <span class="text-xs text-slate-400 line-clamp-1 mt-0.5">
                                     {{ $quotation->purchaseRequest->justification ?? 'Sin justificación' }}
