@@ -31,4 +31,16 @@ class PurchaseQuotationRequest extends Model
             'id_purchase_request'
         );
     }
+
+    /**
+     * Cotizaciones recibidas de proveedores para esta solicitud.
+     */
+    public function supplierQuotations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(
+            PurchaseQuotation::class,
+            'id_purchase_quotation_request',
+            'id_purchase_quotation_request'
+        );
+    }
 }

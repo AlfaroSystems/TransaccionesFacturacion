@@ -18,6 +18,7 @@ use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\PurchaseQuotationRequestController;
 use App\Http\Controllers\SupplierQuotationController;
+use App\Http\Controllers\PurchaseQuotationController;
 
 
 
@@ -116,6 +117,10 @@ Route::middleware('auth')->group(function () {
 
         return response()->json($subCategories);
     })->name('api.categories.subcategories');
+
+    // Rutas para Ofertas de Proveedor (PurchaseQuotation)
+    Route::resource('purchase-quotations', PurchaseQuotationController::class)
+        ->only(['store', 'destroy']);
 
     Route::post('/supplier-quotations', [SupplierQuotationController::class, 'store'])->name('supplier-quotations.store');
 

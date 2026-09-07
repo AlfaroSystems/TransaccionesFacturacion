@@ -11,6 +11,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use App\Models\ExpenseType;
+use App\Models\PurchaseQuotation;
+use App\Models\Supplier;
+
 class PurchaseQuotationRequestController extends Controller
 {
     /**
@@ -126,6 +130,28 @@ class PurchaseQuotationRequestController extends Controller
             ->with(['purchaseRequestDetail.product', 'purchaseRequestDetail.unit'])
             ->get();
 
-        return view('purchase_quotation_requests.show', compact('quotationRequest', 'details'));
+        $suppliers = Supplier::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $expenseTypes = ExpenseType::where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $supplierQuotations = PurchaseQuotation::where('id_purchase_quotation_request', $id)
+            ->with(['supplier', 'details.product', 'details.unit', 'expenses.expenseType'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $purchaseQuotationRequest = $quotationRequest;
+
+        return view('purchase_quotation_requests.show', compact(
+            'quotationRequest',
+            'purchaseQuotationRequest',
+            'details',
+            'suppliers',
+            'expenseTypes',
+            'supplierQuotations'
+        ));
     }
 }
