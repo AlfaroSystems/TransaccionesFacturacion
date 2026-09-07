@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+
 class PurchaseOrderController extends Controller
 {
     public function index()
@@ -29,6 +31,7 @@ class PurchaseOrderController extends Controller
 
         return view('purchase_orders.index', compact('orders'));
     }
+    
     public function create()
     {
         $suppliers = Supplier::orderBy('name')->get();
@@ -53,6 +56,7 @@ class PurchaseOrderController extends Controller
             'quotations'
         ));
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -87,7 +91,7 @@ class PurchaseOrderController extends Controller
                 'numeric',
                 'min:0'
             ],
-             'products.*.discount' => [
+            'products.*.discount' => [
                 'nullable',
                 'numeric',
                 'min:0'
@@ -118,12 +122,13 @@ class PurchaseOrderController extends Controller
                 'min:0'
             ],
         ]);
-        DB::transaction(function () use ($validated, $request) {
 
+        DB::transaction(function () use ($validated, $request) {
             $subtotal = 0;
             $discount = 0;
             $tax = 0;
             $additionalExpenses = 0;
+
             foreach ($validated['products'] as $product) {
                 $lineSubtotal =
                     ((float) $product['quantity']) *
@@ -137,16 +142,19 @@ class PurchaseOrderController extends Controller
                 $discount += $lineDiscount;
                 $tax += $taxAmount;
             }
+
             if (!empty($validated['expenses'])) {
                 foreach ($validated['expenses'] as $expense) {
                     $additionalExpenses += (float) $expense['amount'];
                 }
             }
+
             $total =
                 $subtotal -
                 $discount +
                 $tax +
                 $additionalExpenses;
+
             $order = PurchaseOrder::create([
                 'id_supplier' => $validated['id_supplier'],
                 'id_branch' => $validated['id_branch'],
@@ -166,15 +174,18 @@ class PurchaseOrderController extends Controller
                 'status' => 'draft',
                 'notes' => $validated['notes'] ?? null,
             ]);
+
             foreach ($validated['products'] as $product) {
                 $lineSubtotal =
                     ((float) $product['quantity']) *
                     ((float) $product['unit_price']);
+
                 $lineDiscount = (float) ($product['discount'] ?? 0);
                 $base = max(0, $lineSubtotal - $lineDiscount);
                 $taxRate = (float) ($product['tax_rate'] ?? 0);
                 $taxAmount = $base * ($taxRate / 100);
                 $lineTotal = $base + $taxAmount;
+
                 PurchaseOrderDetail::create([
                     'id_purchase_order' => $order->id_purchase_order,
                     'id_product' => $product['id_product'],
@@ -189,6 +200,7 @@ class PurchaseOrderController extends Controller
                     'notes' => $product['notes'] ?? null,
                 ]);
             }
+
             if (!empty($validated['expenses'])) {
                 foreach ($validated['expenses'] as $expense) {
                     PurchaseOrderExpense::create([
@@ -204,10 +216,12 @@ class PurchaseOrderController extends Controller
                 }
             }
         });
+
         return redirect()
             ->route('purchase_orders.index')
             ->with('success', 'Orden de compra creada correctamente.');
     }
+
     public function show(PurchaseOrder $purchase_order)
     {
         $purchase_order->load([
@@ -220,11 +234,13 @@ class PurchaseOrderController extends Controller
             'details.unit',
             'expenses.expenseType',
         ]);
+
         return view(
             'purchase_orders.show',
             compact('purchase_order')
         );
     }
+
     public function edit(PurchaseOrder $purchase_order)
     {
         if (!$purchase_order->isEditable()) {
@@ -232,10 +248,12 @@ class PurchaseOrderController extends Controller
                 ->route('purchase_orders.show', $purchase_order)
                 ->with('error', 'La orden ya fue emitida y no puede editarse.');
         }
+
         $purchase_order->load([
             'details',
             'expenses'
         ]);
+
         $suppliers = Supplier::orderBy('name')->get();
         $branches = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
@@ -246,6 +264,7 @@ class PurchaseOrderController extends Controller
             'approved',
             'aprobada'
         ])->get();
+
         return view('purchase_orders.create', compact(
             'purchase_order',
             'suppliers',
@@ -257,16 +276,15 @@ class PurchaseOrderController extends Controller
             'quotations'
         ));
     }
-    public function update(
-        Request $request,
-        PurchaseOrder $purchase_order
-    ) {
+
+    public function update(Request $request, PurchaseOrder $purchase_order) {
         if (!$purchase_order->isEditable()) {
             return back()->with(
                 'error',
                 'No se puede editar una orden que ya fue emitida.'
             );
         }
+
         $validated = $request->validate([
             'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_branch' => ['required', 'exists:branches,id'],
@@ -287,10 +305,8 @@ class PurchaseOrderController extends Controller
             ->route('purchase_orders.show', $purchase_order)
             ->with('success', 'Orden actualizada correctamente.');
     }
-    public function updateStatus(
-        Request $request,
-        PurchaseOrder $purchase_order
-    ) {
+
+    public function updateStatus(Request $request, PurchaseOrder $purchase_order) {
         $request->validate([
             'status' => [
                 'required',
@@ -303,6 +319,7 @@ class PurchaseOrderController extends Controller
                 ])
             ]
         ]);
+
         $newStatus = $request->status;
         if ($purchase_order->status === 'cancelled') {
             return back()->with(
@@ -310,6 +327,7 @@ class PurchaseOrderController extends Controller
                 'Una orden cancelada no puede cambiar de estado.'
             );
         }
+
         if (
             $purchase_order->status === 'issued' &&
             $newStatus === 'draft'
@@ -319,14 +337,17 @@ class PurchaseOrderController extends Controller
                 'Una orden emitida no puede regresar a borrador.'
             );
         }
+
         $purchase_order->update([
             'status' => $newStatus
         ]);
+
         return back()->with(
             'success',
             'Estado de la orden actualizado correctamente.'
         );
     }
+
     public function destroy(PurchaseOrder $purchase_order)
     {
         if (!$purchase_order->isEditable()) {
@@ -341,6 +362,7 @@ class PurchaseOrderController extends Controller
             ->route('purchase_orders.index')
             ->with('success', 'Orden eliminada correctamente.');
     }
+
     public function generatePdf(PurchaseOrder $purchase_order)
     {
         $purchase_order->load([
@@ -352,6 +374,7 @@ class PurchaseOrderController extends Controller
             'details.unit',
             'expenses.expenseType',
         ]);
+
         return view(
             'purchase_orders.pdf',
             compact('purchase_order')

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Http\Requests\StorePurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequestDetail;
@@ -10,7 +9,6 @@ use App\Models\PurchaseRequestDetail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 use App\Models\ExpenseType;
 use App\Models\PurchaseQuotation;
 use App\Models\Supplier;

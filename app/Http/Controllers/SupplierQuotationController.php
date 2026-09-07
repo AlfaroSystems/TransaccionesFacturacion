@@ -1,18 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\SupplierQuotation;
 use Illuminate\Http\Request;
 
 class SupplierQuotationController extends Controller
 {
-   public function store(Request $request)
-{
-    $request->validate([
-        'purchase_quotation_request_id' => 'required|exists:purchase_quotation_requests,id', // O el nombre real de tu PK
-        'supplier_id' => 'required|exists:suppliers,id', // O id_supplier según tu BD
-        'unit_price' => 'required|numeric|min:0',
+    public function store(Request $request)
+    {
+        $request->validate([
+            'purchase_quotation_request_id' => 'required|exists:purchase_quotation_requests,id', // O el nombre real de tu PK
+            'supplier_id' => 'required|exists:suppliers,id', // O id_supplier según tu BD
+            'unit_price' => 'required|numeric|min:0',
         'taxes' => 'nullable|numeric|min:0',
         'additional_expenses' => 'nullable|numeric|min:0',
         'conditions' => 'nullable|string',
@@ -39,7 +38,6 @@ class SupplierQuotationController extends Controller
 
     return redirect()->back()->with('success', '¡Oferta de proveedor registrada con éxito!');
 }
-
 
 public function destroy($id)
 {

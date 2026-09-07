@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+
 class PurchaseOrder extends Model
 {
     protected $table = 'purchase_orders';
@@ -28,6 +30,7 @@ class PurchaseOrder extends Model
         'status',
         'notes',
     ];
+
     protected $casts = [
         'order_date' => 'datetime',
         'expected_date' => 'datetime',
@@ -37,6 +40,7 @@ class PurchaseOrder extends Model
         'additional_expenses' => 'decimal:4',
         'total' => 'decimal:4',
     ];
+
     protected static function booted(): void
     {
         static::creating(function ($order) {
@@ -56,22 +60,27 @@ class PurchaseOrder extends Model
             }
         });
     }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class, 'id_supplier');
     }
+
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'id_branch');
     }
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class, 'id_warehouse');
     }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
     public function quotation(): BelongsTo
     {
         return $this->belongsTo(
@@ -80,6 +89,7 @@ class PurchaseOrder extends Model
             'id_purchase_quotation'
         );
     }
+
     public function details(): HasMany
     {
         return $this->hasMany(
@@ -88,6 +98,7 @@ class PurchaseOrder extends Model
             'id_purchase_order'
         );
     }
+
     public function expenses(): HasMany
     {
         return $this->hasMany(
@@ -96,6 +107,7 @@ class PurchaseOrder extends Model
             'id_purchase_order'
         );
     }
+    
     public function isEditable(): bool
     {
         return $this->status === 'draft';

@@ -1,7 +1,9 @@
 <?php
+
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class PurchaseOrderExpense extends Model
 {
     protected $table = 'purchase_order_expenses';
@@ -12,9 +14,11 @@ class PurchaseOrderExpense extends Model
         'description',
         'amount',
     ];
+
     protected $casts = [
         'amount' => 'decimal:4',
     ];
+
     public function purchaseOrder(): BelongsTo
     {
         return $this->belongsTo(
@@ -23,6 +27,7 @@ class PurchaseOrderExpense extends Model
             'id_purchase_order'
         );
     }
+    
     public function expenseType(): BelongsTo
     {
         return $this->belongsTo(

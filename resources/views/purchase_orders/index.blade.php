@@ -15,11 +15,8 @@
                 type="button"
                 onclick="mostrarCrear()"
                 class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 4v16m8-8H4"/>
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 Nueva Orden
             </button>
@@ -276,8 +273,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div id="quotationLoading"
-                             class="hidden mt-4 text-sm text-indigo-700">
+                        <div id="quotationLoading" class="hidden mt-4 text-sm text-indigo-700">
                             Cargando cotización...
                         </div>
                     </div>
@@ -372,7 +368,7 @@
                             </div>
                             {{-- MONEDA --}}
                             <div>
-                                   <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Moneda *
                                 </label>
                                 <select
@@ -518,8 +514,7 @@
                                 <span class="text-lg font-bold text-gray-800">
                                     TOTAL
                                 </span>
-                                <span id="totalDisplay"
-                                      class="text-xl font-bold text-indigo-600">
+                                <span id="totalDisplay" class="text-xl font-bold text-indigo-600">
                                     $0.00
                                 </span>
                             </div>
@@ -551,7 +546,7 @@
         <div id="orderShow" class="hidden">
             @if(isset($purchase_order))
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                      {{-- Cabecera --}}
+                    {{-- Cabecera --}}
                     <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <p class="text-sm text-gray-500">
@@ -845,6 +840,7 @@
             behavior: 'smooth'
         });
     }
+
     function mostrarCrear() {
         document.getElementById('ordersIndex').classList.add('hidden');
         document.getElementById('orderCreate').classList.remove('hidden');
@@ -857,6 +853,7 @@
             agregarProducto();
         }
     }
+
     function mostrarDetalle() {
         document.getElementById('ordersIndex').classList.add('hidden');
         document.getElementById('orderCreate').classList.add('hidden');
@@ -866,6 +863,7 @@
             behavior: 'smooth'
         });
     }
+
     let productIndex = 0;
     function agregarProducto(data = {}) {
         const tbody = document.getElementById('productRows');
@@ -982,12 +980,15 @@
         tbody.appendChild(row);
         calcularTotales();
     }
+
     function eliminarProducto(button) {
-         const row = button.closest('tr');
+        const row = button.closest('tr');
         row.remove();
         calcularTotales();
     }
+
     let expenseIndex = 0;
+    
     function agregarGasto(data = {}) {
         const container = document.getElementById('expenseRows');
         const index = expenseIndex++;
@@ -996,7 +997,7 @@
             'expense-row grid grid-cols-1 md:grid-cols-4 gap-3 items-end p-4 bg-gray-50 rounded-lg border border-gray-200';
         row.innerHTML = `
             <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
                     Tipo de gasto
                 </label>
                 <select
@@ -1015,7 +1016,7 @@
                     @endforeach
                 </select>
             </div>
-              <div>
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                     Descripción
                 </label>
@@ -1053,11 +1054,13 @@
         container.appendChild(row);
         calcularTotales();
     }
+
     function eliminarGasto(button) {
         const row = button.closest('.expense-row');
         row.remove();
         calcularTotales();
     }
+
     function calcularTotales() {
         let subtotal = 0;
         let discount = 0;
@@ -1076,6 +1079,7 @@
                 gross - lineDiscount,
                 0
             );
+
             const lineTax =
                 lineSubtotal * (taxRate / 100);
             const lineTotal =
@@ -1091,18 +1095,22 @@
                 row.querySelector('.line-total-input');
             const lineTotalDisplay =
                 row.querySelector('.line-total');
+
             if (lineSubtotalInput) {
                 lineSubtotalInput.value =
                     lineSubtotal.toFixed(4);
             }
+
             if (lineTaxInput) {
                 lineTaxInput.value =
                     lineTax.toFixed(4);
             }
+
             if (lineTotalInput) {
                 lineTotalInput.value =
                     lineTotal.toFixed(4);
             }
+
             if (lineTotalDisplay) {
                 lineTotalDisplay.textContent =
                     '$' + lineTotal.toFixed(2);
@@ -1115,6 +1123,7 @@
             additionalExpenses +=
                 parseFloat(input.value) || 0;
         });
+
         const total =
             subtotal -
             discount +
@@ -1218,6 +1227,7 @@
             });
         }
     );
+    
     document.addEventListener('DOMContentLoaded', function () {
         calcularTotales();
         @if(isset($purchase_order))
