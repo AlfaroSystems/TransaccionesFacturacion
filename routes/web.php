@@ -17,6 +17,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\PurchaseQuotationRequestController;
+use App\Http\Controllers\SupplierQuotationController;
+
+
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -113,5 +116,14 @@ Route::middleware('auth')->group(function () {
 
         return response()->json($subCategories);
     })->name('api.categories.subcategories');
+
+    Route::post('/supplier-quotations', [SupplierQuotationController::class, 'store'])->name('supplier-quotations.store');
+
+    // Sugerencia: Ruta para eliminar una oferta de proveedor por su ID
+    Route::delete('/supplier-quotations/{supplierQuotation}', [SupplierQuotationController::class, 'destroy'])->name('supplier-quotations.destroy');
+
 });
+
+
+
 require __DIR__.'/auth.php';

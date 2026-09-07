@@ -135,12 +135,9 @@
     </div>
 </div>
 
-{{-- ========================================================= --}}
 {{-- MODAL CREAR SOLICITUD DE COTIZACIÓN --}}
-{{-- ========================================================= --}}
 <div id="quotation-request-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4">
     <div id="quotation-request-card" class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
-        {{-- CABECERA DEL MODAL --}}
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Nueva Solicitud de Cotización</h2>
@@ -151,11 +148,9 @@
             </button>
         </div>
 
-        {{-- FORMULARIO --}}
         <form id="quotation-request-form" method="POST" action="{{ route('purchase-quotation-requests.store') }}" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             <div class="p-6 space-y-5 overflow-y-auto flex-1">
-                {{-- PASO 1: SELECCIONAR SOLICITUD DE COMPRA --}}
                 <div class="space-y-1.5">
                     <label for="modal_id_purchase_request" class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Solicitud de Compra Aprobada <span class="text-rose-500">*</span>
@@ -165,7 +160,6 @@
                     </select>
                 </div>
 
-                <!-- Preview Solicitud Seleccionada -->
                 <div id="modal-request-preview" class="hidden p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/50 text-xs space-y-1">
                     <div class="flex justify-between font-bold text-[#005e66] dark:text-teal-300">
                         <span id="modal-prev-code"></span>
@@ -174,7 +168,6 @@
                     <p id="modal-prev-justification" class="text-slate-600 dark:text-slate-400 italic"></p>
                 </div>
 
-                {{-- PASO 2: TABLA DE ÍTEMS Y CANTIDADES --}}
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -202,14 +195,12 @@
                                 </tr>
                             </thead>
                             <tbody id="modal-items-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
-                                <!-- Dinámico -->
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            {{-- BOTONES DEL MODAL --}}
             <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                 <button type="button" onclick="closeQuotationRequestModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
                     Cancelar
