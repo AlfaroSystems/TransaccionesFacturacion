@@ -12,7 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('purchase_order_expenses', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_purchase_order_expense');
+
+            $table->foreignId('id_purchase_order')
+                ->constrained('purchase_orders', 'id_purchase_order')
+                ->cascadeOnDelete();
+
+            $table->foreignId('id_expense_type')
+                ->constrained('expense_types', 'id_expense_type')
+                ->restrictOnDelete();
+
+            $table->string('description', 255)->nullable();
+            $table->decimal('amount', 14, 4)->default(0);
+
             $table->timestamps();
         });
     }
@@ -25,3 +37,4 @@ return new class extends Migration
         Schema::dropIfExists('purchase_order_expenses');
     }
 };
+

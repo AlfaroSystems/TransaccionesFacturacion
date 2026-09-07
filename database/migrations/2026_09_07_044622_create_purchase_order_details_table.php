@@ -12,7 +12,33 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('purchase_order_details', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_purchase_order_detail');
+
+            $table->foreignId('id_purchase_order')
+                ->constrained('purchase_orders', 'id_purchase_order')
+                ->cascadeOnDelete();
+
+            $table->foreignId('id_product')
+                ->constrained('products', 'id')
+                ->restrictOnDelete();
+
+            $table->decimal('quantity', 12, 4);
+
+            $table->foreignId('id_unit')
+                ->nullable()
+                ->constrained('units', 'id')
+                ->nullOnDelete();
+
+            $table->decimal('unit_price', 14, 4)->default(0);
+            $table->decimal('discount', 14, 4)->default(0);
+            $table->decimal('subtotal', 14, 4)->default(0);
+
+            $table->decimal('tax_rate', 5, 2)->default(0);
+            $table->decimal('tax_amount', 14, 4)->default(0);
+            $table->decimal('total', 14, 4)->default(0);
+
+            $table->text('notes')->nullable();
+
             $table->timestamps();
         });
     }
@@ -25,3 +51,4 @@ return new class extends Migration
         Schema::dropIfExists('purchase_order_details');
     }
 };
+

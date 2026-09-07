@@ -56,7 +56,7 @@ class PurchaseOrderController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_supplier' => ['required', 'exists:suppliers,id'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_branch' => ['required', 'exists:branches,id'],
             'id_warehouse' => ['required', 'exists:warehouses,id'],
             'id_purchase_quotation' => [
@@ -268,7 +268,7 @@ class PurchaseOrderController extends Controller
             );
         }
         $validated = $request->validate([
-            'id_supplier' => ['required', 'exists:suppliers,id'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_branch' => ['required', 'exists:branches,id'],
             'id_warehouse' => ['required', 'exists:warehouses,id'],
             'id_purchase_quotation' => [
