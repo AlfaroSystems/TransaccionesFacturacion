@@ -188,38 +188,15 @@
                         <span>Proveedores</span>
                     </a>
                 @endcan
-                {{-- Tipos de Gastos --}}
+                <!-- Compras -->
                 @php
-                    $isExpenseTypes = request()->routeIs('expense-types.*');
+                    $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*');
                 @endphp
-                <a href="{{ route('expense-types.index') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isExpenseTypes ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 5a3 3 0 006 0 M9 5h6 M9 12h6 M9 16h4" />
-                    </svg>
-                    <span>Tipos de Gastos</span>
-                </a>
-
-                <!-- Solicitudes de Compra -->
-                <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('purchase-requests.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isCompras ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span>Solicitudes de Compra</span>
-                </a>
-                <!-- Solicitudes de Cotización -->
-                <a href="{{ route('purchase-quotation-requests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('purchase-quotation-requests.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span>Solicitudes de Cotización</span>
-                </a>
-                <!-- Órdenes de Compra -->
-                <a href="{{ route('purchase_orders.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('purchase_orders.*') ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                    </svg>
-                    <span>Órdenes de Compra</span>
+                    <span>Compras</span>
                 </a>
                 <!-- Administración -->
                 @php
@@ -270,8 +247,17 @@
             $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
             $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*') || request()->routeIs('companies.*');
             $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
+            $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*');
         @endphp
         <!-- Submenús -->
+        @if($isCompras)
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase-requests.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Solicitudes de Compra</span></a>
+                <a href="{{ route('purchase-quotation-requests.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase-quotation-requests.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Solicitudes de Cotización</span></a>
+                <a href="{{ route('purchase_orders.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase_orders.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Órdenes de Compra</span></a>
+                <a href="{{ route('expense-types.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('expense-types.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Tipos de Gastos</span></a>
+            </div>
+        @endif
         @if($isInventario)
             <div class="mb-6 flex flex-wrap items-center gap-3">
                 @can('warehouses.ver')
