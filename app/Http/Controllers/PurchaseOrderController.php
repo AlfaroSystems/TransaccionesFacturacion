@@ -27,8 +27,12 @@ class PurchaseOrderController extends Controller
     /**
      * Datos de catálogo necesarios para el formulario de creación / edición.
      */
-    private function formData(): array
+    private function formData(?int $excludeQuotationExceptId = null): array
     {
+        $usedQuotationIds = PurchaseOrder::whereNotNull('id_purchase_quotation')
+            ->when($excludeQuotationExceptId, fn ($q) => $q->where('id_purchase_quotation', '!=', $excludeQuotationExceptId))
+            ->pluck('id_purchase_quotation');
+
         return [
             'suppliers'    => Supplier::orderBy('name')->get(),
             'branches'     => Branch::orderBy('name')->get(),
@@ -37,6 +41,7 @@ class PurchaseOrderController extends Controller
             'units'        => Unit::orderBy('name')->get(),
             'expenseTypes' => ExpenseType::orderBy('name')->get(),
             'quotations'   => PurchaseQuotation::whereIn('status', ['approved', 'aprobada'])
+                ->whereNotIn('id_purchase_quotation', $usedQuotationIds)
                 ->with(['supplier', 'details.product', 'details.unit', 'expenses.expenseType'])
                 ->orderByDesc('id_purchase_quotation')
                 ->get(),
@@ -55,7 +60,10 @@ class PurchaseOrderController extends Controller
             ->orderByDesc('id_purchase_order')
             ->paginate(10);
 
+        $usedQuotationIds = PurchaseOrder::whereNotNull('id_purchase_quotation')->pluck('id_purchase_quotation');
+
         $purchase_quotations = PurchaseQuotation::whereIn('status', ['approved', 'aprobada'])
+            ->whereNotIn('id_purchase_quotation', $usedQuotationIds)
             ->with(['supplier', 'details.product', 'details.unit', 'expenses.expenseType'])
             ->orderByDesc('id_purchase_quotation')
             ->get();
@@ -166,7 +174,7 @@ class PurchaseOrderController extends Controller
         $purchase_order->load(['details', 'expenses']);
 
         return view('purchase_orders.create', array_merge(
-            $this->formData(),
+            $this->formData(excludeQuotationExceptId: $purchase_order->id_purchase_quotation),
             compact('purchase_order')
         ));
     }
