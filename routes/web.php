@@ -128,19 +128,7 @@ Route::middleware('auth')->group(function () {
     ]);
     Route::get(
         '/api/categories/{id}/sub-categories',
-        function ($id) {
-            $subCategories = \App\Models\SubCategory::where(
-                'id_category',
-                $id
-            )
-                ->where('is_active', true)
-                ->get([
-                    'id',
-                    'name'
-                ]);
-
-            return response()->json($subCategories);
-        }
+        [CategoryController::class, 'subCategories']
     )->name('api.categories.subcategories');
 
     // Rutas para Ofertas de Proveedor (PurchaseQuotation)

@@ -9,6 +9,7 @@ use App\Models\SubCategory;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Exception;
 
@@ -44,10 +45,10 @@ class ProductController extends Controller
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        $products = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
-        $categories = class_exists(Category::class) ? Category::where('is_active', true)->get() : collect();
-        $subCategories = class_exists(SubCategory::class) ? SubCategory::where('is_active', true)->get() : collect();
-        $units = class_exists(Unit::class) ? Unit::where('is_active', true)->get() : collect();
+        $products       = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $categories     = Category::where('is_active', true)->get();
+        $subCategories  = SubCategory::where('is_active', true)->get();
+        $units          = Unit::where('is_active', true)->get();
 
         return view('products.index', compact('products', 'categories', 'subCategories', 'units'));
     }
@@ -59,9 +60,9 @@ class ProductController extends Controller
     {
         Gate::authorize('products.crear');
 
-        $categories = class_exists(Category::class) ? Category::all() : collect();
-        $subCategories = class_exists(SubCategory::class) ? SubCategory::all() : collect();
-        $units = class_exists(Unit::class) ? Unit::all() : collect();
+        $categories    = Category::where('is_active', true)->get();
+        $subCategories = SubCategory::where('is_active', true)->get();
+        $units         = Unit::where('is_active', true)->get();
 
         return view('products.create', compact('categories', 'subCategories', 'units'));
     }
@@ -101,9 +102,13 @@ class ProductController extends Controller
                 ->route('products.index')
                 ->with('success', "Producto '{$product->name}' creado correctamente (SKU: {$product->sku}).");
         } catch (Exception $e) {
+            Log::error('Error al registrar producto.', [
+                'exception' => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
+            ]);
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Ocurrió un error al registrar el producto: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Ocurrió un error al registrar el producto. Por favor intente nuevamente o contacte al administrador.']);
         }
     }
 
@@ -167,9 +172,14 @@ class ProductController extends Controller
                 ->route('products.index')
                 ->with('success', "Producto '{$product->name}' actualizado correctamente.");
         } catch (Exception $e) {
+            Log::error('Error al actualizar producto.', [
+                'product_id' => $product->id,
+                'exception'  => $e->getMessage(),
+                'trace'      => $e->getTraceAsString(),
+            ]);
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Ocurrió un error al actualizar el producto: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Ocurrió un error al actualizar el producto. Por favor intente nuevamente o contacte al administrador.']);
         }
     }
 
@@ -210,7 +220,12 @@ class ProductController extends Controller
 
             return back()->with('success', 'Imagen eliminada correctamente.');
         } catch (Exception $e) {
-            return back()->withErrors(['error' => 'Error al eliminar la imagen: ' . $e->getMessage()]);
+            Log::error('Error al eliminar imagen de producto.', [
+                'image_id'  => $image->id ?? null,
+                'exception' => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
+            ]);
+            return back()->withErrors(['error' => 'Error al eliminar la imagen. Por favor intente nuevamente o contacte al administrador.']);
         }
     }
 }

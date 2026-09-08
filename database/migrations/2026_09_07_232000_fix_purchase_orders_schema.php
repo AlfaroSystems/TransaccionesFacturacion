@@ -141,5 +141,46 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Eliminar columnas agregadas a purchase_orders
+        Schema::table('purchase_orders', function (Blueprint $table) {
+            $columns = [
+                'uuid', 'purchase_order_code', 'id_supplier', 'id_branch',
+                'id_warehouse', 'id_purchase_quotation', 'id_user',
+                'order_date', 'expected_date', 'currency', 'payment_terms',
+                'subtotal', 'discount', 'tax', 'additional_expenses',
+                'total', 'status', 'notes',
+            ];
+            foreach ($columns as $col) {
+                if (Schema::hasColumn('purchase_orders', $col)) {
+                    $table->dropColumn($col);
+                }
+            }
+        });
+
+        // Eliminar columnas agregadas a purchase_order_details
+        Schema::table('purchase_order_details', function (Blueprint $table) {
+            $columns = [
+                'id_purchase_order', 'id_product', 'quantity', 'id_unit',
+                'unit_price', 'discount', 'subtotal', 'tax_rate', 'tax_amount',
+                'total', 'notes',
+            ];
+            foreach ($columns as $col) {
+                if (Schema::hasColumn('purchase_order_details', $col)) {
+                    $table->dropColumn($col);
+                }
+            }
+        });
+
+        // Eliminar columnas agregadas a purchase_order_expenses
+        Schema::table('purchase_order_expenses', function (Blueprint $table) {
+            $columns = [
+                'id_purchase_order', 'id_expense_type', 'description', 'amount',
+            ];
+            foreach ($columns as $col) {
+                if (Schema::hasColumn('purchase_order_expenses', $col)) {
+                    $table->dropColumn($col);
+                }
+            }
+        });
     }
 };

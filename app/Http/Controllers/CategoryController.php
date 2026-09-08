@@ -126,4 +126,17 @@ class CategoryController extends Controller
             ->route('categories.index')
             ->with('success', $message);
     }
+
+    /**
+     * API: Devuelve las subcategorías activas de una categoría.
+     * Reemplaza el Closure definido en routes/web.php para habilitar route:cache en producción.
+     */
+    public function subCategories(int $id): \Illuminate\Http\JsonResponse
+    {
+        $subCategories = \App\Models\SubCategory::where('id_category', $id)
+            ->where('is_active', true)
+            ->get(['id', 'name']);
+
+        return response()->json($subCategories);
+    }
 }
