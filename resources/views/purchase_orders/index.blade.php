@@ -124,7 +124,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                             @forelse($purchase_orders as $order)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors">
                                     <td class="px-6 py-4 font-semibold text-indigo-600">
                                         {{ $order->purchase_order_code }}
                                     </td>

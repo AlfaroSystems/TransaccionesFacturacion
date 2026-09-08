@@ -80,6 +80,29 @@
     color: #94a3b8 !important;           /* Placeholder claro y legible */
 }
 
+/* EFECTOS HOVER EN TABLAS Y LISTAS PARA MODO OSCURO */
+.dark tbody tr:hover,
+.dark tr:hover,
+.dark table tbody tr:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-white:hover {
+    background-color: #334155 !important; /* Slate 700 sutil y visible */
+    color: #ffffff !important;
+}
+
+.dark tr:hover td,
+.dark tbody tr:hover td,
+.dark tr:hover span,
+.dark tbody tr:hover span,
+.dark tr:hover a,
+.dark tbody tr:hover a,
+.dark tr:hover div,
+.dark tbody tr:hover div {
+    color: #ffffff !important;
+}
+
 /* Bordes y separadores tenues */
 .dark .border-slate-100,
 .dark .border-slate-200,
