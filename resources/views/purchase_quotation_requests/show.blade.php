@@ -517,30 +517,42 @@ function addExpenseRow() {
 
     let selectOptions = '<option value="">-- Tipo de Gasto --</option>';
     expenseTypes.forEach(t => {
-        selectOptions += `<option value="${t.id_expense_type}">${t.name}</option>`;
+        const descAttr = (t.description || t.name || '').replace(/"/g, '&quot;');
+        selectOptions += `<option value="${t.id_expense_type}" data-description="${descAttr}">${t.name}</option>`;
     });
+
+    const currentIndex = expenseIndex;
 
     div.innerHTML = `
         <div style="flex: 1 1 35%; min-width: 0;">
-            <select name="expenses[${expenseIndex}][id_expense_type]" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
+            <select name="expenses[${currentIndex}][id_expense_type]" required onchange="updateExpenseDescription(this, ${currentIndex})" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
                 ${selectOptions}
             </select>
         </div>
         <div style="flex: 1 1 40%; min-width: 0;">
-            <input type="text" name="expenses[${expenseIndex}][description]" placeholder="Descripción del gasto (ej. flete)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
+            <input type="text" name="expenses[${currentIndex}][description]" id="expense_desc_${currentIndex}" placeholder="Descripción del gasto (ej. flete)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
         </div>
         <div style="flex: 0 0 20%; min-width: 0;">
-            <input type="number" step="0.01" min="0" name="expenses[${expenseIndex}][amount]" required placeholder="Monto $" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-1 focus:ring-[#005e66] outline-none">
+            <input type="number" step="0.01" min="0" name="expenses[${currentIndex}][amount]" required placeholder="Monto $" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-1 focus:ring-[#005e66] outline-none">
         </div>
         <div style="flex: 0 0 auto;" class="text-center">
             <button type="button" onclick="this.closest('.flex').remove()" class="text-rose-500 hover:text-rose-700 p-1" title="Eliminar gasto">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
             </button>
         </div>
     `;
 
     container.appendChild(div);
     expenseIndex++;
+}
+
+function updateExpenseDescription(selectEl, index) {
+    const descInput = document.getElementById(`expense_desc_${index}`);
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    if (descInput && selectedOpt && selectedOpt.value) {
+        const fullDesc = selectedOpt.getAttribute('data-description');
+        descInput.value = fullDesc || selectedOpt.text;
+    }
 }
 </script>
 @endsection
