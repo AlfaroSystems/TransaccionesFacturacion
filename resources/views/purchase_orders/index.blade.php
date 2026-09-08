@@ -144,11 +144,11 @@
                                     <td class="px-6 py-4">
                                         @php
                                             $statusClasses = [
-                                                'draft' => 'bg-yellow-100 text-yellow-800',
-                                                'issued' => 'bg-blue-100 text-blue-800',
-                                                'partial_received' => 'bg-orange-100 text-orange-800',
-                                                'completed' => 'bg-green-100 text-green-800',
-                                                'cancelled' => 'bg-red-100 text-red-800',
+                                                'draft' => 'bg-yellow-100 text-yellow-800 dark:bg-amber-950/80 dark:text-amber-300 dark:border dark:border-amber-700/60',
+                                                'issued' => 'bg-blue-100 text-blue-800 dark:bg-sky-950/80 dark:text-sky-300 dark:border dark:border-sky-700/60',
+                                                'partial_received' => 'bg-orange-100 text-orange-800 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border dark:border-indigo-700/60',
+                                                'completed' => 'bg-green-100 text-green-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border dark:border-emerald-700/60',
+                                                'cancelled' => 'bg-red-100 text-red-800 dark:bg-rose-950/80 dark:text-rose-300 dark:border dark:border-rose-700/60',
                                             ];
                                             $statusNames = [
                                                 'draft' => 'Borrador',
@@ -168,7 +168,7 @@
                                             @can('purchase_orders.ver')
                                             <a
                                                 href="{{ route('purchase_orders.show', $order->id_purchase_order) }}"
-                                                class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-all flex items-center justify-center"
+                                                class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-500 hover:text-white dark:bg-sky-950/80 dark:text-sky-400 dark:border dark:border-sky-800/80 dark:hover:bg-sky-600 dark:hover:text-white transition-all flex items-center justify-center"
                                                 title="Ver detalles">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -181,7 +181,7 @@
                                             @if($order->status === 'draft')
                                                 <a
                                                     href="{{ route('purchase_orders.edit', $order->id_purchase_order) }}"
-                                                    class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center"
+                                                    class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white dark:bg-amber-950/80 dark:text-amber-400 dark:border dark:border-amber-800/80 dark:hover:bg-amber-600 dark:hover:text-white transition-all flex items-center justify-center"
                                                     title="Editar orden">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -192,7 +192,7 @@
                                             {{-- ELIMINAR --}}
                                             @can('purchase_orders.eliminar')
                                             @if($order->status === 'draft')
-                                                <button type="button" onclick="confirmDelete('{{ route('purchase_orders.destroy', $order->id_purchase_order) }}', 'Orden {{ addslashes($order->purchase_order_code ?? 'OC-'.$order->id_purchase_order) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center" title="Eliminar orden">
+                                                <button type="button" onclick="confirmDelete('{{ route('purchase_orders.destroy', $order->id_purchase_order) }}', 'Orden {{ addslashes($order->purchase_order_code ?? 'OC-'.$order->id_purchase_order) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white dark:bg-rose-950/80 dark:text-rose-400 dark:border dark:border-rose-800/80 dark:hover:bg-rose-600 dark:hover:text-white transition-all flex items-center justify-center" title="Eliminar orden">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                                                     </svg>
@@ -204,7 +204,7 @@
                                             <a
                                                 href="{{ route('purchase_orders.pdf', $order->id_purchase_order) }}"
                                                 target="_blank"
-                                                class="p-2.5 rounded-xl bg-teal-50 text-[#005e66] hover:bg-teal-100 transition-all flex items-center justify-center"
+                                                class="p-2.5 rounded-xl bg-teal-50 text-[#005e66] hover:bg-[#005e66] hover:text-white dark:bg-teal-950/80 dark:text-teal-400 dark:border dark:border-teal-800/80 dark:hover:bg-teal-600 dark:hover:text-white transition-all flex items-center justify-center"
                                                 title="PDF / Imprimir">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
