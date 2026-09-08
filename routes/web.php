@@ -104,6 +104,10 @@ Route::middleware('auth')->group(function () {
         'purchase_orders',
         PurchaseOrderController::class
     );
+    Route::get(
+        'purchase_orders/{purchase_order}/pdf',
+        [PurchaseOrderController::class, 'generatePdf']
+    )->name('purchase_orders.pdf');
     Route::patch(
         'purchase_orders/{purchase_order}/status',
         [PurchaseOrderController::class, 'updateStatus']
