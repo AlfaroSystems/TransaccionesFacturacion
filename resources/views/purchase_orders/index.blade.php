@@ -11,6 +11,7 @@
                     Emita y gestione las órdenes de compra de la empresa.
                 </p>
             </div>
+            @can('purchase_orders.crear')
             <button
                 type="button"
                 onclick="mostrarCrear()"
@@ -20,6 +21,7 @@
                 </svg>
                 <span>Nueva Orden</span>
             </button>
+            @endcan
         </div>
         @if($errors->any())
             <div class="mb-5 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800">
@@ -164,6 +166,7 @@
                                     <td class="px-6 py-4">
                                         <div class="flex items-center justify-end gap-2">
                                             {{-- VER --}}
+                                            @can('purchase_orders.ver')
                                             <a
                                                 href="{{ route('purchase_orders.show', $order->id_purchase_order) }}"
                                                 class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-all flex items-center justify-center"
@@ -173,7 +176,9 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                 </svg>
                                             </a>
+                                            @endcan
                                             {{-- EDITAR --}}
+                                            @can('purchase_orders.editar')
                                             @if($order->status === 'draft')
                                                 <a
                                                     href="{{ route('purchase_orders.edit', $order->id_purchase_order) }}"
@@ -184,7 +189,9 @@
                                                     </svg>
                                                 </a>
                                             @endif
+                                            @endcan
                                             {{-- ELIMINAR --}}
+                                            @can('purchase_orders.eliminar')
                                             @if($order->status === 'draft')
                                                 <button type="button" onclick="confirmDelete('{{ route('purchase_orders.destroy', $order->id_purchase_order) }}', 'Orden {{ addslashes($order->purchase_order_code ?? 'OC-'.$order->id_purchase_order) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center" title="Eliminar orden">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +199,9 @@
                                                     </svg>
                                                 </button>
                                             @endif
+                                            @endcan
                                             {{-- PDF --}}
+                                            @can('purchase_orders.pdf')
                                             <a
                                                 href="{{ route('purchase_orders.pdf', $order->id_purchase_order) }}"
                                                 target="_blank"
@@ -202,6 +211,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                                                 </svg>
                                             </a>
+                                            @endcan
                                         </div>
                                     </td>
                                 </tr>

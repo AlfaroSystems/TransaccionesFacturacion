@@ -9,6 +9,7 @@ use App\Models\PurchaseRequestDetail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use App\Models\ExpenseType;
 use App\Models\PurchaseQuotation;
 use App\Models\PurchaseQuotationDetail;
@@ -21,6 +22,8 @@ class PurchaseQuotationRequestController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('purchase_quotation_requests.ver');
+
         $search = $request->input('search');
 
         $query = PurchaseQuotationRequest::with([
@@ -51,6 +54,8 @@ class PurchaseQuotationRequestController extends Controller
      */
     public function getApprovedPurchaseRequests(): JsonResponse
     {
+        Gate::authorize('purchase_quotation_requests.ver');
+
         $approvedRequests = PurchaseRequest::where('status', 'approved')
             ->select([
                 'id_purchase_request',
@@ -70,6 +75,8 @@ class PurchaseQuotationRequestController extends Controller
      */
     public function getPurchaseRequestDetails(int $id): JsonResponse
     {
+        Gate::authorize('purchase_quotation_requests.ver');
+
         $details = PurchaseRequestDetail::where('id_purchase_request', $id)
             ->with([
                 'product:id,name,sku',
@@ -85,6 +92,8 @@ class PurchaseQuotationRequestController extends Controller
      */
     public function store(StorePurchaseQuotationRequest $request)
     {
+        Gate::authorize('purchase_quotation_requests.crear');
+
         $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {
@@ -115,6 +124,8 @@ class PurchaseQuotationRequestController extends Controller
      */
     public function show(int $id)
     {
+        Gate::authorize('purchase_quotation_requests.ver');
+
         $quotationRequest = PurchaseQuotationRequest::with([
             'purchaseRequest.branch',
             'purchaseRequest.warehouse',
@@ -159,6 +170,8 @@ class PurchaseQuotationRequestController extends Controller
      */
     public function selectQuotation(PurchaseQuotationRequest $purchaseQuotationRequest, PurchaseQuotation $purchaseQuotation)
     {
+        Gate::authorize('purchase_quotation_requests.seleccionar_cotizacion');
+
         if ($purchaseQuotationRequest->id_purchase_quotation) {
             return redirect()
                 ->back()

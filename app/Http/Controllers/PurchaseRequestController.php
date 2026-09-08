@@ -8,6 +8,7 @@ use App\Models\Unit;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class PurchaseRequestController extends Controller
@@ -18,6 +19,8 @@ class PurchaseRequestController extends Controller
      */
     public function index(Request $request)
     {
+        Gate::authorize('purchase_requests.ver');
+
         $query = PurchaseRequest::with([
             'branch',
             'warehouse',
@@ -85,6 +88,8 @@ class PurchaseRequestController extends Controller
      */
     public function create()
     {
+        Gate::authorize('purchase_requests.crear');
+
         return redirect()
             ->route('purchase-requests.index')
             ->with('open_create_modal', true);
@@ -95,6 +100,8 @@ class PurchaseRequestController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
+        Gate::authorize('purchase_requests.crear');
+
         $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {
@@ -148,6 +155,8 @@ class PurchaseRequestController extends Controller
      */
     public function show(PurchaseRequest $purchaseRequest)
     {
+        Gate::authorize('purchase_requests.ver');
+
         return redirect()
             ->route('purchase-requests.index', [
                 'show' =>
@@ -160,6 +169,8 @@ class PurchaseRequestController extends Controller
      */
     public function edit(PurchaseRequest $purchaseRequest)
     {
+        Gate::authorize('purchase_requests.editar');
+
         if ($purchaseRequest->status !== 'draft') {
             return redirect()
                 ->route('purchase-requests.index')
@@ -183,6 +194,8 @@ class PurchaseRequestController extends Controller
         StorePurchaseRequest $request,
         PurchaseRequest $purchaseRequest
     ) {
+        Gate::authorize('purchase_requests.editar');
+
         if ($purchaseRequest->status !== 'draft') {
             return redirect()
                 ->route('purchase-requests.index')
@@ -253,6 +266,8 @@ class PurchaseRequestController extends Controller
     public function destroy(
         PurchaseRequest $purchaseRequest
     ) {
+        Gate::authorize('purchase_requests.eliminar');
+
         if ($purchaseRequest->status !== 'draft') {
             return redirect()
                 ->route('purchase-requests.index')
@@ -279,6 +294,8 @@ class PurchaseRequestController extends Controller
         Request $request,
         PurchaseRequest $purchaseRequest
     ) {
+        Gate::authorize('purchase_requests.aprobar');
+
         $validated = $request->validate([
             'status' => [
                 'required',

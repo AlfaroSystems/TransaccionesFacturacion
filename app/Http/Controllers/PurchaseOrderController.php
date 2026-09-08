@@ -14,12 +14,15 @@ use App\Models\PurchaseQuotation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class PurchaseOrderController extends Controller
 {
     public function index()
     {
+        Gate::authorize('purchase_orders.ver');
+
         $purchase_orders = PurchaseOrder::with([
             'supplier',
             'branch',
@@ -62,6 +65,8 @@ class PurchaseOrderController extends Controller
      */
     public function getQuotationData($id)
     {
+        Gate::authorize('purchase_orders.ver');
+
         $quotation = PurchaseQuotation::with([
             'supplier',
             'quotationRequest.purchaseRequest',
@@ -117,6 +122,8 @@ class PurchaseOrderController extends Controller
     
     public function create()
     {
+        Gate::authorize('purchase_orders.crear');
+
         $suppliers = Supplier::orderBy('name')->get();
         $branches = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
@@ -146,6 +153,8 @@ class PurchaseOrderController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('purchase_orders.crear');
+
         if (!$request->has('products') && $request->has('details')) {
             $request->merge(['products' => $request->input('details')]);
         }
@@ -335,6 +344,8 @@ class PurchaseOrderController extends Controller
 
     public function show(PurchaseOrder $purchase_order)
     {
+        Gate::authorize('purchase_orders.ver');
+
         $purchase_order->load([
             'supplier',
             'branch',
@@ -354,6 +365,8 @@ class PurchaseOrderController extends Controller
 
     public function edit(PurchaseOrder $purchase_order)
     {
+        Gate::authorize('purchase_orders.editar');
+
         if (!$purchase_order->isEditable()) {
             return redirect()
                 ->route('purchase_orders.show', $purchase_order)
@@ -389,6 +402,8 @@ class PurchaseOrderController extends Controller
     }
 
     public function update(Request $request, PurchaseOrder $purchase_order) {
+        Gate::authorize('purchase_orders.editar');
+
         if (!$purchase_order->isEditable()) {
             return back()->with(
                 'error',
@@ -511,6 +526,8 @@ class PurchaseOrderController extends Controller
     }
 
     public function updateStatus(Request $request, PurchaseOrder $purchase_order) {
+        Gate::authorize('purchase_orders.aprobar');
+
         $request->validate([
             'status' => [
                 'required',
@@ -554,6 +571,8 @@ class PurchaseOrderController extends Controller
 
     public function destroy(PurchaseOrder $purchase_order)
     {
+        Gate::authorize('purchase_orders.eliminar');
+
         if (!$purchase_order->isEditable()) {
             return back()->with(
                 'error',
@@ -569,6 +588,8 @@ class PurchaseOrderController extends Controller
 
     public function generatePdf(PurchaseOrder $purchase_order)
     {
+        Gate::authorize('purchase_orders.pdf');
+
         $purchase_order->load([
             'supplier',
             'branch',

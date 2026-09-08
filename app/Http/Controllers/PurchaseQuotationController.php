@@ -8,6 +8,7 @@ use App\Models\PurchaseQuotationExpense;
 use App\Models\PurchaseQuotationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class PurchaseQuotationController extends Controller
@@ -17,6 +18,8 @@ class PurchaseQuotationController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('purchase_quotations.crear');
+
         $validated = $request->validate([
             'id_purchase_quotation_request' => 'required|exists:purchase_quotation_requests,id_purchase_quotation_request',
             'id_supplier'                   => 'required|exists:suppliers,id_supplier',
@@ -151,6 +154,8 @@ class PurchaseQuotationController extends Controller
      */
     public function destroy(int $id)
     {
+        Gate::authorize('purchase_quotations.eliminar');
+
         $quotation = PurchaseQuotation::findOrFail($id);
         $quotation->delete();
 

@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 use App\Models\SupplierQuotation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class SupplierQuotationController extends Controller
 {
     public function store(Request $request)
     {
+        Gate::authorize('purchase_quotations.crear');
+
         $request->validate([
             'purchase_quotation_request_id' => 'required|exists:purchase_quotation_requests,id', // O el nombre real de tu PK
             'supplier_id' => 'required|exists:suppliers,id', // O id_supplier según tu BD
@@ -41,6 +44,8 @@ class SupplierQuotationController extends Controller
 
 public function destroy($id)
 {
+    Gate::authorize('purchase_quotations.eliminar');
+
     $quotation = SupplierQuotation::findOrFail($id);
     $quotation->delete();
 

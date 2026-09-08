@@ -303,6 +303,137 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar proveedores del sistema.',
                 'action' => 'destroy',
             ],
+            // Tipos de Gastos Adicionales
+            [
+                'id' => 'expense_types.ver',
+                'name' => 'Ver Tipos de Gastos',
+                'description' => 'Permite ver los tipos de gastos adicionales.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'expense_types.crear',
+                'name' => 'Crear Tipos de Gastos',
+                'description' => 'Permite crear nuevos tipos de gastos adicionales.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'expense_types.editar',
+                'name' => 'Editar Tipos de Gastos',
+                'description' => 'Permite modificar tipos de gastos adicionales.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'expense_types.eliminar',
+                'name' => 'Eliminar Tipos de Gastos',
+                'description' => 'Permite activar/desactivar o eliminar tipos de gastos.',
+                'action' => 'destroy',
+            ],
+            // Solicitudes de Compra
+            [
+                'id' => 'purchase_requests.ver',
+                'name' => 'Ver Solicitudes de Compra',
+                'description' => 'Permite listar y ver el detalle de solicitudes de compra.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'purchase_requests.crear',
+                'name' => 'Crear Solicitudes de Compra',
+                'description' => 'Permite registrar nuevas solicitudes de compra.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'purchase_requests.editar',
+                'name' => 'Editar Solicitudes de Compra',
+                'description' => 'Permite editar solicitudes de compra existentes.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'purchase_requests.eliminar',
+                'name' => 'Eliminar Solicitudes de Compra',
+                'description' => 'Permite eliminar solicitudes de compra.',
+                'action' => 'destroy',
+            ],
+            [
+                'id' => 'purchase_requests.aprobar',
+                'name' => 'Aprobar/Rechazar Solicitudes de Compra',
+                'description' => 'Permite cambiar el estado de las solicitudes de compra.',
+                'action' => 'updateStatus',
+            ],
+            // Solicitudes de Cotización a Proveedores
+            [
+                'id' => 'purchase_quotation_requests.ver',
+                'name' => 'Ver Solicitudes de Cotización',
+                'description' => 'Permite listar y consultar solicitudes de cotización a proveedores.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'purchase_quotation_requests.crear',
+                'name' => 'Crear Solicitudes de Cotización',
+                'description' => 'Permite generar solicitudes de cotización enviadas a proveedores.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'purchase_quotation_requests.seleccionar_cotizacion',
+                'name' => 'Seleccionar Cotización Ganadora',
+                'description' => 'Permite adjudicar o seleccionar la cotización ganadora de un proveedor.',
+                'action' => 'selectQuotation',
+            ],
+            // Cotizaciones y Ofertas de Proveedor
+            [
+                'id' => 'purchase_quotations.ver',
+                'name' => 'Ver Cotizaciones de Proveedores',
+                'description' => 'Permite consultar cotizaciones u ofertas registradas de proveedores.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'purchase_quotations.crear',
+                'name' => 'Registrar Cotización de Proveedor',
+                'description' => 'Permite registrar ofertas enviadas por proveedores.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'purchase_quotations.eliminar',
+                'name' => 'Eliminar Cotización de Proveedor',
+                'description' => 'Permite anular o eliminar ofertas registradas.',
+                'action' => 'destroy',
+            ],
+            // Órdenes de Compra
+            [
+                'id' => 'purchase_orders.ver',
+                'name' => 'Ver Órdenes de Compra',
+                'description' => 'Permite consultar el listado y detalle de órdenes de compra.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'purchase_orders.crear',
+                'name' => 'Crear Órdenes de Compra',
+                'description' => 'Permite registrar nuevas órdenes de compra.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'purchase_orders.editar',
+                'name' => 'Editar Órdenes de Compra',
+                'description' => 'Permite modificar órdenes de compra existentes.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'purchase_orders.eliminar',
+                'name' => 'Eliminar Órdenes de Compra',
+                'description' => 'Permite anular o eliminar órdenes de compra.',
+                'action' => 'destroy',
+            ],
+            [
+                'id' => 'purchase_orders.aprobar',
+                'name' => 'Aprobar/Rechazar Órdenes de Compra',
+                'description' => 'Permite autorizar o cambiar el estado de órdenes de compra.',
+                'action' => 'updateStatus',
+            ],
+            [
+                'id' => 'purchase_orders.pdf',
+                'name' => 'Generar PDF de Órdenes de Compra',
+                'description' => 'Permite descargar y visualizar el comprobante PDF de una orden de compra.',
+                'action' => 'generatePdf',
+            ],
         ];
 
         // Guardar o actualizar permisos
