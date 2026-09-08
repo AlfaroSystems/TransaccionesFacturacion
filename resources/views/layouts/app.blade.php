@@ -328,7 +328,7 @@
         @endif
         @isset($header)
             <header class="bg-white dark:bg-slate-800/80 shadow mb-6 rounded-xl p-4 border border-slate-200 dark:border-slate-700/80 card-shadow transition-colors duration-300">
-                <div class="max-w-7xl mx-auto flex items-center justify-between">{{ $header }}</div>
+                <div class="w-full flex items-center justify-between">{{ $header }}</div>
             </header>
         @endisset
         @yield('content')

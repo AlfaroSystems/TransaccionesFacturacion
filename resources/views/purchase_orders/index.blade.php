@@ -1,8 +1,7 @@
 @extends('layouts.app')
 @section('content')
-<div class="min-h-screen bg-gray-100 py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+<div class="w-full space-y-6 animate-fade-in duration-300">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">
                     Órdenes de Compra
@@ -852,7 +851,6 @@
                 </div>
             @endif
         </div>
-    </div>
 </div>
 <script>
     function mostrarListado() {
