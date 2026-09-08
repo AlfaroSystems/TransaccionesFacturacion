@@ -20,7 +20,7 @@ class PurchaseOrderController extends Controller
 {
     public function index()
     {
-        $orders = PurchaseOrder::with([
+        $purchase_orders = PurchaseOrder::with([
             'supplier',
             'branch',
             'warehouse',
@@ -29,7 +29,30 @@ class PurchaseOrderController extends Controller
         ->orderByDesc('id_purchase_order')
         ->paginate(10);
 
-        return view('purchase_orders.index', compact('orders'));
+        $suppliers = Supplier::orderBy('name')->get();
+        $branches = Branch::orderBy('name')->get();
+        $warehouses = Warehouse::orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+        $units = Unit::orderBy('name')->get();
+        $expenseTypes = ExpenseType::orderBy('name')->get();
+        $quotations = PurchaseQuotation::whereIn('status', [
+            'approved',
+            'aprobada',
+            'submitted'
+        ])
+        ->orderByDesc('id_purchase_quotation')
+        ->get();
+
+        return view('purchase_orders.index', compact(
+            'purchase_orders',
+            'suppliers',
+            'branches',
+            'warehouses',
+            'products',
+            'units',
+            'expenseTypes',
+            'quotations'
+        ));
     }
     
     public function create()
