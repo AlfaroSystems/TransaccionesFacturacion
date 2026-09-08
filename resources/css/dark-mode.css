@@ -4,48 +4,80 @@
 
 .dark body {
     background-color: #0f172a !important; /* Slate 900 */
-    color: #f1f5f9 !important;
+    color: #f8fafc !important;
 }
 
-/* Modales, tarjetas y contenedores blancos */
+/* Modales, tarjetas y contenedores */
 .dark .bg-white,
 .dark [class*="bg-white"] {
     background-color: #1e293b !important; /* Slate 800 */
     border-color: #334155 !important;    /* Slate 700 */
-    color: #f1f5f9 !important;
+    color: #f8fafc !important;
 }
 
-/* Adaptación de textos oscuros a tonos claros */
+/* Etiquetas de formularios (Labels), Leyendas, Encabezados de Tabla y Títulos */
+.dark label,
+.dark legend,
+.dark th,
+.dark form label,
+.dark .form-label,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4 {
+    color: #ffffff !important; /* Blanco impoluto para lectura clara y visible */
+}
+
+/* Adaptación de clases de texto gris/oscuro a blanco brillante en modo oscuro */
 .dark .text-slate-950,
 .dark .text-slate-900,
 .dark .text-slate-800,
 .dark .text-slate-700,
-.dark .text-gray-900,
-.dark .text-gray-800,
-.dark .text-navy-800 {
-    color: #f1f5f9 !important;
-}
-
-/* Subtítulos y textos secundarios */
 .dark .text-slate-600,
 .dark .text-slate-500,
 .dark .text-slate-400,
-.dark .text-gray-500 {
-    color: #94a3b8 !important; /* Slate 400 */
+.dark .text-slate-300,
+.dark .text-gray-900,
+.dark .text-gray-800,
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-gray-400,
+.dark .text-navy-800 {
+    color: #f8fafc !important;
 }
 
-/* Entradas de texto, selects y textareas */
+/* Subtítulos o párrafos explicativos con alto contraste */
+.dark p.text-slate-400,
+.dark span.text-slate-400,
+.dark p.text-slate-500,
+.dark span.text-slate-500 {
+    color: #cbd5e1 !important; /* Slate 300 claro y legible */
+}
+
+/* Títulos de sección con color marca */
+.dark .text-\[\#005e66\],
+.dark [class*="text-[#005e66]"] {
+    color: #2dd4bf !important; /* Teal turquesa brillante en modo oscuro */
+}
+
+/* Entradas de texto, selects, opciones y textareas */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 .dark select,
 .dark textarea {
     background-color: #0f172a !important; /* Slate 900 */
-    border-color: #334155 !important;    /* Slate 700 */
-    color: #f8fafc !important;           /* Blanco impoluto */
+    border-color: #475569 !important;    /* Slate 600 */
+    color: #ffffff !important;           /* Texto blanco brillante */
+}
+
+.dark select option {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-    color: #64748b !important;           /* Placeholder tenue */
+    color: #94a3b8 !important;           /* Placeholder claro y legible */
 }
 
 /* Bordes y separadores tenues */
@@ -56,9 +88,10 @@
     border-color: #334155 !important;
 }
 
-/* Fondos secundarios de filas e iconos */
+/* Fondos secundarios de filas, contenedores internos e iconos */
 .dark .bg-slate-50,
 .dark .bg-gray-50,
-.dark .bg-slate-100 {
+.dark .bg-slate-100,
+.dark [class*="bg-slate-50"] {
     background-color: #0f172a !important;
 }
