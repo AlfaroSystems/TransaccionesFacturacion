@@ -157,6 +157,14 @@ class PurchaseQuotationController extends Controller
         Gate::authorize('purchase_quotations.eliminar');
 
         $quotation = PurchaseQuotation::findOrFail($id);
+
+        $quotationRequest = PurchaseQuotationRequest::find($quotation->id_purchase_quotation_request);
+        if ($quotationRequest && $quotationRequest->id_purchase_quotation) {
+            return redirect()
+                ->back()
+                ->with('error', 'No se puede eliminar ninguna oferta porque esta solicitud ya tiene una oferta aceptada.');
+        }
+
         $quotation->delete();
 
         return redirect()
