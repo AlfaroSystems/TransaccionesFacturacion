@@ -53,31 +53,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite revisar la bitácora de auditoría de actividad del sistema.',
                 'action' => 'logs',
             ],
-            // Empleados
-            [
-                'id' => 'empleados.ver',
-                'name' => 'Ver Empleados',
-                'description' => 'Permite ver el listado y detalle de los empleados.',
-                'action' => 'index',
-            ],
-            [
-                'id' => 'empleados.crear',
-                'name' => 'Crear Empleados',
-                'description' => 'Permite registrar nuevos empleados.',
-                'action' => 'create',
-            ],
-            [
-                'id' => 'empleados.editar',
-                'name' => 'Editar Empleados',
-                'description' => 'Permite modificar la información de los empleados.',
-                'action' => 'edit',
-            ],
-            [
-                'id' => 'empleados.eliminar',
-                'name' => 'Eliminar Empleados',
-                'description' => 'Permite eliminar empleados del sistema.',
-                'action' => 'destroy',
-            ],
             // Sucursales
             [
                 'id' => 'branches.ver',

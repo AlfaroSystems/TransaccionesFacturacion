@@ -183,25 +183,6 @@
                         </div>
                     </div>
 
-                    <!-- Grupo 2: Gestión de Empleados -->
-                    <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                        <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            Gestión de Empleados
-                        </h4>
-                        <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'empleados.')) as $permission)
-                                <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
-                                    <div>
-                                        <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
-                                        <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
                     <!-- Grupo 3: Empresa y Sucursales -->
                     <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                         <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
@@ -397,25 +378,6 @@
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
                             @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'usuarios.')) as $permission)
-                                <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
-                                    <div>
-                                        <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
-                                        <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Grupo 2: Gestión de Empleados -->
-                    <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                        <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            Gestión de Empleados
-                        </h4>
-                        <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'empleados.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
                                     <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>

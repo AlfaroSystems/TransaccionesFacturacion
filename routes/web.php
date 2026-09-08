@@ -3,7 +3,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
@@ -39,7 +38,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
-    Route::resource('empleados', EmpleadoController::class);
     Route::get(
         'locations/map',
         [LocationController::class, 'map']
