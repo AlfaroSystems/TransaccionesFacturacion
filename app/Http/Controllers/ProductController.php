@@ -181,13 +181,17 @@ class ProductController extends Controller
         Gate::authorize('products.eliminar');
 
         $productName = $product->name;
+        $newStatus = !$product->is_active;
+
         $product->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $actionText = $newStatus ? 'reactivado' : 'inactivado';
 
         return redirect()
             ->route('products.index')
-            ->with('success', "Producto '{$productName}' inactivado correctamente.");
+            ->with('success', "Producto '{$productName}' {$actionText} correctamente.");
     }
 
     /**

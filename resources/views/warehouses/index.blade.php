@@ -69,7 +69,7 @@
                             <div class="flex justify-center gap-2">
                                 <!-- Editar -->
                                 @can('warehouses.editar')
-                                <button type="button" onclick="openEditWarehouseModal('{{ route('warehouses.update', $warehouse->id) }}', {{ json_encode($warehouse) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Bodega">
+                                <button type="button" onclick="openEditWarehouseModal('{{ route('warehouses.update', $warehouse->id) }}', {{ json_encode($warehouse) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Bodega">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -79,13 +79,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('warehouses.eliminar')
                                     @if($warehouse->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ addslashes($warehouse->name) }}', false)" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Inactivar Bodega">
+                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ addslashes($warehouse->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Bodega">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ addslashes($warehouse->name) }}', true)" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100/50 rounded-xl transition-all" title="Reactivar Bodega">
+                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ addslashes($warehouse->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Bodega">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>

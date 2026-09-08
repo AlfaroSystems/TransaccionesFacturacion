@@ -46,6 +46,13 @@ class PurchaseQuotationController extends Controller
             'expenses.*.amount'             => 'required_with:expenses|numeric|min:0',
         ]);
 
+        $quotationRequest = PurchaseQuotationRequest::findOrFail($validated['id_purchase_quotation_request']);
+        if ($quotationRequest->id_purchase_quotation) {
+            return redirect()
+                ->back()
+                ->with('error', 'No se pueden registrar nuevas ofertas porque esta solicitud de cotización ya tiene una oferta aceptada.');
+        }
+
         DB::transaction(function () use ($validated, $request) {
             $headerSubtotal = 0;
             $headerDiscount = 0;

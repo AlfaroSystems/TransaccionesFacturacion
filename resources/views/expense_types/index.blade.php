@@ -116,13 +116,16 @@
                                     @can('expense_types.editar')
                                         <button
                                             type="button"
-                                            class="edit-expense-type-btn px-3 py-2 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 dark:bg-sky-900/20 dark:hover:bg-sky-900/40 dark:text-sky-300 text-xs font-bold transition-all"
+                                            class="edit-expense-type-btn p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center"
+                                            title="Editar"
                                             data-id="{{ $expenseType->id_expense_type }}"
                                             data-name="{{ $expenseType->name }}"
                                             data-description="{{ $expenseType->description ?? '' }}"
                                             data-active="{{ $expenseType->is_active ? '1' : '0' }}"
                                         >
-                                            Editar
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
                                         </button>
                                     @endcan
 
@@ -131,20 +134,26 @@
                                         @if($expenseType->is_active)
                                             <button
                                                 type="button"
-                                                class="deactivate-expense-type-btn px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 dark:text-rose-300 text-xs font-bold transition-all"
+                                                class="deactivate-expense-type-btn p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center"
+                                                title="Inactivar"
                                                 data-id="{{ $expenseType->id_expense_type }}"
                                                 data-name="{{ $expenseType->name }}"
                                             >
-                                                Inactivar
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                </svg>
                                             </button>
                                         @else
                                             <button
                                                 type="button"
-                                                class="reactivate-expense-type-btn px-3 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:text-emerald-300 text-xs font-bold transition-all"
+                                                class="reactivate-expense-type-btn p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all flex items-center justify-center"
+                                                title="Reactivar"
                                                 data-id="{{ $expenseType->id_expense_type }}"
                                                 data-name="{{ $expenseType->name }}"
                                             >
-                                                Reactivar
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
                                             </button>
                                         @endif
                                     @endcan

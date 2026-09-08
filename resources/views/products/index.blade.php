@@ -93,7 +93,7 @@
                         <!-- Imagen de producto -->
                         <td class="py-4 px-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-center">
                             @if($product->images->count() > 0)
-                                <div class="relative w-12 h-12 mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-sm group-hover:scale-105 transition-all">
+                                <div class="relative w-12 h-12 mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-sm group-hover:scale-105 transition-all cursor-pointer" onclick="openGlobalImageModal('{{ asset('storage/' . $product->images->first()->path) }}', '{{ addslashes($product->name) }}')" title="Ampliar imagen de {{ addslashes($product->name) }}">
                                     <img src="{{ asset('storage/' . $product->images->first()->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                                     @if($product->images->count() > 1)
                                         <span class="absolute bottom-0 right-0 bg-slate-900/80 text-white text-[9px] font-extrabold px-1 rounded-tl">
@@ -140,24 +140,24 @@
                         <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 @can('products.ver')
-                                <a href="{{ route('products.show', $product) }}" class="p-2 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold text-xs transition-all" title="Ver Detalles">
+                                <a href="{{ route('products.show', $product) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold text-xs transition-all flex items-center justify-center" title="Ver Detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                 </a>
                                 @endcan
 
                                 @can('products.editar')
-                                <button type="button" onclick="openModal('edit-product-modal-{{ $product->id }}')" class="p-2 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all" title="Editar">
+                                <button type="button" onclick="openModal('edit-product-modal-{{ $product->id }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 @endcan
 
                                 @can('products.eliminar')
                                     @if($product->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', false)" class="p-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all" title="Inactivar Producto">
+                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Producto">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', true)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all" title="Reactivar Producto">
+                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Producto">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         </button>
                                     @endif
@@ -307,15 +307,13 @@
                                 <span class="text-xs font-bold text-slate-500 block mb-2">Imágenes Actuales:</span>
                                 <div class="flex flex-wrap gap-3">
                                     @foreach($product->images as $img)
-                                        <div class="relative group/img w-20 h-20 rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white">
-                                            <img src="{{ asset('storage/' . $img->path) }}" class="w-full h-full object-cover">
-                                            <form action="{{ route('product-images.destroy', $img->id_product_image) }}" method="POST" class="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" onclick="return confirm('¿Deseas eliminar esta imagen?')" class="p-1.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition" title="Eliminar imagen">
+                                        <div class="relative group/img rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white cursor-pointer" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;" onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" title="Haz clic para ampliar">
+                                            <img src="{{ asset('storage/' . $img->path) }}" style="width: 100%; height: 100%; object-fit: cover;" class="hover:opacity-90 transition-opacity">
+                                            <div class="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all">
+                                                <button type="button" onclick="event.stopPropagation(); deleteProductImage('{{ route('product-images.destroy', $img->id_product_image) }}')" class="p-1.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition cursor-pointer" title="Eliminar imagen">
                                                     🗑️
                                                 </button>
-                                            </form>
+                                            </div>
                                         </div>
                                     @endforeach
                                 </div>
@@ -489,6 +487,31 @@
 
 <!-- SCRIPT DE FILTRADO DINÁMICO DE SUBCATEGORÍAS -->
 <script>
+    function deleteProductImage(actionUrl) {
+        if (typeof confirmDelete === 'function') {
+            confirmDelete(actionUrl, 'esta imagen', 'delete');
+        } else {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+            
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = '{{ csrf_token() }}';
+            form.appendChild(csrf);
+
+            const method = document.createElement('input');
+            method.type = 'hidden';
+            method.name = '_method';
+            method.value = 'DELETE';
+            form.appendChild(method);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
     function filterSubcategories(categorySelect, subcategorySelect) {
         if (!categorySelect || !subcategorySelect) return;
 
@@ -593,11 +616,21 @@
                 const fileIndex = i;
 
                 const card = document.createElement('div');
-                card.className = 'relative group/thumb w-24 h-24 rounded-2xl overflow-hidden border-2 border-slate-200 shadow-sm bg-slate-100 flex-shrink-0 transition-all hover:border-teal-400 hover:shadow-md';
+                card.style.cssText = 'width: 112px; height: 112px; min-width: 112px; min-height: 112px; max-width: 112px; max-height: 112px; position: relative; overflow: hidden; border-radius: 1rem; border: 2px solid #e2e8f0; background-color: #f8fafc; flex-shrink: 0; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);';
+                card.className = 'group/thumb hover:border-teal-500 transition-all cursor-pointer';
 
                 reader.onload = (e) => {
+                    const imgSrc = e.target.result;
+                    const safeName = file.name.replace(/'/g, "\\'");
+                    card.onclick = (evt) => {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        openGlobalImageModal(imgSrc, safeName);
+                    };
+                    card.title = 'Haz clic para ampliar ' + file.name;
+
                     card.innerHTML = `
-                        <img src="${e.target.result}" class="w-full h-full object-cover">
+                        <img src="${imgSrc}" style="width: 100%; height: 100%; object-fit: cover; display: block;" class="hover:scale-105 transition-all">
                         
                         <!-- Botón de eliminación siempre visible y cliqueable -->
                         <button type="button" 

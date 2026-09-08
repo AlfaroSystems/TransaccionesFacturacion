@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\ExpenseType;
 use App\Models\PurchaseQuotation;
+use App\Models\PurchaseQuotationDetail;
 use App\Models\Supplier;
 
 class PurchaseQuotationRequestController extends Controller
@@ -151,5 +152,61 @@ class PurchaseQuotationRequestController extends Controller
             'expenseTypes',
             'supplierQuotations'
         ));
+    }
+
+    /**
+     * Acepta/Selecciona una cotización de proveedor para la solicitud.
+     */
+    public function selectQuotation(PurchaseQuotationRequest $purchaseQuotationRequest, PurchaseQuotation $purchaseQuotation)
+    {
+        if ($purchaseQuotationRequest->id_purchase_quotation) {
+            return redirect()
+                ->back()
+                ->with('error', 'Esta solicitud de cotización ya tiene una oferta aceptada.');
+        }
+
+        DB::transaction(function () use ($purchaseQuotationRequest, $purchaseQuotation) {
+            // 1. Vincular la cotización seleccionada en la solicitud
+            $purchaseQuotationRequest->update([
+                'id_purchase_quotation' => $purchaseQuotation->id_purchase_quotation,
+            ]);
+
+            // 2. Marcar la cotización como aprobada
+            $purchaseQuotation->update([
+                'status' => 'approved',
+            ]);
+
+            // 3. Marcar las demás cotizaciones de esta solicitud como 'rejected' (rechazadas)
+            PurchaseQuotation::where('id_purchase_quotation_request', $purchaseQuotationRequest->id_purchase_quotation_request)
+                ->where('id_purchase_quotation', '!=', $purchaseQuotation->id_purchase_quotation)
+                ->update([
+                    'status' => 'rejected',
+                ]);
+
+            // 4. Vincular id_purchase_quotation_detail en los detalles de la solicitud
+            $pqrDetails = PurchaseQuotationRequestDetail::whereIn(
+                'id_purchase_request_detail',
+                $purchaseQuotationRequest->purchaseRequest->details->pluck('id_purchase_request_detail')
+            )->get();
+
+            foreach ($pqrDetails as $pqrDetail) {
+                $productObj = $pqrDetail->purchaseRequestDetail?->product;
+                if ($productObj) {
+                    $qDetail = PurchaseQuotationDetail::where('id_purchase_quotation', $purchaseQuotation->id_purchase_quotation)
+                        ->where('id_product', $productObj->id)
+                        ->first();
+                    if ($qDetail) {
+                        $pqrDetail->update([
+                            'id_purchase_quotation_detail' => $qDetail->id_purchase_quotation_detail,
+                        ]);
+                    }
+                }
+            }
+        });
+
+        $code = $purchaseQuotation->purchase_quotation_code ?? ('Cotización #' . $purchaseQuotation->id_purchase_quotation);
+        return redirect()
+            ->back()
+            ->with('success', "La oferta {$code} del proveedor {$purchaseQuotation->supplier->name} ha sido ACEPTADA exitosamente.");
     }
 }

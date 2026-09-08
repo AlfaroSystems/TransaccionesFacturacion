@@ -130,7 +130,7 @@
 
                         <!-- Botón Ver Detalles -->
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
-                            <button type="button" onclick="toggleDetails({{ $log->id }})" class="px-3 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ml-auto">
+                            <button type="button" onclick="toggleDetails({{ $log->id }})" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors text-xs font-bold flex items-center gap-1.5 ml-auto" title="Inspeccionar">
                                 <span>Inspeccionar</span>
                                 <svg id="icon-{{ $log->id }}" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />

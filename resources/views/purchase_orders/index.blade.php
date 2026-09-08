@@ -14,23 +14,13 @@
             <button
                 type="button"
                 onclick="mostrarCrear()"
-                class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                class="mt-4 md:mt-0 inline-flex items-center gap-2 px-5 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                 </svg>
-                Nueva Orden
+                <span>Nueva Orden</span>
             </button>
         </div>
-        @if(session('success'))
-            <div class="mb-5 p-4 rounded-lg bg-green-100 border border-green-300 text-green-800">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="mb-5 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800">
-                {{ session('error') }}
-            </div>
-        @endif
         @if($errors->any())
             <div class="mb-5 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800">
                 <ul class="list-disc pl-5">
@@ -172,21 +162,46 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <div class="flex justify-end gap-2">
+                                        <div class="flex items-center justify-end gap-2">
                                             {{-- VER --}}
                                             <a
                                                 href="{{ route('purchase_orders.show', $order->id_purchase_order) }}"
-                                                class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
-                                                title="Ver orden">
+                                                class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-all flex items-center justify-center"
+                                                title="Ver detalles">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
                                             </a>
-                                            {{-- EDITAR SOLO BORRADOR --}}
+                                            {{-- EDITAR --}}
                                             @if($order->status === 'draft')
                                                 <a
                                                     href="{{ route('purchase_orders.edit', $order->id_purchase_order) }}"
-                                                    class="px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200"
-                                                    title="Editar">
+                                                    class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center"
+                                                    title="Editar orden">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                    </svg>
                                                 </a>
                                             @endif
+                                            {{-- ELIMINAR --}}
+                                            @if($order->status === 'draft')
+                                                <button type="button" onclick="confirmDelete('{{ route('purchase_orders.destroy', $order->id_purchase_order) }}', 'Orden {{ addslashes($order->purchase_order_code ?? 'OC-'.$order->id_purchase_order) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center" title="Eliminar orden">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                    </svg>
+                                                </button>
+                                            @endif
+                                            {{-- PDF --}}
+                                            <a
+                                                href="{{ route('purchase_orders.pdf', $order->id_purchase_order) }}"
+                                                target="_blank"
+                                                class="p-2.5 rounded-xl bg-teal-50 text-[#005e66] hover:bg-teal-100 transition-all flex items-center justify-center"
+                                                title="PDF / Imprimir">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                                </svg>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -201,8 +216,9 @@
                                         <button
                                             type="button"
                                             onclick="mostrarCrear()"
-                                            class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                            Crear primera orden
+                                            class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white font-bold text-sm rounded-xl shadow-md transition-all">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            <span>Crear primera orden</span>
                                         </button>
                                     </td>
                                 </tr>
@@ -242,38 +258,34 @@
                     method="POST"
                     class="p-6">
                     @csrf
-                    <div class="mb-6 bg-indigo-50 border border-indigo-200 rounded-xl p-5">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div>
-                                <h3 class="font-semibold text-indigo-800">
-                                    Importar Cotización
-                                </h3>
-                                <p class="text-sm text-indigo-600 mt-1">
-                                    Seleccione una cotización aprobada para cargar automáticamente
-                                    proveedor, productos y precios.
-                                </p>
-                            </div>
-                            <div class="w-full md:w-80">
-                                <select
-                                    id="quotationSelect"
-                                    name="id_purchase_quotation"
-                                    class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="">
-                                        -- Seleccionar cotización --
-                                    </option>
-                                    @if(isset($purchase_quotations))
-                                        @foreach($purchase_quotations as $quotation)
-
-                                            <option value="{{ $quotation->id_purchase_quotation }}">
-                                                {{ $quotation->quotation_code ?? ('Cotización #' . $quotation->id_purchase_quotation) }}
-                                            </option>
-
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
+                    <div class="mb-6 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 rounded-xl p-5 space-y-3">
+                        <div>
+                            <h3 class="font-extrabold text-indigo-800 dark:text-indigo-300 text-sm uppercase tracking-wider">
+                                Importar Cotización Aprobada
+                            </h3>
+                            <p class="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">
+                                Seleccione una cotización aprobada para cargar automáticamente el proveedor, productos, precios e impuestos.
+                            </p>
                         </div>
-                        <div id="quotationLoading" class="hidden mt-4 text-sm text-indigo-700">
+                        <div class="w-full">
+                            <select
+                                id="quotationSelect"
+                                name="id_purchase_quotation"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+                                <option value="">
+                                    -- Seleccionar cotización aprobada --
+                                </option>
+                                @php
+                                    $qList = $purchase_quotations ?? $quotations ?? [];
+                                @endphp
+                                @foreach($qList as $quotation)
+                                    <option value="{{ $quotation->id_purchase_quotation }}">
+                                        {{ $quotation->purchase_quotation_code ?? $quotation->quotation_code ?? ('Cotización #' . $quotation->id_purchase_quotation) }} {{ $quotation->supplier ? '- ' . $quotation->supplier->name : '' }} (${{ number_format($quotation->total, 2) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="quotationLoading" class="hidden mt-2 text-xs font-bold text-indigo-700 dark:text-indigo-400">
                             Cargando cotización...
                         </div>
                     </div>
@@ -296,7 +308,7 @@
                                         Seleccione un proveedor
                                     </option>
                                     @foreach($suppliers ?? [] as $supplier)
-                                        <option value="{{ $supplier->id }}">
+                                        <option value="{{ $supplier->id_supplier ?? $supplier->id }}">
                                             {{ $supplier->name }}
                                         </option>
                                     @endforeach
@@ -362,7 +374,8 @@
                                 <input
                                     type="datetime-local"
                                     name="expected_date"
-                                    value="{{ old('expected_date') }}"
+                                    id="expected_date"
+                                    value="{{ old('expected_date', now()->addDays(7)->format('Y-m-d\TH:i')) }}"
                                     required
                                     class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
                             </div>
@@ -388,6 +401,7 @@
                                 <input
                                     type="text"
                                     name="payment_terms"
+                                    id="payment_terms"
                                     value="{{ old('payment_terms') }}"
                                     required
                                     placeholder="Ejemplo: Crédito 30 días"
@@ -408,8 +422,9 @@
                             <button
                                 type="button"
                                 onclick="agregarProducto()"
-                                class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                + Agregar producto
+                                class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#005e66] hover:bg-[#00474f] text-white rounded-xl font-bold text-xs shadow-sm transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                <span>Agregar producto</span>
                             </button>
                         </div>
                         <div class="overflow-x-auto border border-gray-200 rounded-lg">
@@ -447,23 +462,20 @@
                         </div>
                     </div>
                     <div class="mb-8">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center justify-between mb-3">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-800">
+                                <h3 class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
                                     Gastos Adicionales
                                 </h3>
-                                <p class="text-sm text-gray-500">
-                                    Transporte, envío, seguros u otros gastos.
-                                </p>
                             </div>
                             <button
                                 type="button"
                                 onclick="agregarGasto()"
-                                class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900">
-                                + Agregar gasto
+                                class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                                + Agregar Gasto
                             </button>
                         </div>
-                        <div id="expenseRows" class="space-y-3">
+                        <div id="expenseRows" class="space-y-2">
                         </div>
                     </div>
                     <div class="mb-8">
@@ -472,6 +484,7 @@
                         </label>
                         <textarea
                             name="notes"
+                            id="notes"
                             rows="3"
                             placeholder="Observaciones de la orden..."
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">{{ old('notes') }}</textarea>
@@ -531,13 +544,14 @@
                         <button
                             type="button"
                             onclick="mostrarListado()"
-                            class="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
                             Cancelar
                         </button>
                         <button
                             type="submit"
-                            class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                            Guardar Orden
+                            class="px-6 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Guardar Orden</span>
                         </button>
                     </div>
                 </form>
@@ -972,8 +986,9 @@
                 <button
                     type="button"
                     onclick="eliminarProducto(this)"
-                    class="px-2 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
-                    ✕
+                    class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                    title="Eliminar producto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
             </td>
         `;
@@ -989,65 +1004,81 @@
 
     let expenseIndex = 0;
     
+    function actualizarDescripcionGasto(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const row = selectElement.closest('.expense-row') || selectElement.closest('tr');
+        const descInput = row ? row.querySelector('input[name*="[description]"]') : null;
+        if (descInput && selectedOption && selectedOption.value) {
+            const fullDesc = selectedOption.getAttribute('data-description');
+            if (fullDesc && fullDesc.trim()) {
+                descInput.value = fullDesc;
+            } else {
+                const text = selectedOption.text.trim();
+                if (text && !text.includes('--')) {
+                    descInput.value = text;
+                }
+            }
+        }
+    }
+
     function agregarGasto(data = {}) {
         const container = document.getElementById('expenseRows');
         const index = expenseIndex++;
         const row = document.createElement('div');
         row.className =
-            'expense-row grid grid-cols-1 md:grid-cols-4 gap-3 items-end p-4 bg-gray-50 rounded-lg border border-gray-200';
+            'expense-row flex flex-row items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 w-full';
+        row.style.cssText =
+            'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important;';
         row.innerHTML = `
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Tipo de gasto
-                </label>
+            <div style="flex: 1 1 35%; min-width: 0;">
                 <select
                     name="expenses[${index}][id_expense_type]"
                     required
-                    class="w-full rounded-lg border-gray-300 text-sm">
+                    onchange="actualizarDescripcionGasto(this)"
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
                     <option value="">
-                        Seleccione
+                        -- Tipo de Gasto --
                     </option>
                     @foreach($expenseTypes ?? [] as $expenseType)
                         <option
                             value="{{ $expenseType->id_expense_type }}"
+                            data-description="{{ e($expenseType->description ?? $expenseType->name) }}"
                             ${String(data.id_expense_type ?? '') === String({{ $expenseType->id_expense_type }}) ? 'selected' : ''}>
                             {{ $expenseType->name }}
                         </option>
                     @endforeach
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Descripción
-                </label>
+            <div style="flex: 1 1 40%; min-width: 0;">
                 <input
                     type="text"
                     name="expenses[${index}][description]"
                     value="${data.description ?? ''}"
                     required
-                    placeholder="Descripción"
-                    class="w-full rounded-lg border-gray-300 text-sm">
+                    placeholder="Descripción del gasto (ej. flete)"
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">
-                    Monto
-                </label>
+            <div style="flex: 0 0 20%; min-width: 0;">
                 <input
                     type="number"
                     step="0.0001"
                     min="0"
                     name="expenses[${index}][amount]"
-                    value="${data.amount ?? 0}"
+                    value="${data.amount ?? ''}"
                     required
+                    placeholder="Monto $"
                     oninput="calcularTotales()"
-                    class="expense-amount w-full rounded-lg border-gray-300 text-sm">
+                    class="expense-amount w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
-            <div>
+            <div style="flex: 0 0 auto;" class="text-center">
                 <button
                     type="button"
                     onclick="eliminarGasto(this)"
-                    class="w-full px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200">
-                    ✕ Eliminar
+                    class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                    title="Eliminar gasto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
                 </button>
             </div>
         `;
@@ -1180,18 +1211,57 @@
                 return response.json();
             })
             .then(data => {
-                /*
-                 * PROVEEDOR
-                 */
+                /* PROVEEDOR */
                 if (data.id_supplier) {
-
-                    document.getElementById('id_supplier').value =
-                        data.id_supplier;
-
+                    const suppSelect = document.getElementById('id_supplier');
+                    if (suppSelect) suppSelect.value = data.id_supplier;
                 }
-                /*
-                 * PRODUCTOS
-                 */
+                /* SUCURSAL */
+                if (data.id_branch) {
+                    const branchSelect = document.getElementById('id_branch');
+                    if (branchSelect) branchSelect.value = data.id_branch;
+                }
+                /* BODEGA */
+                if (data.id_warehouse) {
+                    const warehouseSelect = document.getElementById('id_warehouse');
+                    if (warehouseSelect) warehouseSelect.value = data.id_warehouse;
+                }
+                /* FECHA ESPERADA */
+                const expDateInput = document.getElementById('expected_date') || document.querySelector('input[name="expected_date"]');
+                if (expDateInput) {
+                    if (data.expected_date) {
+                        let val = data.expected_date.replace(' ', 'T');
+                        if (val.length > 16) val = val.slice(0, 16);
+                        expDateInput.value = val;
+                    } else if (data.delivery_days) {
+                        const d = new Date();
+                        d.setDate(d.getDate() + parseInt(data.delivery_days));
+                        const isoStr = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString();
+                        expDateInput.value = isoStr.slice(0, 16);
+                    } else {
+                        const d = new Date();
+                        d.setDate(d.getDate() + 7);
+                        const isoStr = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString();
+                        expDateInput.value = isoStr.slice(0, 16);
+                    }
+                }
+                /* MONEDA */
+                if (data.currency) {
+                    const currSelect = document.getElementById('currency');
+                    if (currSelect) currSelect.value = data.currency;
+                }
+                /* CONDICIONES DE PAGO */
+                if (data.payment_terms) {
+                    const payInput = document.getElementById('payment_terms');
+                    if (payInput) payInput.value = data.payment_terms;
+                }
+                /* NOTAS */
+                if (data.notes) {
+                    const notesInput = document.getElementById('notes');
+                    if (notesInput) notesInput.value = data.notes;
+                }
+
+                /* PRODUCTOS */
                 document.getElementById('productRows').innerHTML = '';
                 productIndex = 0;
                 if (Array.isArray(data.details)) {
@@ -1199,19 +1269,24 @@
                         agregarProducto(detail);
                     });
                 }
-                /*
-                 * Si no trae productos,
-                 * dejar una fila vacía.
-                 */
-                if (
-                    document.querySelectorAll('#productRows tr').length === 0
-                ) {
+                if (document.querySelectorAll('#productRows tr').length === 0) {
                     agregarProducto();
-
                 }
+
+                /* GASTOS ADICIONALES */
+                const expenseRows = document.getElementById('expenseRows');
+                if (expenseRows) {
+                    expenseRows.innerHTML = '';
+                    expenseIndex = 0;
+                    if (Array.isArray(data.expenses)) {
+                        data.expenses.forEach(exp => {
+                            agregarGasto(exp);
+                        });
+                    }
+                }
+
                 calcularTotales();
-                loading.textContent =
-                    '✓ Cotización importada correctamente.';
+                loading.textContent = '✓ Cotización importada correctamente.';
             })
             .catch(error => {
                 console.error(error);

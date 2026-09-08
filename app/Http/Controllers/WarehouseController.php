@@ -125,15 +125,16 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.eliminar');
 
+        $newStatus = !$warehouse->is_active;
+
         $warehouse->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $message = $newStatus ? 'Bodega reactivada correctamente.' : 'Bodega inactivada correctamente.';
 
         return redirect()
             ->route('warehouses.index')
-            ->with(
-                'success',
-                'Bodega inactivada correctamente'
-            );
+            ->with('success', $message);
     }
 }

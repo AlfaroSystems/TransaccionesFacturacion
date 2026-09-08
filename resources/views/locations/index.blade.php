@@ -89,7 +89,7 @@
                             <div class="flex justify-center items-center gap-2">
                                 <!-- Ver -->
                                 @can('locations.ver')
-                                <a href="{{ route('locations.show', $location->id) }}" class="p-2 text-teal-600 bg-teal-50 hover:bg-teal-100 border border-teal-100/50 rounded-xl transition-all" title="Ver Detalles">
+                                <a href="{{ route('locations.show', $location->id) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="Ver Detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -99,7 +99,7 @@
 
                                 <!-- Editar -->
                                 @can('locations.editar')
-                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id) }}', {{ json_encode($location) }})" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100/50 rounded-xl transition-all" title="Editar Ubicación">
+                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id) }}', {{ json_encode($location) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Ubicación">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -109,13 +109,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('locations.eliminar')
                                     @if($location->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', false)" class="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100/50 rounded-xl transition-all" title="Inactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Inactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', true)" class="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border border-emerald-100/50 rounded-xl transition-all" title="Reactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="Reactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>

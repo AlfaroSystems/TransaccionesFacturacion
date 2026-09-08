@@ -94,12 +94,12 @@
                 @if($product->images->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                         @foreach($product->images as $img)
-                            <a href="{{ asset('storage/' . $img->path) }}" target="_blank" class="group relative block aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all">
+                            <div onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" class="group relative block aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer" title="Ampliar imagen de {{ addslashes($product->name) }}">
                                 <img src="{{ asset('storage/' . $img->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-all">
                                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white text-xs font-bold">
                                     🔍 Ampliar
                                 </div>
-                            </a>
+                            </div>
                         @endforeach
                     </div>
                 @else

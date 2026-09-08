@@ -96,12 +96,16 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.eliminar');
 
+        $newStatus = !$branch->is_active;
+
         $branch->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $message = $newStatus ? 'Sucursal reactivada correctamente.' : 'Sucursal inactivada correctamente.';
 
         return redirect()
             ->route('branches.index')
-            ->with('success', 'Sucursal inactivada correctamente.');
+            ->with('success', $message);
     }
 }

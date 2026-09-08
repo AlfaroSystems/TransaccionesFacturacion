@@ -83,26 +83,22 @@ class WarehouseCategoryController extends Controller
     {
         Gate::authorize('warehouse_categories.eliminar');
 
+        $newStatus = !$warehouseCategory->is_active;
 
-        if ($warehouseCategory->warehouses()->exists()) {
+        if (!$newStatus && $warehouseCategory->warehouses()->where('is_active', true)->exists()) {
+            return redirect()
+                ->route('warehouse_categories.index')
+                ->with('error', 'No se puede inactivar la categoría porque tiene almacenes activos asociados.');
+        }
+
+        $warehouseCategory->update([
+            'is_active' => $newStatus,
+        ]);
+
+        $message = $newStatus ? 'Categoría reactivada correctamente.' : 'Categoría inactivada correctamente.';
 
         return redirect()
             ->route('warehouse_categories.index')
-            ->with(
-                'error',
-                'No se puede eliminar la categoría porque tiene almacenes asociados.'
-            );
-    }
-
-    $warehouseCategory->update([
-        'is_active' => false,
-    ]);
-
-    return redirect()
-        ->route('warehouse_categories.index')
-        ->with(
-            'success',
-            'Categoría inactivada correctamente.'
-        );
+            ->with('success', $message);
     }
 }

@@ -70,7 +70,7 @@
                             <div class="flex items-center justify-center gap-2">
                                 <!-- Editar -->
                                 @can('branches.editar')
-                                <button type="button" onclick="openEditBranchModal('{{ route('branches.update', $branch) }}', {{ json_encode($branch) }})" class="p-2 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-100/50 dark:border-blue-800/60 rounded-xl transition-all" title="Editar Sucursal">
+                                <button type="button" onclick="openEditBranchModal('{{ route('branches.update', $branch) }}', {{ json_encode($branch) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Sucursal">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -79,13 +79,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('branches.eliminar')
                                     @if($branch->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', false)" class="p-2 text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-100/50 dark:border-rose-800/60 rounded-xl transition-all" title="Inactivar Sucursal">
+                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Sucursal">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', true)" class="p-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border border-emerald-100/50 dark:border-emerald-800/60 rounded-xl transition-all" title="Reactivar Sucursal">
+                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Sucursal">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>

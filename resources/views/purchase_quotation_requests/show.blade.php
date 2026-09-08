@@ -11,6 +11,14 @@
             </div>
         </div>
     @endif
+    @if(session('error'))
+        <div class="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        </div>
+    @endif
 
     <!-- Encabezado con Botones de Acción -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -28,10 +36,17 @@
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <button type="button" onclick="openProviderOfferModal()" class="flex-1 md:flex-none bg-[#005e66] hover:bg-[#00474f] text-white font-bold px-5 py-2.5 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-xs">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                <span>Registrar Oferta de Proveedor</span>
-            </button>
+            @if(!$purchaseQuotationRequest->id_purchase_quotation)
+                <button type="button" onclick="openProviderOfferModal()" class="flex-1 md:flex-none bg-[#005e66] hover:bg-[#00474f] text-white font-bold px-5 py-2.5 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Registrar Oferta de Proveedor</span>
+                </button>
+            @else
+                <span class="flex-1 md:flex-none px-4 py-2.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-extrabold text-xs border border-emerald-300 dark:border-emerald-700 flex items-center justify-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Oferta Aceptada - Registro Cerrado</span>
+                </span>
+            @endif
             <a href="{{ route('purchase-quotation-requests.index') }}" class="flex-1 md:flex-none px-5 py-2.5 rounded-full bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 <span>Volver al Listado</span>
@@ -99,20 +114,47 @@
                     🔗
                 </div>
                 <div>
-                    <h2 class="text-base font-extrabold text-slate-800 dark:text-white">Cotización Asociada</h2>
-                    <span class="text-xs text-slate-400">Campo id_purchase_quotation</span>
+                    <h2 class="text-base font-extrabold text-slate-800 dark:text-white">Cotización Aceptada</h2>
+                    <span class="text-xs text-slate-400">Cotización formal seleccionada</span>
                 </div>
             </div>
             <div class="space-y-2.5 text-sm">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-slate-400 uppercase">ID COTIZACIÓN (ID_PURCHASE_QUOTATION):</span>
-                    <span class="font-mono text-sm font-extrabold text-slate-800 dark:text-white">
-                        {{ $purchaseQuotationRequest->id_purchase_quotation ? '#' . $purchaseQuotationRequest->id_purchase_quotation : 'Ninguna (NULL)' }}
-                    </span>
-                </div>
-                <p class="text-xs text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    Este campo vinculará la cotización formal cuando sea procesada en el sistema.
-                </p>
+                @if($purchaseQuotationRequest->id_purchase_quotation)
+                    @php
+                        $acceptedQuotation = $supplierQuotations->where('id_purchase_quotation', $purchaseQuotationRequest->id_purchase_quotation)->first();
+                    @endphp
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">CÓDIGO / ID:</span>
+                        <span class="font-mono text-xs font-extrabold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                            {{ $acceptedQuotation->purchase_quotation_code ?? ('#' . $purchaseQuotationRequest->id_purchase_quotation) }}
+                        </span>
+                    </div>
+                    @if($acceptedQuotation)
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase">PROVEEDOR:</span>
+                            <span class="font-bold text-slate-800 dark:text-white text-xs">{{ $acceptedQuotation->supplier->name ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase">TOTAL GENERAL:</span>
+                            <span class="font-extrabold text-[#005e66] dark:text-teal-400 text-sm">${{ number_format($acceptedQuotation->total, 2) }}</span>
+                        </div>
+                    @endif
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                        <a href="{{ route('purchase_orders.index') }}" class="w-full text-center px-3 py-2 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1">
+                            📦 Crear Orden de Compra
+                        </a>
+                    </div>
+                @else
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">ESTADO:</span>
+                        <span class="font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-2 py-0.5 rounded text-xs">
+                            Pendiente Selección
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        Haga clic en <strong>"Aceptar Esta Oferta"</strong> en una de las cotizaciones recibidas abajo para vincularla.
+                    </p>
+                @endif
             </div>
         </div>
     </div>
@@ -200,13 +242,31 @@
                     <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 bg-slate-50/50 dark:bg-slate-800/40">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
                             <div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-extrabold text-slate-800 dark:text-white text-base">
                                         {{ $quotation->supplier->name ?? 'Proveedor' }}
                                     </span>
                                     <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                                         {{ $quotation->purchase_quotation_code }}
                                     </span>
+
+                                    @if($purchaseQuotationRequest->id_purchase_quotation == $quotation->id_purchase_quotation)
+                                        <span class="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold rounded-lg border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
+                                            ✓ Oferta Aceptada
+                                        </span>
+                                    @elseif(!$purchaseQuotationRequest->id_purchase_quotation)
+                                        <form method="POST" action="{{ route('purchase-quotation-requests.select-quotation', [$purchaseQuotationRequest->id_purchase_quotation_request, $quotation->id_purchase_quotation]) }}" class="inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 hover:bg-[#005e66] hover:text-white border border-teal-200 dark:border-teal-800 text-xs font-extrabold transition-all flex items-center gap-1 shadow-sm">
+                                                ✓ Aceptar Esta Oferta
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700">
+                                            No Seleccionada
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-4">
                                     <span>📅 Fecha: <strong>{{ $quotation->quotation_date ? $quotation->quotation_date->format('d/m/Y') : 'N/A' }}</strong></span>
@@ -222,13 +282,9 @@
                                         {{ $quotation->currency ?? 'USD' }} ${{ number_format($quotation->total, 2) }}
                                     </span>
                                 </div>
-                                <form action="{{ route('purchase-quotations.destroy', $quotation->id_purchase_quotation) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar esta oferta de proveedor?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" title="Eliminar oferta" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </button>
-                                </form>
+                                <button type="button" onclick="confirmDelete('{{ route('purchase-quotations.destroy', $quotation->id_purchase_quotation) }}', 'Oferta de {{ addslashes($quotation->supplier->name ?? 'Proveedor') }}', 'delete')" title="Eliminar oferta" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
                             </div>
                         </div>
 
@@ -456,7 +512,8 @@ function closeProviderOfferModal() {
 function addExpenseRow() {
     const container = document.getElementById('expenses-container');
     const div = document.createElement('div');
-    div.className = 'grid grid-cols-1 md:grid-cols-12 gap-2 items-center border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900';
+    div.className = 'flex flex-row items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 w-full';
+    div.style.cssText = 'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important;';
 
     let selectOptions = '<option value="">-- Tipo de Gasto --</option>';
     expenseTypes.forEach(t => {
@@ -464,19 +521,19 @@ function addExpenseRow() {
     });
 
     div.innerHTML = `
-        <div class="md:col-span-4">
+        <div style="flex: 1 1 35%; min-width: 0;">
             <select name="expenses[${expenseIndex}][id_expense_type]" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
                 ${selectOptions}
             </select>
         </div>
-        <div class="md:col-span-5">
+        <div style="flex: 1 1 40%; min-width: 0;">
             <input type="text" name="expenses[${expenseIndex}][description]" placeholder="Descripción del gasto (ej. flete)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
         </div>
-        <div class="md:col-span-2">
+        <div style="flex: 0 0 20%; min-width: 0;">
             <input type="number" step="0.01" min="0" name="expenses[${expenseIndex}][amount]" required placeholder="Monto $" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-1 focus:ring-[#005e66] outline-none">
         </div>
-        <div class="md:col-span-1 text-center">
-            <button type="button" onclick="this.closest('.grid').remove()" class="text-rose-500 hover:text-rose-700 p-1">
+        <div style="flex: 0 0 auto;" class="text-center">
+            <button type="button" onclick="this.closest('.flex').remove()" class="text-rose-500 hover:text-rose-700 p-1" title="Eliminar gasto">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
         </div>

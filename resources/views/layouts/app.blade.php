@@ -9,6 +9,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Flatpickr Datepicker (Formato DD/MM/YYYY) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
     <!-- Tailwind CSS -->
     @if(file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -329,15 +334,81 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="global-delete-title">¿Eliminar Registro?</h3>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mb-6" id="global-delete-description">Estás a punto de eliminar este registro de forma permanente. Esta acción no se puede deshacer.</p>
-            <div class="flex justify-center gap-3">
-                <button type="button" onclick="closeGlobalDeleteModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">Cancelar</button>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="global-delete-title">¿Inactivar Registro?</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mb-6" id="global-delete-description">Estás a punto de cambiar el estado de este registro.</p>
+            <form id="global-delete-form" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="flex justify-center gap-3">
+                    <button type="button" onclick="closeGlobalDeleteModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm">Sí, inactivar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL DE VISOR DE IMÁGENES GLOBAL -->
+    <div id="global-image-modal" class="hidden fixed inset-0 items-center justify-center bg-slate-950/85 backdrop-blur-md transition-all duration-200" style="z-index: 99999;" onclick="closeGlobalImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] p-2 mx-4" onclick="event.stopPropagation()">
+            <button type="button" onclick="closeGlobalImageModal()" class="absolute -top-3 -right-3 z-50 w-9 h-9 bg-slate-800 hover:bg-slate-700 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-2xl border-2 border-slate-600 transition-all cursor-pointer" title="Cerrar vista previa">
+                ✕
+            </button>
+            <div class="rounded-2xl overflow-hidden shadow-2xl bg-black border border-slate-800 flex items-center justify-center p-1">
+                <img id="global-image-target" src="" class="max-w-full max-h-[80vh] object-contain block mx-auto rounded-xl">
             </div>
+            <p id="global-image-title" class="text-center text-slate-300 text-xs font-semibold mt-3 font-mono truncate"></p>
         </div>
     </div>
     <!-- SCRIPT DE MANEJO DE MODALES Y MODO OSCURO -->
     <script>
+        function openGlobalImageModal(imageSrc, titleText = '') {
+            const modal = document.getElementById('global-image-modal');
+            const targetImg = document.getElementById('global-image-target');
+            const titleEl = document.getElementById('global-image-title');
+            if (!modal || !targetImg) return;
+
+            targetImg.src = imageSrc;
+            if (titleEl) titleEl.textContent = titleText || '';
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+        }
+        function closeGlobalImageModal() {
+            const modal = document.getElementById('global-image-modal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
+        function initFlatpickr(container = document) {
+            if (typeof flatpickr === 'undefined') return;
+
+            container.querySelectorAll('input[type="datetime-local"], .flatpickr-datetime').forEach(function (el) {
+                if (el._flatpickr) return;
+                flatpickr(el, {
+                    locale: 'es',
+                    enableTime: true,
+                    dateFormat: 'Y-m-d H:i',
+                    altInput: true,
+                    altFormat: 'd/m/Y h:i K',
+                    allowInput: true
+                });
+            });
+
+            container.querySelectorAll('input[type="date"], .flatpickr-date').forEach(function (el) {
+                if (el._flatpickr) return;
+                flatpickr(el, {
+                    locale: 'es',
+                    enableTime: false,
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: 'd/m/Y',
+                    allowInput: true
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initFlatpickr();
+        });
+
         function toggleDarkMode() {
             const html = document.documentElement;
             if (html.classList.contains('dark')) {
@@ -353,6 +424,7 @@
             if (!modal) return;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            initFlatpickr(modal);
             const card = modal.querySelector('.transform');
             if (card) {
                 setTimeout(() => {
@@ -383,14 +455,30 @@
             const form = document.getElementById('global-delete-form');
             const title = document.getElementById('global-delete-title');
             const desc = document.getElementById('global-delete-description');
-            const submitBtn = form.querySelector('button[type="submit"]');
+            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
             const iconContainer = card ? card.querySelector('.w-14.h-14') : null;
+
+            if (!form || !modal) return;
             form.action = actionUrl;
-            if (isReactivate) {
+
+            if (isReactivate === 'delete') {
+                title.textContent = `¿Eliminar ${resourceName}?`;
+                desc.textContent = customDescription || `Estás a punto de eliminar '${resourceName}'. Esta acción no se puede deshacer.`;
+                if (submitBtn) {
+                    submitBtn.textContent = 'Sí, eliminar';
+                    submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                }
+                if (iconContainer) {
+                    iconContainer.className = 'w-14 h-14 rounded-full border-2 border-rose-400 flex items-center justify-center mx-auto text-rose-500 dark:text-rose-400 mb-5';
+                    iconContainer.innerHTML = '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+                }
+            } else if (isReactivate === true) {
                 title.textContent = `¿Reactivar ${resourceName}?`;
                 desc.textContent = customDescription || `El estado del registro '${resourceName}' pasará a estar activo nuevamente.`;
-                submitBtn.textContent = 'Sí, reactivar';
-                submitBtn.className = 'px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                if (submitBtn) {
+                    submitBtn.textContent = 'Sí, reactivar';
+                    submitBtn.className = 'px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                }
                 if (iconContainer) {
                     iconContainer.className = 'w-14 h-14 rounded-full border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-500 dark:text-emerald-400 mb-5';
                     iconContainer.innerHTML = '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
@@ -398,8 +486,10 @@
             } else {
                 title.textContent = `¿Inactivar ${resourceName}?`;
                 desc.textContent = customDescription || `El estado del registro '${resourceName}' pasará a estar inactivo.`;
-                submitBtn.textContent = 'Sí, inactivar';
-                submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                if (submitBtn) {
+                    submitBtn.textContent = 'Sí, inactivar';
+                    submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                }
                 if (iconContainer) {
                     iconContainer.className = 'w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-500 dark:text-amber-400 mb-5';
                     iconContainer.innerHTML = '<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
@@ -408,8 +498,10 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             setTimeout(() => {
-                card.classList.remove('scale-95');
-                card.classList.add('scale-100');
+                if (card) {
+                    card.classList.remove('scale-95');
+                    card.classList.add('scale-100');
+                }
             }, 10);
         }
         function closeGlobalDeleteModal() {

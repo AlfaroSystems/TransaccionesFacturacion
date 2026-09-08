@@ -165,25 +165,23 @@ class CompanyController extends Controller
     {
         Gate::authorize('companies.eliminar');
 
-        // Validar si la empresa tiene sucursales antes de eliminar
-        if ($company->branches()->count() > 0) {
+        $newStatus = !$company->is_active;
+
+        if (!$newStatus && $company->branches()->count() > 0) {
             return redirect()
                 ->route('companies.index')
-                ->with('error', 'No se puede eliminar la empresa porque tiene sucursales asociadas.');
-        }
-
-        // Eliminar logo si existe
-        if ($company->logo) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo);
+                ->with('error', 'No se puede inactivar la empresa porque tiene sucursales asociadas.');
         }
 
         $company->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $message = $newStatus ? 'Empresa reactivada correctamente.' : 'Empresa inactivada correctamente.';
 
         return redirect()
             ->route('companies.index')
-            ->with('success', 'Empresa inactivada correctamente.');
+            ->with('success', $message);
     }
 
     public function edit(Company $company)

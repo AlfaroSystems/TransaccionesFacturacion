@@ -1,7 +1,8 @@
 <div 
     x-data="sileoNotificationContainer()"
     x-init="init()"
-    class="fixed top-6 right-6 z-[99999] flex flex-col items-end gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"
+    class="fixed top-6 right-6 flex flex-col items-end gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"
+    style="z-index: 999999;"
 >
     <template x-for="toast in toasts" :key="toast.id">
         <div 
@@ -12,7 +13,8 @@
             x-transition:leave="transition ease-in duration-200 transform"
             x-transition:leave-start="opacity-100 translate-x-0 scale-100"
             x-transition:leave-end="opacity-0 translate-x-10 scale-95"
-            class="pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-xl border bg-white/95 dark:bg-slate-900/95 text-slate-800 dark:text-slate-100 border-slate-200/80 dark:border-slate-800 backdrop-blur-md transition-all duration-300 min-w-[320px]"
+            class="pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl border bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all duration-300 min-w-[320px]"
+            style="z-index: 999999;"
         >
             <div class="flex items-start gap-3.5">
                 <!-- Icono de Estado -->
@@ -112,6 +114,11 @@
                 // Cargar notificaciones flash enviadas desde Laravel Backend una sola vez por página
                 if (!window.__sileoFlashDispatched) {
                     window.__sileoFlashDispatched = true;
+                    @if($errors->any())
+                        @foreach($errors->all() as $error)
+                            window.sileo.error(@json($error), 'Error de Validación');
+                        @endforeach
+                    @endif
                     @if(session('success'))
                         window.sileo.success(@json(session('success')), '¡Operación Exitosa!');
                     @endif

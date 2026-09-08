@@ -197,16 +197,17 @@ class SubCategoryController extends Controller
     {
         Gate::authorize('subcategories.eliminar');
 
+        $newStatus = !$subCategory->is_active;
+
         $subCategory->update([
-            'is_active' => false,
+            'is_active' => $newStatus,
         ]);
+
+        $message = $newStatus ? 'Subcategoría reactivada correctamente.' : 'Subcategoría inactivada correctamente.';
 
         return redirect()
             ->route('subcategories.index')
-            ->with(
-                'success',
-                'Subcategoría inactivada correctamente.'
-            );
+            ->with('success', $message);
     }
 
     /**

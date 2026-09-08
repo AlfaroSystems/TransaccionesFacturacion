@@ -98,6 +98,10 @@ Route::middleware('auth')->group(function () {
         'purchase-quotation-requests/request-details/{id}',
         [PurchaseQuotationRequestController::class, 'getPurchaseRequestDetails']
     )->name('purchase-quotation-requests.request-details');
+    Route::get(
+        'purchase_orders/quotation-data/{id}',
+        [PurchaseOrderController::class, 'getQuotationData']
+    )->name('purchase_orders.quotation-data');
     Route::resource(
         'purchase_orders',
         PurchaseOrderController::class
@@ -110,6 +114,10 @@ Route::middleware('auth')->group(function () {
         'purchase_orders/{purchase_order}/status',
         [PurchaseOrderController::class, 'updateStatus']
     )->name('purchase_orders.updateStatus');
+    Route::patch(
+        'purchase-quotation-requests/{purchaseQuotationRequest}/select-quotation/{purchaseQuotation}',
+        [PurchaseQuotationRequestController::class, 'selectQuotation']
+    )->name('purchase-quotation-requests.select-quotation');
     Route::resource(
         'purchase-quotation-requests',
         PurchaseQuotationRequestController::class
