@@ -1,35 +1,59 @@
-# Sistema de Transacciones y Facturación
+# Sistema de Transacciones y Facturación ERP 🚀
 
-Este proyecto está construido en **PHP 8.2** utilizando el framework **Laravel 11** y **PostgreSQL** como motor de base de datos. Sigue la guía a continuación para configurar y levantar el proyecto en tu entorno local.
-
----
-
-## 🛠️ Requisitos Previos
-
-Antes de clonar el proyecto, asegúrate de tener instalado en tu computadora:
-
-1. **PHP (8.2 o superior)**.
-2. **Composer** (gestor de dependencias de PHP).
-3. **Node.js & NPM** (para la compilación de Tailwind CSS con Vite).
-4. **PostgreSQL** (asegúrate de tenerlo activo localmente).
-
-### ⚙️ Extensiones de PHP requeridas en tu php.ini
-En tu archivo de configuración `php.ini`, debes tener las siguientes extensiones habilitadas (sin el `;` al inicio):
-```ini
-extension=curl
-extension=fileinfo
-extension=mbstring
-extension=openssl
-extension=pdo_pgsql
-extension=pgsql
-extension=zip
-```
+Sistema integral de gestión empresarial, compras, inventario y facturación construido con **Laravel 11**, **PHP 8.3**, **Tailwind CSS** y **PostgreSQL**, desplegable nativamente mediante **Docker Compose**.
 
 ---
 
-## 🚀 Guía de Instalación Local
+## 🌟 Características Principales
 
-Sigue estos pasos en orden desde tu consola:
+### 🛒 Módulo de Compras (Procurement & Purchasing)
+- **Solicitudes de Compra:** Registro de requerimientos internos por área/sucursal.
+- **Solicitudes de Cotización:** Emisión de solicitudes a proveedores para ítems específicos.
+- **Ofertas y Cotizaciones de Proveedores:** Registro de ofertas recibidas, comparación de precios, descuentos, impuestos y selección de ofertas ganadoras.
+- **Órdenes de Compra (OC):**
+  - Generación de código correlativo automático (`OC-AAAA-0001`).
+  - Flujo de estados: `Borrador` ➔ `Emitida` ➔ `Recepción Parcial` ➔ `Completada` / `Cancelada`.
+  - Asignación de **Gastos Adicionales** (fletes, seguros, aranceles) con autocompletado inteligente de descripción.
+  - Modales Tailwind de confirmación personalizados para transiciones de estado.
+  - Exportación e Impresión de **PDF de la Orden de Compra**.
+- **Tipos de Gastos:** Gestión parametrizable de conceptos de gastos adicionales.
+
+### 📦 Módulo de Inventario y Productos
+- **Productos:** Catálogo completo con SKU, precios, impuestos, unidades de medida y soporte multi-imagen con galería interactiva.
+- **Categorías y Subcategorías:** Clasificación jerárquica de productos.
+- **Unidades de Medida:** Configuración de unidades comerciales e industriales.
+- **Estructura Logística:**
+  - Empresas y Sucursales.
+  - Categorías de Bodega, Bodegas y Ubicaciones físicas.
+
+### 👥 Módulo de Administración y Seguridad
+- **Proveedores y Contactos:** Directorio comercial con geolocalización (País, Departamento, Municipio, Distrito).
+- **Usuarios, Roles y Permisos:** Control de acceso basado en roles (`RBAC`).
+- **Logs de Auditoría:** Registro automatizado de acciones y trazabilidad de eventos.
+
+### 🎨 Experiencia de Usuario (UI/UX)
+- **Modo Oscuro / Claro:** Alternancia dinámica de temas visuales.
+- **Sistema de Notificaciones Sileo Toast:** Notificaciones flotantes animadas e interactivas.
+- **Diseño Responsive & Premium:** Interfaz basada en Tailwind CSS con alto contraste y micro-animaciones.
+
+---
+
+## 🛠️ Requisitos del Sistema
+
+### Opción A: Entorno Docker (Recomendado)
+- **Docker Desktop** (con Docker Engine y Docker Compose).
+
+### Opción B: Entorno Local Tradicional
+- **PHP 8.2** o superior (Extensiones: `pdo_pgsql`, `pgsql`, `fileinfo`, `mbstring`, `openssl`, `curl`, `zip`).
+- **Composer** 2.x
+- **Node.js 18+** y **NPM**
+- **PostgreSQL 15+**
+
+---
+
+## 🚀 Despliegue Rápido con Docker (Recomendado)
+
+Sigue estos pasos para iniciar todo el entorno de desarrollo en segundos:
 
 ### 1. Clonar el repositorio
 ```bash
@@ -37,65 +61,79 @@ git clone https://github.com/AlfaroSystems/TransaccionesFacturacion.git
 cd TransaccionesFacturacion
 ```
 
-### 2. Instalar dependencias del backend (PHP)
+### 2. Iniciar contenedores Docker
 ```bash
-composer install
+docker compose up -d --build
+```
+> [!NOTE]
+> Esto creará y levantará los servicios:
+> - **Web (Nginx):** `http://localhost:8005`
+> - **App (PHP 8.3 FPM + Node + Vite):** Contenedor principal de la aplicación.
+> - **DB (PostgreSQL 15):** Puerto `5434`.
+
+### 3. Instalar dependencias y ejecutar migraciones (si es la primera vez)
+```bash
+docker exec transaccionesfacturacion-app-1 composer install
+docker exec transaccionesfacturacion-app-1 php artisan key:generate
+docker exec transaccionesfacturacion-app-1 php artisan migrate
+docker exec transaccionesfacturacion-app-1 npm run build
 ```
 
-### 3. Instalar dependencias del frontend (Node/JS)
+Accede a la aplicación en tu navegador: **`http://localhost:8005`**
+
+---
+
+## 💻 Instalación Local Sin Docker
+
+### 1. Clonar e instalar dependencias
 ```bash
+git clone https://github.com/AlfaroSystems/TransaccionesFacturacion.git
+cd TransaccionesFacturacion
+composer install
 npm install
 ```
 
-### 4. Configurar el archivo de entorno (.env)
-Crea una copia del archivo de ejemplo `.env.example` y cámbiale el nombre a `.env`:
+### 2. Configurar entorno (.env)
 ```bash
 cp .env.example .env
 ```
-*(En Windows PowerShell: `copy .env.example .env`)*.
-
-Abre el archivo `.env` en tu editor de código y asegúrate de que la sección de la base de datos coincida con tus credenciales de PostgreSQL:
+Ajusta tus credenciales de PostgreSQL en `.env`:
 ```env
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE=transacciones_facturacion
 DB_USERNAME=postgres
-DB_PASSWORD=1234
+DB_PASSWORD=tu_contraseña
 ```
-> [!IMPORTANT]
-> Recuerda crear la base de datos llamada `transacciones_facturacion` en tu servidor PostgreSQL (vía pgAdmin o terminal) antes de continuar.
 
-### 5. Generar la clave de la aplicación
+### 3. Clave, Migraciones y Assets
 ```bash
 php artisan key:generate
-```
-
-### 6. Ejecutar las migraciones de la base de datos
-```bash
 php artisan migrate
+npm run build
 ```
 
----
-
-## 💻 Ejecución del Proyecto
-
-Para correr la aplicación de forma local, debes iniciar dos procesos (puedes abrirlos en terminales diferentes):
-
-### Servidor PHP (Laravel)
+### 4. Iniciar servidores de desarrollo
 ```bash
 php artisan serve
-```
-*Esto iniciará el servidor web en `http://127.0.0.1:8000`.*
-
-### Compilador de Activos (Vite / Tailwind CSS)
-```bash
 npm run dev
 ```
 
 ---
 
-## 📂 Estructura del Diseño
-El diseño del panel de control sigue el estilo del dashboard empresarial (Menú lateral izquierdo, métricas en 3 columnas y gráfico de rendimiento en ancho completo).
-*   **Layout principal:** `resources/views/layouts/app.blade.php`
-*   **Dashboard view:** `resources/views/dashboard.blade.php`
+## ⚡ Comandos Útiles de Mantenimiento
+
+| Acción | Comando |
+| :--- | :--- |
+| **Limpiar caché de vistas Blade** | `docker exec transaccionesfacturacion-app-1 php artisan view:clear` |
+| **Recompilar assets Vite / Tailwind** | `docker exec transaccionesfacturacion-app-1 npm run build` |
+| **Ejecutar migraciones incrementales** | `docker exec transaccionesfacturacion-app-1 php artisan migrate` |
+| **Ver estado de migraciones** | `docker exec transaccionesfacturacion-app-1 php artisan migrate:status` |
+| **Estado de contenedores** | `docker compose ps` |
+
+---
+
+## 🛡️ Reglas de Desarrollo
+- ⚠️ **Preservación de Datos:** NUNCA ejecutar `migrate:fresh` ni `migrate:refresh` en entornos de prueba/producción con datos existentes. Toda modificación estructural de tablas debe realizarse mediante nuevas migraciones incrementales (`php artisan migrate`).
+- 💬 **Commits en Git:** Todos los mensajes de commit se redactan en **español**.
