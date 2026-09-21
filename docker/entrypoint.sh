@@ -45,10 +45,14 @@ echo "Database connection established successfully!"
 echo "Running database migrations..."
 php artisan migrate --force
 
-# Run npm install and build if node_modules doesn't exist
+# Run npm install and build if node_modules or build assets don't exist
 if [ ! -d "node_modules" ]; then
-    echo "Installing npm dependencies and building assets..."
+    echo "Installing npm dependencies..."
     npm install
+fi
+
+if [ ! -f "public/build/manifest.json" ]; then
+    echo "Building assets with Vite..."
     npm run build
 fi
 

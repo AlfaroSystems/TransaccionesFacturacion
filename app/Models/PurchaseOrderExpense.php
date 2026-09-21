@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PurchaseOrderExpense extends Model
 {
@@ -34,6 +35,15 @@ class PurchaseOrderExpense extends Model
             ExpenseType::class,
             'id_expense_type',
             'id_expense_type'
+        );
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(
+            PurchaseOrderExpenseDocument::class,
+            'id_purchase_order_expense',
+            'id_purchase_order_expense'
         );
     }
 }
