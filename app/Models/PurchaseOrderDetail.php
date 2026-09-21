@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PurchaseOrderDetail extends Model
 {
@@ -49,5 +50,14 @@ class PurchaseOrderDetail extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'id_unit');
+    }
+
+    public function purchaseDetails(): HasMany
+    {
+        return $this->hasMany(
+            PurchaseDetail::class,
+            'id_purchase_order_detail',
+            'id_purchase_order_detail'
+        );
     }
 }

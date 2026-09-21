@@ -19,6 +19,8 @@ use App\Http\Controllers\PurchaseQuotationRequestController;
 use App\Http\Controllers\SupplierQuotationController;
 use App\Http\Controllers\PurchaseQuotationController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\RetaceoController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -114,6 +116,36 @@ Route::middleware('auth')->group(function () {
         'purchase_orders/{purchase_order}/status',
         [PurchaseOrderController::class, 'updateStatus']
     )->name('purchase_orders.updateStatus');
+
+    // Facturas y Recepciones de Compra
+    Route::get(
+        'purchases/order-data/{id}',
+        [PurchaseController::class, 'getOrderData']
+    )->name('purchases.order-data');
+    Route::get(
+        'purchases/{purchase}/edit-data',
+        [PurchaseController::class, 'getEditData']
+    )->name('purchases.edit-data');
+    Route::patch(
+        'purchases/{purchase}/status',
+        [PurchaseController::class, 'updateStatus']
+    )->name('purchases.updateStatus');
+    Route::resource('purchases', PurchaseController::class);
+
+    // Retaceos / Prorrateo de Costos de Importación
+    Route::get(
+        'retaceos/purchase-data/{id}',
+        [RetaceoController::class, 'getPurchaseData']
+    )->name('retaceos.purchase-data');
+    Route::get(
+        'retaceos/{retaceo}/edit-data',
+        [RetaceoController::class, 'getEditData']
+    )->name('retaceos.edit-data');
+    Route::patch(
+        'retaceos/{retaceo}/status',
+        [RetaceoController::class, 'updateStatus']
+    )->name('retaceos.updateStatus');
+    Route::resource('retaceos', RetaceoController::class);
     Route::patch(
         'purchase-quotation-requests/{purchaseQuotationRequest}/select-quotation/{purchaseQuotation}',
         [PurchaseQuotationRequestController::class, 'selectQuotation']

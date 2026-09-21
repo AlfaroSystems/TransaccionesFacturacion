@@ -195,9 +195,9 @@
                 @endcan
                 <!-- Compras -->
                 @php
-                    $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*');
+                    $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');
                 @endphp
-                @canany(['purchase_requests.ver', 'purchase_quotation_requests.ver', 'purchase_orders.ver', 'expense_types.ver'])
+                @canany(['purchase_requests.ver', 'purchase_quotation_requests.ver', 'purchase_orders.ver', 'expense_types.ver', 'purchases.ver', 'retaceos.ver'])
                     <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isCompras ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -254,7 +254,7 @@
             $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
             $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*') || request()->routeIs('companies.*');
             $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
-            $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*');
+            $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');
         @endphp
         <!-- Submenús -->
         @if($isCompras)
@@ -267,6 +267,12 @@
                 @endcan
                 @can('purchase_orders.ver')
                     <a href="{{ route('purchase_orders.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase_orders.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Órdenes de Compra</span></a>
+                @endcan
+                @can('purchases.ver')
+                    <a href="{{ route('purchases.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchases.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Facturas / Compras</span></a>
+                @endcan
+                @can('retaceos.ver')
+                    <a href="{{ route('retaceos.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('retaceos.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Retaceos</span></a>
                 @endcan
                 @can('expense_types.ver')
                     <a href="{{ route('expense-types.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('expense-types.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Tipos de Gastos</span></a>

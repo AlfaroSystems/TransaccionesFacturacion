@@ -107,7 +107,15 @@ class PurchaseOrder extends Model
             'id_purchase_order'
         );
     }
-    
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(
+            Purchase::class,
+            'id_purchase_order',
+            'id_purchase_order'
+        );
+    }
+
     public function isEditable(): bool
     {
         return $this->status === 'draft';

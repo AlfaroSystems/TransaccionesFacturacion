@@ -434,6 +434,68 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite descargar y visualizar el comprobante PDF de una orden de compra.',
                 'action' => 'generatePdf',
             ],
+            // Facturas y Recepciones de Compra
+            [
+                'id' => 'purchases.ver',
+                'name' => 'Ver Compras',
+                'description' => 'Permite consultar el listado y detalle de facturas y recepciones de compra.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'purchases.crear',
+                'name' => 'Registrar Compras',
+                'description' => 'Permite registrar nuevas recepciones y compras a partir de órdenes.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'purchases.editar',
+                'name' => 'Editar Compras',
+                'description' => 'Permite modificar compras registradas en borrador.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'purchases.eliminar',
+                'name' => 'Eliminar Compras',
+                'description' => 'Permite anular o eliminar compras en borrador.',
+                'action' => 'destroy',
+            ],
+            [
+                'id' => 'purchases.cambiar_estado',
+                'name' => 'Cambiar Estado de Compras',
+                'description' => 'Permite cambiar el estado de las compras (recibida, completada, anulada).',
+                'action' => 'updateStatus',
+            ],
+            // Retaceos / Prorrateo de Costos de Importación
+            [
+                'id' => 'retaceos.ver',
+                'name' => 'Ver Retaceos',
+                'description' => 'Permite consultar el listado y detalle de retaceos de importación.',
+                'action' => 'index',
+            ],
+            [
+                'id' => 'retaceos.crear',
+                'name' => 'Calcular Retaceos',
+                'description' => 'Permite registrar y liquidar retaceos de importación.',
+                'action' => 'create',
+            ],
+            [
+                'id' => 'retaceos.editar',
+                'name' => 'Editar Retaceos',
+                'description' => 'Permite modificar retaceos en borrador.',
+                'action' => 'edit',
+            ],
+            [
+                'id' => 'retaceos.eliminar',
+                'name' => 'Eliminar Retaceos',
+                'description' => 'Permite eliminar o anular retaceos en borrador.',
+                'action' => 'destroy',
+            ],
+            [
+                'id' => 'retaceos.cambiar_estado',
+                'name' => 'Cambiar Estado de Retaceos',
+                'description' => 'Permite cambiar el estado de un retaceo (calculado, aplicado, anulado).',
+                'action' => 'updateStatus',
+            ],
         ];
 
         // Guardar o actualizar permisos
