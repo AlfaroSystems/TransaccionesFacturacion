@@ -186,6 +186,26 @@ class RetaceoController extends Controller
         return view('retaceos.show', compact('retaceo'));
     }
 
+    public function generatePdf(Retaceo $retaceo)
+    {
+        Gate::authorize('retaceos.ver');
+
+        $retaceo->load([
+            'supplier',
+            'user',
+            'purchase.branch.company',
+            'purchase.warehouse',
+            'purchase.supplier',
+            'purchase.purchaseOrder',
+            'details.product',
+            'details.purchaseDetail.unit',
+        ]);
+
+        $company = $retaceo->purchase?->branch?->company ?? \App\Models\Company::where('is_active', true)->first();
+
+        return view('retaceos.pdf', compact('retaceo', 'company'));
+    }
+
     public function getEditData(Retaceo $retaceo)
     {
         Gate::authorize('retaceos.editar');

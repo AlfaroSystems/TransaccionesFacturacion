@@ -222,6 +222,26 @@ class PurchaseController extends Controller
         return view('purchases.show', compact('purchase'));
     }
 
+    public function generatePdf(Purchase $purchase)
+    {
+        Gate::authorize('purchases.ver');
+
+        $purchase->load([
+            'purchaseOrder',
+            'supplier',
+            'branch.company',
+            'warehouse',
+            'user',
+            'details.product',
+            'details.unit',
+            'details.purchaseOrderDetail',
+        ]);
+
+        $company = $purchase->branch?->company ?? \App\Models\Company::where('is_active', true)->first();
+
+        return view('purchases.pdf', compact('purchase', 'company'));
+    }
+
     public function getEditData(Purchase $purchase)
     {
         Gate::authorize('purchases.editar');

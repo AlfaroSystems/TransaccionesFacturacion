@@ -130,6 +130,10 @@ Route::middleware('auth')->group(function () {
         'purchases/{purchase}/status',
         [PurchaseController::class, 'updateStatus']
     )->name('purchases.updateStatus');
+    Route::get(
+        'purchases/{purchase}/pdf',
+        [PurchaseController::class, 'generatePdf']
+    )->name('purchases.pdf');
     Route::resource('purchases', PurchaseController::class);
 
     // Retaceos / Prorrateo de Costos de Importación
@@ -145,6 +149,10 @@ Route::middleware('auth')->group(function () {
         'retaceos/{retaceo}/status',
         [RetaceoController::class, 'updateStatus']
     )->name('retaceos.updateStatus');
+    Route::get(
+        'retaceos/{retaceo}/pdf',
+        [RetaceoController::class, 'generatePdf']
+    )->name('retaceos.pdf');
     Route::resource('retaceos', RetaceoController::class);
     Route::patch(
         'purchase-quotation-requests/{purchaseQuotationRequest}/select-quotation/{purchaseQuotation}',
