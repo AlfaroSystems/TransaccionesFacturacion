@@ -30,8 +30,7 @@
         <env name="DB_DATABASE" value="transacciones_facturacion_testing" force="true"/>
         <!-- docker-compose define DB_DATABASE en el entorno del contenedor ($_SERVER), que Laravel lee antes que $_ENV -->
         <server name="DB_DATABASE" value="transacciones_facturacion_testing" force="true"/>
-        <env name="DB_USERNAME" value="postgres" force="true"/>
-        <env name="DB_PASSWORD" value="1234" force="true"/>
+        <!-- Usuario y contraseña: los mismos de la base de desarrollo (DB_USERNAME y DB_PASSWORD del .env) -->
         <env name="DB_URL" value="" force="true"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

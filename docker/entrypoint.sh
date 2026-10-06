@@ -35,7 +35,7 @@ until php -r "
 \$port = getenv('DB_PORT') ?: '5432';
 \$db   = getenv('DB_DATABASE') ?: 'transacciones_facturacion';
 \$user = getenv('DB_USERNAME') ?: 'postgres';
-\$pass = getenv('DB_PASSWORD') ?: '1234';
+\$pass = getenv('DB_PASSWORD');
 try {
     new PDO(\"pgsql:host=\$host;port=\$port;dbname=\$db\", \$user, \$pass);
     exit(0);
@@ -64,10 +64,14 @@ fi
 echo "Building assets with Vite..."
 npm run build
 
-# Ensure storage and bootstrap cache permissions are correct
+# storage and bootstrap/cache belong to the php-fpm user (www-data): owner and group can
+# write, everyone else can only read. Run artisan as www-data (docker exec -u www-data ...)
+# so root does not leave files there that php-fpm cannot modify
 echo "Setting folder permissions for storage and bootstrap/cache..."
-chmod -R 777 storage bootstrap/cache || true
 chown -R www-data:www-data storage bootstrap/cache || true
+chmod -R ug+rwX,o-w storage bootstrap/cache || true
+# Pest keeps its result cache inside vendor (only installed with dev dependencies)
+chown -R www-data:www-data vendor/pestphp/pest/.temp 2>/dev/null || true
 
 # Execute the main container command
 exec "$@"

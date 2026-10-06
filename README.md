@@ -61,7 +61,13 @@ git clone https://github.com/AlfaroSystems/TransaccionesFacturacion.git
 cd TransaccionesFacturacion
 ```
 
-### 2. Iniciar contenedores Docker
+### 2. Configurar la contraseña de la base de datos
+```bash
+cp .env.example .env
+```
+Define `DB_PASSWORD` en `.env` (es obligatoria: `docker compose` no arranca sin ella). PostgreSQL la toma solo al crear el volumen de datos por primera vez; para cambiarla después, usa `ALTER USER` dentro de la base.
+
+### 3. Iniciar contenedores Docker
 ```bash
 docker compose up -d --build
 ```
@@ -69,15 +75,9 @@ docker compose up -d --build
 > Esto creará y levantará los servicios:
 > - **Web (Nginx):** `http://localhost:8005`
 > - **App (PHP 8.3 FPM + Node + Vite):** Contenedor principal de la aplicación.
-> - **DB (PostgreSQL 15):** Puerto `5434`.
-
-### 3. Instalar dependencias y ejecutar migraciones (si es la primera vez)
-```bash
-docker exec transaccionesfacturacion-app-1 composer install
-docker exec transaccionesfacturacion-app-1 php artisan key:generate
-docker exec transaccionesfacturacion-app-1 php artisan migrate
-docker exec transaccionesfacturacion-app-1 npm run build
-```
+> - **DB (PostgreSQL 15):** Puerto `5434`, accesible solo desde este equipo.
+>
+> Al iniciar, el contenedor `app` instala las dependencias de Composer y npm (si cambiaron), genera `APP_KEY`, ejecuta las migraciones y compila los assets.
 
 Accede a la aplicación en tu navegador: **`http://localhost:8005`**
 
@@ -126,11 +126,15 @@ npm run dev
 
 | Acción | Comando |
 | :--- | :--- |
-| **Limpiar caché de vistas Blade** | `docker exec transaccionesfacturacion-app-1 php artisan view:clear` |
+| **Limpiar caché de vistas Blade** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan view:clear` |
 | **Recompilar assets Vite / Tailwind** | `docker exec transaccionesfacturacion-app-1 npm run build` |
-| **Ejecutar migraciones incrementales** | `docker exec transaccionesfacturacion-app-1 php artisan migrate` |
-| **Ver estado de migraciones** | `docker exec transaccionesfacturacion-app-1 php artisan migrate:status` |
+| **Ejecutar migraciones incrementales** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan migrate` |
+| **Ver estado de migraciones** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan migrate:status` |
+| **Ejecutar los tests** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan test` |
 | **Estado de contenedores** | `docker compose ps` |
+
+> [!NOTE]
+> Los comandos `artisan` se ejecutan como `www-data` (el usuario de PHP-FPM): si se ejecutan como root, los archivos que crean en `storage` (logs, vistas compiladas, caché) quedan de root y la aplicación no puede modificarlos.
 
 ---
 
