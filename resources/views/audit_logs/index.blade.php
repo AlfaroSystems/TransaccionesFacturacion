@@ -12,7 +12,7 @@
 
     <!-- Barra de Búsqueda y Filtros -->
     <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow mb-8">
-        <form action="{{ route('audit-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4 items-end">
+        <form action="{{ route('audit-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 items-end">
             <!-- Filtro por Usuario -->
             <div>
                 <label for="user_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usuario</label>
@@ -21,6 +21,19 @@
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
                             {{ $user->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Filtro por Modelo -->
+            <div>
+                <label for="auditable_type" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Modelo</label>
+                <select name="auditable_type" id="auditable_type" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                    <option value="">Todos los Modelos</option>
+                    @foreach($auditableTypes as $type)
+                        <option value="{{ $type }}" {{ request('auditable_type') === $type ? 'selected' : '' }}>
+                            {{ class_basename($type) }}
                         </option>
                     @endforeach
                 </select>
@@ -43,7 +56,7 @@
                 <button type="submit" class="flex-1 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] text-white rounded-xl text-sm font-bold transition-all shadow-sm">
                     Filtrar
                 </button>
-                @if(request()->anyFilled(['user_id', 'date_from', 'date_to']))
+                @if(request()->anyFilled(['user_id', 'auditable_type', 'date_from', 'date_to']))
                     <a href="{{ route('audit-logs.index') }}" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
                         Limpiar
                     </a>
@@ -61,7 +74,7 @@
                     <th class="px-6 py-3">Usuario</th>
                     <th class="px-6 py-3">Controlador</th>
                     <th class="px-6 py-3">Acción</th>
-                    <th class="px-6 py-3">ID Reg.</th>
+                    <th class="px-6 py-3">Registro</th>
                     <th class="px-6 py-3 text-right">Detalle</th>
                 </tr>
             </thead>
@@ -123,9 +136,12 @@
                             @endif
                         </td>
 
-                        <!-- Registro ID -->
+                        <!-- Registro: modelo afectado e ID -->
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-500 font-bold">
-                            #{{ $log->id_record ?? 'N/D' }}
+                            @if($log->auditable_name)
+                                <span class="block text-slate-700">{{ $log->auditable_name }}</span>
+                            @endif
+                            <span>#{{ $log->id_record ?? 'N/D' }}</span>
                         </td>
 
                         <!-- Botón Ver Detalles -->

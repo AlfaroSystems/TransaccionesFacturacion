@@ -143,7 +143,7 @@
                 <div>
                     <label for="logo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Logo</label>
                     <input type="file" name="logo" id="logo" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-500 font-semibold">
-                    <p class="text-[10px] text-slate-400 mt-1">Formatos: JPG, PNG, GIF, SVG. Máx 2MB.</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Formatos: JPG, PNG, GIF, WEBP. Máx 2MB.</p>
                 </div>
             </div>
 

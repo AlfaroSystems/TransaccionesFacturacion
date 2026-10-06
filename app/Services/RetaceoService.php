@@ -27,32 +27,55 @@ class RetaceoService
         }
 
         $totalDai = 0.0;
-        $processedItems = [];
         $count = count($items);
+        $lines = [];
 
-        foreach ($items as $item) {
-            $qty     = max(0.0001, (float) ($item['quantity'] ?? 1));
+        // 1. Reparto de flete y gastos según el valor FOB de cada línea
+        foreach (array_values($items) as $item) {
             $costFob = (float) ($item['cost_fob'] ?? 0);
 
             // Factor de distribución según valor FOB
             $ratio = ($totalFob > 0) ? ($costFob / $totalFob) : ($count > 0 ? (1 / $count) : 0);
 
-            $freightAmount = round($totalFreight * $ratio, 4);
-            $expenseAmount = round($totalExpenses * $ratio, 4);
-            $daiAmount     = round((float) ($item['dai_amount'] ?? 0), 4);
+            $lines[] = [
+                'item'           => $item,
+                'cost_fob'       => $costFob,
+                'freight_amount' => round($totalFreight * $ratio, 4),
+                'expense_amount' => round($totalExpenses * $ratio, 4),
+            ];
+        }
 
-            $totalLineCost = round($costFob + $freightAmount + $expenseAmount + $daiAmount, 4);
-            $unitCost      = round($totalLineCost / $qty, 4);
+        // 2. El redondeo de cada línea puede dejar una diferencia (100 entre 3 = 99.9999);
+        //    se asigna a la última línea para que el reparto sume exactamente el total
+        if ($count > 0) {
+            $last = $count - 1;
+            $lines[$last]['freight_amount'] = round(
+                $lines[$last]['freight_amount'] + $totalFreight - array_sum(array_column($lines, 'freight_amount')),
+                4
+            );
+            $lines[$last]['expense_amount'] = round(
+                $lines[$last]['expense_amount'] + $totalExpenses - array_sum(array_column($lines, 'expense_amount')),
+                4
+            );
+        }
+
+        // 3. Costo total y unitario de cada línea
+        $processedItems = [];
+        foreach ($lines as $line) {
+            $item          = $line['item'];
+            $qty           = max(0.0001, (float) ($item['quantity'] ?? 1));
+            $daiAmount     = round((float) ($item['dai_amount'] ?? 0), 4);
+            $totalLineCost = round($line['cost_fob'] + $line['freight_amount'] + $line['expense_amount'] + $daiAmount, 4);
 
             $totalDai += $daiAmount;
 
             $processedItems[] = array_merge($item, [
                 'quantity'       => $qty,
-                'cost_fob'       => round($costFob, 4),
-                'freight_amount' => $freightAmount,
-                'expense_amount' => $expenseAmount,
+                'cost_fob'       => round($line['cost_fob'], 4),
+                'freight_amount' => $line['freight_amount'],
+                'expense_amount' => $line['expense_amount'],
                 'dai_amount'     => $daiAmount,
-                'unit_cost'      => $unitCost,
+                'unit_cost'      => round($totalLineCost / $qty, 4),
                 'total_cost'     => $totalLineCost,
             ]);
         }
@@ -156,7 +179,8 @@ class RetaceoService
                 'notes'                 => $validated['notes'] ?? $retaceo->notes,
             ]);
 
-            $retaceo->details()->delete();
+            // Reemplazar detalles (uno por uno, para que cada borrado quede en la bitácora)
+            $retaceo->details()->get()->each->delete();
             foreach ($prorrateo['items'] as $line) {
                 RetaceoDetail::create([
                     'id_retaceo'         => $retaceo->id_retaceo,
@@ -188,6 +212,11 @@ class RetaceoService
 
         if ($retaceo->status === 'cancelled') {
             throw new InvalidArgumentException('Un retaceo cancelado no puede modificarse.');
+        }
+
+        // Aplicado es el estado final: los costos ya se liquidaron y no deben cambiar
+        if ($retaceo->status === 'applied') {
+            throw new InvalidArgumentException('Un retaceo aplicado es definitivo y no puede cambiar de estado.');
         }
 
         $retaceo->update(['status' => $nuevoEstado]);

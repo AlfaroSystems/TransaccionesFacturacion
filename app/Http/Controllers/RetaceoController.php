@@ -60,7 +60,7 @@ class RetaceoController extends Controller
         $totalCostAmount = Retaceo::where('status', '!=', 'cancelled')->sum('total_cost');
 
         $suppliers = Supplier::orderBy('name')->get();
-        $purchasesForModal = Purchase::where('status', '!=', 'cancelled')
+        $purchasesForModal = Purchase::availableForRetaceo()
             ->with(['supplier', 'details.product', 'details.unit'])
             ->orderByDesc('id_purchase')
             ->get();
@@ -80,7 +80,7 @@ class RetaceoController extends Controller
     {
         Gate::authorize('retaceos.crear');
 
-        $purchases = Purchase::where('status', '!=', 'cancelled')
+        $purchases = Purchase::availableForRetaceo()
             ->with(['supplier', 'details.product', 'details.unit'])
             ->orderByDesc('id_purchase')
             ->get();
@@ -146,7 +146,22 @@ class RetaceoController extends Controller
         Gate::authorize('retaceos.crear');
 
         $validated = $request->validate([
-            'id_purchase'                 => ['required', new Accessible(Purchase::class)],
+            'id_purchase'                 => [
+                'required',
+                new Accessible(Purchase::class),
+                // Solo compras ya recibidas y sin otro retaceo activo
+                function ($attribute, $value, $fail) {
+                    $purchase = Purchase::find($value);
+                    if (! $purchase) {
+                        return;
+                    }
+                    if (! in_array($purchase->status, Purchase::RECEIVED_STATUSES, true)) {
+                        $fail('La compra debe estar recibida o completada para calcular su retaceo.');
+                    } elseif ($purchase->retaceos()->where('status', '!=', 'cancelled')->exists()) {
+                        $fail('Esta compra ya tiene un retaceo activo. Edítalo o cancélalo antes de crear otro.');
+                    }
+                },
+            ],
             'id_supplier'                 => ['required', 'exists:suppliers,id_supplier'],
             'retaceo_date'                => ['required', 'date'],
             'origin_country'              => ['nullable', 'string', 'max:100'],

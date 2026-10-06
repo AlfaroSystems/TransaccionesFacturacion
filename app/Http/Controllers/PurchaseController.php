@@ -11,9 +11,11 @@ use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Warehouse;
 use App\Rules\Accessible;
+use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -195,8 +197,8 @@ class PurchaseController extends Controller
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
             'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
             'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
-            'details.*.discount'         => ['nullable', 'numeric', 'min:0'],
-            'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0'],
+            'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
+            'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'details.*.id_unit'          => ['nullable', 'exists:units,id'],
             'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes'            => ['nullable', 'string'],
@@ -342,8 +344,8 @@ class PurchaseController extends Controller
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
             'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
             'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
-            'details.*.discount'         => ['nullable', 'numeric', 'min:0'],
-            'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0'],
+            'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
+            'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'details.*.id_unit'          => ['nullable', 'exists:units,id'],
             'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes'            => ['nullable', 'string'],
@@ -379,6 +381,10 @@ class PurchaseController extends Controller
 
         if ($purchase->status !== 'draft') {
             return back()->with('error', 'Solo se pueden eliminar compras en borrador.');
+        }
+
+        if (DB::table('retaceos')->where('id_purchase', $purchase->id_purchase)->exists()) {
+            return back()->with('error', 'No se puede eliminar una compra que ya tiene retaceos registrados.');
         }
 
         $purchase->delete();

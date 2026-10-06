@@ -225,10 +225,11 @@ class SupplierController extends Controller
                 }
             }
 
-            // 3. Eliminar contactos quitados del formulario
+            // 3. Eliminar contactos quitados del formulario (uno por uno, para la bitácora)
             $supplier->contacts()
                 ->whereNotIn('id_contact', $contactIds)
-                ->delete();
+                ->get()
+                ->each->delete();
         });
 
         return redirect()

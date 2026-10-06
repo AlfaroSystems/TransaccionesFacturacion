@@ -13,6 +13,7 @@ class AuditLog extends Model
 
     protected $fillable = [
         'user_id',
+        'auditable_type',
         'id_record',
         'controller',
         'action',
@@ -25,6 +26,14 @@ class AuditLog extends Model
         'modified_data' => 'array',
         'created_at' => 'datetime',
     ];
+
+    /**
+     * Nombre corto del modelo afectado (por ejemplo, "PurchaseOrder").
+     */
+    public function getAuditableNameAttribute(): ?string
+    {
+        return $this->auditable_type ? class_basename($this->auditable_type) : null;
+    }
 
     /**
      * Relación con el usuario que ejecutó la acción.

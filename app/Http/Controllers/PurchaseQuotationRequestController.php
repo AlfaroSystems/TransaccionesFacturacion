@@ -198,10 +198,12 @@ class PurchaseQuotationRequestController extends Controller
                 'status' => 'approved',
             ]);
 
-            // 3. Marcar las demás cotizaciones de esta solicitud como 'rejected' (rechazadas)
+            // 3. Marcar las demás cotizaciones de esta solicitud como 'rejected' (rechazadas),
+            //    una por una para que cada cambio quede en la bitácora
             PurchaseQuotation::where('id_purchase_quotation_request', $purchaseQuotationRequest->id_purchase_quotation_request)
                 ->where('id_purchase_quotation', '!=', $purchaseQuotation->id_purchase_quotation)
-                ->update([
+                ->get()
+                ->each->update([
                     'status' => 'rejected',
                 ]);
 

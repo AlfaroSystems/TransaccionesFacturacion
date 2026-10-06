@@ -49,11 +49,6 @@ class DashboardController extends Controller
 
                 $chartData[] = $count;
             }
-
-            // Si todos los datos son 0, generamos una curva visual de demostración igual a la imagen de referencia
-            if (array_sum($chartData) === 0) {
-                $chartData = [205, 188, 155, 134, 115, 22];
-            }
         }
 
         return view('dashboard', compact(

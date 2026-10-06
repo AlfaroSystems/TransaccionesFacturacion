@@ -11,9 +11,11 @@ use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Warehouse;
 use App\Rules\Accessible;
+use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseOrderService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -224,6 +226,10 @@ class PurchaseOrderController extends Controller
             return back()->with('error', 'Solo se pueden eliminar órdenes en borrador.');
         }
 
+        if (DB::table('purchases')->where('id_purchase_order', $purchase_order->id_purchase_order)->exists()) {
+            return back()->with('error', 'No se puede eliminar una orden que ya tiene compras registradas.');
+        }
+
         $purchase_order->delete();
 
         return redirect()
@@ -273,7 +279,7 @@ class PurchaseOrderController extends Controller
             'products.*.quantity'            => ['required', 'numeric', 'min:0.0001'],
             'products.*.id_unit'             => ['required', $unitIdRule],
             'products.*.unit_price'          => ['required', 'numeric', 'min:0'],
-            'products.*.discount'            => ['nullable', 'numeric', 'min:0'],
+            'products.*.discount'            => ['nullable', 'numeric', 'min:0', new DiscountWithinLine()],
             'products.*.tax_rate'            => ['nullable', 'numeric', 'min:0', 'max:100'],
             'products.*.notes'               => ['nullable', 'string'],
             'expenses'                       => ['nullable', 'array'],

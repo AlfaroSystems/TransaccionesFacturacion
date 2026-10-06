@@ -229,8 +229,9 @@ class PurchaseRequestController extends Controller
             ]);
 
             // Eliminamos los detalles anteriores
-            // para registrar nuevamente el maestro-detalle.
-            $purchaseRequest->details()->delete();
+            // para registrar nuevamente el maestro-detalle
+            // (uno por uno, para que cada borrado quede en la bitácora).
+            $purchaseRequest->details()->get()->each->delete();
 
             foreach ($validated['details'] as $detail) {
                 $purchaseRequest->details()->create([
@@ -274,6 +275,15 @@ class PurchaseRequestController extends Controller
                 ->with(
                     'error',
                     'Solo se pueden eliminar solicitudes en estado borrador.'
+                );
+        }
+
+        if (DB::table('purchase_quotation_requests')->where('id_purchase_request', $purchaseRequest->id_purchase_request)->exists()) {
+            return redirect()
+                ->route('purchase-requests.index')
+                ->with(
+                    'error',
+                    'No se puede eliminar una solicitud que ya tiene solicitudes de cotización.'
                 );
         }
 

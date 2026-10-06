@@ -65,7 +65,8 @@ class AuditObserver
         $controller = 'Console/System';
         $action = 'Console/System';
 
-        if (!app()->runningInConsole() && request()->route()) {
+        // Solo una petición HTTP tiene ruta; en comandos y colas no la hay
+        if (request()->route()) {
             $actionName = request()->route()->getActionName(); // Ej: "App\Http\Controllers\UserController@store"
             if (strpos($actionName, '@') !== false) {
                 list($ctrl, $act) = explode('@', $actionName);
@@ -80,6 +81,7 @@ class AuditObserver
         // 3. Insertar el registro en la bitácora
         AuditLog::create([
             'user_id' => auth()->check() ? auth()->id() : null,
+            'auditable_type' => $model->getMorphClass(),
             'id_record' => is_numeric($model->getKey()) ? (int) $model->getKey() : null,
             'controller' => $controller,
             'action' => $action,

@@ -91,7 +91,8 @@ class ProductRequest extends FormRequest
             'images.*' => [
                 'nullable',
                 'image',
-                'mimes:jpeg,png,jpg,gif,webp,svg',
+                // Sin SVG: puede contener scripts y se sirve desde el disco público
+                'mimes:jpeg,png,jpg,gif,webp',
                 'max:5120',
             ],
         ];
@@ -106,7 +107,7 @@ class ProductRequest extends FormRequest
             'sku.unique' => 'El código SKU ingresado ya está en uso por otro producto.',
             'name.required' => 'El nombre del producto es obligatorio.',
             'images.*.image' => 'Los archivos seleccionados deben ser imágenes válidas.',
-            'images.*.mimes' => 'Las imágenes deben estar en formato JPEG, PNG, JPG, GIF, WEBP o SVG.',
+            'images.*.mimes' => 'Las imágenes deben estar en formato JPEG, PNG, JPG, GIF o WEBP.',
             'images.*.max' => 'Cada imagen no debe superar los 5MB de tamaño.',
         ];
     }

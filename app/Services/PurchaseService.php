@@ -118,8 +118,8 @@ class PurchaseService
                 'notes'                   => $validated['notes'] ?? $purchase->notes,
             ]);
 
-            // Reemplazar detalles
-            $purchase->details()->delete();
+            // Reemplazar detalles (uno por uno, para que cada borrado quede en la bitácora)
+            $purchase->details()->get()->each->delete();
             $this->guardarDetalles($purchase, $validated['details']);
 
             if ($purchase->purchaseOrder) {

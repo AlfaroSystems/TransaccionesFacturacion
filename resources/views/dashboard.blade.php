@@ -240,7 +240,9 @@
                     y: {
                         beginAtZero: true,
                         grid: { color: gridColor },
-                        ticks: { color: textColor, font: { family: 'Nunito', size: 11, weight: '600' }, stepSize: 50 }
+                        // Conteos de órdenes: solo enteros, con escala automática
+                        suggestedMax: 5,
+                        ticks: { color: textColor, font: { family: 'Nunito', size: 11, weight: '600' }, precision: 0 }
                     }
                 }
             }

@@ -7,6 +7,7 @@ use App\Models\PurchaseQuotationDetail;
 use App\Models\PurchaseQuotationExpense;
 use App\Models\PurchaseQuotationRequest;
 use App\Rules\Accessible;
+use App\Rules\DiscountWithinLine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -37,8 +38,8 @@ class PurchaseQuotationController extends Controller
             'items.*.quantity'             => 'required|numeric|min:0.0001',
             'items.*.id_unit'               => 'nullable|exists:units,id',
             'items.*.unit_price'            => 'required|numeric|min:0',
-            'items.*.discount'              => 'nullable|numeric|min:0',
-            'items.*.tax_rate'              => 'nullable|numeric|min:0',
+            'items.*.discount'              => ['nullable', 'numeric', 'min:0', new DiscountWithinLine()],
+            'items.*.tax_rate'              => 'nullable|numeric|min:0|max:100',
             'items.*.delivery_days'          => 'nullable|integer|min:0',
             'items.*.available_quantity'    => 'nullable|numeric|min:0',
             'items.*.notes'                 => 'nullable|string',
@@ -164,6 +165,12 @@ class PurchaseQuotationController extends Controller
             return redirect()
                 ->back()
                 ->with('error', 'No se puede eliminar ninguna oferta porque esta solicitud ya tiene una oferta aceptada.');
+        }
+
+        if (DB::table('purchase_orders')->where('id_purchase_quotation', $quotation->id_purchase_quotation)->exists()) {
+            return redirect()
+                ->back()
+                ->with('error', 'No se puede eliminar una oferta que ya se usó en una orden de compra.');
         }
 
         $quotation->delete();

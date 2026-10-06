@@ -17,8 +17,15 @@ class AuditLogController extends Controller
         Gate::authorize('bitacora.ver');
 
         // Quien no es administrador solo ve los registros hechos por usuarios de su sucursal
-        $query = AuditLog::with('user')
+        $visibleLogs = fn () => AuditLog::query()
             ->when(! BranchAccess::isUnrestricted(), fn ($q) => $q->whereIn('user_id', User::accessible()->select('id')));
+
+        $query = $visibleLogs()->with('user');
+
+        // Filtrar por modelo afectado
+        if ($request->filled('auditable_type')) {
+            $query->where('auditable_type', $request->input('auditable_type'));
+        }
 
         // Filtrar por usuario
         if ($request->filled('user_id')) {
@@ -51,6 +58,13 @@ class AuditLogController extends Controller
         // Obtener usuarios para el selector del filtro
         $users = User::accessible()->orderBy('name')->get();
 
-        return view('audit_logs.index', compact('logs', 'users'));
+        // Modelos presentes en la bitácora visible, para el selector del filtro
+        $auditableTypes = $visibleLogs()
+            ->whereNotNull('auditable_type')
+            ->distinct()
+            ->orderBy('auditable_type')
+            ->pluck('auditable_type');
+
+        return view('audit_logs.index', compact('logs', 'users', 'auditableTypes'));
     }
 }

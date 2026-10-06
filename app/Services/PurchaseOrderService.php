@@ -123,9 +123,9 @@ class PurchaseOrderService
                 'notes'                 => $validated['notes'] ?? null,
             ]);
 
-            // Reemplazar detalles y gastos
-            $order->details()->delete();
-            $order->expenses()->delete();
+            // Reemplazar detalles y gastos (uno por uno, para que cada borrado quede en la bitácora)
+            $order->details()->get()->each->delete();
+            $order->expenses()->get()->each->delete();
 
             $this->guardarDetalles($order, $validated['products']);
             $this->guardarGastos($order, $validated['expenses'] ?? []);

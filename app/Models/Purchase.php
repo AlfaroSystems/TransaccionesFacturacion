@@ -19,6 +19,20 @@ class Purchase extends Model
         $query->where($this->qualifyColumn('id_branch'), $branchId);
     }
 
+    /**
+     * Estados en los que la mercadería ya se recibió (y se puede calcular su retaceo).
+     */
+    public const RECEIVED_STATUSES = ['received', 'completed'];
+
+    /**
+     * Compras recibidas sin un retaceo activo (no cancelado): las que admiten un retaceo nuevo.
+     */
+    public function scopeAvailableForRetaceo(Builder $query): void
+    {
+        $query->whereIn($this->qualifyColumn('status'), self::RECEIVED_STATUSES)
+            ->whereDoesntHave('retaceos', fn ($q) => $q->where('status', '!=', 'cancelled'));
+    }
+
     protected $table = 'purchases';
     protected $primaryKey = 'id_purchase';
 
