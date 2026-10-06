@@ -256,7 +256,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-50">
                             <div>
                                 @php
-                                    $dbCountries = \App\Models\Country::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                                    $dbCountries = $countries ?? [];
                                     $countriesList = !empty($dbCountries) ? $dbCountries : config('countries', []);
                                 @endphp
                                 <div x-data="{
@@ -581,7 +581,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-50">
                     <div>
                         @php
-                            $dbCountries = \App\Models\Country::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+                            $dbCountries = $countries ?? [];
                             $countriesList = !empty($dbCountries) ? $dbCountries : config('countries', []);
                         @endphp
                         <div x-data="{

@@ -3,10 +3,9 @@
 namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Models\User;
-use App\Models\Permission;
 use App\Observers\AuditObserver;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Fuera de producción, cargar una relación fila por fila en un listado (consultas N+1)
+        // lanza un error en lugar de pasar desapercibido
+        Model::preventLazyLoading(! $this->app->isProduction());
+
         // Registrar el observador de auditoría para todos los modelos de negocio del sistema
         $modelFiles = glob(app_path('Models/*.php'));
         foreach ($modelFiles as $file) {
@@ -32,25 +35,11 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        // 1. Bypass global: Super Administrador obtiene acceso total por defecto
+        // Permisos: el administrador tiene acceso total; los demás, los permisos de sus roles.
+        // Se resuelve aquí, con los roles del usuario, en lugar de definir un Gate por cada
+        // permiso de la base: así no se consulta la tabla de permisos en cada petición.
         Gate::before(function (User $user, string $ability) {
-            return $user->hasRole('admin') ? true : null;
+            return $user->isAdmin() || $user->hasPermission($ability) ? true : null;
         });
-
-        // 2. Registrar Gates dinámicamente a partir de los permisos en base de datos
-        try {
-            if (Schema::hasTable('permissions')) {
-                // Precargar relaciones para optimizar consultas a base de datos
-                $permissions = Permission::with('roles')->get();
-                
-                foreach ($permissions as $permission) {
-                    Gate::define($permission->id_permission, function (User $user) use ($permission) {
-                        return $user->hasPermission($permission->id_permission);
-                    });
-                }
-            }
-        } catch (\Exception $e) {
-            // Evitar errores durante migraciones iniciales o consola
-        }
     }
 }

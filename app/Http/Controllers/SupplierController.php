@@ -6,6 +6,7 @@ use App\Models\SupplierContact;
 use App\Models\Department;
 use App\Models\Municipality;
 use App\Models\District;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -42,7 +43,10 @@ class SupplierController extends Controller
         $municipalities = Municipality::orderBy('name')->get();
         $districts = District::orderBy('name')->get();
 
-        return view('suppliers.index', compact('suppliers', 'departments', 'municipalities', 'districts'));
+        // Países activos para los selectores (una sola consulta para todos los proveedores)
+        $countries = Country::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+
+        return view('suppliers.index', compact('suppliers', 'departments', 'municipalities', 'districts', 'countries'));
     }
 
     /**
@@ -129,7 +133,9 @@ class SupplierController extends Controller
         $municipalities = Municipality::orderBy('name')->get();
         $districts = District::orderBy('name')->get();
 
-        return view('suppliers.show', compact('supplier', 'departments', 'municipalities', 'districts'));
+        $countries = Country::where('is_active', true)->orderBy('name')->pluck('name')->toArray();
+
+        return view('suppliers.show', compact('supplier', 'departments', 'municipalities', 'districts', 'countries'));
     }
 
     /**

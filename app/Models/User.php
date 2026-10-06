@@ -138,6 +138,9 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
+        // Roles y permisos se cargan una sola vez por petición
+        $this->loadMissing('roles.permissions');
+
         return $this->roles->flatMap->permissions->contains('id_permission', $permission);
     }
 

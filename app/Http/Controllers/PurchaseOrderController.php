@@ -65,16 +65,13 @@ class PurchaseOrderController extends Controller
             ->orderByDesc('id_purchase_order')
             ->paginate(10);
 
-        $usedQuotationIds = PurchaseOrder::whereNotNull('id_purchase_quotation')->pluck('id_purchase_quotation');
-
-        $purchase_quotations = PurchaseQuotation::whereIn('status', ['approved', 'aprobada'])
-            ->whereNotIn('id_purchase_quotation', $usedQuotationIds)
-            ->with(['supplier', 'details.product', 'details.unit', 'expenses.expenseType'])
-            ->orderByDesc('id_purchase_quotation')
-            ->get();
+        // formData() ya carga las cotizaciones aprobadas sin orden; la vista también las usa
+        // como $purchase_quotations, así que se reutilizan en lugar de consultarlas otra vez
+        $formData = $this->formData();
+        $purchase_quotations = $formData['quotations'];
 
         return view('purchase_orders.index', array_merge(
-            $this->formData(),
+            $formData,
             compact('purchase_orders', 'purchase_quotations')
         ));
     }
