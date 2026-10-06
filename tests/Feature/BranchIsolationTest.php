@@ -16,7 +16,6 @@ use App\Models\PurchaseRequest;
 use App\Models\Retaceo;
 use App\Models\Role;
 use App\Models\Supplier;
-use App\Models\SupplierQuotation;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Warehouse;
@@ -102,12 +101,6 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
         'quotation_date'                => now(),
         'status'                        => 'approved',
     ]);
-    $supplierQuotation = SupplierQuotation::create([
-        'purchase_quotation_request_id' => $quotationRequest->id_purchase_quotation_request,
-        'supplier_id'                   => $supplier->id_supplier,
-        'unit_price'                    => 10,
-        'total'                         => 10,
-    ]);
 
     $order = PurchaseOrder::create([
         'id_supplier'           => $supplier->id_supplier,
@@ -154,7 +147,7 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
 
     return (object) compact(
         'company', 'branch', 'warehouse', 'location', 'user', 'request', 'requestDetail',
-        'quotationRequest', 'quotation', 'supplierQuotation', 'order', 'orderDetail',
+        'quotationRequest', 'quotation', 'order', 'orderDetail',
         'purchase', 'purchaseDetail', 'retaceo'
     );
 }
@@ -293,7 +286,6 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
         ['get', route('purchase-quotation-requests.request-details', $b->request->id_purchase_request)],
         ['patch', route('purchase-quotation-requests.select-quotation', [$b->quotationRequest, $b->quotation])],
         ['delete', route('purchase-quotations.destroy', $b->quotation->id_purchase_quotation)],
-        ['delete', route('supplier-quotations.destroy', $b->supplierQuotation->id)],
 
         ['get', route('purchase_orders.show', $b->order)],
         ['get', route('purchase_orders.edit', $b->order)],
@@ -355,7 +347,6 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
     $this->assertDatabaseHas('purchases', ['id_purchase' => $b->purchase->id_purchase, 'status' => 'draft']);
     $this->assertDatabaseHas('retaceos', ['id_retaceo' => $b->retaceo->id_retaceo, 'status' => 'draft']);
     $this->assertDatabaseHas('purchase_quotations', ['id_purchase_quotation' => $b->quotation->id_purchase_quotation]);
-    $this->assertDatabaseHas('supplier_quotations', ['id' => $b->supplierQuotation->id]);
     $this->assertDatabaseHas('warehouses', ['id' => $b->warehouse->id, 'is_active' => true]);
     $this->assertDatabaseHas('branches', ['id' => $b->branch->id, 'is_active' => true]);
     $this->assertDatabaseHas('users', ['id' => $b->user->id, 'status' => 'active']);

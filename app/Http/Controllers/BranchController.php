@@ -34,12 +34,9 @@ class BranchController extends Controller
     public function create()
     {
         Gate::authorize('branches.crear');
-        $companies = Company::all();
-        $departments = Department::orderBy('name')->get();
-        $municipalities = Municipality::orderBy('name')->get();
-        $districts = District::orderBy('name')->get();
 
-        return view('branches.create', compact('companies', 'departments', 'municipalities', 'districts'));
+        // El formulario está en un modal del listado
+        return redirect()->route('branches.index');
     }
 
     /**
@@ -69,12 +66,9 @@ class BranchController extends Controller
     public function edit(Branch $branch)
     {
         Gate::authorize('branches.editar');
-        $companies = Company::all();
-        $departments = Department::orderBy('name')->get();
-        $municipalities = Municipality::orderBy('name')->get();
-        $districts = District::orderBy('name')->get();
 
-        return view('branches.edit', compact('branch', 'companies', 'departments', 'municipalities', 'districts'));
+        // El formulario está en un modal del listado
+        return redirect()->route('branches.index');
     }
 
     /**

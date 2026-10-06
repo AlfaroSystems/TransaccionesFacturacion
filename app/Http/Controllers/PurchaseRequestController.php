@@ -41,12 +41,12 @@ class PurchaseRequestController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where(
                     'purchase_request_code',
-                    'like',
+                    'ilike',
                     "%{$search}%"
                 )
                 ->orWhere(
                     'justification',
-                    'like',
+                    'ilike',
                     "%{$search}%"
                 );
             });

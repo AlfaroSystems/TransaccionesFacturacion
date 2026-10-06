@@ -24,12 +24,12 @@ class CompanyController extends Controller
             ])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($companyQuery) use ($search) {
-                    $companyQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('commercial_name', 'like', "%{$search}%")
-                        ->orWhere('nit', 'like', "%{$search}%")
-                        ->orWhere('nrc', 'like', "%{$search}%")
-                        ->orWhere('phone', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
+                    $companyQuery->where('name', 'ilike', "%{$search}%")
+                        ->orWhere('commercial_name', 'ilike', "%{$search}%")
+                        ->orWhere('nit', 'ilike', "%{$search}%")
+                        ->orWhere('nrc', 'ilike', "%{$search}%")
+                        ->orWhere('phone', 'ilike', "%{$search}%")
+                        ->orWhere('email', 'ilike', "%{$search}%");
                 });
             })
             ->orderByDesc('id')
@@ -187,15 +187,8 @@ class CompanyController extends Controller
     public function edit(Company $company)
     {
         Gate::authorize('companies.editar');
-        $departments = \App\Models\Department::orderBy('name')->get();
-        $municipalities = \App\Models\Municipality::orderBy('name')->get();
-        $districts = \App\Models\District::orderBy('name')->get();
-        
-        return view('companies.edit', compact(
-            'company',
-            'departments',
-            'municipalities',
-            'districts'
-        ));
+
+        // El formulario está en un modal del listado
+        return redirect()->route('companies.index');
     }
 }

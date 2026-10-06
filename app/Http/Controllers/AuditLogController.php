@@ -34,12 +34,12 @@ class AuditLogController extends Controller
 
         // Filtrar por controlador
         if ($request->filled('controller')) {
-            $query->where('controller', 'like', "%{$request->input('controller')}%");
+            $query->where('controller', 'ilike', "%{$request->input('controller')}%");
         }
 
         // Filtrar por acción
         if ($request->filled('action')) {
-            $query->where('action', 'like', "%{$request->input('action')}%");
+            $query->where('action', 'ilike', "%{$request->input('action')}%");
         }
 
         // Filtrar por fecha de inicio

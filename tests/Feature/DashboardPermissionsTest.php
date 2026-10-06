@@ -65,6 +65,22 @@ test('sin permisos sobre ningún módulo el dashboard no muestra tarjetas ni acc
         ->assertDontSee('Accesos Rápidos');
 });
 
+test('cada grupo del menú lleva al primer módulo que el usuario puede ver', function () {
+    // Sin permiso de bodegas ni de usuarios: Inventario y Administración llevan a lo permitido
+    $user = usuarioConPermisosDeDashboard(['locations.ver', 'bitacora.ver']);
+
+    $this->actingAs($user)->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('href="'.route('locations.index').'"', false)
+        ->assertSee('href="'.route('audit-logs.index').'"', false)
+        ->assertDontSee('href="'.route('warehouses.index').'"', false)
+        ->assertDontSee('href="'.route('users.index').'"', false)
+        ->assertDontSee('href="'.route('purchase-requests.index').'"', false);
+
+    $this->get(route('locations.index'))->assertOk();
+    $this->get(route('audit-logs.index'))->assertOk();
+});
+
 test('el administrador ve todo el dashboard', function () {
     $admin = User::factory()->create();
     $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);

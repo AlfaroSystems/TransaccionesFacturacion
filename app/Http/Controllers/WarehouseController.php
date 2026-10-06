@@ -32,21 +32,8 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.crear');
 
-        $branches = Branch::where('is_active',true)
-            ->orderBy('name')
-            ->get();
-
-        $categories = WarehouseCategory::where('is_active',true)
-            ->orderBy('name')
-            ->get();
-
-        return view(
-            'warehouses.create',
-            compact(
-                'branches',
-                'categories'
-            )
-        );
+        // El formulario está en un modal del listado
+        return redirect()->route('warehouses.index');
     }
 
     public function store(Request $request)
@@ -79,22 +66,8 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.editar');
 
-        $branches = Branch::where('is_active',true)
-            ->orderBy('name')
-            ->get();
-
-        $categories = WarehouseCategory::where('is_active',true)
-            ->orderBy('name')
-            ->get();
-
-        return view(
-            'warehouses.edit',
-            compact(
-                'warehouse',
-                'branches',
-                'categories'
-            )
-        );
+        // El formulario está en un modal del listado
+        return redirect()->route('warehouses.index');
     }
 
     public function update(

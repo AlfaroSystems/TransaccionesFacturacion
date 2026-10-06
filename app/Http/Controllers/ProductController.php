@@ -28,10 +28,10 @@ class ProductController extends Controller
         if ($request->filled('search')) {
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('sku', 'like', "%{$search}%")
-                    ->orWhere('original_code', 'like', "%{$search}%")
-                    ->orWhere('internal_code', 'like', "%{$search}%");
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('sku', 'ilike', "%{$search}%")
+                    ->orWhere('original_code', 'ilike', "%{$search}%")
+                    ->orWhere('internal_code', 'ilike', "%{$search}%");
             });
         }
 
@@ -60,11 +60,8 @@ class ProductController extends Controller
     {
         Gate::authorize('products.crear');
 
-        $categories    = Category::where('is_active', true)->get();
-        $subCategories = SubCategory::where('is_active', true)->get();
-        $units         = Unit::where('is_active', true)->get();
-
-        return view('products.create', compact('categories', 'subCategories', 'units'));
+        // El formulario está en un modal del listado
+        return redirect()->route('products.index');
     }
 
     /**

@@ -30,8 +30,8 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%");
             });
         }
 
@@ -68,10 +68,8 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.crear');
 
-        $roles = $this->assignableRoles();
-        $branches = Branch::where('is_active', true)->orderBy('name')->get();
-
-        return view('users.create', compact('roles', 'branches'));
+        // El formulario está en un modal del listado
+        return redirect()->route('users.index');
     }
 
     /**
@@ -112,7 +110,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return redirect()->route('users.edit', $user);
+        Gate::authorize('usuarios.ver');
+        $this->ensureAccessible($user);
+
+        return redirect()->route('users.index');
     }
 
     /**
@@ -127,11 +128,8 @@ class UserController extends Controller
             return $denied;
         }
 
-        $roles = $this->assignableRoles();
-        $branches = Branch::where('is_active', true)->orderBy('name')->get();
-        $userRoles = $user->roles->pluck('id')->toArray();
-
-        return view('users.edit', compact('user', 'roles', 'branches', 'userRoles'));
+        // El formulario está en un modal del listado
+        return redirect()->route('users.index');
     }
 
     /**

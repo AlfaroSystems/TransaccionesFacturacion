@@ -42,10 +42,8 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.crear');
 
-        // Si el modelo Warehouse no existe aún en el sistema, manejamos una colección vacía.
-        $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
-
-        return view('locations.create', compact('warehouses'));
+        // El formulario está en un modal del listado
+        return redirect()->route('locations.index');
     }
 
     /**
@@ -187,8 +185,8 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.editar');
 
-        $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
-        return view('locations.edit', compact('location', 'warehouses'));
+        // El formulario está en un modal del listado
+        return redirect()->route('locations.index');
     }
 
     /**

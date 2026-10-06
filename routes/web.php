@@ -16,7 +16,6 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\PurchaseQuotationRequestController;
-use App\Http\Controllers\SupplierQuotationController;
 use App\Http\Controllers\PurchaseQuotationController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\PurchaseController;
@@ -35,11 +34,13 @@ Route::middleware('auth')->group(function () {
         ->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+    // Los módulos crean y editan con modales en el listado; se excluyen las
+    // acciones que no tienen método en el controlador
     Route::resource('branches', BranchController::class);
-    Route::resource('companies', CompanyController::class);
+    Route::resource('companies', CompanyController::class)->except(['create', 'show']);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('users', UserController::class);
-    Route::resource('roles', RoleController::class);
+    Route::resource('roles', RoleController::class)->except(['show']);
     Route::get(
         'locations/map',
         [LocationController::class, 'map']
@@ -60,16 +61,12 @@ Route::middleware('auth')->group(function () {
     )
         ->middleware('can:bitacora.ver')
         ->name('audit-logs.index');
-    Route::resource('warehouses', WarehouseController::class);
+    Route::resource('warehouses', WarehouseController::class)->except(['show']);
     Route::resource(
         'warehouse_categories',
         WarehouseCategoryController::class
-    );
-    Route::resource('categories', CategoryController::class);
-    Route::patch(
-        '/categories/{category}/toggle',
-        [CategoryController::class, 'toggleStatus']
-    )->name('categories.toggle');
+    )->except(['show']);
+    Route::resource('categories', CategoryController::class)->except(['show']);
     Route::resource('subcategories', SubCategoryController::class);
     Route::resource('units', UnitController::class);
     // Gestión de Tipos de Gastos Adicionales
@@ -166,19 +163,10 @@ Route::middleware('auth')->group(function () {
         'store',
         'show'
     ]);
-    Route::get(
-        '/api/categories/{id}/sub-categories',
-        [CategoryController::class, 'subCategories']
-    )->name('api.categories.subcategories');
 
     // Rutas para Ofertas de Proveedor (PurchaseQuotation)
     Route::resource('purchase-quotations', PurchaseQuotationController::class)
         ->only(['store', 'destroy']);
-
-    Route::post('/supplier-quotations', [SupplierQuotationController::class, 'store'])->name('supplier-quotations.store');
-
-    // Sugerencia: Ruta para eliminar una oferta de proveedor por su ID
-    Route::delete('/supplier-quotations/{supplierQuotation}', [SupplierQuotationController::class, 'destroy'])->name('supplier-quotations.destroy');
 });
 
 require __DIR__.'/auth.php';

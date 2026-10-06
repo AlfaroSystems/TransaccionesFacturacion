@@ -148,40 +148,60 @@
                 </a>
                 <!-- Inventario -->
                 @php
+                    // Cada grupo del menú enlaza al primer módulo que el usuario puede ver;
+                    // si no puede ver ninguno, el grupo no se muestra
+                    $firstAllowedRoute = fn (array $modules) => collect($modules)
+                        ->first(fn ($route, $permission) => auth()->user()->can($permission));
+
                     $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
+                    $inventarioRoute = $firstAllowedRoute([
+                        'warehouses.ver' => 'warehouses.index',
+                        'warehouse_categories.ver' => 'warehouse_categories.index',
+                        'locations.ver' => 'locations.index',
+                    ]);
                 @endphp
-                @canany(['warehouses.ver', 'warehouse_categories.ver', 'locations.ver'])
-                    <a href="{{ route('warehouses.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isInventario ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                @if($inventarioRoute)
+                    <a href="{{ route($inventarioRoute) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isInventario ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                         </svg>
                         <span>Inventario</span>
                     </a>
-                @endcanany
+                @endif
                 <!-- Empresa -->
                 @php
-                    $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*') || request()->routeIs('companies.*');
+                    $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('companies.*');
+                    $empresaRoute = $firstAllowedRoute([
+                        'companies.ver' => 'companies.index',
+                        'branches.ver' => 'branches.index',
+                    ]);
                 @endphp
-                @canany(['companies.ver', 'branches.ver', 'empleados.ver'])
-                    <a href="{{ route('companies.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isEmpresa ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                @if($empresaRoute)
+                    <a href="{{ route($empresaRoute) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isEmpresa ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                         <span>Empresa</span>
                     </a>
-                @endcanany
+                @endif
                 <!-- Productos -->
                 @php
                     $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
+                    $productosRoute = $firstAllowedRoute([
+                        'products.ver' => 'products.index',
+                        'categories.ver' => 'categories.index',
+                        'subcategories.ver' => 'subcategories.index',
+                        'units.ver' => 'units.index',
+                    ]);
                 @endphp
-                @canany(['products.ver', 'categories.ver', 'subcategories.ver', 'units.ver'])
-                    <a href="{{ route('products.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isProductos ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                @if($productosRoute)
+                    <a href="{{ route($productosRoute) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isProductos ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                         </svg>
                         <span>Productos</span>
                     </a>
-                @endcanany
+                @endif
                 <!-- Proveedores -->
                 @php
                     $isSupplier = request()->routeIs('suppliers.*');
@@ -197,28 +217,41 @@
                 <!-- Compras -->
                 @php
                     $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');
+                    $comprasRoute = $firstAllowedRoute([
+                        'purchase_requests.ver' => 'purchase-requests.index',
+                        'purchase_quotation_requests.ver' => 'purchase-quotation-requests.index',
+                        'purchase_orders.ver' => 'purchase_orders.index',
+                        'purchases.ver' => 'purchases.index',
+                        'retaceos.ver' => 'retaceos.index',
+                        'expense_types.ver' => 'expense-types.index',
+                    ]);
                 @endphp
-                @canany(['purchase_requests.ver', 'purchase_quotation_requests.ver', 'purchase_orders.ver', 'expense_types.ver', 'purchases.ver', 'retaceos.ver'])
-                    <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isCompras ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                @if($comprasRoute)
+                    <a href="{{ route($comprasRoute) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isCompras ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
                         <span>Compras</span>
                     </a>
-                @endcanany
+                @endif
                 <!-- Administración -->
                 @php
                     $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
+                    $administracionRoute = $firstAllowedRoute([
+                        'usuarios.ver' => 'users.index',
+                        'roles.administrar' => 'roles.index',
+                        'bitacora.ver' => 'audit-logs.index',
+                    ]);
                 @endphp
-                @canany(['usuarios.ver', 'roles.administrar', 'bitacora.ver'])
-                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isAdministracion ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                @if($administracionRoute)
+                    <a href="{{ route($administracionRoute) }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isAdministracion ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c-.94 1.543.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c.94-1.543-.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                         <span>Administración</span>
                     </a>
-                @endcanany
+                @endif
             </nav>
         </div>
         <!-- Pie del Sidebar -->

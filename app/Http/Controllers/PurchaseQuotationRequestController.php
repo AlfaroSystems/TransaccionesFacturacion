@@ -32,8 +32,8 @@ class PurchaseQuotationRequestController extends Controller
 
         if ($search) {
             $query->whereHas('purchaseRequest', function ($sub) use ($search) {
-                $sub->where('purchase_request_code', 'like', "%{$search}%")
-                    ->orWhere('justification', 'like', "%{$search}%");
+                $sub->where('purchase_request_code', 'ilike', "%{$search}%")
+                    ->orWhere('justification', 'ilike', "%{$search}%");
             });
         }
 

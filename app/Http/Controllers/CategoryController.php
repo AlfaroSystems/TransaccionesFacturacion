@@ -16,7 +16,7 @@ class CategoryController extends Controller
 
         $categories = Category::query()
             ->when($request->search, function ($query) use ($request) {
-                $query->where('name', 'like', '%' . $request->search . '%');
+                $query->where('name', 'ilike', '%' . $request->search . '%');
             })
             ->get();
 
@@ -92,22 +92,6 @@ class CategoryController extends Controller
     }
 
     /**
-     * Cambiar estado activo/inactivo
-     */
-    public function toggleStatus(Category $category)
-    {
-        Gate::authorize('categories.editar');
-
-        $category->update([
-            'is_active' => !$category->is_active,
-        ]);
-
-        return redirect()
-            ->route('categories.index')
-            ->with('success', 'Estado de categoría actualizado');
-    }
-
-    /**
      * Eliminar (Inactivar/Reactivar) categoría
      */
     public function destroy(Category $category)
@@ -125,18 +109,5 @@ class CategoryController extends Controller
         return redirect()
             ->route('categories.index')
             ->with('success', $message);
-    }
-
-    /**
-     * API: Devuelve las subcategorías activas de una categoría.
-     * Reemplaza el Closure definido en routes/web.php para habilitar route:cache en producción.
-     */
-    public function subCategories(int $id): \Illuminate\Http\JsonResponse
-    {
-        $subCategories = \App\Models\SubCategory::where('id_category', $id)
-            ->where('is_active', true)
-            ->get(['id', 'name']);
-
-        return response()->json($subCategories);
     }
 }

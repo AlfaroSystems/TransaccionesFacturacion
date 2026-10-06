@@ -30,9 +30,8 @@ class RoleController extends Controller
     {
         Gate::authorize('roles.administrar');
 
-        $permissions = Permission::all();
-
-        return view('roles.create', compact('permissions'));
+        // El formulario está en un modal del listado
+        return redirect()->route('roles.index');
     }
 
     /**
@@ -74,10 +73,8 @@ class RoleController extends Controller
                 ->with('error', 'El rol Administrador es un rol protegido del sistema y no se puede editar.');
         }
 
-        $permissions = Permission::all();
-        $rolePermissions = $role->permissions->pluck('id')->toArray();
-
-        return view('roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        // El formulario está en un modal del listado
+        return redirect()->route('roles.index');
     }
 
     /**

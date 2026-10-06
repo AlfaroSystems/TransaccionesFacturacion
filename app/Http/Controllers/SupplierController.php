@@ -23,15 +23,15 @@ class SupplierController extends Controller
         $suppliers = Supplier::with(['contacts', 'department', 'municipality', 'district'])
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('code', 'like', '%' . $search . '%')
-                        ->orWhere('country', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%')
+                    $q->where('name', 'ilike', '%' . $search . '%')
+                        ->orWhere('code', 'ilike', '%' . $search . '%')
+                        ->orWhere('country', 'ilike', '%' . $search . '%')
+                        ->orWhere('email', 'ilike', '%' . $search . '%')
                         ->orWhereHas('contacts', function ($contactQuery) use ($search) {
                             $contactQuery
-                                ->where('full_name', 'like', '%' . $search . '%')
-                                ->orWhere('email', 'like', '%' . $search . '%')
-                                ->orWhere('phone', 'like', '%' . $search . '%');
+                                ->where('full_name', 'ilike', '%' . $search . '%')
+                                ->orWhere('email', 'ilike', '%' . $search . '%')
+                                ->orWhere('phone', 'ilike', '%' . $search . '%');
                         });
                 });
             })
@@ -52,7 +52,8 @@ class SupplierController extends Controller
     {
         Gate::authorize('suppliers.crear');
 
-        return view('suppliers.create');
+        // El formulario está en un modal del listado
+        return redirect()->route('suppliers.index');
     }
 
     /**
@@ -138,9 +139,8 @@ class SupplierController extends Controller
     {
         Gate::authorize('suppliers.editar');
 
-        $supplier->load(['contacts', 'department', 'municipality', 'district']);
-
-        return view('suppliers.edit', compact('supplier'));
+        // El formulario está en un modal del listado
+        return redirect()->route('suppliers.index');
     }
 
     /**
