@@ -3,10 +3,17 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Run composer install if vendor/autoload.php doesn't exist
-if [ ! -f "vendor/autoload.php" ]; then
+# Returns success when the lock file changed since the last install recorded in the stamp file
+lock_changed() {
+    local lock_file="$1" stamp_file="$2"
+    [ ! -f "$stamp_file" ] || [ "$(sha256sum "$lock_file" | cut -d' ' -f1)" != "$(cat "$stamp_file")" ]
+}
+
+# Install composer dependencies when vendor is missing or composer.lock changed (e.g. after git pull)
+if [ ! -f "vendor/autoload.php" ] || lock_changed composer.lock vendor/.composer-lock.sha256; then
     echo "Installing composer dependencies..."
     composer install --no-interaction --prefer-dist --optimize-autoloader
+    sha256sum composer.lock | cut -d' ' -f1 > vendor/.composer-lock.sha256
 fi
 
 # Create .env if it doesn't exist
@@ -45,16 +52,17 @@ echo "Database connection established successfully!"
 echo "Running database migrations..."
 php artisan migrate --force
 
-# Run npm install and build if node_modules or build assets don't exist
-if [ ! -d "node_modules" ]; then
+# Install npm dependencies when node_modules is missing or package-lock.json changed
+if [ ! -d "node_modules" ] || lock_changed package-lock.json node_modules/.package-lock.sha256; then
     echo "Installing npm dependencies..."
     npm install
+    sha256sum package-lock.json | cut -d' ' -f1 > node_modules/.package-lock.sha256
 fi
 
-if [ ! -f "public/build/manifest.json" ]; then
-    echo "Building assets with Vite..."
-    npm run build
-fi
+# Always rebuild assets: public/build is not versioned, and Tailwind only includes the
+# classes used in the current views, so an old build misses classes added since then
+echo "Building assets with Vite..."
+npm run build
 
 # Ensure storage and bootstrap cache permissions are correct
 echo "Setting folder permissions for storage and bootstrap/cache..."
