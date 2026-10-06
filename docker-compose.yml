@@ -14,6 +14,8 @@ services:
       - DB_DATABASE=${DB_DATABASE:-transacciones_facturacion}
       - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-1234}
+      # OPcache: 1 en desarrollo (ve cambios sin reiniciar), 0 en producción (ver docker/php/opcache.ini)
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=${PHP_OPCACHE_VALIDATE_TIMESTAMPS:-1}
     depends_on:
       - db
     networks:
