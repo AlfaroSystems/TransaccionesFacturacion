@@ -544,7 +544,7 @@
             return;
         }
         form.action = route;   
-        id.value = unit.id ?? '';
+        id.value = unit.id_unit ?? '';
         name.value = unit.name ?? '';
         type.value = unit.type ?? '';
         active.checked = Boolean(unit.is_active);
@@ -557,7 +557,7 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('units.update', old('id', 0)) }}";
                 const oldUnit = {
-                    id: "{{ old('id') }}",
+                    id_unit: "{{ old('id') }}",
                     name: @json(old('name')),
                     type: @json(old('type')),
                     is_active: "{{ old('is_active', '0') }}" == "1"

@@ -15,7 +15,7 @@
             </p>
             <p>
                 <strong>Dirección:</strong>
-                {{ $branch->address }}
+                {{ $branch->addres }}
             </p>
             <p>
                 <strong>Teléfono:</strong>

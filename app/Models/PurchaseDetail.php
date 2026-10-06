@@ -61,12 +61,12 @@ class PurchaseDetail extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'id_product', 'id');
+        return $this->belongsTo(Product::class, 'id_product');
     }
 
     public function unit(): BelongsTo
     {
-        return $this->belongsTo(Unit::class, 'id_unit', 'id');
+        return $this->belongsTo(Unit::class, 'id_unit');
     }
 
     public function retaceoDetails(): HasMany

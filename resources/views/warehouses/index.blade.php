@@ -44,7 +44,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                     </svg>
                                 </div>
-                                <span>#{{ $warehouse->id }}</span>
+                                <span>#{{ $warehouse->id_warehouse }}</span>
                             </div>
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm text-slate-600 font-semibold">
@@ -69,7 +69,7 @@
                             <div class="flex justify-center gap-2">
                                 <!-- Editar -->
                                 @can('warehouses.editar')
-                                <button type="button" onclick="openEditWarehouseModal('{{ route('warehouses.update', $warehouse->id) }}', {{ json_encode($warehouse) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Bodega">
+                                <button type="button" onclick="openEditWarehouseModal('{{ route('warehouses.update', $warehouse->id_warehouse) }}', {{ json_encode($warehouse) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Bodega">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -79,13 +79,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('warehouses.eliminar')
                                     @if($warehouse->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ addslashes($warehouse->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Bodega">
+                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id_warehouse) }}', '{{ addslashes($warehouse->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Bodega">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id) }}', '{{ addslashes($warehouse->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Bodega">
+                                        <button type="button" onclick="confirmDelete('{{ route('warehouses.destroy', $warehouse->id_warehouse) }}', '{{ addslashes($warehouse->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Bodega">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -136,16 +136,16 @@
 
             <!-- Sucursal -->
             <div>
-                <label for="branch_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
-                <select name="branch_id" id="branch_id" class="w-full bg-slate-50 border @error('branch_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="id_branch" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
+                <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una sucursal</option>
                     @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ (old('modal_type') === 'create' && old('branch_id') == $branch->id) ? 'selected' : '' }}>
+                        <option value="{{ $branch->id_branch }}" {{ (old('modal_type') === 'create' && old('id_branch') == $branch->id_branch) ? 'selected' : '' }}>
                             {{ $branch->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('branch_id')
+                @error('id_branch')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                     @endif
@@ -154,16 +154,16 @@
 
             <!-- Categoría -->
             <div>
-                <label for="warehouse_category_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
-                <select name="warehouse_category_id" id="warehouse_category_id" class="w-full bg-slate-50 border @error('warehouse_category_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="id_warehouse_category" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
+                <select name="id_warehouse_category" id="id_warehouse_category" class="w-full bg-slate-50 border @error('id_warehouse_category') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una categoría</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ (old('modal_type') === 'create' && old('warehouse_category_id') == $category->id) ? 'selected' : '' }}>
+                        <option value="{{ $category->id_warehouse_category }}" {{ (old('modal_type') === 'create' && old('id_warehouse_category') == $category->id_warehouse_category) ? 'selected' : '' }}>
                             {{ $category->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('warehouse_category_id')
+                @error('id_warehouse_category')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                     @endif
@@ -232,16 +232,16 @@
 
             <!-- Sucursal -->
             <div>
-                <label for="edit-branch_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
-                <select name="branch_id" id="edit-branch_id" class="w-full bg-slate-50 border @error('branch_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="edit-id_branch" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
+                <select name="id_branch" id="edit-id_branch" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una sucursal</option>
                     @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ (old('modal_type') === 'edit' && old('branch_id') == $branch->id) ? 'selected' : '' }}>
+                        <option value="{{ $branch->id_branch }}" {{ (old('modal_type') === 'edit' && old('id_branch') == $branch->id_branch) ? 'selected' : '' }}>
                             {{ $branch->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('branch_id')
+                @error('id_branch')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                     @endif
@@ -250,16 +250,16 @@
 
             <!-- Categoría -->
             <div>
-                <label for="edit-warehouse_category_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
-                <select name="warehouse_category_id" id="edit-warehouse_category_id" class="w-full bg-slate-50 border @error('warehouse_category_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="edit-id_warehouse_category" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
+                <select name="id_warehouse_category" id="edit-id_warehouse_category" class="w-full bg-slate-50 border @error('id_warehouse_category') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una categoría</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ (old('modal_type') === 'edit' && old('warehouse_category_id') == $category->id) ? 'selected' : '' }}>
+                        <option value="{{ $category->id_warehouse_category }}" {{ (old('modal_type') === 'edit' && old('id_warehouse_category') == $category->id_warehouse_category) ? 'selected' : '' }}>
                             {{ $category->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('warehouse_category_id')
+                @error('id_warehouse_category')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                     @endif
@@ -317,9 +317,9 @@
     function openEditWarehouseModal(actionUrl, warehouse) {
         const modal = document.getElementById('edit-warehouse-modal');
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = warehouse.id;
-        document.getElementById('edit-branch_id').value = warehouse.branch_id;
-        document.getElementById('edit-warehouse_category_id').value = warehouse.warehouse_category_id;
+        document.getElementById('edit-id').value = warehouse.id_warehouse;
+        document.getElementById('edit-id_branch').value = warehouse.id_branch;
+        document.getElementById('edit-id_warehouse_category').value = warehouse.id_warehouse_category;
         document.getElementById('edit-name').value = warehouse.name;
         document.getElementById('edit-description').value = warehouse.description || '';
         
@@ -350,9 +350,9 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('warehouses.update', old('id', 0)) }}";
                 const oldWarehouse = {
-                    id: "{{ old('id') }}",
-                    branch_id: "{{ old('branch_id') }}",
-                    warehouse_category_id: "{{ old('warehouse_category_id') }}",
+                    id_warehouse: "{{ old('id') }}",
+                    id_branch: "{{ old('id_branch') }}",
+                    id_warehouse_category: "{{ old('id_warehouse_category') }}",
                     name: "{{ old('name') }}",
                     description: "{{ old('description') }}",
                     is_active: "{{ old('is_active', '0') }}"

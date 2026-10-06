@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model
 {
+    protected $primaryKey = 'id_role';
+
     protected $fillable = ['name', 'description'];
 
     /**
@@ -13,7 +15,7 @@ class Role extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withPivot('assigned_at');
+        return $this->belongsToMany(User::class, 'users_roles', 'id_role', 'id_user')->withPivot('assigned_at');
     }
 
     /**
@@ -21,6 +23,6 @@ class Role extends Model
      */
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class);
+        return $this->belongsToMany(Permission::class, 'roles_permissions', 'id_role', 'id_permission');
     }
 }

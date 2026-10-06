@@ -353,7 +353,7 @@
                         <select name="id_branch" id="modal_id_branch" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Sucursal --</option>
                             @foreach($branches as $br)
-                                <option value="{{ $br->id }}">{{ $br->name }}</option>
+                                <option value="{{ $br->id_branch }}">{{ $br->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -362,7 +362,7 @@
                         <select name="id_warehouse" id="modal_id_warehouse" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Bodega --</option>
                             @foreach($warehouses as $wh)
-                                <option value="{{ $wh->id }}">{{ $wh->name }}</option>
+                                <option value="{{ $wh->id_warehouse }}">{{ $wh->name }}</option>
                             @endforeach
                         </select>
                     </div>

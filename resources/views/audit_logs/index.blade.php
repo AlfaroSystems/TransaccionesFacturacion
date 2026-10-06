@@ -15,12 +15,12 @@
         <form action="{{ route('audit-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 items-end">
             <!-- Filtro por Usuario -->
             <div>
-                <label for="user_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usuario</label>
-                <select name="user_id" id="user_id" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <label for="id_user" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usuario</label>
+                <select name="id_user" id="id_user" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
                     <option value="">Todos los Usuarios</option>
                     @foreach($users as $user)
-                        <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
-                            {{ $user->name }}
+                        <option value="{{ $user->id_user }}" {{ request('id_user') == $user->id_user ? 'selected' : '' }}>
+                            {{ $user->username }}
                         </option>
                     @endforeach
                 </select>
@@ -56,7 +56,7 @@
                 <button type="submit" class="flex-1 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] text-white rounded-xl text-sm font-bold transition-all shadow-sm">
                     Filtrar
                 </button>
-                @if(request()->anyFilled(['user_id', 'auditable_type', 'date_from', 'date_to']))
+                @if(request()->anyFilled(['id_user', 'auditable_type', 'date_from', 'date_to']))
                     <a href="{{ route('audit-logs.index') }}" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
                         Limpiar
                     </a>
@@ -98,10 +98,10 @@
                             @if($log->user)
                                 <div class="flex items-center gap-2">
                                     <div class="w-7 h-7 rounded-full bg-slate-100 text-navy-sidebar border border-slate-200 flex items-center justify-center font-bold text-xs uppercase">
-                                        {{ substr($log->user->name, 0, 2) }}
+                                        {{ substr($log->user->username, 0, 2) }}
                                     </div>
                                     <div>
-                                        <span class="font-bold text-slate-700 block">{{ $log->user->name }}</span>
+                                        <span class="font-bold text-slate-700 block">{{ $log->user->username }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold">{{ $log->user->email }}</span>
                                     </div>
                                 </div>
@@ -146,9 +146,9 @@
 
                         <!-- Botón Ver Detalles -->
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
-                            <button type="button" onclick="toggleDetails({{ $log->id }})" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors text-xs font-bold flex items-center gap-1.5 ml-auto" title="Inspeccionar">
+                            <button type="button" onclick="toggleDetails({{ $log->id_log }})" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors text-xs font-bold flex items-center gap-1.5 ml-auto" title="Inspeccionar">
                                 <span>Inspeccionar</span>
-                                <svg id="icon-{{ $log->id }}" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg id="icon-{{ $log->id_log }}" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -156,7 +156,7 @@
                     </tr>
 
                     <!-- Fila de Detalles Oculta / Expandible -->
-                    <tr id="details-{{ $log->id }}" class="hidden">
+                    <tr id="details-{{ $log->id_log }}" class="hidden">
                         <td colspan="6" class="px-6 py-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in duration-200">
                                 <!-- Datos Originales -->

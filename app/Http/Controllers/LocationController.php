@@ -6,6 +6,7 @@ use App\Models\Warehouse;
 use App\Rules\Accessible;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class LocationController extends Controller
 {
@@ -16,7 +17,7 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.ver');
 
-        $locations = Location::with('warehouse')->orderBy('id', 'desc')->get();
+        $locations = Location::with('warehouse')->orderBy('id_location', 'desc')->get();
         $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
 
         return view('locations.index', compact('locations', 'warehouses'));
@@ -54,9 +55,9 @@ class LocationController extends Controller
         Gate::authorize('locations.crear');
 
         $request->validate([
-            'warehouse_id' => ['required', new Accessible(Warehouse::class)],
+            'id_warehouse' => ['required', new Accessible(Warehouse::class)],
             'code' => 'required|string|max:255|unique:locations,code',
-            'pasillo' => 'nullable|string|max:255',
+            'aisle' => 'nullable|string|max:255',
             'rack' => 'nullable|string|max:255',
             'level' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
@@ -66,9 +67,9 @@ class LocationController extends Controller
         ]);
 
         Location::create([
-            'warehouse_id' => $request->warehouse_id,
+            'id_warehouse' => $request->id_warehouse,
             'code' => $request->code,
-            'pasillo' => $request->pasillo,
+            'aisle' => $request->aisle,
             'rack' => $request->rack,
             'level' => $request->level,
             'position' => $request->position,
@@ -90,7 +91,7 @@ class LocationController extends Controller
         Gate::authorize('locations.crear');
 
         $request->validate([
-            'warehouse_id' => ['required', new Accessible(Warehouse::class)],
+            'id_warehouse' => ['required', new Accessible(Warehouse::class)],
             'pasillo_hasta' => 'required|string|max:10',
             'rack_hasta' => 'required|integer|min:1',
             'level_hasta' => 'required|integer|min:1',
@@ -104,7 +105,7 @@ class LocationController extends Controller
         $levelHasta = (int) $request->level_hasta;
         $positionHasta = (int) $request->position_hasta;
         $capacity = (int) $request->capacity;
-        $warehouseId = $request->warehouse_id;
+        $warehouseId = $request->id_warehouse;
         $notes = $request->notes;
 
         // Determinar el rango de pasillos (Alfabético A-Z o Numérico 1-N)
@@ -133,11 +134,11 @@ class LocationController extends Controller
 
                         $location = Location::firstOrCreate(
                             [
-                                'warehouse_id' => $warehouseId,
+                                'id_warehouse' => $warehouseId,
                                 'code' => $code,
                             ],
                             [
-                                'pasillo' => $pasillo,
+                                'aisle' => $pasillo,
                                 'rack' => (string) $r,
                                 'level' => (string) $l,
                                 'position' => (string) $pos,
@@ -197,9 +198,9 @@ class LocationController extends Controller
         Gate::authorize('locations.editar');
 
         $request->validate([
-            'warehouse_id' => ['required', new Accessible(Warehouse::class)],
-            'code' => 'required|string|max:255|unique:locations,code,' . $location->id,
-            'pasillo' => 'nullable|string|max:255',
+            'id_warehouse' => ['required', new Accessible(Warehouse::class)],
+            'code' => ['required', 'string', 'max:255', Rule::unique('locations', 'code')->ignore($location)],
+            'aisle' => 'nullable|string|max:255',
             'rack' => 'nullable|string|max:255',
             'level' => 'nullable|string|max:255',
             'position' => 'nullable|string|max:255',
@@ -209,9 +210,9 @@ class LocationController extends Controller
         ]);
 
         $location->update([
-            'warehouse_id' => $request->warehouse_id,
+            'id_warehouse' => $request->id_warehouse,
             'code' => $request->code,
-            'pasillo' => $request->pasillo,
+            'aisle' => $request->aisle,
             'rack' => $request->rack,
             'level' => $request->level,
             'position' => $request->position,

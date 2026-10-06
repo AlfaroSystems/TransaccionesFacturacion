@@ -167,7 +167,7 @@
                         <select name="id_branch" id="create_id_branch" required onchange="filterWarehouses(this, document.getElementById('create_id_warehouse'))" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Seleccione sucursal...</option>
                             @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ old('id_branch') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                <option value="{{ $branch->id_branch }}" {{ old('id_branch') == $branch->id_branch ? 'selected' : '' }}>{{ $branch->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -176,7 +176,7 @@
                         <select name="id_warehouse" id="create_id_warehouse" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Seleccione bodega...</option>
                             @foreach($warehouses as $warehouse)
-                                <option value="{{ $warehouse->id }}" data-branch="{{ $warehouse->branch_id }}" {{ old('id_warehouse') == $warehouse->id ? 'selected' : '' }}>{{ $warehouse->name }}</option>
+                                <option value="{{ $warehouse->id_warehouse }}" data-branch="{{ $warehouse->id_branch }}" {{ old('id_warehouse') == $warehouse->id_warehouse ? 'selected' : '' }}>{{ $warehouse->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -337,7 +337,7 @@
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sucursal *</label>
                         <select name="id_branch" id="edit_branch_{{ $purchaseRequest->id_purchase_request }}" required onchange="filterWarehouses(this, document.getElementById('edit_warehouse_{{ $purchaseRequest->id_purchase_request }}'))" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}" {{ $purchaseRequest->id_branch == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                <option value="{{ $branch->id_branch }}" {{ $purchaseRequest->id_branch == $branch->id_branch ? 'selected' : '' }}>{{ $branch->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -345,7 +345,7 @@
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Bodega *</label>
                         <select name="id_warehouse" id="edit_warehouse_{{ $purchaseRequest->id_purchase_request }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             @foreach($warehouses as $warehouse)
-                                <option value="{{ $warehouse->id }}" data-branch="{{ $warehouse->branch_id }}" {{ $purchaseRequest->id_warehouse == $warehouse->id ? 'selected' : '' }}>{{ $warehouse->name }}</option>
+                                <option value="{{ $warehouse->id_warehouse }}" data-branch="{{ $warehouse->id_branch }}" {{ $purchaseRequest->id_warehouse == $warehouse->id_warehouse ? 'selected' : '' }}>{{ $warehouse->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -393,7 +393,7 @@
                                         <select name="details[{{ $index }}][id_product]" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm">
                                             <option value="">Producto...</option>
                                             @foreach($products as $product)
-                                                <option value="{{ $product->id }}" data-unit="{{ $product->purchase_unit }}" {{ $detail->id_product == $product->id ? 'selected' : '' }}>{{ $product->name }}</option>
+                                                <option value="{{ $product->id_product }}" data-unit="{{ $product->purchase_unit }}" {{ $detail->id_product == $product->id_product ? 'selected' : '' }}>{{ $product->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -401,7 +401,7 @@
                                     <td class="p-2">
                                         <select name="details[{{ $index }}][id_unit]" required class="unit-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:border-[#005e66]">
                                             @foreach($units as $unit)
-                                                <option value="{{ $unit->id }}" {{ $detail->id_unit == $unit->id ? 'selected' : '' }}>{{ $unit->abbreviation ?: $unit->name }}</option>
+                                                <option value="{{ $unit->id_unit }}" {{ $detail->id_unit == $unit->id_unit ? 'selected' : '' }}>{{ $unit->abbreviation ?: $unit->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -431,7 +431,7 @@
             <select data-field="id_product" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                 <option value="">Seleccione producto...</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id }}" data-unit="{{ $product->purchase_unit }}">{{ $product->name }}</option>
+                    <option value="{{ $product->id_product }}" data-unit="{{ $product->purchase_unit }}">{{ $product->name }}</option>
                 @endforeach
             </select>
         </td>
@@ -439,7 +439,7 @@
         <td class="p-2">
             <select data-field="id_unit" required class="unit-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66] bg-white">
                 @foreach($units as $unit)
-                    <option value="{{ $unit->id }}">{{ $unit->abbreviation ?: $unit->name }}</option>
+                    <option value="{{ $unit->id_unit }}">{{ $unit->abbreviation ?: $unit->name }}</option>
                 @endforeach
             </select>
         </td>

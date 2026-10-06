@@ -33,7 +33,7 @@ class StorePurchaseRequest extends FormRequest
             'id_warehouse' => [
                 'required',
                 'integer',
-                new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $this->input('id_branch'))),
+                new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $this->input('id_branch'))),
             ],
 
             'request_date' => [
@@ -68,7 +68,7 @@ class StorePurchaseRequest extends FormRequest
             'details.*.id_product' => [
                 'required',
                 'integer',
-                'exists:products,id',
+                'exists:products,id_product',
             ],
 
             'details.*.quantity' => [
@@ -80,7 +80,7 @@ class StorePurchaseRequest extends FormRequest
             'details.*.id_unit' => [
                 'required',
                 'integer',
-                'exists:units,id',
+                'exists:units,id_unit',
             ],
 
             'details.*.description' => [

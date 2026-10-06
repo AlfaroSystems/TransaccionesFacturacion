@@ -45,7 +45,7 @@
                 @endif
             </div>
             <p class="text-slate-500 text-xs mt-1">
-                Liquidado el {{ $retaceo->retaceo_date ? $retaceo->retaceo_date->format('d/m/Y \a \l\a\s h:i A') : '-' }} por {{ $retaceo->user->name ?? 'Sistema' }}
+                Liquidado el {{ $retaceo->retaceo_date ? $retaceo->retaceo_date->format('d/m/Y \a \l\a\s h:i A') : '-' }} por {{ $retaceo->user->username ?? 'Sistema' }}
             </p>
         </div>
 

@@ -16,6 +16,8 @@ class Company extends Model
         $query->whereHas('branches');
     }
 
+    protected $primaryKey = 'id_company';
+
     protected $fillable = [
         'name',
         'commercial_name',
@@ -24,10 +26,10 @@ class Company extends Model
         'commercial_line_1',
         'commercial_line_2',
         'commercial_line_3',
-        'address',
-        'department_id',
-        'municipality_id',
-        'district_id',
+        'addres',
+        'id_department',
+        'id_municipality',
+        'id_district',
         'phone',
         'email',
         'web_site',
@@ -37,21 +39,21 @@ class Company extends Model
 
     public function branches()
     {
-        return $this->hasMany(Branch::class);
+        return $this->hasMany(Branch::class, 'id_company');
     }
 
     public function department()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class, 'id_department');
     }
 
     public function municipality()
     {
-        return $this->belongsTo(Municipality::class);
+        return $this->belongsTo(Municipality::class, 'id_municipality');
     }
 
     public function district()
     {
-        return $this->belongsTo(District::class);
+        return $this->belongsTo(District::class, 'id_district');
     }
 }

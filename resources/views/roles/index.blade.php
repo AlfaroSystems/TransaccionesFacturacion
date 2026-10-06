@@ -71,7 +71,7 @@
                                         </span>
                                     @else
                                         <!-- Editar -->
-                                        <button type="button" onclick="openEditRoleModal('{{ route('roles.update', $role) }}', {{ json_encode($role) }}, {{ json_encode($role->permissions->pluck('id')->toArray()) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Rol">
+                                        <button type="button" onclick="openEditRoleModal('{{ route('roles.update', $role) }}', {{ json_encode($role) }}, {{ json_encode($role->permissions->pluck('id_permission')->toArray()) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Rol">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
@@ -171,9 +171,9 @@
                             Gestión de Usuarios
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'usuarios.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'usuarios.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -190,9 +190,9 @@
                             Configuración de Empresa y Sucursales
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'branches.') || str_starts_with($p->id, 'companies.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'branches.') || str_starts_with($p->id_permission, 'companies.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -209,9 +209,9 @@
                             Gestión de Almacenes y Categorías
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'warehouses.') || str_starts_with($p->id, 'warehouse_categories.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'warehouses.') || str_starts_with($p->id_permission, 'warehouse_categories.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -228,9 +228,9 @@
                             Ubicaciones y Mapa
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'locations.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'locations.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -247,9 +247,9 @@
                             Seguridad y Auditoría
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'roles.') || str_starts_with($p->id, 'bitacora.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'roles.') || str_starts_with($p->id_permission, 'bitacora.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -266,9 +266,9 @@
                             Catálogo de Productos y Unidades
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'products.') || str_starts_with($p->id, 'categories.') || str_starts_with($p->id, 'subcategories.') || str_starts_with($p->id, 'units.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'products.') || str_starts_with($p->id_permission, 'categories.') || str_starts_with($p->id_permission, 'subcategories.') || str_starts_with($p->id_permission, 'units.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -285,9 +285,9 @@
                             Gestión de Proveedores
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'suppliers.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'suppliers.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" class="create-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -377,9 +377,9 @@
                             Gestión de Usuarios
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'usuarios.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'usuarios.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -396,9 +396,9 @@
                             Configuración de Empresa y Sucursales
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'branches.') || str_starts_with($p->id, 'companies.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'branches.') || str_starts_with($p->id_permission, 'companies.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -415,9 +415,9 @@
                             Gestión de Almacenes y Categorías
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'warehouses.') || str_starts_with($p->id, 'warehouse_categories.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'warehouses.') || str_starts_with($p->id_permission, 'warehouse_categories.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -434,9 +434,9 @@
                             Ubicaciones y Mapa
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'locations.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'locations.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -453,9 +453,9 @@
                             Seguridad y Auditoría
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'roles.') || str_starts_with($p->id, 'bitacora.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'roles.') || str_starts_with($p->id_permission, 'bitacora.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -472,9 +472,9 @@
                             Catálogo de Productos y Unidades
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'products.') || str_starts_with($p->id, 'categories.') || str_starts_with($p->id, 'subcategories.') || str_starts_with($p->id, 'units.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'products.') || str_starts_with($p->id_permission, 'categories.') || str_starts_with($p->id_permission, 'subcategories.') || str_starts_with($p->id_permission, 'units.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -491,9 +491,9 @@
                             Gestión de Proveedores
                         </h4>
                         <div class="space-y-3 max-h-48 overflow-y-auto">
-                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id, 'suppliers.')) as $permission)
+                            @foreach($permissions->filter(fn($p) => str_starts_with($p->id_permission, 'suppliers.')) as $permission)
                                 <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id }}" id="edit-permission-{{ str_replace('.', '-', $permission->id) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                                    <input type="checkbox" name="permissions[]" value="{{ $permission->id_permission }}" id="edit-permission-{{ str_replace('.', '-', $permission->id_permission) }}" class="edit-permission-checkbox mt-0.5 rounded text-navy-sidebar focus:ring-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
                                     <div>
                                         <span class="text-xs font-bold text-slate-700 block group-hover:text-navy-sidebar transition-colors">{{ $permission->name }}</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block leading-tight mt-0.5">{{ $permission->description }}</span>
@@ -523,7 +523,7 @@
     function openEditRoleModal(actionUrl, role, permissionIds) {
         const modal = document.getElementById('edit-role-modal');
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = role.id;
+        document.getElementById('edit-id').value = role.id_role;
         document.getElementById('edit-name').value = role.name;
         document.getElementById('edit-description').value = role.description || '';
         
@@ -591,7 +591,7 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('roles.update', old('id', 0)) }}";
                 const oldRole = {
-                    id: "{{ old('id') }}",
+                    id_role: "{{ old('id') }}",
                     name: "{{ old('name') }}",
                     description: "{{ old('description') }}"
                 };

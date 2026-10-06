@@ -87,7 +87,7 @@
                     <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
                         <option value="">-- Seleccione proveedor --</option>
                         @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id_supplier ?? $supplier->id }}" {{ old('id_supplier', $purchase_order->id_supplier ?? '') == ($supplier->id_supplier ?? $supplier->id) ? 'selected' : '' }}>
+                            <option value="{{ $supplier->id_supplier }}" {{ old('id_supplier', $purchase_order->id_supplier ?? '') == ($supplier->id_supplier) ? 'selected' : '' }}>
                                 {{ $supplier->name }}
                             </option>
                         @endforeach
@@ -100,7 +100,7 @@
                     <select name="id_branch" id="id_branch" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
                         <option value="">-- Seleccione sucursal --</option>
                         @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ old('id_branch', $purchase_order->id_branch ?? '') == $branch->id ? 'selected' : '' }}>
+                            <option value="{{ $branch->id_branch }}" {{ old('id_branch', $purchase_order->id_branch ?? '') == $branch->id_branch ? 'selected' : '' }}>
                                 {{ $branch->name }}
                             </option>
                         @endforeach
@@ -113,7 +113,7 @@
                     <select name="id_warehouse" id="id_warehouse" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
                         <option value="">-- Seleccione bodega --</option>
                         @foreach($warehouses as $warehouse)
-                            <option value="{{ $warehouse->id }}" {{ old('id_warehouse', $purchase_order->id_warehouse ?? '') == $warehouse->id ? 'selected' : '' }}>
+                            <option value="{{ $warehouse->id_warehouse }}" {{ old('id_warehouse', $purchase_order->id_warehouse ?? '') == $warehouse->id_warehouse ? 'selected' : '' }}>
                                 {{ $warehouse->name }}
                             </option>
                         @endforeach

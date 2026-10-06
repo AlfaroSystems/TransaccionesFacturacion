@@ -8,32 +8,32 @@ use App\Models\AuditLog;
 it('logs creation, update, and deletion of different models', function () {
     // 1. Crear un usuario y verificar que se guarda en la bitácora
     $user = User::create([
-        'name' => 'John Doe',
+        'username' => 'John Doe',
         'email' => 'john@example.com',
-        'password' => bcrypt('password'),
+        'password_hash' => bcrypt('password'),
     ]);
 
-    $this->assertDatabaseHas('audit_logs', [
-        'id_record' => $user->id,
+    $this->assertDatabaseHas('logs', [
+        'id_record' => $user->id_user,
         'controller' => 'Console/System',
         'action' => 'Console/System',
     ]);
 
     // Obtener la entrada del log de creación del usuario
-    $userCreateLog = AuditLog::where('id_record', $user->id)
+    $userCreateLog = AuditLog::where('id_record', $user->id_user)
         ->where('original_data', null)
         ->first();
 
     expect($userCreateLog)->not->toBeNull();
-    expect($userCreateLog->modified_data['name'])->toBe('John Doe');
+    expect($userCreateLog->modified_data['username'])->toBe('John Doe');
 
     // 2. Crear una Empresa y verificar que se guarda en la bitácora
     $company = Company::create([
         'name' => 'Empresa de Prueba S.A. de C.V.',
     ]);
 
-    $this->assertDatabaseHas('audit_logs', [
-        'id_record' => $company->id,
+    $this->assertDatabaseHas('logs', [
+        'id_record' => $company->id_company,
         'controller' => 'Console/System',
         'action' => 'Console/System',
     ]);
@@ -48,7 +48,7 @@ it('logs creation, update, and deletion of different models', function () {
     ]);
 
     // Verificar que existe el log de actualización
-    $updateLog = AuditLog::where('id_record', $category->id)
+    $updateLog = AuditLog::where('id_record', $category->id_category)
         ->whereNotNull('original_data')
         ->first();
 
@@ -58,7 +58,7 @@ it('logs creation, update, and deletion of different models', function () {
 
     // 4. Eliminar la Categoría y verificar el log de eliminación
     $category->delete();
-    $deleteLog = AuditLog::where('id_record', $category->id)
+    $deleteLog = AuditLog::where('id_record', $category->id_category)
         ->whereNull('modified_data')
         ->first();
     expect($deleteLog)->not->toBeNull();

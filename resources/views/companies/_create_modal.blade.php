@@ -102,29 +102,29 @@
                 <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
-                        <label for="create_department_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="department_id" id="create_department_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                        <label for="create_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
+                        <select name="id_department" id="create_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}" @selected(old('modal_type') === 'create' && (int) old('department_id') === $dept->id)>{{ $dept->name }}</option>
+                                <option value="{{ $dept->id_department }}" @selected(old('modal_type') === 'create' && (int) old('id_department') === $dept->id_department)>{{ $dept->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="create_municipality_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="municipality_id" id="create_municipality_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                        <label for="create_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
+                        <select name="id_municipality" id="create_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
-                                <option value="{{ $muni->id }}" data-parent="{{ $muni->department_id }}">{{ $muni->name }}</option>
+                                <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}">{{ $muni->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="create_district_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="district_id" id="create_district_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                        <label for="create_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
+                        <select name="id_district" id="create_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
-                                <option value="{{ $dist->id }}" data-parent="{{ $dist->municipality_id }}">{{ $dist->name }}</option>
+                                <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}">{{ $dist->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -135,8 +135,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Dirección -->
                 <div>
-                    <label for="address" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dirección de la Empresa</label>
-                    <textarea name="address" id="address" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('address') : '' }}</textarea>
+                    <label for="addres" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dirección de la Empresa</label>
+                    <textarea name="addres" id="addres" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('addres') : '' }}</textarea>
                 </div>
 
                 <!-- Logo -->

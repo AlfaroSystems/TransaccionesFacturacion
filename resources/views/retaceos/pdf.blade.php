@@ -77,8 +77,8 @@
                     @if($company?->nit || $company?->nrc)
                         <p><strong>NIT:</strong> {{ $company->nit ?? 'N/A' }} &nbsp;|&nbsp; <strong>NRC:</strong> {{ $company->nrc ?? 'N/A' }}</p>
                     @endif
-                    @if($company?->address)
-                        <p><strong>Dirección:</strong> {{ $company->address }}</p>
+                    @if($company?->addres)
+                        <p><strong>Dirección:</strong> {{ $company->addres }}</p>
                     @endif
                     <p>
                         <strong>Sucursal:</strong> {{ $retaceo->purchase?->branch?->name ?? 'Sucursal Central' }} 
@@ -141,7 +141,7 @@
                 @if($retaceo->purchase?->purchaseOrder)
                     <p class="text-slate-700"><strong>Orden Compra:</strong> {{ $retaceo->purchase->purchaseOrder->purchase_order_code }}</p>
                 @endif
-                <p class="text-slate-700"><strong>Liquidador:</strong> {{ $retaceo->user->name ?? 'Administración' }}</p>
+                <p class="text-slate-700"><strong>Liquidador:</strong> {{ $retaceo->user->username ?? 'Administración' }}</p>
                 @if($retaceo->notes)
                     <p class="text-slate-600 italic mt-1">"{{ $retaceo->notes }}"</p>
                 @endif
@@ -250,7 +250,7 @@
             <div class="grid grid-cols-3 gap-8 text-center text-xs">
                 <div class="space-y-1">
                     <div class="border-b border-slate-400 pb-12"></div>
-                    <p class="font-extrabold text-slate-800 mt-2">{{ $retaceo->user->name ?? 'Liquidador' }}</p>
+                    <p class="font-extrabold text-slate-800 mt-2">{{ $retaceo->user->username ?? 'Liquidador' }}</p>
                     <p class="text-slate-400 font-semibold text-[10px] uppercase">Elaborado por (Compras/Comercio Exterior)</p>
                 </div>
                 <div class="space-y-1">

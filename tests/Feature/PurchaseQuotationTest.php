@@ -18,23 +18,22 @@ use Illuminate\Support\Str;
 test('se puede registrar una oferta de proveedor completa con items y gastos adicionales', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
-    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     // 2. Crear datos maestros
     $company = Company::first() ?? Company::create(['name' => 'Empresa Test']);
-    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'company_id' => $company->id]);
+    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'id_company' => $company->id_company]);
     $warehouseCategory = WarehouseCategory::first() ?? WarehouseCategory::create(['name' => 'General', 'description' => 'General']);
     $warehouse = Warehouse::first() ?? Warehouse::create([
         'name' => 'Bodega Central',
-        'branch_id' => $branch->id,
-        'id_branch' => $branch->id,
-        'warehouse_category_id' => $warehouseCategory->id
+        'id_branch' => $branch->id_branch,
+        'id_warehouse_category' => $warehouseCategory->id_warehouse_category
     ]);
     $unit = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product = Product::first() ?? Product::create([
         'name' => 'Monitor 27 Pulgadas',
         'sku' => 'MON-27-TEST',
-        'id_unit' => $unit->id,
+        'id_unit' => $unit->id_unit,
     ]);
 
     $supplier = Supplier::first() ?? Supplier::create([
@@ -54,9 +53,9 @@ test('se puede registrar una oferta de proveedor completa con items y gastos adi
     $purchaseRequest = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(),
         'purchase_request_code' => 'REQ-TEST-PROV',
-        'id_branch' => $branch->id,
-        'id_warehouse' => $warehouse->id,
-        'id_user' => $user->id,
+        'id_branch' => $branch->id_branch,
+        'id_warehouse' => $warehouse->id_warehouse,
+        'id_user' => $user->id_user,
         'request_date' => now(),
         'required_date' => now()->addDays(5),
         'justification' => 'Compra de monitores',
@@ -64,9 +63,9 @@ test('se puede registrar una oferta de proveedor completa con items y gastos adi
     ]);
 
     $detail = $purchaseRequest->details()->create([
-        'id_product' => $product->id,
+        'id_product' => $product->id_product,
         'quantity' => 10.0000,
-        'id_unit' => $unit->id,
+        'id_unit' => $unit->id_unit,
         'description' => 'Monitores para oficinas',
     ]);
 
@@ -96,9 +95,9 @@ test('se puede registrar una oferta de proveedor completa con items y gastos adi
         'notes' => 'Precios sujetos a disponibilidad',
         'items' => [
             [
-                'id_product' => $product->id,
+                'id_product' => $product->id_product,
                 'quantity' => 10.0000,
-                'id_unit' => $unit->id,
+                'id_unit' => $unit->id_unit,
                 'unit_price' => 200.0000,
                 'discount' => 100.0000,
                 'tax_rate' => 15.00,
@@ -133,7 +132,7 @@ test('se puede registrar una oferta de proveedor completa con items y gastos adi
 
     // 6. Verificar detalle de producto en purchase_quotation_details
     $this->assertDatabaseHas('purchase_quotation_details', [
-        'id_product' => $product->id,
+        'id_product' => $product->id_product,
         'unit_price' => 200.0000,
         'discount' => 100.0000,
         'subtotal' => 2000.0000,

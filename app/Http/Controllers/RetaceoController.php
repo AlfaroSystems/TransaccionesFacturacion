@@ -162,7 +162,7 @@ class RetaceoController extends Controller
                     }
                 },
             ],
-            'id_supplier'                 => ['required', 'exists:suppliers,id_supplier'],
+            'id_supplier'                 => ['required', 'exists:supliers,id_supplier'],
             'retaceo_date'                => ['required', 'date'],
             'origin_country'              => ['nullable', 'string', 'max:100'],
             'import_invoice_number'       => ['nullable', 'string', 'max:100'],
@@ -174,7 +174,7 @@ class RetaceoController extends Controller
             'status'                      => ['required', Rule::in(['draft', 'calculated', 'applied'])],
             'notes'                       => ['nullable', 'string'],
             'details'                     => ['required', 'array', 'min:1'],
-            'details.*.id_product'        => ['required', 'exists:products,id'],
+            'details.*.id_product'        => ['required', 'exists:products,id_product'],
             'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $request->integer('id_purchase'))],
             'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
@@ -294,7 +294,7 @@ class RetaceoController extends Controller
         }
 
         $validated = $request->validate([
-            'id_supplier'                 => ['required', 'exists:suppliers,id_supplier'],
+            'id_supplier'                 => ['required', 'exists:supliers,id_supplier'],
             'retaceo_date'                => ['required', 'date'],
             'origin_country'              => ['nullable', 'string', 'max:100'],
             'import_invoice_number'       => ['nullable', 'string', 'max:100'],
@@ -305,7 +305,7 @@ class RetaceoController extends Controller
             'total_expenses'              => ['nullable', 'numeric', 'min:0'],
             'notes'                       => ['nullable', 'string'],
             'details'                     => ['required', 'array', 'min:1'],
-            'details.*.id_product'        => ['required', 'exists:products,id'],
+            'details.*.id_product'        => ['required', 'exists:products,id_product'],
             'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $retaceo->id_purchase)],
             'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],

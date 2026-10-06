@@ -17,481 +17,481 @@ class RoleAndPermissionSeeder extends Seeder
         $permissions = [
             // Usuarios
             [
-                'id' => 'usuarios.ver',
+                'id_permission' => 'usuarios.ver',
                 'name' => 'Ver Usuarios',
                 'description' => 'Permite listar y ver la información de los usuarios.',
                 'action' => 'index',
             ],
             [
-                'id' => 'usuarios.crear',
+                'id_permission' => 'usuarios.crear',
                 'name' => 'Crear Usuarios',
                 'description' => 'Permite crear nuevos usuarios en el sistema.',
                 'action' => 'create',
             ],
             [
-                'id' => 'usuarios.editar',
+                'id_permission' => 'usuarios.editar',
                 'name' => 'Editar Usuarios',
                 'description' => 'Permite modificar la información de los usuarios existentes.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'usuarios.eliminar',
+                'id_permission' => 'usuarios.eliminar',
                 'name' => 'Eliminar Usuarios',
                 'description' => 'Permite eliminar usuarios del sistema.',
                 'action' => 'destroy',
             ],
             // Roles y Bitácora
             [
-                'id' => 'roles.administrar',
+                'id_permission' => 'roles.administrar',
                 'name' => 'Administrar Roles y Permisos',
                 'description' => 'Permite configurar roles y asignarles permisos.',
                 'action' => 'manage',
             ],
             [
-                'id' => 'bitacora.ver',
+                'id_permission' => 'bitacora.ver',
                 'name' => 'Ver Bitácora de Logs',
                 'description' => 'Permite revisar la bitácora de auditoría de actividad del sistema.',
                 'action' => 'logs',
             ],
             // Sucursales
             [
-                'id' => 'branches.ver',
+                'id_permission' => 'branches.ver',
                 'name' => 'Ver Sucursales',
                 'description' => 'Permite ver el listado y detalle de las sucursales.',
                 'action' => 'index',
             ],
             [
-                'id' => 'branches.crear',
+                'id_permission' => 'branches.crear',
                 'name' => 'Crear Sucursales',
                 'description' => 'Permite registrar nuevas sucursales.',
                 'action' => 'create',
             ],
             [
-                'id' => 'branches.editar',
+                'id_permission' => 'branches.editar',
                 'name' => 'Editar Sucursales',
                 'description' => 'Permite modificar la información de las sucursales.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'branches.eliminar',
+                'id_permission' => 'branches.eliminar',
                 'name' => 'Eliminar Sucursales',
                 'description' => 'Permite eliminar sucursales del sistema.',
                 'action' => 'destroy',
             ],
             // Bodegas
             [
-                'id' => 'warehouses.ver',
+                'id_permission' => 'warehouses.ver',
                 'name' => 'Ver Bodegas',
                 'description' => 'Permite ver el listado y detalle de las bodegas.',
                 'action' => 'index',
             ],
             [
-                'id' => 'warehouses.crear',
+                'id_permission' => 'warehouses.crear',
                 'name' => 'Crear Bodegas',
                 'description' => 'Permite registrar nuevas bodegas.',
                 'action' => 'create',
             ],
             [
-                'id' => 'warehouses.editar',
+                'id_permission' => 'warehouses.editar',
                 'name' => 'Editar Bodegas',
                 'description' => 'Permite modificar la información de las bodegas.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'warehouses.eliminar',
+                'id_permission' => 'warehouses.eliminar',
                 'name' => 'Eliminar Bodegas',
                 'description' => 'Permite eliminar bodegas del sistema.',
                 'action' => 'destroy',
             ],
             // Categorías de Bodega
             [
-                'id' => 'warehouse_categories.ver',
+                'id_permission' => 'warehouse_categories.ver',
                 'name' => 'Ver Categorías de Bodegas',
                 'description' => 'Permite ver el listado de categorías de bodegas.',
                 'action' => 'index',
             ],
             [
-                'id' => 'warehouse_categories.crear',
+                'id_permission' => 'warehouse_categories.crear',
                 'name' => 'Crear Categorías de Bodegas',
                 'description' => 'Permite registrar nuevas categorías de bodegas.',
                 'action' => 'create',
             ],
             [
-                'id' => 'warehouse_categories.editar',
+                'id_permission' => 'warehouse_categories.editar',
                 'name' => 'Editar Categorías de Bodegas',
                 'description' => 'Permite modificar las categorías de bodegas.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'warehouse_categories.eliminar',
+                'id_permission' => 'warehouse_categories.eliminar',
                 'name' => 'Eliminar Categorías de Bodegas',
                 'description' => 'Permite eliminar categorías de bodegas.',
                 'action' => 'destroy',
             ],
             // Ubicaciones
             [
-                'id' => 'locations.ver',
+                'id_permission' => 'locations.ver',
                 'name' => 'Ver Ubicaciones y Mapa',
                 'description' => 'Permite ver el listado y mapa de ubicaciones físicas de bodega.',
                 'action' => 'index',
             ],
             [
-                'id' => 'locations.crear',
+                'id_permission' => 'locations.crear',
                 'name' => 'Crear Ubicaciones',
                 'description' => 'Permite crear nuevas ubicaciones físicas.',
                 'action' => 'create',
             ],
             [
-                'id' => 'locations.editar',
+                'id_permission' => 'locations.editar',
                 'name' => 'Editar Ubicaciones',
                 'description' => 'Permite modificar ubicaciones físicas existentes.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'locations.eliminar',
+                'id_permission' => 'locations.eliminar',
                 'name' => 'Eliminar Ubicaciones',
                 'description' => 'Permite eliminar ubicaciones físicas.',
                 'action' => 'destroy',
             ],
             // Empresas
             [
-                'id' => 'companies.ver',
+                'id_permission' => 'companies.ver',
                 'name' => 'Ver Empresas',
                 'description' => 'Permite ver el listado y detalle de las empresas.',
                 'action' => 'index',
             ],
             [
-                'id' => 'companies.crear',
+                'id_permission' => 'companies.crear',
                 'name' => 'Crear Empresas',
                 'description' => 'Permite registrar nuevas empresas.',
                 'action' => 'create',
             ],
             [
-                'id' => 'companies.editar',
+                'id_permission' => 'companies.editar',
                 'name' => 'Editar Empresas',
                 'description' => 'Permite modificar la información de las empresas.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'companies.eliminar',
+                'id_permission' => 'companies.eliminar',
                 'name' => 'Eliminar Empresas',
                 'description' => 'Permite eliminar empresas del sistema.',
                 'action' => 'destroy',
             ],
             // Categorías de Productos
             [
-                'id' => 'categories.ver',
+                'id_permission' => 'categories.ver',
                 'name' => 'Ver Categorías',
                 'description' => 'Permite ver el listado de categorías de productos.',
                 'action' => 'index',
             ],
             [
-                'id' => 'categories.crear',
+                'id_permission' => 'categories.crear',
                 'name' => 'Crear Categorías',
                 'description' => 'Permite registrar nuevas categorías de productos.',
                 'action' => 'create',
             ],
             [
-                'id' => 'categories.editar',
+                'id_permission' => 'categories.editar',
                 'name' => 'Editar Categorías',
                 'description' => 'Permite modificar categorías de productos.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'categories.eliminar',
+                'id_permission' => 'categories.eliminar',
                 'name' => 'Eliminar Categorías',
                 'description' => 'Permite eliminar categorías de productos.',
                 'action' => 'destroy',
             ],
             // Unidades de Medida
             [
-                'id' => 'units.ver',
+                'id_permission' => 'units.ver',
                 'name' => 'Ver Unidades de Medida',
                 'description' => 'Permite ver el listado de unidades de medida.',
                 'action' => 'index',
             ],
             [
-                'id' => 'units.crear',
+                'id_permission' => 'units.crear',
                 'name' => 'Crear Unidades de Medida',
                 'description' => 'Permite registrar nuevas unidades de medida.',
                 'action' => 'create',
             ],
             [
-                'id' => 'units.editar',
+                'id_permission' => 'units.editar',
                 'name' => 'Editar Unidades de Medida',
                 'description' => 'Permite modificar unidades de medida existentes.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'units.desactivar',
+                'id_permission' => 'units.desactivar',
                 'name' => 'Activar/Desactivar Unidades',
                 'description' => 'Permite cambiar el estado (activo/inactivo) de una unidad de medida.',
                 'action' => 'toggle',
             ],
             // Productos
             [
-                'id' => 'products.ver',
+                'id_permission' => 'products.ver',
                 'name' => 'Ver Productos',
                 'description' => 'Permite ver el catálogo general y ficha técnica de productos.',
                 'action' => 'index',
             ],
             [
-                'id' => 'products.crear',
+                'id_permission' => 'products.crear',
                 'name' => 'Crear Productos',
                 'description' => 'Permite registrar nuevos productos en el catálogo.',
                 'action' => 'create',
             ],
             [
-                'id' => 'products.editar',
+                'id_permission' => 'products.editar',
                 'name' => 'Editar Productos',
                 'description' => 'Permite modificar los datos de los productos.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'products.eliminar',
+                'id_permission' => 'products.eliminar',
                 'name' => 'Eliminar Productos',
                 'description' => 'Permite eliminar productos del catálogo.',
                 'action' => 'destroy',
             ],
             // Subcategorías
             [
-                'id' => 'subcategories.ver',
+                'id_permission' => 'subcategories.ver',
                 'name' => 'Ver Subcategorías',
                 'description' => 'Permite ver el listado de subcategorías.',
                 'action' => 'index',
             ],
             [
-                'id' => 'subcategories.crear',
+                'id_permission' => 'subcategories.crear',
                 'name' => 'Crear Subcategorías',
                 'description' => 'Permite registrar nuevas subcategorías.',
                 'action' => 'create',
             ],
             [
-                'id' => 'subcategories.editar',
+                'id_permission' => 'subcategories.editar',
                 'name' => 'Editar Subcategorías',
                 'description' => 'Permite modificar subcategorías.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'subcategories.eliminar',
+                'id_permission' => 'subcategories.eliminar',
                 'name' => 'Eliminar Subcategorías',
                 'description' => 'Permite eliminar subcategorías.',
                 'action' => 'destroy',
             ],
             // Proveedores
             [
-                'id' => 'suppliers.ver',
+                'id_permission' => 'suppliers.ver',
                 'name' => 'Ver Proveedores',
                 'description' => 'Permite ver el listado y detalle de los proveedores.',
                 'action' => 'index',
             ],
             [
-                'id' => 'suppliers.crear',
+                'id_permission' => 'suppliers.crear',
                 'name' => 'Crear Proveedores',
                 'description' => 'Permite registrar nuevos proveedores.',
                 'action' => 'create',
             ],
             [
-                'id' => 'suppliers.editar',
+                'id_permission' => 'suppliers.editar',
                 'name' => 'Editar Proveedores',
                 'description' => 'Permite modificar información de proveedores.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'suppliers.eliminar',
+                'id_permission' => 'suppliers.eliminar',
                 'name' => 'Eliminar Proveedores',
                 'description' => 'Permite eliminar proveedores del sistema.',
                 'action' => 'destroy',
             ],
             // Tipos de Gastos Adicionales
             [
-                'id' => 'expense_types.ver',
+                'id_permission' => 'expense_types.ver',
                 'name' => 'Ver Tipos de Gastos',
                 'description' => 'Permite ver los tipos de gastos adicionales.',
                 'action' => 'index',
             ],
             [
-                'id' => 'expense_types.crear',
+                'id_permission' => 'expense_types.crear',
                 'name' => 'Crear Tipos de Gastos',
                 'description' => 'Permite crear nuevos tipos de gastos adicionales.',
                 'action' => 'create',
             ],
             [
-                'id' => 'expense_types.editar',
+                'id_permission' => 'expense_types.editar',
                 'name' => 'Editar Tipos de Gastos',
                 'description' => 'Permite modificar tipos de gastos adicionales.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'expense_types.eliminar',
+                'id_permission' => 'expense_types.eliminar',
                 'name' => 'Eliminar Tipos de Gastos',
                 'description' => 'Permite activar/desactivar o eliminar tipos de gastos.',
                 'action' => 'destroy',
             ],
             // Solicitudes de Compra
             [
-                'id' => 'purchase_requests.ver',
+                'id_permission' => 'purchase_requests.ver',
                 'name' => 'Ver Solicitudes de Compra',
                 'description' => 'Permite listar y ver el detalle de solicitudes de compra.',
                 'action' => 'index',
             ],
             [
-                'id' => 'purchase_requests.crear',
+                'id_permission' => 'purchase_requests.crear',
                 'name' => 'Crear Solicitudes de Compra',
                 'description' => 'Permite registrar nuevas solicitudes de compra.',
                 'action' => 'create',
             ],
             [
-                'id' => 'purchase_requests.editar',
+                'id_permission' => 'purchase_requests.editar',
                 'name' => 'Editar Solicitudes de Compra',
                 'description' => 'Permite editar solicitudes de compra existentes.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'purchase_requests.eliminar',
+                'id_permission' => 'purchase_requests.eliminar',
                 'name' => 'Eliminar Solicitudes de Compra',
                 'description' => 'Permite eliminar solicitudes de compra.',
                 'action' => 'destroy',
             ],
             [
-                'id' => 'purchase_requests.aprobar',
+                'id_permission' => 'purchase_requests.aprobar',
                 'name' => 'Aprobar/Rechazar Solicitudes de Compra',
                 'description' => 'Permite cambiar el estado de las solicitudes de compra.',
                 'action' => 'updateStatus',
             ],
             // Solicitudes de Cotización a Proveedores
             [
-                'id' => 'purchase_quotation_requests.ver',
+                'id_permission' => 'purchase_quotation_requests.ver',
                 'name' => 'Ver Solicitudes de Cotización',
                 'description' => 'Permite listar y consultar solicitudes de cotización a proveedores.',
                 'action' => 'index',
             ],
             [
-                'id' => 'purchase_quotation_requests.crear',
+                'id_permission' => 'purchase_quotation_requests.crear',
                 'name' => 'Crear Solicitudes de Cotización',
                 'description' => 'Permite generar solicitudes de cotización enviadas a proveedores.',
                 'action' => 'create',
             ],
             [
-                'id' => 'purchase_quotation_requests.seleccionar_cotizacion',
+                'id_permission' => 'purchase_quotation_requests.seleccionar_cotizacion',
                 'name' => 'Seleccionar Cotización Ganadora',
                 'description' => 'Permite adjudicar o seleccionar la cotización ganadora de un proveedor.',
                 'action' => 'selectQuotation',
             ],
             // Cotizaciones y Ofertas de Proveedor
             [
-                'id' => 'purchase_quotations.ver',
+                'id_permission' => 'purchase_quotations.ver',
                 'name' => 'Ver Cotizaciones de Proveedores',
                 'description' => 'Permite consultar cotizaciones u ofertas registradas de proveedores.',
                 'action' => 'index',
             ],
             [
-                'id' => 'purchase_quotations.crear',
+                'id_permission' => 'purchase_quotations.crear',
                 'name' => 'Registrar Cotización de Proveedor',
                 'description' => 'Permite registrar ofertas enviadas por proveedores.',
                 'action' => 'create',
             ],
             [
-                'id' => 'purchase_quotations.eliminar',
+                'id_permission' => 'purchase_quotations.eliminar',
                 'name' => 'Eliminar Cotización de Proveedor',
                 'description' => 'Permite anular o eliminar ofertas registradas.',
                 'action' => 'destroy',
             ],
             // Órdenes de Compra
             [
-                'id' => 'purchase_orders.ver',
+                'id_permission' => 'purchase_orders.ver',
                 'name' => 'Ver Órdenes de Compra',
                 'description' => 'Permite consultar el listado y detalle de órdenes de compra.',
                 'action' => 'index',
             ],
             [
-                'id' => 'purchase_orders.crear',
+                'id_permission' => 'purchase_orders.crear',
                 'name' => 'Crear Órdenes de Compra',
                 'description' => 'Permite registrar nuevas órdenes de compra.',
                 'action' => 'create',
             ],
             [
-                'id' => 'purchase_orders.editar',
+                'id_permission' => 'purchase_orders.editar',
                 'name' => 'Editar Órdenes de Compra',
                 'description' => 'Permite modificar órdenes de compra existentes.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'purchase_orders.eliminar',
+                'id_permission' => 'purchase_orders.eliminar',
                 'name' => 'Eliminar Órdenes de Compra',
                 'description' => 'Permite anular o eliminar órdenes de compra.',
                 'action' => 'destroy',
             ],
             [
-                'id' => 'purchase_orders.aprobar',
+                'id_permission' => 'purchase_orders.aprobar',
                 'name' => 'Aprobar/Rechazar Órdenes de Compra',
                 'description' => 'Permite autorizar o cambiar el estado de órdenes de compra.',
                 'action' => 'updateStatus',
             ],
             [
-                'id' => 'purchase_orders.pdf',
+                'id_permission' => 'purchase_orders.pdf',
                 'name' => 'Generar PDF de Órdenes de Compra',
                 'description' => 'Permite descargar y visualizar el comprobante PDF de una orden de compra.',
                 'action' => 'generatePdf',
             ],
             // Facturas y Recepciones de Compra
             [
-                'id' => 'purchases.ver',
+                'id_permission' => 'purchases.ver',
                 'name' => 'Ver Compras',
                 'description' => 'Permite consultar el listado y detalle de facturas y recepciones de compra.',
                 'action' => 'index',
             ],
             [
-                'id' => 'purchases.crear',
+                'id_permission' => 'purchases.crear',
                 'name' => 'Registrar Compras',
                 'description' => 'Permite registrar nuevas recepciones y compras a partir de órdenes.',
                 'action' => 'create',
             ],
             [
-                'id' => 'purchases.editar',
+                'id_permission' => 'purchases.editar',
                 'name' => 'Editar Compras',
                 'description' => 'Permite modificar compras registradas en borrador.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'purchases.eliminar',
+                'id_permission' => 'purchases.eliminar',
                 'name' => 'Eliminar Compras',
                 'description' => 'Permite anular o eliminar compras en borrador.',
                 'action' => 'destroy',
             ],
             [
-                'id' => 'purchases.cambiar_estado',
+                'id_permission' => 'purchases.cambiar_estado',
                 'name' => 'Cambiar Estado de Compras',
                 'description' => 'Permite cambiar el estado de las compras (recibida, completada, anulada).',
                 'action' => 'updateStatus',
             ],
             // Retaceos / Prorrateo de Costos de Importación
             [
-                'id' => 'retaceos.ver',
+                'id_permission' => 'retaceos.ver',
                 'name' => 'Ver Retaceos',
                 'description' => 'Permite consultar el listado y detalle de retaceos de importación.',
                 'action' => 'index',
             ],
             [
-                'id' => 'retaceos.crear',
+                'id_permission' => 'retaceos.crear',
                 'name' => 'Calcular Retaceos',
                 'description' => 'Permite registrar y liquidar retaceos de importación.',
                 'action' => 'create',
             ],
             [
-                'id' => 'retaceos.editar',
+                'id_permission' => 'retaceos.editar',
                 'name' => 'Editar Retaceos',
                 'description' => 'Permite modificar retaceos en borrador.',
                 'action' => 'edit',
             ],
             [
-                'id' => 'retaceos.eliminar',
+                'id_permission' => 'retaceos.eliminar',
                 'name' => 'Eliminar Retaceos',
                 'description' => 'Permite eliminar o anular retaceos en borrador.',
                 'action' => 'destroy',
             ],
             [
-                'id' => 'retaceos.cambiar_estado',
+                'id_permission' => 'retaceos.cambiar_estado',
                 'name' => 'Cambiar Estado de Retaceos',
                 'description' => 'Permite cambiar el estado de un retaceo (calculado, aplicado, anulado).',
                 'action' => 'updateStatus',
@@ -501,7 +501,7 @@ class RoleAndPermissionSeeder extends Seeder
         // Guardar o actualizar permisos
         foreach ($permissions as $permissionData) {
             Permission::updateOrCreate(
-                ['id' => $permissionData['id']],
+                ['id_permission' => $permissionData['id_permission']],
                 $permissionData
             );
         }
@@ -515,7 +515,7 @@ class RoleAndPermissionSeeder extends Seeder
         );
 
         // 3. Asignar todos los permisos al administrador
-        $allPermissionIds = Permission::pluck('id')->toArray();
+        $allPermissionIds = Permission::pluck('id_permission')->toArray();
 
         $adminRole->permissions()->sync($allPermissionIds);
 
@@ -526,7 +526,7 @@ class RoleAndPermissionSeeder extends Seeder
         ])->get();
 
         foreach ($adminUsers as $user) {
-            $user->roles()->sync([$adminRole->id]);
+            $user->roles()->sync([$adminRole->id_role]);
         }
     }
 }

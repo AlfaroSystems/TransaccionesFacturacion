@@ -61,7 +61,7 @@
                 <select name="id_category" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                     <option value="">Todas las Categorías</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ request('id_category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                        <option value="{{ $category->id_category }}" {{ request('id_category') == $category->id_category ? 'selected' : '' }}>{{ $category->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -146,7 +146,7 @@
                                 @endcan
 
                                 @can('products.editar')
-                                <button type="button" onclick="openModal('edit-product-modal-{{ $product->id }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
+                                <button type="button" onclick="openModal('edit-product-modal-{{ $product->id_product }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 @endcan
@@ -185,7 +185,7 @@
 <!-- MODALES DE EDICIÓN DE PRODUCTO -->
 @foreach($products as $product)
     @can('products.editar')
-        <div id="edit-product-modal-{{ $product->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 flex items-start sm:items-center justify-center">
+        <div id="edit-product-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 flex items-start sm:items-center justify-center">
             <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl mx-4 my-auto max-h-[85vh] overflow-y-auto border border-slate-100 relative transform scale-95 transition-all duration-200">
                 
                 <!-- Encabezado Sticky (Fijo al hacer scroll dentro del modal) -->
@@ -194,7 +194,7 @@
                         <h3 class="text-xl font-extrabold text-slate-800">Editar Producto: {{ $product->name }}</h3>
                         <p class="text-xs text-slate-400">Actualiza los datos del producto, precios e imágenes asociadas.</p>
                     </div>
-                    <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id }}')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">✕</button>
+                    <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">✕</button>
                 </div>
 
                 <!-- Formulario Principal -->
@@ -218,19 +218,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Categoría *</label>
-                                <select name="id_category" id="edit_id_category_{{ $product->id }}" required onchange="filterSubcategories(this, document.getElementById('edit_id_sub_category_{{ $product->id }}'))" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <select name="id_category" id="edit_id_category_{{ $product->id_product }}" required onchange="filterSubcategories(this, document.getElementById('edit_id_sub_category_{{ $product->id_product }}'))" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                                     <option value="">Selecciona categoría...</option>
                                     @foreach($categories as $cat)
-                                        <option value="{{ $cat->id }}" {{ old('id_category', $product->id_category) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                        <option value="{{ $cat->id_category }}" {{ old('id_category', $product->id_category) == $cat->id_category ? 'selected' : '' }}>{{ $cat->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Subcategoría</label>
-                                <select name="id_sub_category" id="edit_id_sub_category_{{ $product->id }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <select name="id_sub_category" id="edit_id_sub_category_{{ $product->id_product }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                                     <option value="">Selecciona subcategoría...</option>
                                     @foreach($subCategories as $sub)
-                                        <option value="{{ $sub->id }}" data-category="{{ $sub->id_category }}" {{ old('id_sub_category', $product->id_sub_category) == $sub->id ? 'selected' : '' }}>{{ $sub->name }}</option>
+                                        <option value="{{ $sub->id_sub_category }}" data-category="{{ $sub->id_category }}" {{ old('id_sub_category', $product->id_sub_category) == $sub->id_sub_category ? 'selected' : '' }}>{{ $sub->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -275,7 +275,7 @@
                                 <select name="purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                                     <option value="">Selecciona unidad...</option>
                                     @foreach($units as $u)
-                                        <option value="{{ $u->id }}" {{ old('purchase_unit', $product->purchase_unit) == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                                        <option value="{{ $u->id_unit }}" {{ old('purchase_unit', $product->purchase_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -284,7 +284,7 @@
                                 <select name="sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                                     <option value="">Selecciona unidad...</option>
                                     @foreach($units as $u)
-                                        <option value="{{ $u->id }}" {{ old('sale_unit', $product->sale_unit) == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                                        <option value="{{ $u->id_unit }}" {{ old('sale_unit', $product->sale_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -323,23 +323,23 @@
                         <!-- Subir nuevas imágenes (Selección Acumulativa) -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Agregar más imágenes (se irán sumando):</label>
-                            <input type="file" id="edit_product_images_input_{{ $product->id }}" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#005e66] file:text-white hover:file:bg-[#3cb0a4] cursor-pointer">
+                            <input type="file" id="edit_product_images_input_{{ $product->id_product }}" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#005e66] file:text-white hover:file:bg-[#3cb0a4] cursor-pointer">
                             <p class="text-[11px] text-slate-400 mt-1">Puedes seleccionar imágenes de una en una o varias a la vez. Se irán acumulando abajo.</p>
 
                             <!-- Vista Previa de Nuevas Imágenes por Subir -->
-                            <div id="edit_images_preview_container_{{ $product->id }}" class="flex flex-wrap gap-3 pt-2"></div>
+                            <div id="edit_images_preview_container_{{ $product->id_product }}" class="flex flex-wrap gap-3 pt-2"></div>
                         </div>
                     </div>
 
                     <!-- Checkbox Activo -->
                     <div class="flex items-center gap-2 pt-2">
-                        <input type="checkbox" name="is_active" id="edit_prod_active_{{ $product->id }}" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }} class="rounded text-[#005e66]">
-                        <label for="edit_prod_active_{{ $product->id }}" class="text-sm font-semibold text-slate-700">Producto Activo para Operaciones</label>
+                        <input type="checkbox" name="is_active" id="edit_prod_active_{{ $product->id_product }}" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }} class="rounded text-[#005e66]">
+                        <label for="edit_prod_active_{{ $product->id_product }}" class="text-sm font-semibold text-slate-700">Producto Activo para Operaciones</label>
                     </div>
 
                     <!-- Acciones del Formulario al final -->
                     <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
-                        <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id }}')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
+                        <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
                         <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] text-white font-bold text-sm hover:bg-[#3cb0a4] transition-all shadow-md">Guardar Cambios</button>
                     </div>
                 </form>
@@ -384,7 +384,7 @@
                         <select name="id_category" id="create_id_category" required onchange="filterSubcategories(this, document.getElementById('create_id_sub_category'))" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Selecciona categoría...</option>
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                <option value="{{ $cat->id_category }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -393,7 +393,7 @@
                         <select name="id_sub_category" id="create_id_sub_category" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Selecciona subcategoría...</option>
                             @foreach($subCategories as $sub)
-                                <option value="{{ $sub->id }}" data-category="{{ $sub->id_category }}">{{ $sub->name }}</option>
+                                <option value="{{ $sub->id_sub_category }}" data-category="{{ $sub->id_category }}">{{ $sub->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -438,7 +438,7 @@
                         <select name="purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Selecciona unidad...</option>
                             @foreach($units as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                <option value="{{ $u->id_unit }}">{{ $u->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -447,7 +447,7 @@
                         <select name="sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Selecciona unidad...</option>
                             @foreach($units as $u)
-                                <option value="{{ $u->id }}">{{ $u->name }}</option>
+                                <option value="{{ $u->id_unit }}">{{ $u->name }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -13,7 +13,7 @@ function usuarioConPermisosDeDashboard(array $permisos): User
     $role = Role::create(['name' => 'dashboard-'.Str::lower(Str::random(8))]);
 
     foreach ($permisos as $permiso) {
-        Permission::firstOrCreate(['id' => $permiso], ['name' => $permiso]);
+        Permission::firstOrCreate(['id_permission' => $permiso], ['name' => $permiso]);
 
         if (! Gate::has($permiso)) {
             Gate::define($permiso, fn (User $user) => $user->hasPermission($permiso));
@@ -23,10 +23,10 @@ function usuarioConPermisosDeDashboard(array $permisos): User
     $role->permissions()->sync($permisos);
 
     $company = Company::create(['name' => 'Empresa '.Str::random(6)]);
-    $branch = Branch::create(['company_id' => $company->id, 'name' => 'Sucursal '.Str::random(6)]);
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal '.Str::random(6)]);
 
-    $user = User::factory()->create(['id_branch' => $branch->id]);
-    $user->roles()->attach($role->id, ['assigned_at' => now()]);
+    $user = User::factory()->create(['id_branch' => $branch->id_branch]);
+    $user->roles()->attach($role->id_role, ['assigned_at' => now()]);
 
     return $user->load('roles.permissions');
 }
@@ -83,7 +83,7 @@ test('cada grupo del menú lleva al primer módulo que el usuario puede ver', fu
 
 test('el administrador ve todo el dashboard', function () {
     $admin = User::factory()->create();
-    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     $this->actingAs($admin)->get(route('dashboard'))
         ->assertOk()

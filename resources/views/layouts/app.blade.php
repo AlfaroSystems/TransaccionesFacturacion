@@ -128,10 +128,10 @@
             <!-- Header con Logo y Usuario Autenticado -->
             <div class="flex flex-col items-center text-center mt-4 mb-8 border-b border-white/10 dark:border-slate-800 pb-6">
                 <div class="w-12 h-12 rounded-full bg-white/10 dark:bg-slate-800 flex items-center justify-center font-bold text-lg text-white mb-2 uppercase border border-white/20 dark:border-slate-700">
-                    {{ auth()->check() ? substr(auth()->user()->name, 0, 2) : 'US' }}
+                    {{ auth()->check() ? substr(auth()->user()->username, 0, 2) : 'US' }}
                 </div>
                 <span class="text-sm font-bold text-white block">
-                    {{ auth()->check() ? auth()->user()->name : 'Usuario de Prueba' }}
+                    {{ auth()->check() ? auth()->user()->username : 'Usuario de Prueba' }}
                 </span>
                 <span class="text-xs text-slate-300 dark:text-slate-400 font-semibold mt-1">
                     {{ auth()->check() ? auth()->user()->email : 'correo@ejemplo.com' }}

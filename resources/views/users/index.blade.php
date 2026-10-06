@@ -47,18 +47,18 @@
                 <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todas las Sucursales</option>
                     @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ request('id_branch') == $branch->id ? 'selected' : '' }}>
+                        <option value="{{ $branch->id_branch }}" {{ request('id_branch') == $branch->id_branch ? 'selected' : '' }}>
                             {{ $branch->name }}
                         </option>
                     @endforeach
                 </select>
             </div>
             <div class="w-full md:w-40">
-                <label for="status" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado</label>
-                <select name="status" id="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                <label for="is_active" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado</label>
+                <select name="is_active" id="is_active" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todos los Estados</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Activo</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactivo</option>
+                    <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Activo</option>
+                    <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Inactivo</option>
                 </select>
             </div>
             <div class="w-full md:w-auto">
@@ -66,7 +66,7 @@
                     Filtrar
                 </button>
             </div>
-            @if(request()->anyFilled(['search', 'role', 'id_branch', 'status']))
+            @if(request()->anyFilled(['search', 'role', 'id_branch', 'is_active']))
                 <div class="w-full md:w-auto">
                     <a href="{{ route('users.index') }}" class="block w-full px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
                         Limpiar
@@ -96,10 +96,10 @@
                         <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-navy-sidebar bg-slate-100 uppercase select-none group-hover:bg-[#005e66] group-hover:text-white transition-all">
-                                    {{ substr($user->name, 0, 2) }}
+                                    {{ substr($user->username, 0, 2) }}
                                 </div>
                                 <div>
-                                    <div class="font-bold text-slate-800 text-sm group-hover:text-[#005e66] transition-colors">{{ $user->name }}</div>
+                                    <div class="font-bold text-slate-800 text-sm group-hover:text-[#005e66] transition-colors">{{ $user->username }}</div>
                                     <div class="text-xs text-slate-400 font-semibold">{{ $user->email }}</div>
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
 
                         <!-- Estado del Usuario -->
                         <td class="px-6 py-4 bg-white border-y border-slate-100">
-                            @if($user->status === 'active')
+                            @if($user->is_active)
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                     Activo
@@ -166,7 +166,7 @@
                                 @else
                                 @can('usuarios.editar')
                                     <!-- Botón Editar -->
-                                    <button type="button" onclick="openEditUserModal('{{ route('users.update', $user) }}', {{ json_encode($user) }}, {{ json_encode($user->roles->pluck('id')->toArray()) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Usuario">
+                                    <button type="button" onclick="openEditUserModal('{{ route('users.update', $user) }}', {{ json_encode($user) }}, {{ json_encode($user->roles->pluck('id_role')->toArray()) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Usuario">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
@@ -174,17 +174,17 @@
                                 @endcan
 
                                 @can('usuarios.eliminar')
-                                    @if(auth()->id() !== $user->id)
-                                        @if($user->status === 'active')
+                                    @if(auth()->id() !== $user->id_user)
+                                        @if($user->is_active)
                                             <!-- Botón Desactivar -->
-                                            <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Desactivar Usuario">
+                                            <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->username) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Desactivar Usuario">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                                 </svg>
                                             </button>
                                         @else
                                             <!-- Botón Reactivar -->
-                                            <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Usuario">
+                                            <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->username) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Usuario">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
@@ -253,14 +253,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Nombre -->
                 <div>
-                    <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre Completo</label>
+                    <label for="username" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre Completo</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         </span>
-                        <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <input type="text" name="username" id="username" value="{{ old('modal_type') === 'create' ? old('username') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('username') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     </div>
-                    @error('name')
+                    @error('username')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -290,7 +290,7 @@
                 <select name="id_branch" id="create-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
                     <option value="">Todas / Sin Sucursal Específica</option>
                     @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ (old('modal_type') === 'create' && old('id_branch') == $branch->id) ? 'selected' : '' }}>
+                        <option value="{{ $branch->id_branch }}" {{ (old('modal_type') === 'create' && old('id_branch') == $branch->id_branch) ? 'selected' : '' }}>
                             {{ $branch->name }}
                         </option>
                     @endforeach
@@ -352,7 +352,7 @@
                     <select name="roles[]" id="create-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar rol</option>
                         @foreach($assignableRoles as $role)
-                            <option value="{{ $role->id }}" {{ (old('modal_type') === 'create' && is_array(old('roles')) && in_array($role->id, old('roles'))) ? 'selected' : '' }}>
+                            <option value="{{ $role->id_role }}" {{ (old('modal_type') === 'create' && is_array(old('roles')) && in_array($role->id_role, old('roles'))) ? 'selected' : '' }}>
                                 {{ strtoupper($role->name) }}
                             </option>
                         @endforeach
@@ -366,10 +366,10 @@
 
                 <!-- Estado -->
                 <div>
-                    <label for="status" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado de Acceso</label>
-                    <select name="status" id="status" class="w-full bg-slate-50 border @error('status') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
-                        <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>Activo</option>
-                        <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactivo</option>
+                    <label for="create-is_active" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado de Acceso</label>
+                    <select name="is_active" id="create-is_active" class="w-full bg-slate-50 border @error('is_active') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <option value="1" {{ old('is_active', '1') === '1' ? 'selected' : '' }}>Activo</option>
+                        <option value="0" {{ old('is_active') === '0' ? 'selected' : '' }}>Inactivo</option>
                     </select>
                 </div>
             </div>
@@ -420,9 +420,9 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         </span>
-                        <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <input type="text" name="username" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('username') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('username') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     </div>
-                    @error('name')
+                    @error('username')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -452,7 +452,7 @@
                 <select name="id_branch" id="edit-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
                     <option value="">Todas / Sin Sucursal Específica</option>
                     @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}">
+                        <option value="{{ $branch->id_branch }}">
                             {{ $branch->name }}
                         </option>
                     @endforeach
@@ -513,7 +513,7 @@
                     <select name="roles[]" id="edit-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar rol</option>
                         @foreach($assignableRoles as $role)
-                            <option value="{{ $role->id }}">
+                            <option value="{{ $role->id_role }}">
                                 {{ strtoupper($role->name) }}
                             </option>
                         @endforeach
@@ -530,12 +530,12 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Estado de la Cuenta</label>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="hidden" name="status" id="edit-status-hidden" value="inactive">
-                        <input type="checkbox" name="status" id="edit-status" value="active" class="sr-only peer" {{ old('modal_type') === 'edit' ? (old('status') === 'active' ? 'checked' : '') : '' }}>
+                        <input type="hidden" name="is_active" id="edit-status-hidden" value="0">
+                        <input type="checkbox" name="is_active" id="edit-status" value="1" class="sr-only peer" {{ old('modal_type') === 'edit' ? (old('is_active') === '1' ? 'checked' : '') : '' }}>
                         <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-disabled:opacity-50"></div>
                         <span class="text-sm font-semibold text-slate-600" id="edit-status_label">Usuario Activo</span>
                     </label>
-                    @error('status')
+                    @error('is_active')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -561,8 +561,8 @@
     function openEditUserModal(actionUrl, user, roleIds) {
         const modal = document.getElementById('edit-user-modal');
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = user.id;
-        document.getElementById('edit-name').value = user.name;
+        document.getElementById('edit-id').value = user.id_user;
+        document.getElementById('edit-name').value = user.username;
         document.getElementById('edit-email').value = user.email;
         document.getElementById('edit-password').value = '';
         document.getElementById('edit-password_confirmation').value = '';
@@ -580,11 +580,11 @@
         }
 
         const statusChk = document.getElementById('edit-status');
-        statusChk.checked = user.status === 'active';
+        statusChk.checked = user.is_active;
 
         // Un usuario no puede cambiar sus propios roles ni su estado: los campos
         // deshabilitados no se envían y el servidor conserva los valores actuales.
-        const isSelf = Number(user.id) === {{ auth()->id() }};
+        const isSelf = Number(user.id_user) === {{ auth()->id() }};
         if (roleSelect) {
             roleSelect.disabled = isSelf;
         }
@@ -593,7 +593,7 @@
         document.getElementById('edit-self-access-note').classList.toggle('hidden', !isSelf);
         
         const label = document.getElementById('edit-status_label');
-        label.textContent = user.status === 'active' ? 'Usuario Activo' : 'Usuario Inactivo';
+        label.textContent = user.is_active ? 'Usuario Activo' : 'Usuario Inactivo';
         
         openModal('edit-user-modal');
     }
@@ -629,11 +629,11 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('users.update', old('id', 0)) }}";
                 const oldUser = {
-                    id: "{{ old('id') }}",
-                    name: "{{ old('name') }}",
+                    id_user: "{{ old('id') }}",
+                    username: "{{ old('username') }}",
                     email: "{{ old('email') }}",
                     id_branch: "{{ old('id_branch') }}",
-                    status: "{{ old('status', 'inactive') }}"
+                    is_active: {{ old('is_active') === '1' ? 'true' : 'false' }}
                 };
                 const oldRoles = {!! json_encode(old('roles', [])) !!}.map(Number);
                 openEditUserModal(editRoute, oldUser, oldRoles);

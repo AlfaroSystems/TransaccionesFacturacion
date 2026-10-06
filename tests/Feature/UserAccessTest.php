@@ -23,7 +23,7 @@ function crearRol(array $permisos = []): Role
     $role = Role::create(['name' => 'rol-prueba-'.Str::lower(Str::random(8))]);
 
     foreach ($permisos as $permiso) {
-        Permission::firstOrCreate(['id' => $permiso], ['name' => $permiso]);
+        Permission::firstOrCreate(['id_permission' => $permiso], ['name' => $permiso]);
 
         // Los Gates se registran al arrancar la app; si el permiso es nuevo, se define aquí
         if (! Gate::has($permiso)) {
@@ -39,7 +39,7 @@ function crearRol(array $permisos = []): Role
 function crearUsuarioConRol(Role $role, array $atributos = []): User
 {
     $user = User::factory()->create($atributos);
-    $user->roles()->attach($role->id, ['assigned_at' => now()]);
+    $user->roles()->attach($role->id_role, ['assigned_at' => now()]);
 
     return $user->load('roles.permissions');
 }
@@ -48,7 +48,7 @@ function crearSucursal(): Branch
 {
     $company = Company::create(['name' => 'Empresa '.Str::random(6)]);
 
-    return Branch::create(['company_id' => $company->id, 'name' => 'Sucursal '.Str::random(6)]);
+    return Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal '.Str::random(6)]);
 }
 
 // Usuario no admin con permisos de gestión de usuarios, asignado a una sucursal propia
@@ -56,17 +56,17 @@ function gestorDeUsuarios(): User
 {
     return crearUsuarioConRol(crearRol([
         'usuarios.ver', 'usuarios.crear', 'usuarios.editar', 'usuarios.eliminar',
-    ]), ['id_branch' => crearSucursal()->id]);
+    ]), ['id_branch' => crearSucursal()->id_branch]);
 }
 
 function datosUsuario(User $user, array $cambios = []): array
 {
     return array_merge([
-        'name'      => $user->name,
+        'username'  => $user->username,
         'email'     => $user->email,
         'id_branch' => $user->id_branch,
-        'status'    => $user->status,
-        'roles'     => $user->roles->pluck('id')->all(),
+        'is_active' => $user->is_active ? 1 : 0,
+        'roles'     => $user->roles->pluck('id_role')->all(),
     ], $cambios);
 }
 
@@ -96,7 +96,7 @@ test('una sesión abierta se cierra cuando el usuario es desactivado', function 
 
     $this->actingAs($user)->get('/profile')->assertOk();
 
-    $user->update(['status' => 'inactive']);
+    $user->update(['is_active' => false]);
 
     $this->get('/profile')
         ->assertRedirect(route('login'))
@@ -114,7 +114,7 @@ test('un usuario que no es admin no puede asignar el rol admin a otro usuario', 
     $objetivo = crearUsuarioConRol(crearRol(), ['id_branch' => $gestor->id_branch]);
 
     $this->actingAs($gestor)
-        ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [rolAdmin()->id]]))
+        ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [rolAdmin()->id_role]]))
         ->assertSessionHasErrors('roles');
 
     expect($objetivo->fresh()->isAdmin())->toBeFalse();
@@ -125,17 +125,17 @@ test('un usuario que no es admin no puede crear un usuario con rol admin', funct
 
     $this->actingAs($gestor)
         ->post(route('users.store'), [
-            'name'                  => 'Intruso',
+            'username'              => 'Intruso',
             'email'                 => 'intruso-'.Str::random(6).'@example.com',
             'password'              => 'password123',
             'password_confirmation' => 'password123',
-            'status'                => 'active',
+            'is_active'             => 1,
             'id_branch'             => $gestor->id_branch,
-            'roles'                 => [rolAdmin()->id],
+            'roles'                 => [rolAdmin()->id_role],
         ])
         ->assertSessionHasErrors('roles');
 
-    $this->assertDatabaseMissing('users', ['name' => 'Intruso']);
+    $this->assertDatabaseMissing('users', ['username' => 'Intruso']);
 });
 
 test('un usuario que no es admin no puede modificar a un administrador', function () {
@@ -162,26 +162,26 @@ test('un usuario que no es admin no puede modificar a un administrador', functio
 
 test('un usuario no puede cambiar sus propios roles', function () {
     $gestor = gestorDeUsuarios();
-    $rolOriginal = $gestor->roles->first()->id;
+    $rolOriginal = $gestor->roles->first()->id_role;
     $otroRol = crearRol(['bitacora.ver']);
 
     $this->actingAs($gestor)
-        ->put(route('users.update', $gestor), datosUsuario($gestor, ['roles' => [$otroRol->id]]))
+        ->put(route('users.update', $gestor), datosUsuario($gestor, ['roles' => [$otroRol->id_role]]))
         ->assertSessionHasErrors('roles');
 
-    expect($gestor->fresh()->roles->pluck('id')->all())->toBe([$rolOriginal]);
+    expect($gestor->fresh()->roles->pluck('id_role')->all())->toBe([$rolOriginal]);
 });
 
 test('un administrador no puede quitarse su propio rol ni desactivarse', function () {
     $admin = crearUsuarioConRol(rolAdmin());
 
     $this->actingAs($admin)
-        ->put(route('users.update', $admin), datosUsuario($admin, ['roles' => [crearRol()->id]]))
+        ->put(route('users.update', $admin), datosUsuario($admin, ['roles' => [crearRol()->id_role]]))
         ->assertSessionHasErrors('roles');
 
     $this->actingAs($admin)
-        ->put(route('users.update', $admin), datosUsuario($admin, ['status' => 'inactive']))
-        ->assertSessionHasErrors('status');
+        ->put(route('users.update', $admin), datosUsuario($admin, ['is_active' => 0]))
+        ->assertSessionHasErrors('is_active');
 
     $admin->refresh();
     expect($admin->isAdmin())->toBeTrue()
@@ -190,11 +190,11 @@ test('un administrador no puede quitarse su propio rol ni desactivarse', functio
 
 test('un usuario puede editar sus propios datos sin enviar roles ni estado', function () {
     $gestor = gestorDeUsuarios();
-    $roles = $gestor->roles->pluck('id')->all();
+    $roles = $gestor->roles->pluck('id_role')->all();
 
     $this->actingAs($gestor)
         ->put(route('users.update', $gestor), [
-            'name'      => 'Nombre Actualizado',
+            'username'  => 'Nombre Actualizado',
             'email'     => $gestor->email,
             'id_branch' => $gestor->id_branch,
         ])
@@ -202,8 +202,8 @@ test('un usuario puede editar sus propios datos sin enviar roles ni estado', fun
         ->assertRedirect(route('users.index'));
 
     $gestor->refresh();
-    expect($gestor->name)->toBe('Nombre Actualizado')
-        ->and($gestor->roles->pluck('id')->all())->toBe($roles)
+    expect($gestor->username)->toBe('Nombre Actualizado')
+        ->and($gestor->roles->pluck('id_role')->all())->toBe($roles)
         ->and($gestor->isActive())->toBeTrue();
 });
 
@@ -222,7 +222,7 @@ test('un administrador puede asignar el rol admin', function () {
     $objetivo = crearUsuarioConRol(crearRol());
 
     $this->actingAs($admin)
-        ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [rolAdmin()->id]]))
+        ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [rolAdmin()->id_role]]))
         ->assertSessionHasNoErrors();
 
     expect($objetivo->fresh()->isAdmin())->toBeTrue();
@@ -264,7 +264,7 @@ test('borrar un usuario conserva sus registros en la bitácora', function () {
 
     $this->actingAs($user);
     crearRol(); // genera registros en la bitácora a nombre del usuario
-    $logId = AuditLog::where('user_id', $user->id)->latest('id')->value('id');
+    $logId = AuditLog::where('id_user', $user->id_user)->latest('id_log')->value('id_log');
 
     expect($logId)->not->toBeNull();
 
@@ -274,5 +274,5 @@ test('borrar un usuario conserva sus registros en la bitácora', function () {
 
     $log = AuditLog::find($logId);
     expect($log)->not->toBeNull()
-        ->and($log->user_id)->toBeNull();
+        ->and($log->id_user)->toBeNull();
 });

@@ -53,7 +53,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                 </div>
-                                <span>#{{ $location->id }}</span>
+                                <span>#{{ $location->id_location }}</span>
                             </div>
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100">
@@ -65,7 +65,7 @@
                             {{ $location->warehouse->name ?? '-' }}
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
-                            {{ $location->pasillo ?? $location->aisle ?? '-' }}
+                            {{ $location->aisle ?? '-' }}
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
                             {{ $location->rack ?? '-' }}
@@ -89,7 +89,7 @@
                             <div class="flex justify-center items-center gap-2">
                                 <!-- Ver -->
                                 @can('locations.ver')
-                                <a href="{{ route('locations.show', $location->id) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="Ver Detalles">
+                                <a href="{{ route('locations.show', $location->id_location) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="Ver Detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -99,7 +99,7 @@
 
                                 <!-- Editar -->
                                 @can('locations.editar')
-                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id) }}', {{ json_encode($location) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Ubicación">
+                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id_location) }}', {{ json_encode($location) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Ubicación">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -109,13 +109,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('locations.eliminar')
                                     @if($location->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Inactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id_location) }}', '{{ addslashes($location->code) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Inactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id) }}', '{{ addslashes($location->code) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="Reactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id_location) }}', '{{ addslashes($location->code) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="Reactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -160,16 +160,16 @@
             <input type="hidden" name="modal_type" value="create">
             <!-- Almacén / Bodega -->
             <div>
-                <label for="warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
-                <select name="warehouse_id" id="warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="id_warehouse" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
+                <select name="id_warehouse" id="id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
                     @foreach($warehouses as $warehouse)
-                        <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'create' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
+                        <option value="{{ $warehouse->id_warehouse }}" {{ (old('modal_type') === 'create' && old('id_warehouse') == $warehouse->id_warehouse) ? 'selected' : '' }}>
                             {{ $warehouse->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('warehouse_id')
+                @error('id_warehouse')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                     @endif
@@ -190,8 +190,8 @@
             <div class="grid grid-cols-2 gap-4">
                 <!-- Pasillo -->
                 <div>
-                    <label for="pasillo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
-                    <input type="text" name="pasillo" id="pasillo" value="{{ old('modal_type') === 'create' ? old('pasillo') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                    <label for="aisle" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
+                    <input type="text" name="aisle" id="aisle" value="{{ old('modal_type') === 'create' ? old('aisle') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
                 </div>
 
                 <!-- Estante -->
@@ -272,16 +272,16 @@
 
             <!-- Almacén / Bodega -->
             <div>
-                <label for="edit-warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
-                <select name="warehouse_id" id="edit-warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="edit-id_warehouse" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
+                <select name="id_warehouse" id="edit-id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
                     @foreach($warehouses as $warehouse)
-                        <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'edit' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
+                        <option value="{{ $warehouse->id_warehouse }}" {{ (old('modal_type') === 'edit' && old('id_warehouse') == $warehouse->id_warehouse) ? 'selected' : '' }}>
                             {{ $warehouse->name }}
                         </option>
                     @endforeach
                 </select>
-                @error('warehouse_id')
+                @error('id_warehouse')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                     @endif
@@ -301,8 +301,8 @@
             <div class="grid grid-cols-2 gap-4">
                 <!-- Pasillo -->
                 <div>
-                    <label for="edit-pasillo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
-                    <input type="text" name="pasillo" id="edit-pasillo" value="{{ old('modal_type') === 'edit' ? old('pasillo') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
+                    <label for="edit-aisle" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
+                    <input type="text" name="aisle" id="edit-aisle" value="{{ old('modal_type') === 'edit' ? old('aisle') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-none text-slate-700 font-semibold">
                 </div>
 
                 <!-- Estante -->
@@ -390,11 +390,11 @@
             <input type="hidden" name="modal_type" value="batch">
             <!-- Almacén / Bodega -->
             <div>
-                <label for="batch_warehouse_id" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
-                <select name="warehouse_id" id="batch_warehouse_id" class="w-full bg-slate-50 border @error('warehouse_id') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <label for="batch_id_warehouse" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
+                <select name="id_warehouse" id="batch_id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
                     @foreach($warehouses as $warehouse)
-                        <option value="{{ $warehouse->id }}" {{ (old('modal_type') === 'batch' && old('warehouse_id') == $warehouse->id) ? 'selected' : '' }}>
+                        <option value="{{ $warehouse->id_warehouse }}" {{ (old('modal_type') === 'batch' && old('id_warehouse') == $warehouse->id_warehouse) ? 'selected' : '' }}>
                             {{ $warehouse->name }}
                         </option>
                     @endforeach
@@ -460,7 +460,7 @@
 
 <script>
     function setupAutoCodeGenerator(prefix) {
-        const pasilloInput = document.getElementById(prefix ? `${prefix}-pasillo` : 'pasillo');
+        const pasilloInput = document.getElementById(prefix ? `${prefix}-aisle` : 'aisle');
         const rackInput = document.getElementById(prefix ? `${prefix}-rack` : 'rack');
         const levelInput = document.getElementById(prefix ? `${prefix}-level` : 'level');
         const positionInput = document.getElementById(prefix ? `${prefix}-position` : 'position');
@@ -490,10 +490,10 @@
     function openEditLocationModal(actionUrl, location) {
         const modal = document.getElementById('edit-location-modal');
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = location.id;
-        document.getElementById('edit-warehouse_id').value = location.warehouse_id;
+        document.getElementById('edit-id').value = location.id_location;
+        document.getElementById('edit-id_warehouse').value = location.id_warehouse;
         document.getElementById('edit-code').value = location.code || '';
-        document.getElementById('edit-pasillo').value = location.pasillo || '';
+        document.getElementById('edit-aisle').value = location.aisle || '';
         document.getElementById('edit-rack').value = location.rack || '';
         document.getElementById('edit-level').value = location.level || '';
         document.getElementById('edit-position').value = location.position || '';
@@ -529,10 +529,10 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('locations.update', old('id', 0)) }}";
                 const oldLocation = {
-                    id: "{{ old('id') }}",
-                    warehouse_id: "{{ old('warehouse_id') }}",
+                    id_location: "{{ old('id') }}",
+                    id_warehouse: "{{ old('id_warehouse') }}",
                     code: "{{ old('code') }}",
-                    pasillo: "{{ old('pasillo') }}",
+                    aisle: "{{ old('aisle') }}",
                     rack: "{{ old('rack') }}",
                     level: "{{ old('level') }}",
                     position: "{{ old('position') }}",

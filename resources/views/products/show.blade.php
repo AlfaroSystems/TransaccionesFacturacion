@@ -19,7 +19,7 @@
                 class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-sm">
                 ← Volver
             </a>
-            <a href="{{ route('products.index', ['edit' => $product->id]) }}"
+            <a href="{{ route('products.index', ['edit' => $product->id_product]) }}"
                 class="bg-[#005e66] hover:bg-[#3cb0a4] text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg">
                 ✏️ Editar Producto
             </a>

@@ -23,9 +23,9 @@ class DatabaseSeeder extends Seeder
         // Registrar también el usuario del cliente
         if (!User::where('email', 'jon.virgi@gmail.com')->exists()) {
             User::factory()->create([
-                'name' => 'Admin Sistema (Jon)',
+                'username' => 'Admin Sistema (Jon)',
                 'email' => 'jon.virgi@gmail.com',
-                'status' => 'active',
+                'is_active' => true,
             ]);
         }
 

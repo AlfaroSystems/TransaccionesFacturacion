@@ -41,9 +41,9 @@ class WarehouseController extends Controller
         Gate::authorize('warehouses.crear');
 
         $validated = $request->validate([
-            'branch_id'=>['required', new Accessible(Branch::class)],
-            'warehouse_category_id'
-            =>'required|exists:warehouse_categories,id',
+            'id_branch'=>['required', new Accessible(Branch::class)],
+            'id_warehouse_category'
+            =>'required|exists:warehouse_category,id_warehouse_category',
             'name'
             =>'required|string|max:100',
             'description'
@@ -77,9 +77,9 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.editar');
         $validated=$request->validate([
-            'branch_id'=>['required', new Accessible(Branch::class)],
-            'warehouse_category_id'
-            =>'required|exists:warehouse_categories,id',
+            'id_branch'=>['required', new Accessible(Branch::class)],
+            'id_warehouse_category'
+            =>'required|exists:warehouse_category,id_warehouse_category',
             'name'
             =>'required|string|max:100',
             'description'
@@ -90,9 +90,9 @@ class WarehouseController extends Controller
 
         // Una bodega con documentos no puede pasar a otra sucursal: los documentos
         // quedarían apuntando a una bodega ajena a su sucursal
-        if ((int) $validated['branch_id'] !== (int) $warehouse->branch_id && $this->hasDocuments($warehouse)) {
+        if ((int) $validated['id_branch'] !== (int) $warehouse->id_branch && $this->hasDocuments($warehouse)) {
             throw ValidationException::withMessages([
-                'branch_id' => 'No se puede cambiar la sucursal de una bodega que ya tiene solicitudes, órdenes o compras registradas.',
+                'id_branch' => 'No se puede cambiar la sucursal de una bodega que ya tiene solicitudes, órdenes o compras registradas.',
             ]);
         }
 
@@ -129,6 +129,6 @@ class WarehouseController extends Controller
     private function hasDocuments(Warehouse $warehouse): bool
     {
         return collect(['purchase_requests', 'purchase_orders', 'purchases'])
-            ->contains(fn ($table) => DB::table($table)->where('id_warehouse', $warehouse->id)->exists());
+            ->contains(fn ($table) => DB::table($table)->where('id_warehouse', $warehouse->id_warehouse)->exists());
     }
 }

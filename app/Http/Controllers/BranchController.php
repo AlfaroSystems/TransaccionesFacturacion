@@ -19,7 +19,7 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.ver');
 
-        $branches = Branch::with(['company', 'department', 'municipality', 'district'])->orderBy('id', 'desc')->get();
+        $branches = Branch::with(['company', 'department', 'municipality', 'district'])->orderBy('id_branch', 'desc')->get();
         $companies = Company::all();
         $departments = Department::orderBy('name')->get();
         $municipalities = Municipality::orderBy('name')->get();

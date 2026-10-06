@@ -21,14 +21,14 @@ class ProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        $productId = $this->route('product') ? $this->route('product')->id : null;
+        $productId = $this->route('product')?->id_product;
 
         return [
             'sku' => [
                 'nullable',
                 'string',
                 'max:50',
-                Rule::unique('products', 'sku')->ignore($productId),
+                Rule::unique('products', 'sku')->ignore($productId, 'id_product'),
             ],
             'original_code' => [
                 'nullable',
@@ -66,19 +66,19 @@ class ProductRequest extends FormRequest
             ],
             'id_category' => [
                 'nullable',
-                'exists:categories,id',
+                'exists:categories,id_category',
             ],
             'id_sub_category' => [
                 'nullable',
-                'exists:sub_categories,id',
+                'exists:sub_categories,id_sub_category',
             ],
             'purchase_unit' => [
                 'nullable',
-                'exists:units,id',
+                'exists:units,id_unit',
             ],
             'sale_unit' => [
                 'nullable',
-                'exists:units,id',
+                'exists:units,id_unit',
             ],
             'is_active' => [
                 'nullable',

@@ -14,17 +14,24 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $primaryKey = 'id_user';
+
+    /**
+     * Columna de la contraseña (para la autenticación de Laravel).
+     */
+    protected $authPasswordName = 'password_hash';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'id_branch',
-        'password',
-        'status',
+        'password_hash',
+        'is_active',
     ];
 
     /**
@@ -33,7 +40,7 @@ class User extends Authenticatable
      * @var array<string, mixed>
      */
     protected $attributes = [
-        'status' => 'active',
+        'is_active' => true,
     ];
 
     /**
@@ -42,7 +49,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 
@@ -55,7 +62,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password_hash' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -72,7 +80,7 @@ class User extends Authenticatable
      */
     public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Role::class)->withPivot('assigned_at');
+        return $this->belongsToMany(Role::class, 'users_roles', 'id_user', 'id_role')->withPivot('assigned_at');
     }
 
     /**
@@ -106,7 +114,7 @@ class User extends Authenticatable
      */
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return (bool) $this->is_active;
     }
 
     /**
@@ -130,7 +138,7 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permission): bool
     {
-        return $this->roles->flatMap->permissions->contains('id', $permission);
+        return $this->roles->flatMap->permissions->contains('id_permission', $permission);
     }
 
     /**

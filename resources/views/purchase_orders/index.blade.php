@@ -317,7 +317,7 @@
                                         Seleccione un proveedor
                                     </option>
                                     @foreach($suppliers ?? [] as $supplier)
-                                        <option value="{{ $supplier->id_supplier ?? $supplier->id }}">
+                                        <option value="{{ $supplier->id_supplier }}">
                                             {{ $supplier->name }}
                                         </option>
                                     @endforeach
@@ -337,7 +337,7 @@
                                         Seleccione una sucursal
                                     </option>
                                     @foreach($branches ?? [] as $branch)
-                                        <option value="{{ $branch->id }}">
+                                        <option value="{{ $branch->id_branch }}">
                                             {{ $branch->name }}
                                         </option>
                                     @endforeach
@@ -357,7 +357,7 @@
                                         Seleccione una bodega
                                     </option>
                                     @foreach($warehouses ?? [] as $warehouse)
-                                        <option value="{{ $warehouse->id }}">
+                                        <option value="{{ $warehouse->id_warehouse }}">
                                             {{ $warehouse->name }}
                                         </option>
                                     @endforeach
@@ -903,8 +903,8 @@
                     </option>
                     @foreach($products ?? [] as $product)
                         <option
-                            value="{{ $product->id }}"
-                            ${String(data.id_product ?? '') === String({{ $product->id }}) ? 'selected' : ''}>
+                            value="{{ $product->id_product }}"
+                            ${String(data.id_product ?? '') === String({{ $product->id_product }}) ? 'selected' : ''}>
                             {{ $product->name }}
                         </option>
                     @endforeach
@@ -931,8 +931,8 @@
                     </option>
                     @foreach($units ?? [] as $unit)
                         <option
-                            value="{{ $unit->id }}"
-                            ${String(data.id_unit ?? '') === String({{ $unit->id }}) ? 'selected' : ''}>
+                            value="{{ $unit->id_unit }}"
+                            ${String(data.id_unit ?? '') === String({{ $unit->id_unit }}) ? 'selected' : ''}>
                             {{ $unit->name }}
                         </option>
                     @endforeach

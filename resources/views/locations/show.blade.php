@@ -35,7 +35,7 @@
                         Almacén / Bodega
                     </label>
                     <p class="text-xl font-bold text-slate-800 mt-2">
-                        {{ $location->warehouse->name ?? 'Bodega '.$location->warehouse_id }}
+                        {{ $location->warehouse->name ?? 'Bodega '.$location->id_warehouse }}
                     </p>
                 </div>
                 <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
@@ -58,7 +58,7 @@
                         Pasillo
                     </span>
                     <p class="text-2xl font-extrabold text-[#005e66] mt-2">
-                        {{ $location->pasillo ?? '-' }}
+                        {{ $location->aisle ?? '-' }}
                     </p>
                 </div>
 
@@ -119,7 +119,7 @@
 
             <!-- Botones -->
             <div class="flex justify-end gap-3 mt-8">
-                <a href="{{ route('locations.edit',$location->id) }}"
+                <a href="{{ route('locations.edit',$location->id_location) }}"
                     class="px-6 py-3 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold shadow-md transition">
                     ✏️ Editar Ubicación
                 </a>

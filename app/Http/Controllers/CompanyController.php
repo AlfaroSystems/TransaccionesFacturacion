@@ -18,9 +18,9 @@ class CompanyController extends Controller
 
         $companies = Company::query()
             ->with([
-                'department:id,name',
-                'municipality:id,name',
-                'district:id,name',
+                'department:id_department,name',
+                'municipality:id_municipality,name',
+                'district:id_district,name',
             ])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($companyQuery) use ($search) {
@@ -32,7 +32,7 @@ class CompanyController extends Controller
                         ->orWhere('email', 'ilike', "%{$search}%");
                 });
             })
-            ->orderByDesc('id')
+            ->orderByDesc('id_company')
             ->paginate(10)
             ->withQueryString();
 
@@ -59,10 +59,10 @@ class CompanyController extends Controller
             'commercial_line_1' => 'nullable|string|max:255',
             'commercial_line_2' => 'nullable|string|max:255',
             'commercial_line_3' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:500',
-            'department_id' => 'nullable|exists:departments,id',
-            'municipality_id' => 'nullable|exists:municipalities,id',
-            'district_id' => 'nullable|exists:districts,id',
+            'addres' => 'nullable|string|max:500',
+            'id_department' => 'nullable|exists:departments,id_department',
+            'id_municipality' => 'nullable|exists:municipalities,id_municipality',
+            'id_district' => 'nullable|exists:districts,id_district',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'web_site' => 'nullable|url|max:255',
@@ -83,10 +83,10 @@ class CompanyController extends Controller
             'commercial_line_1' => $validated['commercial_line_1'] ?? null,
             'commercial_line_2' => $validated['commercial_line_2'] ?? null,
             'commercial_line_3' => $validated['commercial_line_3'] ?? null,
-            'address' => $validated['address'] ?? null,
-            'department_id' => $validated['department_id'] ?? null,
-            'municipality_id' => $validated['municipality_id'] ?? null,
-            'district_id' => $validated['district_id'] ?? null,
+            'addres' => $validated['addres'] ?? null,
+            'id_department' => $validated['id_department'] ?? null,
+            'id_municipality' => $validated['id_municipality'] ?? null,
+            'id_district' => $validated['id_district'] ?? null,
             'phone' => $validated['phone'] ?? null,
             'email' => $validated['email'] ?? null,
             'web_site' => $validated['web_site'] ?? null,
@@ -114,10 +114,10 @@ class CompanyController extends Controller
             'commercial_line_1' => 'nullable|string|max:255',
             'commercial_line_2' => 'nullable|string|max:255',
             'commercial_line_3' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:500',
-            'department_id' => 'nullable|exists:departments,id',
-            'municipality_id' => 'nullable|exists:municipalities,id',
-            'district_id' => 'nullable|exists:districts,id',
+            'addres' => 'nullable|string|max:500',
+            'id_department' => 'nullable|exists:departments,id_department',
+            'id_municipality' => 'nullable|exists:municipalities,id_municipality',
+            'id_district' => 'nullable|exists:districts,id_district',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'web_site' => 'nullable|url|max:255',
@@ -133,10 +133,10 @@ class CompanyController extends Controller
             'commercial_line_1' => $validated['commercial_line_1'],
             'commercial_line_2' => $validated['commercial_line_2'],
             'commercial_line_3' => $validated['commercial_line_3'],
-            'address' => $validated['address'],
-            'department_id' => $validated['department_id'],
-            'municipality_id' => $validated['municipality_id'],
-            'district_id' => $validated['district_id'],
+            'addres' => $validated['addres'],
+            'id_department' => $validated['id_department'],
+            'id_municipality' => $validated['id_municipality'],
+            'id_district' => $validated['id_district'],
             'phone' => $validated['phone'],
             'email' => $validated['email'],
             'web_site' => $validated['web_site'],

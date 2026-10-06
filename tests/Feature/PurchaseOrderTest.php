@@ -23,24 +23,23 @@ function setupDatosMaestros(): array
 
     // Asignar rol admin para que Gate::before() otorgue acceso total en las pruebas
     $adminRole = Role::firstOrCreate(['name' => 'admin']);
-    $user->roles()->syncWithoutDetaching([$adminRole->id => ['assigned_at' => now()]]);
+    $user->roles()->syncWithoutDetaching([$adminRole->id_role => ['assigned_at' => now()]]);
     // Recargar relaciones para que hasRole() funcione correctamente
     $user->load('roles.permissions');
     $company           = Company::first() ?? Company::create(['name' => 'Empresa Test']);
-    $branch            = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'company_id' => $company->id]);
+    $branch            = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'id_company' => $company->id_company]);
     $warehouseCategory = WarehouseCategory::first() ?? WarehouseCategory::create(['name' => 'General', 'description' => 'General']);
     // La bodega debe pertenecer a la sucursal de la orden
-    $warehouse         = Warehouse::where('branch_id', $branch->id)->first() ?? Warehouse::create([
+    $warehouse         = Warehouse::where('id_branch', $branch->id_branch)->first() ?? Warehouse::create([
         'name'                 => 'Bodega Central',
-        'branch_id'            => $branch->id,
-        'id_branch'            => $branch->id,
-        'warehouse_category_id' => $warehouseCategory->id,
+        'id_branch'            => $branch->id_branch,
+        'id_warehouse_category' => $warehouseCategory->id_warehouse_category,
     ]);
     $unit     = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product  = Product::first() ?? Product::create([
         'name'    => 'Laptop 15"',
         'sku'     => 'LAP-15-TEST',
-        'id_unit' => $unit->id,
+        'id_unit' => $unit->id_unit,
     ]);
     $supplier = Supplier::first() ?? Supplier::create([
         'name'      => 'TechDistrib S.A.',
@@ -61,8 +60,8 @@ function postDataBase(array $data): array
 {
     return [
         'id_supplier'           => $data['supplier']->id_supplier,
-        'id_branch'             => $data['branch']->id,
-        'id_warehouse'          => $data['warehouse']->id,
+        'id_branch'             => $data['branch']->id_branch,
+        'id_warehouse'          => $data['warehouse']->id_warehouse,
         'id_purchase_quotation' => null,
         'order_date'            => now()->format('Y-m-d'),
         'expected_date'         => now()->addDays(7)->format('Y-m-d'),
@@ -71,9 +70,9 @@ function postDataBase(array $data): array
         'notes'                 => null,
         'products'              => [
             [
-                'id_product' => $data['product']->id,
+                'id_product' => $data['product']->id_product,
                 'quantity'   => 5,
-                'id_unit'    => $data['unit']->id,
+                'id_unit'    => $data['unit']->id_unit,
                 'unit_price' => 500.00,
                 'discount'   => 0,
                 'tax_rate'   => 15,
@@ -137,9 +136,9 @@ test('PurchaseOrderService lanza excepción al cambiar estado de orden cancelada
     $data  = setupDatosMaestros();
     $order = PurchaseOrder::create([
         'id_supplier'  => $data['supplier']->id_supplier,
-        'id_branch'    => $data['branch']->id,
-        'id_warehouse' => $data['warehouse']->id,
-        'id_user'      => $data['user']->id,
+        'id_branch'    => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
+        'id_user'      => $data['user']->id_user,
         'order_date'   => now(),
         'expected_date' => now()->addDays(5),
         'currency'     => 'USD',
@@ -162,9 +161,9 @@ test('PurchaseOrderService lanza excepción al intentar regresar issued a draft'
     $data  = setupDatosMaestros();
     $order = PurchaseOrder::create([
         'id_supplier'  => $data['supplier']->id_supplier,
-        'id_branch'    => $data['branch']->id,
-        'id_warehouse' => $data['warehouse']->id,
-        'id_user'      => $data['user']->id,
+        'id_branch'    => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
+        'id_user'      => $data['user']->id_user,
         'order_date'   => now(),
         'expected_date' => now()->addDays(5),
         'currency'     => 'USD',
@@ -208,7 +207,7 @@ test('usuario autenticado puede crear una orden de compra con productos y gastos
 
     $this->assertDatabaseHas('purchase_orders', [
         'id_supplier'        => $data['supplier']->id_supplier,
-        'id_branch'          => $data['branch']->id,
+        'id_branch'          => $data['branch']->id_branch,
         'subtotal'           => 2500.0000,
         'discount'           => 0.0000,
         'tax'                => 375.0000,
@@ -224,7 +223,7 @@ test('usuario autenticado puede crear una orden de compra con productos y gastos
 
     $this->assertDatabaseHas('purchase_order_details', [
         'id_purchase_order' => $order->id_purchase_order,
-        'id_product'        => $data['product']->id,
+        'id_product'        => $data['product']->id_product,
         'quantity'          => 5.0000,
         'unit_price'        => 500.0000,
         'subtotal'          => 2500.0000,
@@ -272,9 +271,9 @@ test('usuario autenticado puede cambiar estado de una orden a issued', function 
     $data  = setupDatosMaestros();
     $order = PurchaseOrder::create([
         'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id,
-        'id_warehouse'        => $data['warehouse']->id,
-        'id_user'             => $data['user']->id,
+        'id_branch'           => $data['branch']->id_branch,
+        'id_warehouse'        => $data['warehouse']->id_warehouse,
+        'id_user'             => $data['user']->id_user,
         'order_date'          => now(),
         'expected_date'       => now()->addDays(5),
         'currency'            => 'USD',
@@ -305,9 +304,9 @@ test('no se puede cambiar estado de una orden cancelada', function () {
     $data  = setupDatosMaestros();
     $order = PurchaseOrder::create([
         'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id,
-        'id_warehouse'        => $data['warehouse']->id,
-        'id_user'             => $data['user']->id,
+        'id_branch'           => $data['branch']->id_branch,
+        'id_warehouse'        => $data['warehouse']->id_warehouse,
+        'id_user'             => $data['user']->id_user,
         'order_date'          => now(),
         'expected_date'       => now()->addDays(5),
         'currency'            => 'USD',
@@ -338,9 +337,9 @@ test('se puede eliminar una orden en borrador', function () {
     $data  = setupDatosMaestros();
     $order = PurchaseOrder::create([
         'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id,
-        'id_warehouse'        => $data['warehouse']->id,
-        'id_user'             => $data['user']->id,
+        'id_branch'           => $data['branch']->id_branch,
+        'id_warehouse'        => $data['warehouse']->id_warehouse,
+        'id_user'             => $data['user']->id_user,
         'order_date'          => now(),
         'expected_date'       => now()->addDays(5),
         'currency'            => 'USD',
@@ -368,9 +367,9 @@ test('no se puede eliminar una orden que ya fue emitida', function () {
     $data  = setupDatosMaestros();
     $order = PurchaseOrder::create([
         'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id,
-        'id_warehouse'        => $data['warehouse']->id,
-        'id_user'             => $data['user']->id,
+        'id_branch'           => $data['branch']->id_branch,
+        'id_warehouse'        => $data['warehouse']->id_warehouse,
+        'id_user'             => $data['user']->id_user,
         'order_date'          => now(),
         'expected_date'       => now()->addDays(5),
         'currency'            => 'USD',

@@ -27,7 +27,7 @@
                 <select name="id_category" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                     <option value="">Todas las Categorías</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ request('id_category') == $category->id ? 'selected' : '' }}>
+                        <option value="{{ $category->id_category }}" {{ request('id_category') == $category->id_category ? 'selected' : '' }}>
                             {{ $category->name }}
                         </option>
                     @endforeach
@@ -56,7 +56,7 @@
                     @forelse($subCategories as $subCategory)
                     <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$subCategory->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
                         <td class="py-4 px-6 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm font-bold text-slate-700">
-                            #{{ $subCategory->id }}
+                            #{{ $subCategory->id_sub_category }}
                         </td>
                         <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm font-bold text-[#005e66]">
                             {{ $subCategory->category?->name ?? 'Sin categoría' }}
@@ -84,7 +84,7 @@
                         <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 @can('subcategories.editar')
-                                <button type="button" onclick="openModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
+                                <button type="button" onclick="openModal('edit-subcategory-modal-{{ $subCategory->id_sub_category }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 @endcan
@@ -115,11 +115,11 @@
 
 <!-- MODALES DE EDICIÓN DE SUBCATEGORÍA -->
 @foreach($subCategories as $subCategory)
-    <div id="edit-subcategory-modal-{{ $subCategory->id }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+    <div id="edit-subcategory-modal-{{ $subCategory->id_sub_category }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
         <div class="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl mx-4 transform scale-95 transition-all">
             <div class="flex items-center justify-between border-b pb-4 mb-4">
                 <h3 class="text-lg font-bold text-slate-800">Editar Subcategoría</h3>
-                <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="text-slate-400 hover:text-slate-600">✕</button>
+                <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id_sub_category }}')" class="text-slate-400 hover:text-slate-600">✕</button>
             </div>
             <form action="{{ route('subcategories.update', $subCategory) }}" method="POST" class="space-y-4">
                 @csrf
@@ -128,7 +128,7 @@
                     <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Categoría Padre *</label>
                     <select name="id_category" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('id_category', $subCategory->id_category) == $category->id ? 'selected' : '' }}>
+                            <option value="{{ $category->id_category }}" {{ old('id_category', $subCategory->id_category) == $category->id_category ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                         @endforeach
@@ -143,11 +143,11 @@
                     <textarea name="description" rows="3" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('description', $subCategory->description) }}</textarea>
                 </div>
                 <div class="flex items-center gap-2">
-                    <input type="checkbox" name="is_active" id="sub_is_active_{{ $subCategory->id }}" value="1" {{ $subCategory->is_active ? 'checked' : '' }} class="rounded text-[#005e66]">
-                    <label for="sub_is_active_{{ $subCategory->id }}" class="text-sm font-semibold text-slate-700">Subcategoría Activa</label>
+                    <input type="checkbox" name="is_active" id="sub_is_active_{{ $subCategory->id_sub_category }}" value="1" {{ $subCategory->is_active ? 'checked' : '' }} class="rounded text-[#005e66]">
+                    <label for="sub_is_active_{{ $subCategory->id_sub_category }}" class="text-sm font-semibold text-slate-700">Subcategoría Activa</label>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id }}')" class="px-5 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
+                    <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id_sub_category }}')" class="px-5 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl bg-[#005e66] text-white font-bold text-sm">Guardar Cambios</button>
                 </div>
             </form>
@@ -169,7 +169,7 @@
                 <select name="id_category" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                     <option value="">Selecciona una categoría...</option>
                     @foreach($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        <option value="{{ $category->id_category }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
             </div>

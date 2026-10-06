@@ -49,7 +49,7 @@
                             {{ $branch->name }}
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
-                            <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $branch->address }}">{{ $branch->address }}</span>
+                            <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $branch->addres }}">{{ $branch->addres }}</span>
                             @if($branch->department || $branch->municipality || $branch->district)
                                 <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded mt-1 inline-block">
                                     {{ $branch->department?->name }} / {{ $branch->municipality?->name }} / {{ $branch->district?->name }}
@@ -138,16 +138,16 @@
             <!-- Fila 1: Empresa y Nombre -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="company_id" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Empresa <span class="text-rose-500">*</span></label>
-                    <select name="company_id" id="company_id" class="w-full bg-slate-50 dark:bg-slate-900 border @error('company_id') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
+                    <label for="id_company" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Empresa <span class="text-rose-500">*</span></label>
+                    <select name="id_company" id="id_company" class="w-full bg-slate-50 dark:bg-slate-900 border @error('id_company') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
                         <option value="">Seleccione una empresa</option>
                         @foreach($companies as $company)
-                            <option value="{{ $company->id }}" {{ (old('modal_type') === 'create' && old('company_id') == $company->id) ? 'selected' : '' }}>
+                            <option value="{{ $company->id_company }}" {{ (old('modal_type') === 'create' && old('id_company') == $company->id_company) ? 'selected' : '' }}>
                                 {{ $company->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('company_id')
+                    @error('id_company')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -192,29 +192,29 @@
                 <h4 class="text-xs font-bold text-[#005e66] dark:text-teal-400 uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
-                        <label for="create_department_id" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="department_id" id="create_department_id" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <label for="create_id_department" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Departamento</label>
+                        <select name="id_department" id="create_id_department" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                <option value="{{ $dept->id_department }}" {{ old('id_department') == $dept->id_department ? 'selected' : '' }}>{{ $dept->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="create_municipality_id" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="municipality_id" id="create_municipality_id" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <label for="create_id_municipality" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Municipio</label>
+                        <select name="id_municipality" id="create_id_municipality" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
-                                <option value="{{ $muni->id }}" data-parent="{{ $muni->department_id }}" {{ old('municipality_id') == $muni->id ? 'selected' : '' }}>{{ $muni->name }}</option>
+                                <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}" {{ old('id_municipality') == $muni->id_municipality ? 'selected' : '' }}>{{ $muni->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="create_district_id" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="district_id" id="create_district_id" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <label for="create_id_district" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Distrito</label>
+                        <select name="id_district" id="create_id_district" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
-                                <option value="{{ $dist->id }}" data-parent="{{ $dist->municipality_id }}" {{ old('district_id') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
+                                <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}" {{ old('id_district') == $dist->id_district ? 'selected' : '' }}>{{ $dist->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -224,9 +224,9 @@
             <!-- Fila 4: Dirección -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="address" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
-                    <textarea name="address" id="address" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('address') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'create' ? old('address') : '' }}</textarea>
-                    @error('address')
+                    <label for="addres" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
+                    <textarea name="addres" id="addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'create' ? old('addres') : '' }}</textarea>
+                    @error('addres')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -277,16 +277,16 @@
             <!-- Fila 1: Empresa y Nombre -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="edit-company_id" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Empresa <span class="text-rose-500">*</span></label>
-                    <select name="company_id" id="edit-company_id" class="w-full bg-slate-50 dark:bg-slate-900 border @error('company_id') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
+                    <label for="edit-id_company" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Empresa <span class="text-rose-500">*</span></label>
+                    <select name="id_company" id="edit-id_company" class="w-full bg-slate-50 dark:bg-slate-900 border @error('id_company') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
                         <option value="">Seleccione una empresa</option>
                         @foreach($companies as $company)
-                            <option value="{{ $company->id }}">
+                            <option value="{{ $company->id_company }}">
                                 {{ $company->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('company_id')
+                    @error('id_company')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -332,29 +332,29 @@
                 <h4 class="text-xs font-bold text-[#005e66] dark:text-teal-400 uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
-                        <label for="edit_department_id" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="department_id" id="edit_department_id" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <label for="edit_id_department" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Departamento</label>
+                        <select name="id_department" id="edit_id_department" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
-                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                <option value="{{ $dept->id_department }}">{{ $dept->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="edit_municipality_id" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="municipality_id" id="edit_municipality_id" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <label for="edit_id_municipality" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Municipio</label>
+                        <select name="id_municipality" id="edit_id_municipality" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
-                                <option value="{{ $muni->id }}" data-parent="{{ $muni->department_id }}">{{ $muni->name }}</option>
+                                <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}">{{ $muni->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="edit_district_id" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="district_id" id="edit_district_id" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <label for="edit_id_district" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Distrito</label>
+                        <select name="id_district" id="edit_id_district" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
-                                <option value="{{ $dist->id }}" data-parent="{{ $dist->municipality_id }}">{{ $dist->name }}</option>
+                                <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}">{{ $dist->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -364,9 +364,9 @@
             <!-- Fila 4: Dirección -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="edit-address" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
-                    <textarea name="address" id="edit-address" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('address') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'edit' ? old('address') : '' }}</textarea>
-                    @error('address')
+                    <label for="edit-addres" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
+                    <textarea name="addres" id="edit-addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'edit' ? old('addres') : '' }}</textarea>
+                    @error('addres')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -402,9 +402,9 @@
 <script>
     let createGeographicFilter, editGeographicFilter;
     function setupGeographicFilters(prefix) {
-        const deptSelect = document.getElementById(`${prefix}department_id`);
-        const muniSelect = document.getElementById(`${prefix}municipality_id`);
-        const distSelect = document.getElementById(`${prefix}district_id`);
+        const deptSelect = document.getElementById(`${prefix}id_department`);
+        const muniSelect = document.getElementById(`${prefix}id_municipality`);
+        const distSelect = document.getElementById(`${prefix}id_district`);
 
         if (!deptSelect || !muniSelect || !distSelect) return null;
 
@@ -443,10 +443,10 @@
     function openEditBranchModal(actionUrl, branch) {
         const modal = document.getElementById('edit-branch-modal');
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = branch.id;
-        document.getElementById('edit-company_id').value = branch.company_id;
+        document.getElementById('edit-id').value = branch.id_branch;
+        document.getElementById('edit-id_company').value = branch.id_company;
         document.getElementById('edit-name').value = branch.name;
-        document.getElementById('edit-address').value = branch.address;
+        document.getElementById('edit-addres').value = branch.addres;
         document.getElementById('edit-phone').value = branch.phone || '';
         document.getElementById('edit-email').value = branch.email || '';
         
@@ -457,7 +457,7 @@
         label.textContent = branch.is_active == 1 ? 'Sucursal Activa' : 'Sucursal Inactiva';
 
         if (editGeographicFilter) {
-            editGeographicFilter.setValues(branch.department_id, branch.municipality_id, branch.district_id);
+            editGeographicFilter.setValues(branch.id_department, branch.id_municipality, branch.id_district);
         }
         openModal('edit-branch-modal');
     }
@@ -481,13 +481,13 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('branches.update', old('id', 0)) }}";
                 const oldBranch = {
-                    id: "{{ old('id') }}",
-                    company_id: "{{ old('company_id') }}",
+                    id_branch: "{{ old('id') }}",
+                    id_company: "{{ old('id_company') }}",
                     name: "{{ old('name') }}",
-                    address: "{{ old('address') }}",
-                    department_id: "{{ old('department_id') }}",
-                    municipality_id: "{{ old('municipality_id') }}",
-                    district_id: "{{ old('district_id') }}",
+                    addres: "{{ old('addres') }}",
+                    id_department: "{{ old('id_department') }}",
+                    id_municipality: "{{ old('id_municipality') }}",
+                    id_district: "{{ old('id_district') }}",
                     phone: "{{ old('phone') }}",
                     email: "{{ old('email') }}",
                     is_active: "{{ old('is_active', '0') }}"
@@ -497,9 +497,9 @@
                 openModal('create-branch-modal');
                 if (createGeographicFilter) {
                     createGeographicFilter.setValues(
-                        "{{ old('department_id') }}", 
-                        "{{ old('municipality_id') }}", 
-                        "{{ old('district_id') }}"
+                        "{{ old('id_department') }}", 
+                        "{{ old('id_municipality') }}", 
+                        "{{ old('id_district') }}"
                     );
                 }
             @endif

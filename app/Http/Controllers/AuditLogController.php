@@ -18,7 +18,7 @@ class AuditLogController extends Controller
 
         // Quien no es administrador solo ve los registros hechos por usuarios de su sucursal
         $visibleLogs = fn () => AuditLog::query()
-            ->when(! BranchAccess::isUnrestricted(), fn ($q) => $q->whereIn('user_id', User::accessible()->select('id')));
+            ->when(! BranchAccess::isUnrestricted(), fn ($q) => $q->whereIn('id_user', User::accessible()->select('id_user')));
 
         $query = $visibleLogs()->with('user');
 
@@ -28,8 +28,8 @@ class AuditLogController extends Controller
         }
 
         // Filtrar por usuario
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->input('user_id'));
+        if ($request->filled('id_user')) {
+            $query->where('id_user', $request->input('id_user'));
         }
 
         // Filtrar por controlador
@@ -53,10 +53,10 @@ class AuditLogController extends Controller
         }
 
         // Obtener logs paginados con query string
-        $logs = $query->latest('id')->paginate(15)->withQueryString();
+        $logs = $query->latest('id_log')->paginate(15)->withQueryString();
 
         // Obtener usuarios para el selector del filtro
-        $users = User::accessible()->orderBy('name')->get();
+        $users = User::accessible()->orderBy('username')->get();
 
         // Modelos presentes en la bitácora visible, para el selector del filtro
         $auditableTypes = $visibleLogs()

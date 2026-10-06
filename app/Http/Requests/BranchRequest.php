@@ -25,12 +25,12 @@ class BranchRequest extends FormRequest
     {
         return [
             // Solo empresas visibles para el usuario (la suya, si no es administrador)
-            'company_id' => ['required', new Accessible(Company::class)],
+            'id_company' => ['required', new Accessible(Company::class)],
             'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'department_id' => 'nullable|exists:departments,id',
-            'municipality_id' => 'nullable|exists:municipalities,id',
-            'district_id' => 'nullable|exists:districts,id',
+            'addres' => 'required|string|max:255',
+            'id_department' => 'nullable|exists:departments,id_department',
+            'id_municipality' => 'nullable|exists:municipalities,id_municipality',
+            'id_district' => 'nullable|exists:districts,id_district',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email',
             'is_active' => 'boolean'

@@ -45,7 +45,7 @@ class ProductController extends Controller
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        $products       = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $products       = $query->orderBy('id_product', 'desc')->paginate(15)->withQueryString();
         $categories     = Category::where('is_active', true)->get();
         $subCategories  = SubCategory::where('is_active', true)->get();
         $units          = Unit::where('is_active', true)->get();
@@ -134,7 +134,7 @@ class ProductController extends Controller
     {
         Gate::authorize('products.editar');
 
-        return redirect()->route('products.index', ['edit' => $product->id]);
+        return redirect()->route('products.index', ['edit' => $product->id_product]);
     }
 
     /**
@@ -170,7 +170,7 @@ class ProductController extends Controller
                 ->with('success', "Producto '{$product->name}' actualizado correctamente.");
         } catch (Exception $e) {
             Log::error('Error al actualizar producto.', [
-                'product_id' => $product->id,
+                'product_id' => $product->id_product,
                 'exception'  => $e->getMessage(),
                 'trace'      => $e->getTraceAsString(),
             ]);
@@ -218,7 +218,7 @@ class ProductController extends Controller
             return back()->with('success', 'Imagen eliminada correctamente.');
         } catch (Exception $e) {
             Log::error('Error al eliminar imagen de producto.', [
-                'image_id'  => $image->id ?? null,
+                'image_id'  => $image->id_product_image ?? null,
                 'exception' => $e->getMessage(),
                 'trace'     => $e->getTraceAsString(),
             ]);

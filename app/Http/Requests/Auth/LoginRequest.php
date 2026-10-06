@@ -43,7 +43,7 @@ class LoginRequest extends FormRequest
 
         // Solo los usuarios activos pueden iniciar sesión; un usuario inactivo recibe el mismo
         // mensaje genérico para no revelar qué cuentas existen.
-        $credentials = [...$this->only('email', 'password'), 'status' => 'active'];
+        $credentials = [...$this->only('email', 'password'), 'is_active' => true];
 
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());

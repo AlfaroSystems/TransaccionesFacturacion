@@ -292,7 +292,7 @@ class GeographicSeeder extends Seeder
         Department::insert($departmentsData);
 
         // Mapear código de departamento -> ID
-        $departmentsMap = Department::pluck('id', 'code')->toArray();
+        $departmentsMap = Department::pluck('id_department', 'code')->toArray();
 
         // 2. Insertar Municipios
         $municipalitiesData = [];
@@ -301,7 +301,7 @@ class GeographicSeeder extends Seeder
             foreach ($deptInfo['municipalities'] as $muniCode => $muniInfo) {
                 $municipalitiesData[] = [
                     'code' => $muniCode,
-                    'department_id' => $deptId,
+                    'id_department' => $deptId,
                     'name' => $muniInfo['name'],
                     'created_at' => now(),
                     'updated_at' => now()
@@ -311,7 +311,7 @@ class GeographicSeeder extends Seeder
         Municipality::insert($municipalitiesData);
 
         // Mapear código de municipio -> ID
-        $municipalitiesMap = Municipality::pluck('id', 'code')->toArray();
+        $municipalitiesMap = Municipality::pluck('id_municipality', 'code')->toArray();
 
         // 3. Insertar Distritos
         $districtsData = [];
@@ -322,7 +322,7 @@ class GeographicSeeder extends Seeder
                     $distCode = $muniCode . str_pad($index + 1, 2, '0', STR_PAD_LEFT);
                     $districtsData[] = [
                         'code' => $distCode,
-                        'municipality_id' => $muniId,
+                        'id_municipality' => $muniId,
                         'name' => $districtName,
                         'created_at' => now(),
                         'updated_at' => now()

@@ -14,6 +14,7 @@ class Product extends Model
     use HasFactory;
 
     protected $table = 'products';
+    protected $primaryKey = 'id_product';
 
     /**
      * Atributos asignables en masa.
@@ -78,7 +79,7 @@ class Product extends Model
 
                 // Validar unicidad del SKU excluyendo el registro actual
                 $exists = static::where('sku', $product->sku)
-                    ->where('id', '!=', $product->id)
+                    ->where('id_product', '!=', $product->id_product)
                     ->exists();
 
                 if ($exists) {
@@ -166,7 +167,7 @@ class Product extends Model
      */
     public function locations(): BelongsToMany
     {
-        return $this->belongsToMany(Location::class, 'product_location')
+        return $this->belongsToMany(Location::class, 'product_location', 'product_id', 'location_id')
                     ->withPivot('quantity')
                     ->withTimestamps();
     }

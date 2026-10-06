@@ -30,7 +30,7 @@ class UserController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
+                $q->where('username', 'ilike', "%{$search}%")
                     ->orWhere('email', 'ilike', "%{$search}%");
             });
         }
@@ -48,8 +48,8 @@ class UserController extends Controller
         }
 
         // Filtro por estado
-        if ($request->filled('status')) {
-            $query->where('status', $request->input('status'));
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->boolean('is_active'));
         }
 
         // Paginación y mantenimiento de los parámetros de búsqueda/filtro
@@ -80,23 +80,23 @@ class UserController extends Controller
         Gate::authorize('usuarios.crear');
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'id_branch' => $this->branchRules(),
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'status' => ['required', 'string', Rule::in(['active', 'inactive'])],
+            'is_active' => ['required', 'boolean'],
             'roles' => ['required', 'array'],
-            'roles.*' => ['exists:roles,id'],
+            'roles.*' => ['exists:roles,id_role'],
         ]);
 
         $this->ensureCanAssignRoles($validated['roles']);
 
         $user = User::create([
-            'name' => $validated['name'],
+            'username' => $validated['username'],
             'email' => $validated['email'],
             'id_branch' => $validated['id_branch'] ?? null,
-            'password' => Hash::make($validated['password']),
-            'status' => $validated['status'],
+            'password_hash' => Hash::make($validated['password']),
+            'is_active' => $validated['is_active'],
         ]);
 
         $user->roles()->sync($validated['roles']);
@@ -148,13 +148,13 @@ class UserController extends Controller
         $isSelf = $request->user()->is($user);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'username' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user)],
             'id_branch' => $this->branchRules(),
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'status' => [$isSelf ? 'sometimes' : 'required', 'string', Rule::in(['active', 'inactive'])],
+            'is_active' => [$isSelf ? 'sometimes' : 'required', 'boolean'],
             'roles' => [$isSelf ? 'sometimes' : 'required', 'array'],
-            'roles.*' => ['exists:roles,id'],
+            'roles.*' => ['exists:roles,id_role'],
         ]);
 
         if ($isSelf) {
@@ -164,17 +164,17 @@ class UserController extends Controller
         }
 
         $data = [
-            'name' => $validated['name'],
+            'username' => $validated['username'],
             'email' => $validated['email'],
             'id_branch' => $validated['id_branch'] ?? null,
         ];
 
         if (! $isSelf) {
-            $data['status'] = $validated['status'];
+            $data['is_active'] = $validated['is_active'];
         }
 
         if (!empty($validated['password'])) {
-            $data['password'] = Hash::make($validated['password']);
+            $data['password_hash'] = Hash::make($validated['password']);
         }
 
         $user->update($data);
@@ -205,11 +205,11 @@ class UserController extends Controller
             return $denied;
         }
 
-        $newStatus = $user->isActive() ? 'inactive' : 'active';
+        $activate = ! $user->isActive();
 
-        $user->update(['status' => $newStatus]);
+        $user->update(['is_active' => $activate]);
 
-        $message = $newStatus === 'active'
+        $message = $activate
             ? 'Usuario reactivado exitosamente.'
             : 'Usuario desactivado exitosamente.';
 
@@ -259,7 +259,7 @@ class UserController extends Controller
             return;
         }
 
-        $assignsAdmin = Role::whereIn('id', $roleIds)->where('name', 'admin')->exists();
+        $assignsAdmin = Role::whereKey($roleIds)->where('name', 'admin')->exists();
 
         if ($assignsAdmin) {
             throw ValidationException::withMessages([
@@ -277,7 +277,7 @@ class UserController extends Controller
     {
         if (array_key_exists('roles', $validated)) {
             $submitted = collect($validated['roles'])->map(fn ($id) => (int) $id)->sort()->values();
-            $current = $user->roles->pluck('id')->map(fn ($id) => (int) $id)->sort()->values();
+            $current = $user->roles->pluck('id_role')->map(fn ($id) => (int) $id)->sort()->values();
 
             if ($submitted->all() !== $current->all()) {
                 throw ValidationException::withMessages([
@@ -286,9 +286,9 @@ class UserController extends Controller
             }
         }
 
-        if (($validated['status'] ?? 'active') !== 'active') {
+        if (array_key_exists('is_active', $validated) && ! $validated['is_active']) {
             throw ValidationException::withMessages([
-                'status' => 'No puedes desactivar tu propia cuenta.',
+                'is_active' => 'No puedes desactivar tu propia cuenta.',
             ]);
         }
     }

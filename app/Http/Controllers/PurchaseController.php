@@ -184,8 +184,8 @@ class PurchaseController extends Controller
 
         $validated = $request->validate([
             'id_purchase_order'          => ['required', new Accessible(PurchaseOrder::class)],
-            'id_supplier'                => ['required', 'exists:suppliers,id_supplier'],
-            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $orderBranchId()))],
+            'id_supplier'                => ['required', 'exists:supliers,id_supplier'],
+            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $orderBranchId()))],
             'purchase_date'              => ['required', 'date'],
             'supplier_invoice_number'    => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date'      => ['nullable', 'date'],
@@ -193,13 +193,13 @@ class PurchaseController extends Controller
             'status'                     => ['required', Rule::in(['draft', 'received', 'completed'])],
             'notes'                      => ['nullable', 'string'],
             'details'                    => ['required', 'array', 'min:1'],
-            'details.*.id_product'       => ['required', 'exists:products,id'],
+            'details.*.id_product'       => ['required', 'exists:products,id_product'],
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
             'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
             'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
             'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
             'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'details.*.id_unit'          => ['nullable', 'exists:units,id'],
+            'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes'            => ['nullable', 'string'],
         ]);
@@ -332,21 +332,21 @@ class PurchaseController extends Controller
 
         // La sucursal y la orden de la compra no cambian: la bodega y las líneas deben pertenecer a ellas
         $validated = $request->validate([
-            'id_supplier'                => ['required', 'exists:suppliers,id_supplier'],
-            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $purchase->id_branch))],
+            'id_supplier'                => ['required', 'exists:supliers,id_supplier'],
+            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $purchase->id_branch))],
             'purchase_date'              => ['required', 'date'],
             'supplier_invoice_number'    => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date'      => ['nullable', 'date'],
             'currency'                   => ['nullable', 'string', 'max:3'],
             'notes'                      => ['nullable', 'string'],
             'details'                    => ['required', 'array', 'min:1'],
-            'details.*.id_product'       => ['required', 'exists:products,id'],
+            'details.*.id_product'       => ['required', 'exists:products,id_product'],
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
             'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
             'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
             'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
             'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'details.*.id_unit'          => ['nullable', 'exists:units,id'],
+            'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes'            => ['nullable', 'string'],
         ]);

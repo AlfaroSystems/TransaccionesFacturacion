@@ -10,6 +10,7 @@ class Unit extends Model
     use HasFactory;
 
     protected $table = 'units';
+    protected $primaryKey = 'id_unit';
 
     /**
      * Atributos asignables en masa.

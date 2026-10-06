@@ -44,8 +44,8 @@ class AppServiceProvider extends ServiceProvider
                 $permissions = Permission::with('roles')->get();
                 
                 foreach ($permissions as $permission) {
-                    Gate::define($permission->id, function (User $user) use ($permission) {
-                        return $user->hasPermission($permission->id);
+                    Gate::define($permission->id_permission, function (User $user) use ($permission) {
+                        return $user->hasPermission($permission->id_permission);
                     });
                 }
             }

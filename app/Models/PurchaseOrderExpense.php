@@ -14,10 +14,13 @@ class PurchaseOrderExpense extends Model
         'id_expense_type',
         'description',
         'amount',
+        'is_costable',
     ];
 
     protected $casts = [
         'amount' => 'decimal:4',
+        // Si el gasto forma parte del costo de la mercadería (retaceo)
+        'is_costable' => 'boolean',
     ];
 
     public function purchaseOrder(): BelongsTo

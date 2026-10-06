@@ -2,9 +2,9 @@
     let createGeographicFilter, editGeographicFilter;
 
     function setupGeographicFilters(prefix) {
-        const deptSelect = document.getElementById(`${prefix}department_id`);
-        const muniSelect = document.getElementById(`${prefix}municipality_id`);
-        const distSelect = document.getElementById(`${prefix}district_id`);
+        const deptSelect = document.getElementById(`${prefix}id_department`);
+        const muniSelect = document.getElementById(`${prefix}id_municipality`);
+        const distSelect = document.getElementById(`${prefix}id_district`);
 
         if (!deptSelect || !muniSelect || !distSelect) {
             return null;
@@ -51,7 +51,7 @@
         const modal = document.getElementById('edit-company-modal');
 
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = company.id;
+        document.getElementById('edit-id').value = company.id_company;
         document.getElementById('edit-name').value = company.name;
         document.getElementById('edit-commercial_name').value = company.commercial_name || '';
         document.getElementById('edit-nit').value = company.nit || '';
@@ -62,14 +62,14 @@
         document.getElementById('edit-web_site').value = company.web_site || '';
         document.getElementById('edit-phone').value = company.phone || '';
         document.getElementById('edit-email').value = company.email || '';
-        document.getElementById('edit-address').value = company.address || '';
+        document.getElementById('edit-addres').value = company.addres || '';
         document.getElementById('edit-is_active').checked = Boolean(company.is_active);
 
         if (editGeographicFilter) {
             editGeographicFilter.setValues(
-                company.department_id,
-                company.municipality_id,
-                company.district_id
+                company.id_department,
+                company.id_municipality,
+                company.id_district
             );
         }
         openModal('edit-company-modal');
@@ -92,9 +92,9 @@
             openModal('create-company-modal');
             if (createGeographicFilter) {
                 createGeographicFilter.setValues(
-                    modalState.department_id,
-                    modalState.municipality_id,
-                    modalState.district_id
+                    modalState.id_department,
+                    modalState.id_municipality,
+                    modalState.id_district
                 );
             }
             return;

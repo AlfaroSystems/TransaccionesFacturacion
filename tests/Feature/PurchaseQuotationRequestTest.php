@@ -15,32 +15,31 @@ use Illuminate\Support\Str;
 test('solicitud de cotizacion se puede crear y relacionar correctamente', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
-    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     // 2. Crear datos base
     $company = Company::first() ?? Company::create(['name' => 'Empresa Matriz']);
-    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'company_id' => $company->id]);
+    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'id_company' => $company->id_company]);
     $warehouseCategory = WarehouseCategory::first() ?? WarehouseCategory::create(['name' => 'General', 'description' => 'General']);
     $warehouse = Warehouse::first() ?? Warehouse::create([
         'name' => 'Bodega Principal',
-        'branch_id' => $branch->id,
-        'id_branch' => $branch->id,
-        'warehouse_category_id' => $warehouseCategory->id
+        'id_branch' => $branch->id_branch,
+        'id_warehouse_category' => $warehouseCategory->id_warehouse_category
     ]);
     $unit = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product = Product::first() ?? Product::create([
         'name' => 'Laptop Core i7',
         'sku' => 'LAP-001',
-        'id_unit' => $unit->id,
+        'id_unit' => $unit->id_unit,
     ]);
 
     // 3. Crear solicitud de compra aprobada
     $purchaseRequest = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(),
         'purchase_request_code' => 'REQ-2026-TEST',
-        'id_branch' => $branch->id,
-        'id_warehouse' => $warehouse->id,
-        'id_user' => $user->id,
+        'id_branch' => $branch->id_branch,
+        'id_warehouse' => $warehouse->id_warehouse,
+        'id_user' => $user->id_user,
         'request_date' => now(),
         'required_date' => now()->addDays(7),
         'justification' => 'Renovación de equipos informáticos',
@@ -48,9 +47,9 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
     ]);
 
     $detail = $purchaseRequest->details()->create([
-        'id_product' => $product->id,
+        'id_product' => $product->id_product,
         'quantity' => 5.0000,
-        'id_unit' => $unit->id,
+        'id_unit' => $unit->id_unit,
         'description' => 'Equipos para desarrollo',
     ]);
 

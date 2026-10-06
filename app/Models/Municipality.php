@@ -8,19 +8,21 @@ class Municipality extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'id_municipality';
+
     protected $fillable = [
-        'department_id',
+        'id_department',
         'code',
         'name',
     ];
 
     public function department()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class, 'id_department');
     }
 
     public function districts()
     {
-        return $this->hasMany(District::class);
+        return $this->hasMany(District::class, 'id_municipality');
     }
 }

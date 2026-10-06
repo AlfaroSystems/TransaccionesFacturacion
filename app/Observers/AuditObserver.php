@@ -44,7 +44,7 @@ class AuditObserver
     }
 
     /**
-     * Registra la actividad de auditoría en la tabla audit_logs.
+     * Registra la actividad de auditoría en la tabla logs.
      */
     protected function logActivity(Model $model, string $event, ?array $originalData, ?array $modifiedData): void
     {
@@ -80,7 +80,7 @@ class AuditObserver
 
         // 3. Insertar el registro en la bitácora
         AuditLog::create([
-            'user_id' => auth()->check() ? auth()->id() : null,
+            'id_user' => auth()->check() ? auth()->id() : null,
             'auditable_type' => $model->getMorphClass(),
             'id_record' => is_numeric($model->getKey()) ? (int) $model->getKey() : null,
             'controller' => $controller,

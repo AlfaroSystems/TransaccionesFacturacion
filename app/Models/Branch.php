@@ -16,14 +16,16 @@ class Branch extends Model
         $query->whereKey($branchId);
     }
 
+    protected $primaryKey = 'id_branch';
+
     // Campos que se pueden guardar en la tabla branches
     protected $fillable = [
-        'company_id',
+        'id_company',
         'name',
-        'address',
-        'department_id',
-        'municipality_id',
-        'district_id',
+        'addres',
+        'id_department',
+        'id_municipality',
+        'id_district',
         'phone',
         'email',
         'description',
@@ -33,13 +35,13 @@ class Branch extends Model
     // Una sucursal pertenece a una empresa
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class, 'id_company');
     }
 
     // Una sucursal tiene muchas bodegas
     public function warehouses()
     {
-        return $this->hasMany(Warehouse::class);
+        return $this->hasMany(Warehouse::class, 'id_branch');
     }
 
     // Una sucursal tiene muchos usuarios asignados
@@ -50,16 +52,16 @@ class Branch extends Model
 
     public function department()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Department::class, 'id_department');
     }
 
     public function municipality()
     {
-        return $this->belongsTo(Municipality::class);
+        return $this->belongsTo(Municipality::class, 'id_municipality');
     }
 
     public function district()
     {
-        return $this->belongsTo(District::class);
+        return $this->belongsTo(District::class, 'id_district');
     }
 }

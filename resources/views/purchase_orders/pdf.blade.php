@@ -67,7 +67,7 @@
                 <div class="mt-4 text-xs text-slate-600 space-y-1">
                     <p><strong>Sucursal Emisora:</strong> {{ $purchase_order->branch->name ?? 'Sucursal Central' }}</p>
                     <p><strong>Bodega Receptor:</strong> {{ $purchase_order->warehouse->name ?? 'Bodega Principal' }}</p>
-                    <p><strong>Usuario Emisor:</strong> {{ $purchase_order->user->name ?? 'Sistema' }} ({{ $purchase_order->user->email ?? 'N/A' }})</p>
+                    <p><strong>Usuario Emisor:</strong> {{ $purchase_order->user->username ?? 'Sistema' }} ({{ $purchase_order->user->email ?? 'N/A' }})</p>
                 </div>
             </div>
 
@@ -220,7 +220,7 @@
         <div class="pt-12 grid grid-cols-2 gap-12 text-center text-xs">
             <div class="border-t border-slate-300 pt-2 space-y-1">
                 <p class="font-bold text-slate-800">Elaborado y Emitido Por</p>
-                <p class="text-slate-400 font-mono">{{ $purchase_order->user->name ?? 'Firma Autorizada' }}</p>
+                <p class="text-slate-400 font-mono">{{ $purchase_order->user->username ?? 'Firma Autorizada' }}</p>
             </div>
             <div class="border-t border-slate-300 pt-2 space-y-1">
                 <p class="font-bold text-slate-800">Aceptado y Recibido Por (Proveedor)</p>

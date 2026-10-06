@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AuditLog extends Model
 {
-    protected $table = 'audit_logs';
+    protected $table = 'logs';
+    protected $primaryKey = 'id_log';
 
     // Desactivamos timestamps estándar ya que la tabla solo maneja created_at
     public $timestamps = false;
 
     protected $fillable = [
-        'user_id',
+        'id_user',
         'auditable_type',
         'id_record',
         'controller',
@@ -40,6 +41,6 @@ class AuditLog extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

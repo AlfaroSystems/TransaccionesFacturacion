@@ -103,17 +103,17 @@ class Purchase extends Model
 
     public function branch(): BelongsTo
     {
-        return $this->belongsTo(Branch::class, 'id_branch', 'id');
+        return $this->belongsTo(Branch::class, 'id_branch');
     }
 
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(Warehouse::class, 'id_warehouse', 'id');
+        return $this->belongsTo(Warehouse::class, 'id_warehouse');
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'id_user', 'id');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
     public function details(): HasMany

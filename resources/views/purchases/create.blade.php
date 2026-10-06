@@ -138,7 +138,7 @@
                     <select name="id_branch" id="id_branch" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
                         <option value="">-- Sucursal --</option>
                         @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ (string)old('id_branch', $purchase->id_branch ?? '') === (string)$branch->id ? 'selected' : '' }}>
+                            <option value="{{ $branch->id_branch }}" {{ (string)old('id_branch', $purchase->id_branch ?? '') === (string)$branch->id_branch ? 'selected' : '' }}>
                                 {{ $branch->name }}
                             </option>
                         @endforeach
@@ -151,7 +151,7 @@
                     <select name="id_warehouse" id="id_warehouse" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
                         <option value="">-- Bodega --</option>
                         @foreach($warehouses as $wh)
-                            <option value="{{ $wh->id }}" {{ (string)old('id_warehouse', $purchase->id_warehouse ?? '') === (string)$wh->id ? 'selected' : '' }}>
+                            <option value="{{ $wh->id_warehouse }}" {{ (string)old('id_warehouse', $purchase->id_warehouse ?? '') === (string)$wh->id_warehouse ? 'selected' : '' }}>
                                 {{ $wh->name }}
                             </option>
                         @endforeach

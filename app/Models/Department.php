@@ -8,6 +8,8 @@ class Department extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'id_department';
+
     protected $fillable = [
         'code',
         'name',
@@ -16,6 +18,6 @@ class Department extends Model
 
     public function municipalities()
     {
-        return $this->hasMany(Municipality::class);
+        return $this->hasMany(Municipality::class, 'id_department');
     }
 }

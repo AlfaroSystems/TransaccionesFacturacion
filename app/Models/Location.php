@@ -16,10 +16,12 @@ class Location extends Model
         $query->whereHas('warehouse');
     }
 
+    protected $primaryKey = 'id_location';
+
     protected $fillable = [
-        'warehouse_id',
+        'id_warehouse',
         'code',
-        'pasillo',
+        'aisle',
         'rack',
         'level',
         'position',
@@ -36,15 +38,15 @@ class Location extends Model
     /**
      * Generar el código concatenando los datos (ej: B0D1 - PAS2 - EST3 - NIV1 - P0S4).
      */
-    public static function generateCode($warehouse_id, $pasillo, $rack, $level, $position): string
+    public static function generateCode($id_warehouse, $aisle, $rack, $level, $position): string
     {
         $parts = [];
-        
-        if ($warehouse_id) {
-            $parts[] = 'B0D' . $warehouse_id;
+
+        if ($id_warehouse) {
+            $parts[] = 'B0D' . $id_warehouse;
         }
-        if ($pasillo !== null && $pasillo !== '') {
-            $parts[] = 'PAS' . $pasillo;
+        if ($aisle !== null && $aisle !== '') {
+            $parts[] = 'PAS' . $aisle;
         }
         if ($rack !== null && $rack !== '') {
             $parts[] = 'EST' . $rack;
@@ -64,6 +66,6 @@ class Location extends Model
      */
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Warehouse::class, 'id_warehouse');
     }
 }

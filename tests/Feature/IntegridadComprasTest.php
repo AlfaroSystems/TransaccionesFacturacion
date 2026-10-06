@@ -30,33 +30,33 @@ use Illuminate\Support\Str;
 function escenarioCompras(string $estadoCompra = 'received'): object
 {
     $admin = User::factory()->create();
-    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     $company   = Company::create(['name' => 'Distribuidora de Prueba']);
-    $branch    = Branch::create(['company_id' => $company->id, 'name' => 'Sucursal Central']);
+    $branch    = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Central']);
     $category  = WarehouseCategory::create(['name' => 'General']);
-    $warehouse = Warehouse::create(['branch_id' => $branch->id, 'warehouse_category_id' => $category->id, 'name' => 'Bodega Central']);
+    $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $category->id_warehouse_category, 'name' => 'Bodega Central']);
     $unit      = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product   = Product::create(['name' => 'Laptop', 'sku' => 'SKU-'.Str::random(6)]);
     $supplier  = Supplier::create(['name' => 'Proveedor', 'email' => 'p@example.com', 'country' => 'El Salvador', 'is_active' => true]);
 
     $order = PurchaseOrder::create([
-        'id_supplier' => $supplier->id_supplier, 'id_branch' => $branch->id, 'id_warehouse' => $warehouse->id,
-        'id_user' => $admin->id, 'order_date' => now(), 'expected_date' => now()->addWeek(),
+        'id_supplier' => $supplier->id_supplier, 'id_branch' => $branch->id_branch, 'id_warehouse' => $warehouse->id_warehouse,
+        'id_user' => $admin->id_user, 'order_date' => now(), 'expected_date' => now()->addWeek(),
         'currency' => 'USD', 'payment_terms' => 'Contado', 'status' => 'issued',
     ]);
     $orderDetail = PurchaseOrderDetail::create([
-        'id_purchase_order' => $order->id_purchase_order, 'id_product' => $product->id,
-        'quantity' => 10, 'id_unit' => $unit->id, 'unit_price' => 50,
+        'id_purchase_order' => $order->id_purchase_order, 'id_product' => $product->id_product,
+        'quantity' => 10, 'id_unit' => $unit->id_unit, 'unit_price' => 50,
     ]);
 
     $purchase = Purchase::create([
         'id_purchase_order' => $order->id_purchase_order, 'id_supplier' => $supplier->id_supplier,
-        'id_branch' => $branch->id, 'id_warehouse' => $warehouse->id, 'purchase_date' => now(), 'status' => $estadoCompra,
+        'id_branch' => $branch->id_branch, 'id_warehouse' => $warehouse->id_warehouse, 'purchase_date' => now(), 'status' => $estadoCompra,
     ]);
     $purchaseDetail = PurchaseDetail::create([
         'id_purchase' => $purchase->id_purchase, 'id_purchase_order_detail' => $orderDetail->id_purchase_order_detail,
-        'id_product' => $product->id, 'quantity_received' => 10, 'unit_price' => 50,
+        'id_product' => $product->id_product, 'quantity_received' => 10, 'unit_price' => 50,
     ]);
 
     return (object) compact('admin', 'company', 'branch', 'warehouse', 'unit', 'product', 'supplier', 'order', 'orderDetail', 'purchase', 'purchaseDetail');
@@ -72,7 +72,7 @@ function datosRetaceo(object $e, array $cambios = []): array
         'total_freight'  => 100,
         'total_expenses' => 20,
         'details'        => [[
-            'id_product' => $e->product->id, 'id_purchase_detail' => $e->purchaseDetail->id_purchase_detail,
+            'id_product' => $e->product->id_product, 'id_purchase_detail' => $e->purchaseDetail->id_purchase_detail,
             'quantity' => 10, 'cost_fob' => 500, 'dai_amount' => 25,
         ]],
     ], $cambios);
@@ -136,7 +136,7 @@ test('un retaceo aplicado es definitivo', function () {
 
 test('sin órdenes en los últimos meses el gráfico muestra ceros y no datos de ejemplo', function () {
     $admin = User::factory()->create();
-    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     $data = $this->actingAs($admin)->get(route('dashboard'))->assertOk()->viewData('chartData');
 
@@ -158,9 +158,9 @@ test('la base de datos impide borrar datos de los que dependen documentos de com
     expect($borrar('suppliers', 'id_supplier', $e->supplier->id_supplier))->toThrow(QueryException::class)
         ->and($borrar('purchase_orders', 'id_purchase_order', $e->order->id_purchase_order))->toThrow(QueryException::class)
         ->and($borrar('purchases', 'id_purchase', $e->purchase->id_purchase))->toThrow(QueryException::class)
-        ->and($borrar('warehouses', 'id', $e->warehouse->id))->toThrow(QueryException::class)
-        ->and($borrar('branches', 'id', $e->branch->id))->toThrow(QueryException::class)
-        ->and($borrar('companies', 'id', $e->company->id))->toThrow(QueryException::class);
+        ->and($borrar('warehouses', 'id', $e->warehouse->id_warehouse))->toThrow(QueryException::class)
+        ->and($borrar('branches', 'id', $e->branch->id_branch))->toThrow(QueryException::class)
+        ->and($borrar('companies', 'id', $e->company->id_company))->toThrow(QueryException::class);
 
     expect(Retaceo::count())->toBe(1)
         ->and(Purchase::count())->toBe(1)
@@ -177,8 +177,8 @@ test('borrar un documento con documentos posteriores muestra un aviso en lugar d
     $this->delete(route('purchase_orders.destroy', $e->order))->assertSessionHas('error');
 
     $request = PurchaseRequest::create([
-        'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-PRUEBA', 'id_branch' => $e->branch->id,
-        'id_warehouse' => $e->warehouse->id, 'id_user' => $e->admin->id, 'request_date' => now(),
+        'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-PRUEBA', 'id_branch' => $e->branch->id_branch,
+        'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'draft',
     ]);
     $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
@@ -208,7 +208,7 @@ test('la bitácora registra el modelo de cada cambio, incluidas las líneas reem
     $this->actingAs($e->admin)->put(route('purchases.update', $e->purchase), [
         'id_supplier'   => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(),
-        'details'       => [['id_product' => $e->product->id, 'quantity_received' => 4, 'unit_price' => 50]],
+        'details'       => [['id_product' => $e->product->id_product, 'quantity_received' => 4, 'unit_price' => 50]],
     ])->assertSessionHasNoErrors();
 
     // La compra editada y la línea borrada quedan registradas con su modelo
@@ -223,8 +223,8 @@ test('la bitácora registra el modelo de cada cambio, incluidas las líneas reem
 test('al aceptar una oferta, el rechazo de las demás queda en la bitácora', function () {
     $e = escenarioCompras();
     $request = PurchaseRequest::create([
-        'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-OFERTAS', 'id_branch' => $e->branch->id,
-        'id_warehouse' => $e->warehouse->id, 'id_user' => $e->admin->id, 'request_date' => now(),
+        'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-OFERTAS', 'id_branch' => $e->branch->id_branch,
+        'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'approved',
     ]);
     $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
@@ -267,30 +267,30 @@ test('el descuento de una línea no puede superar su subtotal y el IVA no puede 
 
     // Orden de compra: 5 x 10 = 50
     $this->post(route('purchase_orders.store'), [
-        'id_supplier' => $e->supplier->id_supplier, 'id_branch' => $e->branch->id, 'id_warehouse' => $e->warehouse->id,
+        'id_supplier' => $e->supplier->id_supplier, 'id_branch' => $e->branch->id_branch, 'id_warehouse' => $e->warehouse->id_warehouse,
         'order_date' => now()->toDateString(), 'expected_date' => now()->addDay()->toDateString(),
         'currency' => 'USD', 'payment_terms' => 'Contado',
-        'products' => [['id_product' => $e->product->id, 'id_unit' => $e->unit->id, 'quantity' => 5, 'unit_price' => 10, 'discount' => 60, 'tax_rate' => 150]],
+        'products' => [['id_product' => $e->product->id_product, 'id_unit' => $e->unit->id_unit, 'quantity' => 5, 'unit_price' => 10, 'discount' => 60, 'tax_rate' => 150]],
     ])->assertSessionHasErrors(['products.0.discount', 'products.0.tax_rate']);
 
     // Compra: 2 x 50 = 100
     $this->post(route('purchases.store'), [
         'id_purchase_order' => $e->order->id_purchase_order, 'id_supplier' => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(), 'status' => 'draft',
-        'details' => [['id_product' => $e->product->id, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100.01, 'tax_rate' => 101]],
+        'details' => [['id_product' => $e->product->id_product, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100.01, 'tax_rate' => 101]],
     ])->assertSessionHasErrors(['details.0.discount', 'details.0.tax_rate']);
 
     // Un descuento igual al subtotal sí es válido
     $this->post(route('purchases.store'), [
         'id_purchase_order' => $e->order->id_purchase_order, 'id_supplier' => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(), 'status' => 'draft',
-        'details' => [['id_product' => $e->product->id, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100, 'tax_rate' => 13]],
+        'details' => [['id_product' => $e->product->id_product, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100, 'tax_rate' => 13]],
     ])->assertSessionHasNoErrors();
 
     // Oferta de proveedor: 1 x 20 = 20
     $request = PurchaseRequest::create([
-        'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-TOPES', 'id_branch' => $e->branch->id,
-        'id_warehouse' => $e->warehouse->id, 'id_user' => $e->admin->id, 'request_date' => now(),
+        'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-TOPES', 'id_branch' => $e->branch->id_branch,
+        'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'approved',
     ]);
     $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
@@ -298,7 +298,7 @@ test('el descuento de una línea no puede superar su subtotal y el IVA no puede 
     $this->post(route('purchase-quotations.store'), [
         'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
         'id_supplier' => $e->supplier->id_supplier, 'quotation_date' => now()->toDateString(),
-        'items' => [['id_product' => $e->product->id, 'quantity' => 1, 'unit_price' => 20, 'discount' => 25, 'tax_rate' => 200]],
+        'items' => [['id_product' => $e->product->id_product, 'quantity' => 1, 'unit_price' => 20, 'discount' => 25, 'tax_rate' => 200]],
     ])->assertSessionHasErrors(['items.0.discount', 'items.0.tax_rate']);
 });
 
@@ -315,7 +315,7 @@ test('al registrar una compra se guardan sus totales y líneas calculados en el 
         // Los totales que envíe el formulario se ignoran: se calculan en el servidor
         'total' => 1,
         'details' => [[
-            'id_product' => $e->product->id, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail,
+            'id_product' => $e->product->id_product, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail,
             'quantity_received' => 4, 'unit_price' => 50, 'discount' => 20, 'tax_rate' => 13,
         ]],
     ])->assertSessionHasNoErrors();

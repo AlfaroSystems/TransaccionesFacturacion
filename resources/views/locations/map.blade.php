@@ -30,7 +30,7 @@
                     {{ $location->warehouse->name ?? 'Bodega GENERAL' }}
                 </h3>
                 <div class="text-xs text-slate-500 space-y-1 mt-3 pt-3 border-t border-slate-100">
-                    <p><span class="font-bold text-slate-600">Pasillo:</span> {{ $location->pasillo ?? 'N/A' }} | <span class="font-bold text-slate-600">Estante:</span> {{ $location->rack ?? 'N/A' }}</p>
+                    <p><span class="font-bold text-slate-600">Pasillo:</span> {{ $location->aisle ?? 'N/A' }} | <span class="font-bold text-slate-600">Estante:</span> {{ $location->rack ?? 'N/A' }}</p>
                     <p><span class="font-bold text-slate-600">Nivel:</span> {{ $location->level ?? 'N/A' }} | <span class="font-bold text-slate-600">Posición:</span> {{ $location->position ?? 'N/A' }}</p>
                 </div>
             </div>

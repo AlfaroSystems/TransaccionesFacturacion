@@ -56,7 +56,7 @@ class SubCategoryController extends Controller
         $validated = $request->validate([
             'id_category' => [
                 'required',
-                'exists:categories,id',
+                'exists:categories,id_category',
             ],
 
             'name' => [
@@ -81,7 +81,7 @@ class SubCategoryController extends Controller
          * y además esté activa.
          */
         $category = Category::where(
-                'id',
+                'id_category',
                 $validated['id_category']
             )
             ->where('is_active', true)
@@ -138,7 +138,7 @@ class SubCategoryController extends Controller
         $validated = $request->validate([
             'id_category' => [
                 'required',
-                'exists:categories,id',
+                'exists:categories,id_category',
             ],
 
             'name' => [
@@ -163,7 +163,7 @@ class SubCategoryController extends Controller
          * exista y esté activa.
          */
         $category = Category::where(
-                'id',
+                'id_category',
                 $validated['id_category']
             )
             ->where('is_active', true)

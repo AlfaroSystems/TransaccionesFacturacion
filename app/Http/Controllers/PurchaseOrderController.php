@@ -256,18 +256,18 @@ class PurchaseOrderController extends Controller
     private function validateOrderRequest(Request $request, string $mode): array
     {
         $productIdRule = $mode === 'store'
-            ? 'exists:products,id'
-            : 'exists:products,id';
+            ? 'exists:products,id_product'
+            : 'exists:products,id_product';
 
         $unitIdRule = $mode === 'store'
-            ? 'exists:units,id'
-            : 'exists:units,id';
+            ? 'exists:units,id_unit'
+            : 'exists:units,id_unit';
 
         return $request->validate([
-            'id_supplier'                    => ['required', 'exists:suppliers,id_supplier'],
+            'id_supplier'                    => ['required', 'exists:supliers,id_supplier'],
             // Sucursal, bodega y cotización deben ser visibles para el usuario; la bodega, de la sucursal elegida
             'id_branch'                      => ['required', new Accessible(Branch::class)],
-            'id_warehouse'                   => ['required', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $request->input('id_branch')))],
+            'id_warehouse'                   => ['required', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $request->input('id_branch')))],
             'id_purchase_quotation'          => ['nullable', new Accessible(PurchaseQuotation::class)],
             'order_date'                     => ['required', 'date'],
             'expected_date'                  => ['required', 'date', 'after_or_equal:order_date'],

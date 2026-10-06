@@ -8,14 +8,16 @@ class District extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'id_district';
+
     protected $fillable = [
-        'municipality_id',
+        'id_municipality',
         'code',
         'name',
     ];
 
     public function municipality()
     {
-        return $this->belongsTo(Municipality::class);
+        return $this->belongsTo(Municipality::class, 'id_municipality');
     }
 }

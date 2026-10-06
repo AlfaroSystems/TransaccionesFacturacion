@@ -64,14 +64,14 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.crear');
 
         $validated = $request->validate([
-            'code' => 'required|string|max:20|unique:suppliers,code',
+            'code' => 'required|string|max:20|unique:supliers,code',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:suppliers,email',
+            'email' => 'required|email|max:255|unique:supliers,email',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
-            'department_id' => 'nullable|exists:departments,id',
-            'municipality_id' => 'nullable|exists:municipalities,id',
-            'district_id' => 'nullable|exists:districts,id',
+            'id_department' => 'nullable|exists:departments,id_department',
+            'id_municipality' => 'nullable|exists:municipalities,id_municipality',
+            'id_district' => 'nullable|exists:districts,id_district',
             'address' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
             'is_active' => 'nullable|boolean',
@@ -92,9 +92,9 @@ class SupplierController extends Controller
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'country' => $validated['country'],
-                'department_id' => $isElSalvador ? ($request->input('department_id') ?: null) : null,
-                'municipality_id' => $isElSalvador ? ($request->input('municipality_id') ?: null) : null,
-                'district_id' => $isElSalvador ? ($request->input('district_id') ?: null) : null,
+                'id_department' => $isElSalvador ? ($request->input('id_department') ?: null) : null,
+                'id_municipality' => $isElSalvador ? ($request->input('id_municipality') ?: null) : null,
+                'id_district' => $isElSalvador ? ($request->input('id_district') ?: null) : null,
                 'address' => $validated['address'] ?? null,
                 'website' => $validated['website'] ?? null,
                 'is_active' => $request->boolean('is_active', true),
@@ -151,20 +151,20 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.editar');
 
         $validated = $request->validate([
-            'code' => 'required|string|max:20|unique:suppliers,code,' . $supplier->id_supplier . ',id_supplier',
+            'code' => 'required|string|max:20|unique:supliers,code,' . $supplier->id_supplier . ',id_supplier',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:suppliers,email,' . $supplier->id_supplier . ',id_supplier',
+            'email' => 'required|email|max:255|unique:supliers,email,' . $supplier->id_supplier . ',id_supplier',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
-            'department_id' => 'nullable|exists:departments,id',
-            'municipality_id' => 'nullable|exists:municipalities,id',
-            'district_id' => 'nullable|exists:districts,id',
+            'id_department' => 'nullable|exists:departments,id_department',
+            'id_municipality' => 'nullable|exists:municipalities,id_municipality',
+            'id_district' => 'nullable|exists:districts,id_district',
             'address' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
             'is_active' => 'nullable|boolean',
 
             'contacts' => 'required|array|min:1',
-            'contacts.*.id_contact' => 'nullable|integer|exists:supplier_contacts,id_contact',
+            'contacts.*.id_suplier_contact' => 'nullable|integer|exists:supliers_contacts,id_suplier_contact',
             'contacts.*.full_name' => 'required|string|max:255',
             'contacts.*.phone' => 'required|string|max:20',
             'contacts.*.email' => 'nullable|email|max:255',
@@ -181,9 +181,9 @@ class SupplierController extends Controller
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'country' => $validated['country'],
-                'department_id' => $isElSalvador ? ($request->input('department_id') ?: null) : null,
-                'municipality_id' => $isElSalvador ? ($request->input('municipality_id') ?: null) : null,
-                'district_id' => $isElSalvador ? ($request->input('district_id') ?: null) : null,
+                'id_department' => $isElSalvador ? ($request->input('id_department') ?: null) : null,
+                'id_municipality' => $isElSalvador ? ($request->input('id_municipality') ?: null) : null,
+                'id_district' => $isElSalvador ? ($request->input('id_district') ?: null) : null,
                 'address' => $validated['address'] ?? null,
                 'website' => $validated['website'] ?? null,
                 'is_active' => $request->boolean('is_active', true),
@@ -193,10 +193,10 @@ class SupplierController extends Controller
             $contactIds = [];
 
             foreach ($validated['contacts'] as $contactData) {
-                if (!empty($contactData['id_contact'])) {
+                if (!empty($contactData['id_suplier_contact'])) {
                     // Contacto existente
                     $contact = $supplier->contacts()
-                        ->where('id_contact', $contactData['id_contact'])
+                        ->where('id_suplier_contact', $contactData['id_suplier_contact'])
                         ->first();
 
                     if (!$contact) {
@@ -210,7 +210,7 @@ class SupplierController extends Controller
                         'is_active' => isset($contactData['is_active']) ? (bool)$contactData['is_active'] : true,
                     ]);
 
-                    $contactIds[] = $contact->id_contact;
+                    $contactIds[] = $contact->id_suplier_contact;
                 } else {
                     // Contacto nuevo
                     $newContact = SupplierContact::create([
@@ -221,13 +221,13 @@ class SupplierController extends Controller
                         'is_active' => isset($contactData['is_active']) ? (bool)$contactData['is_active'] : true,
                     ]);
 
-                    $contactIds[] = $newContact->id_contact;
+                    $contactIds[] = $newContact->id_suplier_contact;
                 }
             }
 
             // 3. Eliminar contactos quitados del formulario (uno por uno, para la bitácora)
             $supplier->contacts()
-                ->whereNotIn('id_contact', $contactIds)
+                ->whereNotIn('id_suplier_contact', $contactIds)
                 ->get()
                 ->each->delete();
         });

@@ -66,7 +66,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2zM9 16h6M9 12h6" />
                                     </svg>
                                 </div>
-                                <span>#{{ $category->id }}</span>
+                                <span>#{{ $category->id_category }}</span>
                             </div>
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm font-bold text-slate-900 dark:text-slate-100 search-name transition-colors duration-300">
@@ -85,7 +85,7 @@
                             <div class="flex items-center justify-center gap-2">
                                 <!-- Editar -->
                                 @can('categories.editar')
-                                <button type="button" onclick="openEditCategoryModal('{{ route('categories.update', $category->id) }}', {{ json_encode($category) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Categoría">
+                                <button type="button" onclick="openEditCategoryModal('{{ route('categories.update', $category->id_category) }}', {{ json_encode($category) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Categoría">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -95,13 +95,13 @@
                                 <!-- Eliminar / Inactivar / Reactivar -->
                                 @can('categories.eliminar')
                                     @if($category->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('categories.destroy', $category->id) }}', '{{ addslashes($category->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Categoría">
+                                        <button type="button" onclick="confirmDelete('{{ route('categories.destroy', $category->id_category) }}', '{{ addslashes($category->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Categoría">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('categories.destroy', $category->id) }}', '{{ addslashes($category->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Categoría">
+                                        <button type="button" onclick="confirmDelete('{{ route('categories.destroy', $category->id_category) }}', '{{ addslashes($category->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Categoría">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -256,7 +256,7 @@
     function openEditCategoryModal(actionUrl, category) {
         const modal = document.getElementById('edit-category-modal');
         modal.querySelector('form').action = actionUrl;
-        document.getElementById('edit-id').value = category.id;
+        document.getElementById('edit-id').value = category.id_category;
         document.getElementById('edit-name').value = category.name;
         document.getElementById('edit-description').value = category.description || '';
         document.getElementById('edit-is_active').checked = !!category.is_active;
@@ -290,7 +290,7 @@
             @if(old('modal_type') === 'edit')
                 const editRoute = "{{ route('categories.update', old('id', 0)) }}";
                 const oldCategory = {
-                    id: "{{ old('id') }}",
+                    id_category: "{{ old('id') }}",
                     name: "{{ old('name') }}",
                     description: "{{ old('description') }}",
                     is_active: {{ old('is_active') ? 'true' : 'false' }}

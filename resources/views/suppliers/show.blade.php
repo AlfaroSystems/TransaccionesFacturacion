@@ -341,29 +341,29 @@
                         <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
-                                <label for="edit_supplier_{{ $supplierId }}_department_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                                <select name="department_id" id="edit_supplier_{{ $supplierId }}_department_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                                <label for="edit_supplier_{{ $supplierId }}_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
+                                <select name="id_department" id="edit_supplier_{{ $supplierId }}_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
                                     <option value="">Seleccione departamento</option>
                                     @foreach($departments as $dept)
-                                        <option value="{{ $dept->id }}" {{ old('department_id', $supplier->department_id) == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                                        <option value="{{ $dept->id_department }}" {{ old('id_department', $supplier->id_department) == $dept->id_department ? 'selected' : '' }}>{{ $dept->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label for="edit_supplier_{{ $supplierId }}_municipality_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                                <select name="municipality_id" id="edit_supplier_{{ $supplierId }}_municipality_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                                <label for="edit_supplier_{{ $supplierId }}_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
+                                <select name="id_municipality" id="edit_supplier_{{ $supplierId }}_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
                                     <option value="">Seleccione municipio</option>
                                     @foreach($municipalities as $muni)
-                                        <option value="{{ $muni->id }}" data-parent="{{ $muni->department_id }}" {{ old('municipality_id', $supplier->municipality_id) == $muni->id ? 'selected' : '' }}>{{ $muni->name }}</option>
+                                        <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}" {{ old('id_municipality', $supplier->id_municipality) == $muni->id_municipality ? 'selected' : '' }}>{{ $muni->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label for="edit_supplier_{{ $supplierId }}_district_id" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                                <select name="district_id" id="edit_supplier_{{ $supplierId }}_district_id" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                                <label for="edit_supplier_{{ $supplierId }}_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
+                                <select name="id_district" id="edit_supplier_{{ $supplierId }}_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
                                     <option value="">Seleccione distrito</option>
                                     @foreach($districts as $dist)
-                                        <option value="{{ $dist->id }}" data-parent="{{ $dist->municipality_id }}" {{ old('district_id', $supplier->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
+                                        <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}" {{ old('id_district', $supplier->id_district) == $dist->id_district ? 'selected' : '' }}>{{ $dist->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -403,7 +403,7 @@
                         class="space-y-3">
                         @forelse($supplier->contacts as $index => $contact)
                             <div class="edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <input type="hidden" name="contacts[{{ $index }}][id_contact]" value="{{ $contact->id_contact }}">
+                                <input type="hidden" name="contacts[{{ $index }}][id_suplier_contact]" value="{{ $contact->id_suplier_contact }}">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                                         Nombre completo *
@@ -486,9 +486,9 @@
         }
 
         function setupSupplierGeographicFilter(prefix) {
-            const deptSelect = document.getElementById(`${prefix}department_id`);
-            const muniSelect = document.getElementById(`${prefix}municipality_id`);
-            const distSelect = document.getElementById(`${prefix}district_id`);
+            const deptSelect = document.getElementById(`${prefix}id_department`);
+            const muniSelect = document.getElementById(`${prefix}id_municipality`);
+            const distSelect = document.getElementById(`${prefix}id_district`);
 
             if (!deptSelect || !muniSelect || !distSelect) return;
 
@@ -535,7 +535,7 @@
             row.className = 'edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100';
 
             row.innerHTML = `
-                <input type="hidden" name="contacts[${nextIndex}][id_contact]" value="">
+                <input type="hidden" name="contacts[${nextIndex}][id_suplier_contact]" value="">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nombre completo *</label>
                     <input type="text" name="contacts[${nextIndex}][full_name]" required placeholder="Nombre completo" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">

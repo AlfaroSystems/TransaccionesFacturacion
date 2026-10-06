@@ -12,12 +12,14 @@ class Warehouse extends Model
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {
-        $query->where($this->qualifyColumn('branch_id'), $branchId);
+        $query->where($this->qualifyColumn('id_branch'), $branchId);
     }
 
+    protected $primaryKey = 'id_warehouse';
+
     protected $fillable = [
-        'branch_id',
-        'warehouse_category_id',
+        'id_branch',
+        'id_warehouse_category',
         'name',
         'description',
         'is_active'
@@ -26,7 +28,8 @@ class Warehouse extends Model
     public function branch()
     {
         return $this->belongsTo(
-            Branch::class
+            Branch::class,
+            'id_branch'
         );
     }
 
@@ -34,7 +37,7 @@ class Warehouse extends Model
     {
         return $this->belongsTo(
             WarehouseCategory::class,
-            'warehouse_category_id'
+            'id_warehouse_category'
         );
     }
 }

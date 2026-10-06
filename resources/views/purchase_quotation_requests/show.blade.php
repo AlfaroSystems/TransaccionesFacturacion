@@ -426,9 +426,9 @@
                                     <tr>
                                         <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-white">
                                             {{ $productObj->name ?? 'Producto' }}
-                                            <input type="hidden" name="items[{{ $index }}][id_product]" value="{{ $productObj->id }}">
+                                            <input type="hidden" name="items[{{ $index }}][id_product]" value="{{ $productObj->id_product }}">
                                             <input type="hidden" name="items[{{ $index }}][quantity]" value="{{ $detail->quantity }}">
-                                            <input type="hidden" name="items[{{ $index }}][id_unit]" value="{{ $unitObj->id ?? '' }}">
+                                            <input type="hidden" name="items[{{ $index }}][id_unit]" value="{{ $unitObj->id_unit ?? '' }}">
                                         </td>
                                         <td class="py-2.5 px-3 text-center font-mono font-bold">
                                             {{ number_format($detail->quantity, 2) }}

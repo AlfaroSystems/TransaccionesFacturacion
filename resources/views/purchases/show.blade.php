@@ -42,7 +42,7 @@
                 @endif
             </div>
             <p class="text-slate-500 text-xs mt-1">
-                Registrada el {{ $purchase->created_at ? $purchase->created_at->format('d/m/Y \a \l\a\s h:i A') : '-' }} por {{ $purchase->user->name ?? 'Sistema' }}
+                Registrada el {{ $purchase->created_at ? $purchase->created_at->format('d/m/Y \a \l\a\s h:i A') : '-' }} por {{ $purchase->user->username ?? 'Sistema' }}
             </p>
         </div>
 

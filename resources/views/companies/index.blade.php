@@ -21,10 +21,10 @@
         'web_site' => old('web_site'),
         'phone' => old('phone'),
         'email' => old('email'),
-        'address' => old('address'),
-        'department_id' => old('department_id'),
-        'municipality_id' => old('municipality_id'),
-        'district_id' => old('district_id'),
+        'addres' => old('addres'),
+        'id_department' => old('id_department'),
+        'id_municipality' => old('id_municipality'),
+        'id_district' => old('id_district'),
         'is_active' => (bool) old('is_active'),
     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
 >
@@ -103,7 +103,7 @@
                             <div class="text-xs mt-0.5"><span class="font-bold text-[10px] text-slate-400 dark:text-slate-500">NRC:</span> {{ $company->nrc ?? 'N/A' }}</div>
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
-                            <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $company->address }}">{{ $company->address ?? 'N/A' }}</span>
+                            <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $company->addres }}">{{ $company->addres ?? 'N/A' }}</span>
                             @if($company->department || $company->municipality || $company->district)
                                 <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded mt-1 inline-block">
                                     {{ $company->department?->name }} / {{ $company->municipality?->name }} / {{ $company->district?->name }}
@@ -142,10 +142,10 @@
                                     type="button"
                                     data-action="{{ route('companies.update', $company) }}"
                                     data-company="{{ json_encode($company->only([
-                                        'id', 'name', 'commercial_name', 'nit', 'nrc',
+                                        'id_company', 'name', 'commercial_name', 'nit', 'nrc',
                                         'commercial_line_1', 'commercial_line_2', 'commercial_line_3',
-                                        'web_site', 'phone', 'email', 'address',
-                                        'department_id', 'municipality_id', 'district_id', 'is_active',
+                                        'web_site', 'phone', 'email', 'addres',
+                                        'id_department', 'id_municipality', 'id_district', 'is_active',
                                     ]), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
                                     onclick="openEditCompanyModal(this)"
                                     class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"

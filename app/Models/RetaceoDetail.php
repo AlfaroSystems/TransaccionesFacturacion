@@ -58,8 +58,7 @@ class RetaceoDetail extends Model
     {
         return $this->belongsTo(
             Product::class,
-            'id_product',
-            'id'
+            'id_product'
         );
     }
 }

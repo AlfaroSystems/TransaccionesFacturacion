@@ -77,8 +77,8 @@
                     @if($company?->nit || $company?->nrc)
                         <p><strong>NIT:</strong> {{ $company->nit ?? 'N/A' }} &nbsp;|&nbsp; <strong>NRC:</strong> {{ $company->nrc ?? 'N/A' }}</p>
                     @endif
-                    @if($company?->address)
-                        <p><strong>Dirección:</strong> {{ $company->address }}</p>
+                    @if($company?->addres)
+                        <p><strong>Dirección:</strong> {{ $company->addres }}</p>
                     @endif
                     <p>
                         <strong>Sucursal Destino:</strong> {{ $purchase->branch->name ?? 'Sucursal Central' }} 
@@ -137,7 +137,7 @@
                 @if($purchase->purchaseOrder)
                     <p class="text-slate-700"><strong>Orden de Compra:</strong> {{ $purchase->purchaseOrder->purchase_order_code }}</p>
                 @endif
-                <p class="text-slate-700"><strong>Registrado por:</strong> {{ $purchase->user->name ?? 'Sistema' }}</p>
+                <p class="text-slate-700"><strong>Registrado por:</strong> {{ $purchase->user->username ?? 'Sistema' }}</p>
                 @if($purchase->notes)
                     <p class="text-slate-600 italic mt-1">"{{ $purchase->notes }}"</p>
                 @endif
@@ -213,7 +213,7 @@
             <div class="grid grid-cols-2 gap-12 text-center text-xs">
                 <div class="space-y-1">
                     <div class="border-b border-slate-400 pb-12"></div>
-                    <p class="font-extrabold text-slate-800 mt-2">{{ $purchase->user->name ?? 'Encargado de Bodega' }}</p>
+                    <p class="font-extrabold text-slate-800 mt-2">{{ $purchase->user->username ?? 'Encargado de Bodega' }}</p>
                     <p class="text-slate-400 font-semibold text-[10px] uppercase">Recibido en Bodega / Almacén</p>
                 </div>
                 <div class="space-y-1">

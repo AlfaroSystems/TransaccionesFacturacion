@@ -46,7 +46,7 @@ class ResetPasswordNotification extends Notification
             ->subject('Restablecer Contraseña - Transacciones Facturación')
             ->view('emails.reset-password', [
                 'url' => $url,
-                'name' => $notifiable->name,
+                'name' => $notifiable->username,
             ]);
     }
 }

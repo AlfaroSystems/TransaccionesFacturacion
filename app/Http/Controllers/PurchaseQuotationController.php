@@ -24,7 +24,7 @@ class PurchaseQuotationController extends Controller
 
         $validated = $request->validate([
             'id_purchase_quotation_request' => ['required', new Accessible(PurchaseQuotationRequest::class)],
-            'id_supplier'                   => 'required|exists:suppliers,id_supplier',
+            'id_supplier'                   => 'required|exists:supliers,id_supplier',
             'quotation_date'                => 'required|date',
             'valid_until'                   => 'nullable|date',
             'currency'                      => 'nullable|string|max:3',
@@ -34,9 +34,9 @@ class PurchaseQuotationController extends Controller
 
             // Detalle de Ítems
             'items'                         => 'required|array|min:1',
-            'items.*.id_product'            => 'required|exists:products,id',
+            'items.*.id_product'            => 'required|exists:products,id_product',
             'items.*.quantity'             => 'required|numeric|min:0.0001',
-            'items.*.id_unit'               => 'nullable|exists:units,id',
+            'items.*.id_unit'               => 'nullable|exists:units,id_unit',
             'items.*.unit_price'            => 'required|numeric|min:0',
             'items.*.discount'              => ['nullable', 'numeric', 'min:0', new DiscountWithinLine()],
             'items.*.tax_rate'              => 'nullable|numeric|min:0|max:100',

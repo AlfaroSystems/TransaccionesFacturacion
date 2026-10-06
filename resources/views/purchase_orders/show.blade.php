@@ -136,7 +136,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-400 uppercase">Usuario Creador:</span>
-                        <span class="font-medium text-slate-700">{{ $purchase_order->user->name ?? 'N/A' }}</span>
+                        <span class="font-medium text-slate-700">{{ $purchase_order->user->username ?? 'N/A' }}</span>
                     </div>
                 </div>
                 <div class="space-y-3">

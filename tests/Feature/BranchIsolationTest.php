@@ -48,7 +48,7 @@ function usuarioDeSucursal(?int $branchId): User
     $role = Role::create(['name' => 'operador-'.Str::lower(Str::random(8))]);
 
     foreach (PERMISOS_AISLAMIENTO as $permiso) {
-        Permission::firstOrCreate(['id' => $permiso], ['name' => $permiso]);
+        Permission::firstOrCreate(['id_permission' => $permiso], ['name' => $permiso]);
 
         if (! Gate::has($permiso)) {
             Gate::define($permiso, fn (User $user) => $user->hasPermission($permiso));
@@ -58,7 +58,7 @@ function usuarioDeSucursal(?int $branchId): User
     $role->permissions()->sync(PERMISOS_AISLAMIENTO);
 
     $user = User::factory()->create(['id_branch' => $branchId]);
-    $user->roles()->attach($role->id, ['assigned_at' => now()]);
+    $user->roles()->attach($role->id_role, ['assigned_at' => now()]);
 
     return $user->load('roles.permissions');
 }
@@ -66,7 +66,7 @@ function usuarioDeSucursal(?int $branchId): User
 function administradorGlobal(): User
 {
     $user = User::factory()->create();
-    $user->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+    $user->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     return $user->load('roles');
 }
@@ -76,23 +76,23 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
     $tag = Str::upper(Str::random(6));
 
     $company   = Company::create(['name' => "Empresa {$tag}"]);
-    $branch    = Branch::create(['company_id' => $company->id, 'name' => "Sucursal {$tag}"]);
-    $warehouse = Warehouse::create(['branch_id' => $branch->id, 'warehouse_category_id' => $category->id, 'name' => "Bodega {$tag}"]);
-    $location  = Location::create(['warehouse_id' => $warehouse->id, 'code' => "LOC-{$tag}", 'capacity' => 10]);
-    $user      = usuarioDeSucursal($branch->id);
+    $branch    = Branch::create(['id_company' => $company->id_company, 'name' => "Sucursal {$tag}"]);
+    $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $category->id_warehouse_category, 'name' => "Bodega {$tag}"]);
+    $location  = Location::create(['id_warehouse' => $warehouse->id_warehouse, 'code' => "LOC-{$tag}", 'capacity' => 10]);
+    $user      = usuarioDeSucursal($branch->id_branch);
 
     $request = PurchaseRequest::create([
         'uuid'                  => (string) Str::uuid(),
         'purchase_request_code' => "REQ-TEST-{$tag}",
-        'id_branch'             => $branch->id,
-        'id_warehouse'          => $warehouse->id,
-        'id_user'               => $user->id,
+        'id_branch'             => $branch->id_branch,
+        'id_warehouse'          => $warehouse->id_warehouse,
+        'id_user'               => $user->id_user,
         'request_date'          => now(),
         'required_date'         => now()->addWeek(),
         'justification'         => "Justificación {$tag}",
         'status'                => 'approved',
     ]);
-    $requestDetail = $request->details()->create(['id_product' => $product->id, 'quantity' => 5, 'id_unit' => $unit->id]);
+    $requestDetail = $request->details()->create(['id_product' => $product->id_product, 'quantity' => 5, 'id_unit' => $unit->id_unit]);
 
     $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
     $quotation = PurchaseQuotation::create([
@@ -104,10 +104,10 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
 
     $order = PurchaseOrder::create([
         'id_supplier'           => $supplier->id_supplier,
-        'id_branch'             => $branch->id,
-        'id_warehouse'          => $warehouse->id,
+        'id_branch'             => $branch->id_branch,
+        'id_warehouse'          => $warehouse->id_warehouse,
         'id_purchase_quotation' => $quotation->id_purchase_quotation,
-        'id_user'               => $user->id,
+        'id_user'               => $user->id_user,
         'order_date'            => now(),
         'expected_date'         => now()->addWeek(),
         'currency'              => 'USD',
@@ -116,24 +116,24 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
     ]);
     $orderDetail = PurchaseOrderDetail::create([
         'id_purchase_order' => $order->id_purchase_order,
-        'id_product'        => $product->id,
+        'id_product'        => $product->id_product,
         'quantity'          => 5,
-        'id_unit'           => $unit->id,
+        'id_unit'           => $unit->id_unit,
         'unit_price'        => 10,
     ]);
 
     $purchase = Purchase::create([
         'id_purchase_order' => $order->id_purchase_order,
         'id_supplier'       => $supplier->id_supplier,
-        'id_branch'         => $branch->id,
-        'id_warehouse'      => $warehouse->id,
+        'id_branch'         => $branch->id_branch,
+        'id_warehouse'      => $warehouse->id_warehouse,
         'purchase_date'     => now(),
         'status'            => 'draft',
     ]);
     $purchaseDetail = PurchaseDetail::create([
         'id_purchase'              => $purchase->id_purchase,
         'id_purchase_order_detail' => $orderDetail->id_purchase_order_detail,
-        'id_product'               => $product->id,
+        'id_product'               => $product->id_product,
         'quantity_received'        => 1,
         'unit_price'               => 10,
     ]);
@@ -175,8 +175,8 @@ function compraRecibidaSinRetaceo(object $sucursal): Purchase
     return Purchase::queryAllBranches()->create([
         'id_purchase_order' => $sucursal->order->id_purchase_order,
         'id_supplier'       => $sucursal->order->id_supplier,
-        'id_branch'         => $sucursal->branch->id,
-        'id_warehouse'      => $sucursal->warehouse->id,
+        'id_branch'         => $sucursal->branch->id_branch,
+        'id_warehouse'      => $sucursal->warehouse->id_warehouse,
         'purchase_date'     => now(),
         'status'            => 'received',
     ]);
@@ -258,8 +258,8 @@ test('los listados y desplegables solo muestran datos de la sucursal del usuario
 
 test('la bitácora solo muestra la actividad de usuarios de la misma sucursal', function () {
     [$a, $b] = escenarioDosSucursales();
-    $propio = AuditLog::create(['user_id' => $a->user->id, 'controller' => 'Prueba', 'action' => 'propio']);
-    $ajeno  = AuditLog::create(['user_id' => $b->user->id, 'controller' => 'Prueba', 'action' => 'ajeno']);
+    $propio = AuditLog::create(['id_user' => $a->user->id_user, 'controller' => 'Prueba', 'action' => 'propio']);
+    $ajeno  = AuditLog::create(['id_user' => $b->user->id_user, 'controller' => 'Prueba', 'action' => 'ajeno']);
 
     $r = $this->actingAs($a->user)->get(route('audit-logs.index', ['controller' => 'Prueba']))->assertOk();
 
@@ -347,9 +347,9 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
     $this->assertDatabaseHas('purchases', ['id_purchase' => $b->purchase->id_purchase, 'status' => 'draft']);
     $this->assertDatabaseHas('retaceos', ['id_retaceo' => $b->retaceo->id_retaceo, 'status' => 'draft']);
     $this->assertDatabaseHas('purchase_quotations', ['id_purchase_quotation' => $b->quotation->id_purchase_quotation]);
-    $this->assertDatabaseHas('warehouses', ['id' => $b->warehouse->id, 'is_active' => true]);
-    $this->assertDatabaseHas('branches', ['id' => $b->branch->id, 'is_active' => true]);
-    $this->assertDatabaseHas('users', ['id' => $b->user->id, 'status' => 'active']);
+    $this->assertDatabaseHas('warehouses', ['id_warehouse' => $b->warehouse->id_warehouse, 'is_active' => true]);
+    $this->assertDatabaseHas('branches', ['id_branch' => $b->branch->id_branch, 'is_active' => true]);
+    $this->assertDatabaseHas('users', ['id_user' => $b->user->id_user, 'is_active' => true]);
 });
 
 test('los documentos de la propia sucursal se abren con normalidad', function () {
@@ -390,17 +390,17 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
     [$a, $b, $catalogos] = escenarioDosSucursales();
     $this->actingAs($a->user);
 
-    $detalle = [['id_product' => $catalogos['product']->id, 'quantity' => 1, 'id_unit' => $catalogos['unit']->id, 'unit_price' => 1]];
+    $detalle = [['id_product' => $catalogos['product']->id_product, 'quantity' => 1, 'id_unit' => $catalogos['unit']->id_unit, 'unit_price' => 1]];
 
     // Solicitud de compra en otra sucursal, o con bodega de otra sucursal
     $this->post(route('purchase-requests.store'), [
-        'id_branch' => $b->branch->id, 'id_warehouse' => $b->warehouse->id,
+        'id_branch' => $b->branch->id_branch, 'id_warehouse' => $b->warehouse->id_warehouse,
         'request_date' => now()->toDateString(), 'required_date' => now()->addDay()->toDateString(),
         'justification' => 'x', 'details' => $detalle,
     ])->assertSessionHasErrors(['id_branch', 'id_warehouse']);
 
     $this->post(route('purchase-requests.store'), [
-        'id_branch' => $a->branch->id, 'id_warehouse' => $b->warehouse->id,
+        'id_branch' => $a->branch->id_branch, 'id_warehouse' => $b->warehouse->id_warehouse,
         'request_date' => now()->toDateString(), 'required_date' => now()->addDay()->toDateString(),
         'justification' => 'x', 'details' => $detalle,
     ])->assertSessionHasErrors(['id_warehouse'])->assertSessionDoesntHaveErrors(['id_branch']);
@@ -427,7 +427,7 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
     // Orden de compra con sucursal, bodega o cotización de otra sucursal
     $this->post(route('purchase_orders.store'), [
         'id_supplier' => $catalogos['supplier']->id_supplier,
-        'id_branch' => $b->branch->id, 'id_warehouse' => $b->warehouse->id,
+        'id_branch' => $b->branch->id_branch, 'id_warehouse' => $b->warehouse->id_warehouse,
         'id_purchase_quotation' => $b->quotation->id_purchase_quotation,
         'order_date' => now()->toDateString(), 'expected_date' => now()->addDay()->toDateString(),
         'currency' => 'USD', 'payment_terms' => 'Contado', 'products' => $detalle,
@@ -439,7 +439,7 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
         'id_supplier' => $catalogos['supplier']->id_supplier,
         'purchase_date' => now()->toDateString(), 'status' => 'draft',
         'details' => [[
-            'id_product' => $catalogos['product']->id, 'quantity_received' => 1, 'unit_price' => 1,
+            'id_product' => $catalogos['product']->id_product, 'quantity_received' => 1, 'unit_price' => 1,
             'id_purchase_order_detail' => $b->orderDetail->id_purchase_order_detail,
         ]],
     ];
@@ -454,7 +454,7 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
         'id_supplier' => $catalogos['supplier']->id_supplier,
         'retaceo_date' => now()->toDateString(), 'status' => 'draft',
         'details' => [[
-            'id_product' => $catalogos['product']->id, 'quantity' => 1, 'cost_fob' => 1,
+            'id_product' => $catalogos['product']->id_product, 'quantity' => 1, 'cost_fob' => 1,
             'id_purchase_detail' => $b->purchaseDetail->id_purchase_detail,
         ]],
     ];
@@ -465,28 +465,28 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
 
     // Bodega, ubicación, sucursal y usuario en otra sucursal o empresa
     $this->post(route('warehouses.store'), [
-        'branch_id' => $b->branch->id, 'warehouse_category_id' => $b->warehouse->warehouse_category_id, 'name' => 'x',
-    ])->assertSessionHasErrors(['branch_id']);
+        'id_branch' => $b->branch->id_branch, 'id_warehouse_category' => $b->warehouse->id_warehouse_category, 'name' => 'x',
+    ])->assertSessionHasErrors(['id_branch']);
 
     $this->post(route('locations.store'), [
-        'warehouse_id' => $b->warehouse->id, 'code' => 'LOC-'.Str::random(8), 'capacity' => 1,
-    ])->assertSessionHasErrors(['warehouse_id']);
+        'id_warehouse' => $b->warehouse->id_warehouse, 'code' => 'LOC-'.Str::random(8), 'capacity' => 1,
+    ])->assertSessionHasErrors(['id_warehouse']);
 
     $this->post(route('branches.store'), [
-        'company_id' => $b->company->id, 'name' => 'x', 'address' => 'x',
-    ])->assertSessionHasErrors(['company_id']);
+        'id_company' => $b->company->id_company, 'name' => 'x', 'addres' => 'x',
+    ])->assertSessionHasErrors(['id_company']);
 
     $this->post(route('users.store'), [
-        'name' => 'x', 'email' => 'x-'.Str::random(6).'@example.com',
+        'username' => 'x', 'email' => 'x-'.Str::random(6).'@example.com',
         'password' => 'password123', 'password_confirmation' => 'password123',
-        'status' => 'active', 'id_branch' => $b->branch->id, 'roles' => [$a->user->roles->first()->id],
+        'is_active' => 1, 'id_branch' => $b->branch->id_branch, 'roles' => [$a->user->roles->first()->id_role],
     ])->assertSessionHasErrors(['id_branch']);
 
     // Un usuario que no es admin no puede crear usuarios sin sucursal
     $this->post(route('users.store'), [
-        'name' => 'x', 'email' => 'x-'.Str::random(6).'@example.com',
+        'username' => 'x', 'email' => 'x-'.Str::random(6).'@example.com',
         'password' => 'password123', 'password_confirmation' => 'password123',
-        'status' => 'active', 'roles' => [$a->user->roles->first()->id],
+        'is_active' => 1, 'roles' => [$a->user->roles->first()->id_role],
     ])->assertSessionHasErrors(['id_branch']);
 
     expect(PurchaseRequest::queryAllBranches()->where('justification', 'x')->exists())->toBeFalse();
@@ -509,18 +509,18 @@ test('una bodega con documentos no puede pasar a otra sucursal', function () {
     $this->actingAs(administradorGlobal());
 
     $datos = fn (Warehouse $warehouse, Branch $branch) => [
-        'branch_id' => $branch->id, 'warehouse_category_id' => $warehouse->warehouse_category_id, 'name' => $warehouse->name,
+        'id_branch' => $branch->id_branch, 'id_warehouse_category' => $warehouse->id_warehouse_category, 'name' => $warehouse->name,
     ];
 
     // La bodega de A tiene solicitudes, órdenes y compras: no se puede mover a B
     $this->put(route('warehouses.update', $a->warehouse), $datos($a->warehouse, $b->branch))
-        ->assertSessionHasErrors(['branch_id']);
-    $this->assertDatabaseHas('warehouses', ['id' => $a->warehouse->id, 'branch_id' => $a->branch->id]);
+        ->assertSessionHasErrors(['id_branch']);
+    $this->assertDatabaseHas('warehouses', ['id_warehouse' => $a->warehouse->id_warehouse, 'id_branch' => $a->branch->id_branch]);
 
     // Una bodega sin documentos sí se puede mover
-    $vacia = Warehouse::create(['branch_id' => $a->branch->id, 'warehouse_category_id' => $a->warehouse->warehouse_category_id, 'name' => 'Vacía']);
+    $vacia = Warehouse::create(['id_branch' => $a->branch->id_branch, 'id_warehouse_category' => $a->warehouse->id_warehouse_category, 'name' => 'Vacía']);
     $this->put(route('warehouses.update', $vacia), $datos($vacia, $b->branch))->assertSessionHasNoErrors();
-    $this->assertDatabaseHas('warehouses', ['id' => $vacia->id, 'branch_id' => $b->branch->id]);
+    $this->assertDatabaseHas('warehouses', ['id_warehouse' => $vacia->id_warehouse, 'id_branch' => $b->branch->id_branch]);
 });
 
 test('una compra siempre queda en la sucursal de su orden', function () {
@@ -529,14 +529,14 @@ test('una compra siempre queda en la sucursal de su orden', function () {
     $this->actingAs(administradorGlobal())->post(route('purchases.store'), [
         'id_purchase_order' => $a->order->id_purchase_order,
         'id_supplier'       => $catalogos['supplier']->id_supplier,
-        'id_branch'         => $b->branch->id,
+        'id_branch'         => $b->branch->id_branch,
         'purchase_date'     => now()->toDateString(),
         'status'            => 'draft',
-        'details'           => [['id_product' => $catalogos['product']->id, 'quantity_received' => 1, 'unit_price' => 1]],
+        'details'           => [['id_product' => $catalogos['product']->id_product, 'quantity_received' => 1, 'unit_price' => 1]],
     ])->assertSessionHasNoErrors();
 
     $compra = Purchase::where('id_purchase_order', $a->order->id_purchase_order)->latest('id_purchase')->first();
-    expect($compra->id_branch)->toBe($a->branch->id);
+    expect($compra->id_branch)->toBe($a->branch->id_branch);
 });
 
 // =============================================================================
@@ -575,12 +575,12 @@ test('los correlativos siguen siendo únicos aunque el usuario solo vea su sucur
     $this->actingAs($a->user);
 
     $orden = PurchaseOrder::create([
-        'id_supplier' => $catalogos['supplier']->id_supplier, 'id_branch' => $a->branch->id,
-        'id_warehouse' => $a->warehouse->id, 'order_date' => now(), 'status' => 'draft',
+        'id_supplier' => $catalogos['supplier']->id_supplier, 'id_branch' => $a->branch->id_branch,
+        'id_warehouse' => $a->warehouse->id_warehouse, 'order_date' => now(), 'status' => 'draft',
     ]);
     $compra = Purchase::create([
         'id_purchase_order' => $a->order->id_purchase_order, 'id_supplier' => $catalogos['supplier']->id_supplier,
-        'id_branch' => $a->branch->id, 'purchase_date' => now(), 'status' => 'draft',
+        'id_branch' => $a->branch->id_branch, 'purchase_date' => now(), 'status' => 'draft',
     ]);
     $retaceo = Retaceo::create([
         'id_supplier' => $catalogos['supplier']->id_supplier, 'id_purchase' => $a->purchase->id_purchase,
@@ -599,15 +599,15 @@ test('los correlativos siguen siendo únicos aunque el usuario solo vea su sucur
     // Solicitud de compra (el correlativo se genera en el controlador)
     $codigoB = PurchaseRequest::queryAllBranches()->create([
         'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-'.now()->year.'-9998',
-        'id_branch' => $b->branch->id, 'id_warehouse' => $b->warehouse->id, 'id_user' => $b->user->id,
+        'id_branch' => $b->branch->id_branch, 'id_warehouse' => $b->warehouse->id_warehouse, 'id_user' => $b->user->id_user,
         'request_date' => now(), 'required_date' => now(), 'justification' => 'B',
     ])->purchase_request_code;
 
     $this->post(route('purchase-requests.store'), [
-        'id_branch' => $a->branch->id, 'id_warehouse' => $a->warehouse->id,
+        'id_branch' => $a->branch->id_branch, 'id_warehouse' => $a->warehouse->id_warehouse,
         'request_date' => now()->toDateString(), 'required_date' => now()->addDay()->toDateString(),
         'justification' => 'Solicitud A',
-        'details' => [['id_product' => $catalogos['product']->id, 'quantity' => 1, 'id_unit' => $catalogos['unit']->id]],
+        'details' => [['id_product' => $catalogos['product']->id_product, 'quantity' => 1, 'id_unit' => $catalogos['unit']->id_unit]],
     ])->assertSessionHasNoErrors();
 
     $codigoA = PurchaseRequest::where('justification', 'Solicitud A')->value('purchase_request_code');

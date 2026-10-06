@@ -82,8 +82,8 @@ class PurchaseQuotationRequestController extends Controller
 
         $details = PurchaseRequestDetail::where('id_purchase_request', $purchaseRequest->id_purchase_request)
             ->with([
-                'product:id,name,sku',
-                'unit:id,name,abbreviation',
+                'product:id_product,name,sku',
+                'unit:id_unit,name,abbreviation',
             ])
             ->get();
 
@@ -217,7 +217,7 @@ class PurchaseQuotationRequestController extends Controller
                 $productObj = $pqrDetail->purchaseRequestDetail?->product;
                 if ($productObj) {
                     $qDetail = PurchaseQuotationDetail::where('id_purchase_quotation', $purchaseQuotation->id_purchase_quotation)
-                        ->where('id_product', $productObj->id)
+                        ->where('id_product', $productObj->id_product)
                         ->first();
                     if ($qDetail) {
                         $pqrDetail->update([
