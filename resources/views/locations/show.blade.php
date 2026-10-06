@@ -5,7 +5,7 @@
 <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
         <!-- Encabezado -->
-        <div class="bg-[#005e66] px-8 py-7 text-white flex justify-between items-center">
+        <div class="bg-customTeal-800 px-8 py-7 text-white flex justify-between items-center">
             <div>
                 <span class="text-xs uppercase tracking-wider text-white/70 font-bold">
                     Detalle de Ubicación
@@ -15,11 +15,11 @@
                 </h1>
             </div>
             @if($location->is_active)
-                <span class="bg-emerald-400 text-white px-4 py-2 rounded-full text-sm font-bold shadow">
+                <span class="bg-emerald-400 text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm">
                     ● Activa
                 </span>
             @else
-                <span class="bg-rose-400 text-white px-4 py-2 rounded-full text-sm font-bold shadow">
+                <span class="bg-rose-400 text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm">
                     ● Inactiva
                 </span>
             @endif
@@ -120,7 +120,7 @@
             <!-- Botones -->
             <div class="flex justify-end gap-3 mt-8">
                 <a href="{{ route('locations.edit',$location->id_location) }}"
-                    class="px-6 py-3 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold shadow-md transition">
+                    class="px-6 py-3 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold shadow-md transition">
                     ✏️ Editar Ubicación
                 </a>
                 <a href="{{ route('locations.index') }}"

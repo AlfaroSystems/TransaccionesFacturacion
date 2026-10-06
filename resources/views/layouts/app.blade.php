@@ -123,7 +123,7 @@
 </head>
 <body class="min-h-screen md:h-screen md:overflow-hidden flex flex-col md:flex-row font-sans overflow-x-hidden bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
     <!-- BARRA LATERAL -->
-    <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:h-screen md:min-h-0 flex-shrink-0 sidebar-shadow text-white transition-colors duration-300">
+    <aside class="w-full md:w-64 bg-navy-sidebar flex flex-col justify-between p-5 min-h-[450px] md:h-screen md:min-h-0 shrink-0 sidebar-shadow text-white transition-colors duration-300">
         <div>
             <!-- Header con Logo y Usuario Autenticado -->
             <div class="flex flex-col items-center text-center mt-4 mb-8 border-b border-white/10 dark:border-slate-800 pb-6">
@@ -256,7 +256,7 @@
         </div>
         <!-- Pie del Sidebar -->
         <div class="px-1 mb-4 space-y-2">
-            <button type="button" onclick="toggleDarkMode()" class="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl bg-white/10 dark:bg-slate-800/80 border border-white/20 dark:border-slate-700/80 hover:bg-white/20 dark:hover:bg-slate-700/80 transition-all text-sm font-semibold text-white shadow-sm" title="Cambiar tema">
+            <button type="button" onclick="toggleDarkMode()" class="flex items-center justify-center gap-2.5 w-full py-2.5 px-4 rounded-xl bg-white/10 dark:bg-slate-800/80 border border-white/20 dark:border-slate-700/80 hover:bg-white/20 dark:hover:bg-slate-700/80 transition-all text-sm font-semibold text-white shadow-xs" title="Cambiar tema">
                 <div class="hide-on-dark items-center justify-center gap-2 text-white">
                     <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
@@ -294,80 +294,80 @@
         @if($isCompras)
             <div class="mb-6 flex flex-wrap items-center gap-3">
                 @can('purchase_requests.ver')
-                    <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase-requests.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Solicitudes de Compra</span></a>
+                    <a href="{{ route('purchase-requests.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase-requests.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Solicitudes de Compra</span></a>
                 @endcan
                 @can('purchase_quotation_requests.ver')
-                    <a href="{{ route('purchase-quotation-requests.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase-quotation-requests.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Solicitudes de Cotización</span></a>
+                    <a href="{{ route('purchase-quotation-requests.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase-quotation-requests.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Solicitudes de Cotización</span></a>
                 @endcan
                 @can('purchase_orders.ver')
-                    <a href="{{ route('purchase_orders.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase_orders.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Órdenes de Compra</span></a>
+                    <a href="{{ route('purchase_orders.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchase_orders.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Órdenes de Compra</span></a>
                 @endcan
                 @can('purchases.ver')
-                    <a href="{{ route('purchases.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchases.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Facturas / Compras</span></a>
+                    <a href="{{ route('purchases.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('purchases.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Facturas / Compras</span></a>
                 @endcan
                 @can('retaceos.ver')
-                    <a href="{{ route('retaceos.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('retaceos.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Retaceos</span></a>
+                    <a href="{{ route('retaceos.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('retaceos.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Retaceos</span></a>
                 @endcan
                 @can('expense_types.ver')
-                    <a href="{{ route('expense-types.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('expense-types.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Tipos de Gastos</span></a>
+                    <a href="{{ route('expense-types.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('expense-types.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Tipos de Gastos</span></a>
                 @endcan
             </div>
         @endif
         @if($isInventario)
             <div class="mb-6 flex flex-wrap items-center gap-3">
                 @can('warehouses.ver')
-                    <a href="{{ route('warehouses.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouses.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Bodegas</span></a>
+                    <a href="{{ route('warehouses.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouses.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Bodegas</span></a>
                 @endcan
                 @can('warehouse_categories.ver')
-                    <a href="{{ route('warehouse_categories.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouse_categories.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Categorías</span></a>
+                    <a href="{{ route('warehouse_categories.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouse_categories.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Categorías</span></a>
                 @endcan
                 @can('locations.ver')
-                    <a href="{{ route('locations.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Ubicaciones</span></a>
-                    <a href="{{ route('locations.map') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.map') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Mapa Visual</span></a>
+                    <a href="{{ route('locations.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.index', 'locations.create', 'locations.edit', 'locations.show') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Ubicaciones</span></a>
+                    <a href="{{ route('locations.map') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('locations.map') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Mapa Visual</span></a>
                 @endcan
             </div>
         @endif
         @if($isEmpresa)
             <div class="mb-6 flex flex-wrap items-center gap-3">
                 @can('companies.ver')
-                    <a href="{{ route('companies.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('companies.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Empresas</span></a>
+                    <a href="{{ route('companies.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('companies.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Empresas</span></a>
                 @endcan
                 @can('branches.ver')
-                    <a href="{{ route('branches.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('branches.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Sucursales</span></a>
+                    <a href="{{ route('branches.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('branches.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Sucursales</span></a>
                 @endcan
             </div>
         @endif
         @if($isProductos)
             <div class="mb-6 flex flex-wrap items-center gap-3">
                 @can('products.ver')
-                    <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('products.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Productos</span></a>
+                    <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('products.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Productos</span></a>
                 @endcan
                 @can('categories.ver')
-                    <a href="{{ route('categories.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('categories.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Categorías</span></a>
+                    <a href="{{ route('categories.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('categories.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Categorías</span></a>
                 @endcan
                 @can('subcategories.ver')
-                    <a href="{{ route('subcategories.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('subcategories.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Subcategorías</span></a>
+                    <a href="{{ route('subcategories.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('subcategories.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Subcategorías</span></a>
                 @endcan
                 @can('units.ver')
-                    <a href="{{ route('units.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('units.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Unidades de Medida</span></a>
+                    <a href="{{ route('units.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('units.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Unidades de Medida</span></a>
                 @endcan
             </div>
         @endif
         @if($isAdministracion)
             <div class="mb-6 flex flex-wrap items-center gap-3">
                 @can('usuarios.ver')
-                    <a href="{{ route('users.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('users.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Usuarios</span></a>
+                    <a href="{{ route('users.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('users.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Usuarios</span></a>
                 @endcan
                 @can('roles.administrar')
-                    <a href="{{ route('roles.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('roles.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Roles y Permisos</span></a>
+                    <a href="{{ route('roles.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('roles.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Roles y Permisos</span></a>
                 @endcan
                 @can('bitacora.ver')
-                    <a href="{{ route('audit-logs.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('audit-logs.*') ? 'bg-[#005e66] dark:bg-sky-600 text-white shadow' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Bitácora de Auditoría</span></a>
+                    <a href="{{ route('audit-logs.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('audit-logs.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Bitácora de Auditoría</span></a>
                 @endcan
             </div>
         @endif
         @isset($header)
-            <header class="bg-white dark:bg-slate-800/80 shadow mb-6 rounded-xl p-4 border border-slate-200 dark:border-slate-700/80 card-shadow transition-colors duration-300">
+            <header class="bg-white dark:bg-slate-800/80 shadow-sm mb-6 rounded-xl p-4 border border-slate-200 dark:border-slate-700/80 card-shadow transition-colors duration-300">
                 <div class="w-full flex items-center justify-between">{{ $header }}</div>
             </header>
         @endisset
@@ -377,7 +377,7 @@
         @endif
     </main>
     <!-- MODAL DE ELIMINACIÓN GLOBAL -->
-    <div id="global-delete-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-all duration-200">
+    <div id="global-delete-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200" id="global-delete-card">
             <div class="w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-400 mb-5">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +391,7 @@
                 @method('DELETE')
                 <div class="flex justify-center gap-3">
                     <button type="button" onclick="closeGlobalDeleteModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">Cancelar</button>
-                    <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm">Sí, inactivar</button>
+                    <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs">Sí, inactivar</button>
                 </div>
             </form>
         </div>
@@ -516,7 +516,7 @@
                 desc.textContent = customDescription || `Estás a punto de eliminar '${resourceName}'. Esta acción no se puede deshacer.`;
                 if (submitBtn) {
                     submitBtn.textContent = 'Sí, eliminar';
-                    submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                    submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs';
                 }
                 if (iconContainer) {
                     iconContainer.className = 'w-14 h-14 rounded-full border-2 border-rose-400 flex items-center justify-center mx-auto text-rose-500 dark:text-rose-400 mb-5';
@@ -527,7 +527,7 @@
                 desc.textContent = customDescription || `El estado del registro '${resourceName}' pasará a estar activo nuevamente.`;
                 if (submitBtn) {
                     submitBtn.textContent = 'Sí, reactivar';
-                    submitBtn.className = 'px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                    submitBtn.className = 'px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs';
                 }
                 if (iconContainer) {
                     iconContainer.className = 'w-14 h-14 rounded-full border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-500 dark:text-emerald-400 mb-5';
@@ -538,7 +538,7 @@
                 desc.textContent = customDescription || `El estado del registro '${resourceName}' pasará a estar inactivo.`;
                 if (submitBtn) {
                     submitBtn.textContent = 'Sí, inactivar';
-                    submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm';
+                    submitBtn.className = 'px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs';
                 }
                 if (iconContainer) {
                     iconContainer.className = 'w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-500 dark:text-amber-400 mb-5';

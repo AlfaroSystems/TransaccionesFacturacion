@@ -19,7 +19,7 @@
         </div>
         @can('products.crear')
         <div class="flex items-center gap-3 w-full md:w-auto">
-            <button type="button" onclick="openModal('create-product-modal')" class="w-full md:w-auto bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
+            <button type="button" onclick="openModal('create-product-modal')" class="w-full md:w-auto bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
@@ -31,7 +31,7 @@
 
     <!-- Tarjetas de Métricas Rápidas -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#005e66] flex items-center justify-center text-xl font-bold">
                 📦
             </div>
@@ -40,7 +40,7 @@
                 <span class="text-xl font-extrabold text-slate-800">{{ $products->total() }}</span>
             </div>
         </div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
                 ●
             </div>
@@ -52,7 +52,7 @@
     </div>
 
     <!-- Buscador y Filtros -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4">
         <form method="GET" action="{{ route('products.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="md:col-span-2">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre, SKU, códigos de fábrica o barras..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
@@ -66,7 +66,7 @@
                 </select>
             </div>
             <div class="flex gap-2">
-                <button type="submit" class="w-full bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Filtrar</button>
+                <button type="submit" class="w-full bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Filtrar</button>
                 @if(request('search') || request('id_category'))
                     <a href="{{ route('products.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Limpiar</a>
                 @endif
@@ -89,11 +89,11 @@
             </thead>
             <tbody>
                 @forelse($products as $product)
-                    <tr class="group hover:scale-[1.001] hover:shadow-md transition-all duration-200 {{ !$product->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
+                    <tr class="group hover:scale-[1.001] hover:shadow-md transition-all duration-200 {{ !$product->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         <!-- Imagen de producto -->
                         <td class="py-4 px-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-center">
                             @if($product->images->count() > 0)
-                                <div class="relative w-12 h-12 mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-sm group-hover:scale-105 transition-all cursor-pointer" onclick="openGlobalImageModal('{{ asset('storage/' . $product->images->first()->path) }}', '{{ addslashes($product->name) }}')" title="Ampliar imagen de {{ addslashes($product->name) }}">
+                                <div class="relative w-12 h-12 mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-xs group-hover:scale-105 transition-all cursor-pointer" onclick="openGlobalImageModal('{{ asset('storage/' . $product->images->first()->path) }}', '{{ addslashes($product->name) }}')" title="Ampliar imagen de {{ addslashes($product->name) }}">
                                     <img src="{{ asset('storage/' . $product->images->first()->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                                     @if($product->images->count() > 1)
                                         <span class="absolute bottom-0 right-0 bg-slate-900/80 text-white text-[9px] font-extrabold px-1 rounded-tl">
@@ -185,11 +185,11 @@
 <!-- MODALES DE EDICIÓN DE PRODUCTO -->
 @foreach($products as $product)
     @can('products.editar')
-        <div id="edit-product-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 flex items-start sm:items-center justify-center">
+        <div id="edit-product-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
             <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl mx-4 my-auto max-h-[85vh] overflow-y-auto border border-slate-100 relative transform scale-95 transition-all duration-200">
                 
                 <!-- Encabezado Sticky (Fijo al hacer scroll dentro del modal) -->
-                <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-sm rounded-t-3xl">
+                <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
                     <div>
                         <h3 class="text-xl font-extrabold text-slate-800">Editar Producto: {{ $product->name }}</h3>
                         <p class="text-xs text-slate-400">Actualiza los datos del producto, precios e imágenes asociadas.</p>
@@ -307,7 +307,7 @@
                                 <span class="text-xs font-bold text-slate-500 block mb-2">Imágenes Actuales:</span>
                                 <div class="flex flex-wrap gap-3">
                                     @foreach($product->images as $img)
-                                        <div class="relative group/img rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white cursor-pointer" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;" onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" title="Haz clic para ampliar">
+                                        <div class="relative group/img rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-white cursor-pointer" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;" onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" title="Haz clic para ampliar">
                                             <img src="{{ asset('storage/' . $img->path) }}" style="width: 100%; height: 100%; object-fit: cover;" class="hover:opacity-90 transition-opacity">
                                             <div class="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all">
                                                 <button type="button" onclick="event.stopPropagation(); deleteProductImage('{{ route('product-images.destroy', $img->id_product_image) }}')" class="p-1.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition cursor-pointer" title="Eliminar imagen">
@@ -323,7 +323,7 @@
                         <!-- Subir nuevas imágenes (Selección Acumulativa) -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Agregar más imágenes (se irán sumando):</label>
-                            <input type="file" id="edit_product_images_input_{{ $product->id_product }}" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#005e66] file:text-white hover:file:bg-[#3cb0a4] cursor-pointer">
+                            <input type="file" id="edit_product_images_input_{{ $product->id_product }}" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-customTeal-800 file:text-white hover:file:bg-customTeal-500 cursor-pointer">
                             <p class="text-[11px] text-slate-400 mt-1">Puedes seleccionar imágenes de una en una o varias a la vez. Se irán acumulando abajo.</p>
 
                             <!-- Vista Previa de Nuevas Imágenes por Subir -->
@@ -333,14 +333,14 @@
 
                     <!-- Checkbox Activo -->
                     <div class="flex items-center gap-2 pt-2">
-                        <input type="checkbox" name="is_active" id="edit_prod_active_{{ $product->id_product }}" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }} class="rounded text-[#005e66]">
+                        <input type="checkbox" name="is_active" id="edit_prod_active_{{ $product->id_product }}" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }} class="rounded-sm text-[#005e66]">
                         <label for="edit_prod_active_{{ $product->id_product }}" class="text-sm font-semibold text-slate-700">Producto Activo para Operaciones</label>
                     </div>
 
                     <!-- Acciones del Formulario al final -->
                     <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
                         <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
-                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] text-white font-bold text-sm hover:bg-[#3cb0a4] transition-all shadow-md">Guardar Cambios</button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar Cambios</button>
                     </div>
                 </form>
             </div>
@@ -349,11 +349,11 @@
 @endforeach
 
 <!-- MODAL DE CREACIÓN DE PRODUCTO -->
-<div id="create-product-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 sm:p-6 flex items-start sm:items-center justify-center">
+<div id="create-product-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl mx-4 my-auto max-h-[85vh] overflow-y-auto border border-slate-100 relative transform scale-95 transition-all duration-200">
         
         <!-- Encabezado Sticky (Fijo al hacer scroll dentro del modal) -->
-        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-sm rounded-t-3xl">
+        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
             <div>
                 <h3 class="text-xl font-extrabold text-slate-800">Registrar Nuevo Producto</h3>
                 <p class="text-xs text-slate-400">Complete la información requerida, especificaciones e imágenes del producto.</p>
@@ -463,7 +463,7 @@
             <!-- 5. Galería de Imágenes (Selección Acumulativa) -->
             <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
                 <label class="block text-xs font-bold text-[#005e66] uppercase tracking-wider">5. Imágenes del Producto (Selección Acumulativa)</label>
-                <input type="file" id="create_product_images_input" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#005e66] file:text-white hover:file:bg-[#3cb0a4] cursor-pointer">
+                <input type="file" id="create_product_images_input" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-customTeal-800 file:text-white hover:file:bg-customTeal-500 cursor-pointer">
                 <p class="text-[11px] text-slate-400">Puedes seleccionar imágenes de una en una o varias a la vez. Se irán acumulando abajo en la vista previa.</p>
 
                 <!-- Vista Previa de Imágenes Seleccionadas -->
@@ -472,14 +472,14 @@
 
             <!-- Checkbox Activo -->
             <div class="flex items-center gap-2 pt-2">
-                <input type="checkbox" name="is_active" id="create_prod_active" value="1" checked class="rounded text-[#005e66]">
+                <input type="checkbox" name="is_active" id="create_prod_active" value="1" checked class="rounded-sm text-[#005e66]">
                 <label for="create_prod_active" class="text-sm font-semibold text-slate-700">Producto Activo para Operaciones</label>
             </div>
 
             <!-- Acciones del Formulario al final -->
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
                 <button type="button" onclick="closeModal('create-product-modal')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] text-white font-bold text-sm hover:bg-[#3cb0a4] transition-all shadow-md">Guardar Producto</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar Producto</button>
             </div>
         </form>
     </div>

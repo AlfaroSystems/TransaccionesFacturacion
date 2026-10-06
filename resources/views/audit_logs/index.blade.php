@@ -16,7 +16,7 @@
             <!-- Filtro por Usuario -->
             <div>
                 <label for="id_user" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usuario</label>
-                <select name="id_user" id="id_user" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <select name="id_user" id="id_user" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
                     <option value="">Todos los Usuarios</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id_user }}" {{ request('id_user') == $user->id_user ? 'selected' : '' }}>
@@ -29,7 +29,7 @@
             <!-- Filtro por Modelo -->
             <div>
                 <label for="auditable_type" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Modelo</label>
-                <select name="auditable_type" id="auditable_type" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <select name="auditable_type" id="auditable_type" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
                     <option value="">Todos los Modelos</option>
                     @foreach($auditableTypes as $type)
                         <option value="{{ $type }}" {{ request('auditable_type') === $type ? 'selected' : '' }}>
@@ -42,18 +42,18 @@
             <!-- Fecha Desde -->
             <div>
                 <label for="date_from" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Desde</label>
-                <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
             </div>
 
             <!-- Fecha Hasta -->
             <div>
                 <label for="date_to" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
-                <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
             </div>
 
             <!-- Botones -->
             <div class="flex gap-2 w-full">
-                <button type="submit" class="flex-1 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] text-white rounded-xl text-sm font-bold transition-all shadow-sm">
+                <button type="submit" class="flex-1 py-2.5 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 text-white rounded-xl text-sm font-bold transition-all shadow-xs">
                     Filtrar
                 </button>
                 @if(request()->anyFilled(['id_user', 'auditable_type', 'date_from', 'date_to']))
@@ -157,7 +157,7 @@
 
                     <!-- Fila de Detalles Oculta / Expandible -->
                     <tr id="details-{{ $log->id_log }}" class="hidden">
-                        <td colspan="6" class="px-6 py-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                        <td colspan="6" class="px-6 py-5 bg-white border border-slate-100 rounded-2xl shadow-xs">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in duration-200">
                                 <!-- Datos Originales -->
                                 <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-150">
@@ -177,7 +177,7 @@
                                 <!-- Datos Modificados -->
                                 <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-150">
                                     <h4 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                                        <span class="w-2 h-2 rounded-full bg-[#005e66] animate-pulse"></span>
+                                        <span class="w-2 h-2 rounded-full bg-customTeal-800 animate-pulse"></span>
                                         Nuevos Datos Guardados (Después)
                                     </h4>
                                     @if($log->modified_data && count($log->modified_data) > 0)
@@ -193,7 +193,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-xs">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

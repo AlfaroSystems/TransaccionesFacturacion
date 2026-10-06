@@ -16,21 +16,21 @@
         </div>
         <div class="flex items-center gap-2.5 w-full sm:w-auto">
             <a href="{{ route('products.index') }}"
-                class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-sm">
+                class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-xs">
                 ← Volver
             </a>
             <a href="{{ route('products.index', ['edit' => $product->id_product]) }}"
-                class="bg-[#005e66] hover:bg-[#3cb0a4] text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg">
+                class="bg-customTeal-800 hover:bg-customTeal-500 text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg">
                 ✏️ Editar Producto
             </a>
         </div>
     </div>
 
     <!-- TARJETA PRINCIPAL: FICHA TÉCNICA -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
         
         <!-- Header de la Ficha -->
-        <div class="p-6 md:p-8 bg-gradient-to-r from-slate-900 to-navy-sidebar text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div class="p-6 md:p-8 bg-linear-to-r/srgb from-slate-900 to-navy-sidebar text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div class="space-y-2">
                 <div class="flex items-center gap-3 flex-wrap">
                     <span class="font-mono bg-blue-500/20 border border-blue-400/30 text-blue-200 px-3 py-1 rounded-lg text-sm font-bold tracking-wider">
@@ -72,7 +72,7 @@
         <div class="px-6 md:px-8 py-3 bg-slate-50 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Identificador Global (UUID):</span>
-                <span id="uuid-text" class="font-mono text-xs text-slate-700 font-semibold bg-white px-2.5 py-1 rounded border border-slate-200 select-all">
+                <span id="uuid-text" class="font-mono text-xs text-slate-700 font-semibold bg-white px-2.5 py-1 rounded-sm border border-slate-200 select-all">
                     {{ $product->uuid }}
                 </span>
             </div>
@@ -94,7 +94,7 @@
                 @if($product->images->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                         @foreach($product->images as $img)
-                            <div onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" class="group relative block aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all cursor-pointer" title="Ampliar imagen de {{ addslashes($product->name) }}">
+                            <div onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" class="group relative block aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all cursor-pointer" title="Ampliar imagen de {{ addslashes($product->name) }}">
                                 <img src="{{ asset('storage/' . $img->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-all">
                                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white text-xs font-bold">
                                     🔍 Ampliar
@@ -164,7 +164,7 @@
 
             <!-- 3. Descripción / Detalles -->
             @if($product->description)
-                <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/80 shadow-xs">
+                <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/80">
                     <h3 class="text-xs font-extrabold text-blue-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <span>📋</span> Descripción / Detalles
                     </h3>

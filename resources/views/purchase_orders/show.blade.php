@@ -83,7 +83,7 @@
             @endif
 
             @if(Route::has('purchase_orders.pdf'))
-                <a href="{{ route('purchase_orders.pdf', $purchase_order->id_purchase_order) }}" target="_blank" class="px-5 py-2.5 rounded-full bg-[#005e66] hover:bg-[#00474f] text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-md" title="Descargar / Imprimir PDF">
+                <a href="{{ route('purchase_orders.pdf', $purchase_order->id_purchase_order) }}" target="_blank" class="px-5 py-2.5 rounded-full bg-customTeal-800 hover:bg-navy-800 text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-md" title="Descargar / Imprimir PDF">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
@@ -110,7 +110,7 @@
     <!-- Tarjetas de Información General y Proveedor -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Información de la Orden -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4 md:col-span-2">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4 md:col-span-2">
             <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
                 <div class="w-10 h-10 rounded-xl bg-teal-50 text-[#005e66] flex items-center justify-center text-lg font-bold">
                     📦
@@ -158,7 +158,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-400 uppercase">Cotización Origen:</span>
-                        <span class="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                        <span class="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-sm">
                             {{ $purchase_order->quotation->quotation_code ?? ($purchase_order->id_purchase_quotation ? '#'.$purchase_order->id_purchase_quotation : 'Ninguna') }}
                         </span>
                     </div>
@@ -175,7 +175,7 @@
         </div>
 
         <!-- Resumen Financiero -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 flex flex-col justify-between space-y-4">
             <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
                     💵
@@ -211,7 +211,7 @@
     </div>
 
     <!-- Tabla de Productos / Detalles -->
-    <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+    <section class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
@@ -282,7 +282,7 @@
 
     <!-- Gastos Adicionales (Si existen) -->
     @if($purchase_order->expenses && $purchase_order->expenses->count() > 0)
-        <section class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+        <section class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
                 <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                     🚚
@@ -326,7 +326,7 @@
 </div>
 
 <!-- Modal Personalizado para Confirmar Cambio de Estado -->
-<div id="status-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+<div id="status-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl relative mx-4 text-center transform scale-95 transition-all duration-200 border border-slate-100 dark:border-slate-700">
         <button type="button" onclick="closeModal('status-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

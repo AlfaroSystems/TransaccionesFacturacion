@@ -25,7 +25,7 @@
                 {{ $isEdit ? 'Modifique los costos y gastos aduanales del retaceo.' : 'Seleccione una factura de compra exterior, ingrese flete y gastos de importación para prorratear los costos unitarios reales.' }}
             </p>
         </div>
-        <a href="{{ $isEdit ? route('retaceos.show', $retaceo->id_retaceo) : route('retaceos.index') }}" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
+        <a href="{{ $isEdit ? route('retaceos.show', $retaceo->id_retaceo) : route('retaceos.index') }}" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-xs">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             <span>Cancelar y Volver</span>
         </a>
@@ -33,7 +33,7 @@
 
     <!-- Alert de Errores -->
     @if ($errors->any())
-        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-sm">
+        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
             <div class="flex items-center gap-2 font-bold text-sm text-rose-800 dark:text-rose-200">
                 <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Revise los errores en el formulario:</span>
@@ -54,7 +54,7 @@
 
         {{-- Selector de Compra --}}
         @if(!$isEdit)
-            <div class="bg-indigo-50/80 dark:bg-slate-800/90 border border-indigo-200 dark:border-slate-700 rounded-2xl p-5 space-y-3 shadow-sm">
+            <div class="bg-indigo-50/80 dark:bg-slate-800/90 border border-indigo-200 dark:border-slate-700 rounded-2xl p-5 space-y-3 shadow-xs">
                 <div>
                     <h3 class="font-extrabold text-indigo-900 dark:text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-2">
                         <span>🧾 Seleccionar Compra / Factura Exterior *</span>
@@ -64,7 +64,7 @@
                     </p>
                 </div>
                 <div>
-                    <select id="purchaseSelect" name="id_purchase" required class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-none shadow-sm">
+                    <select id="purchaseSelect" name="id_purchase" required class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden shadow-xs">
                         <option value="">-- Seleccione una compra --</option>
                         @foreach($purchases as $pur)
                             <option value="{{ $pur->id_purchase }}" {{ (string)$selectedPurchaseId === (string)$pur->id_purchase ? 'selected' : '' }}>
@@ -83,7 +83,7 @@
         @endif
 
         {{-- Datos de la Liquidación y Póliza Aduanera --}}
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-6 space-y-5">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-5">
             <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
                 <span>📑 Datos de Importación y Póliza Aduanera</span>
             </h3>
@@ -173,7 +173,7 @@
         </div>
 
         {{-- Tabla de Productos y Prorrateo --}}
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-6 space-y-4">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -265,7 +265,7 @@
             <a href="{{ route('retaceos.index') }}" class="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 Cancelar
             </a>
-            <button type="submit" class="px-8 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white font-bold text-sm shadow-md transition-all transform hover:-translate-y-0.5">
+            <button type="submit" class="px-8 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm shadow-md transition-all transform hover:-translate-y-0.5">
                 {{ $isEdit ? 'Actualizar Retaceo' : 'Guardar Liquidación' }}
             </button>
         </div>

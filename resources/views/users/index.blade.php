@@ -10,7 +10,7 @@
             <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso, asignación por sucursal y niveles de permisos.</p>
         </div>
         @can('usuarios.crear')
-            <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+            <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-customTeal-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
@@ -25,7 +25,7 @@
             <div class="flex-1 w-full">
                 <label for="search" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Buscar</label>
                 <div class="relative">
-                    <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Buscar por nombre o correo..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pl-10 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                    <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Buscar por nombre o correo..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pl-10 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <div class="absolute left-3.5 top-3.5 text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
@@ -33,7 +33,7 @@
             </div>
             <div class="w-full md:w-44">
                 <label for="role" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol</label>
-                <select name="role" id="role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                <select name="role" id="role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todos los Roles</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->name }}" {{ request('role') === $role->name ? 'selected' : '' }}>
@@ -44,7 +44,7 @@
             </div>
             <div class="w-full md:w-48">
                 <label for="id_branch" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
-                <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todas las Sucursales</option>
                     @foreach($branches as $branch)
                         <option value="{{ $branch->id_branch }}" {{ request('id_branch') == $branch->id_branch ? 'selected' : '' }}>
@@ -55,14 +55,14 @@
             </div>
             <div class="w-full md:w-40">
                 <label for="is_active" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado</label>
-                <select name="is_active" id="is_active" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                <select name="is_active" id="is_active" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todos los Estados</option>
                     <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Activo</option>
                     <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Inactivo</option>
                 </select>
             </div>
             <div class="w-full md:w-auto">
-                <button type="submit" class="w-full px-5 py-2.5 bg-navy-sidebar text-white rounded-xl text-sm font-bold hover:bg-navy-active transition-all shadow-sm">
+                <button type="submit" class="w-full px-5 py-2.5 bg-navy-sidebar text-white rounded-xl text-sm font-bold hover:bg-navy-active transition-all shadow-xs">
                     Filtrar
                 </button>
             </div>
@@ -95,7 +95,7 @@
                         <!-- Datos del Usuario con Avatar Inicial -->
                         <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-navy-sidebar bg-slate-100 uppercase select-none group-hover:bg-[#005e66] group-hover:text-white transition-all">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-navy-sidebar bg-slate-100 uppercase select-none group-hover:bg-customTeal-800 group-hover:text-white transition-all">
                                     {{ substr($user->username, 0, 2) }}
                                 </div>
                                 <div>
@@ -204,7 +204,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-xs">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,7 +230,7 @@
 </div>
 
 <!-- MODAL DE REGISTRO DE USUARIO -->
-<div id="create-user-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+<div id="create-user-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-user-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
@@ -258,7 +258,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         </span>
-                        <input type="text" name="username" id="username" value="{{ old('modal_type') === 'create' ? old('username') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('username') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <input type="text" name="username" id="username" value="{{ old('modal_type') === 'create' ? old('username') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('username') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     </div>
                     @error('username')
                         @if(old('modal_type') === 'create')
@@ -274,7 +274,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         </span>
-                        <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="ejemplo@empresa.com" class="w-full bg-slate-50 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="ejemplo@empresa.com" class="w-full bg-slate-50 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     </div>
                     @error('email')
                         @if(old('modal_type') === 'create')
@@ -287,7 +287,7 @@
             <!-- Asignación de Sucursal -->
             <div>
                 <label for="create-branch-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal Asignada</label>
-                <select name="id_branch" id="create-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                <select name="id_branch" id="create-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold">
                     <option value="">Todas / Sin Sucursal Específica</option>
                     @foreach($branches as $branch)
                         <option value="{{ $branch->id_branch }}" {{ (old('modal_type') === 'create' && old('id_branch') == $branch->id_branch) ? 'selected' : '' }}>
@@ -316,7 +316,7 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </span>
-                            <input type="password" name="password" id="password" placeholder="Mínimo 8 caracteres" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                            <input type="password" name="password" id="password" placeholder="Mínimo 8 caracteres" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                             <button type="button" onclick="togglePasswordInput('password', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
                                 <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
@@ -336,7 +336,7 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                             </span>
-                            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                             <button type="button" onclick="togglePasswordInput('password_confirmation', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
                                 <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
@@ -349,7 +349,7 @@
                 <!-- Roles -->
                 <div>
                     <label for="create-role-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
-                    <select name="roles[]" id="create-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <select name="roles[]" id="create-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar rol</option>
                         @foreach($assignableRoles as $role)
                             <option value="{{ $role->id_role }}" {{ (old('modal_type') === 'create' && is_array(old('roles')) && in_array($role->id_role, old('roles'))) ? 'selected' : '' }}>
@@ -367,7 +367,7 @@
                 <!-- Estado -->
                 <div>
                     <label for="create-is_active" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado de Acceso</label>
-                    <select name="is_active" id="create-is_active" class="w-full bg-slate-50 border @error('is_active') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <select name="is_active" id="create-is_active" class="w-full bg-slate-50 border @error('is_active') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="1" {{ old('is_active', '1') === '1' ? 'selected' : '' }}>Activo</option>
                         <option value="0" {{ old('is_active') === '0' ? 'selected' : '' }}>Inactivo</option>
                     </select>
@@ -389,14 +389,14 @@
 </div>
 
 <!-- MODAL DE EDICIÓN DE USUARIO -->
-<div id="edit-user-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+<div id="edit-user-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-user-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
+            <div class="w-12 h-12 rounded-2xl bg-customTeal-800 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
@@ -420,7 +420,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                         </span>
-                        <input type="text" name="username" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('username') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('username') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <input type="text" name="username" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('username') : '' }}" placeholder="Ej. Juan Pérez" class="w-full bg-slate-50 border @error('username') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     </div>
                     @error('username')
                         @if(old('modal_type') === 'edit')
@@ -436,7 +436,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         </span>
-                        <input type="email" name="email" id="edit-email" value="{{ old('modal_type') === 'edit' ? old('email') : '' }}" placeholder="ejemplo@empresa.com" class="w-full bg-slate-50 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                        <input type="email" name="email" id="edit-email" value="{{ old('modal_type') === 'edit' ? old('email') : '' }}" placeholder="ejemplo@empresa.com" class="w-full bg-slate-50 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     </div>
                     @error('email')
                         @if(old('modal_type') === 'edit')
@@ -449,7 +449,7 @@
             <!-- Asignación de Sucursal -->
             <div>
                 <label for="edit-branch-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal Asignada</label>
-                <select name="id_branch" id="edit-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                <select name="id_branch" id="edit-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold">
                     <option value="">Todas / Sin Sucursal Específica</option>
                     @foreach($branches as $branch)
                         <option value="{{ $branch->id_branch }}">
@@ -477,7 +477,7 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </span>
-                            <input type="password" name="password" id="edit-password" placeholder="Dejar en blanco para conservar" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                            <input type="password" name="password" id="edit-password" placeholder="Dejar en blanco para conservar" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold">
                             <button type="button" onclick="togglePasswordInput('edit-password', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
                                 <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
@@ -497,7 +497,7 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                             </span>
-                            <input type="password" name="password_confirmation" id="edit-password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                            <input type="password" name="password_confirmation" id="edit-password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold">
                             <button type="button" onclick="togglePasswordInput('edit-password_confirmation', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
                                 <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
@@ -510,7 +510,7 @@
                 <!-- Roles -->
                 <div>
                     <label for="edit-role-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
-                    <select name="roles[]" id="edit-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <select name="roles[]" id="edit-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar rol</option>
                         @foreach($assignableRoles as $role)
                             <option value="{{ $role->id_role }}">
@@ -532,7 +532,7 @@
                     <label class="flex items-center gap-3 cursor-pointer">
                         <input type="hidden" name="is_active" id="edit-status-hidden" value="0">
                         <input type="checkbox" name="is_active" id="edit-status" value="1" class="sr-only peer" {{ old('modal_type') === 'edit' ? (old('is_active') === '1' ? 'checked' : '') : '' }}>
-                        <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-disabled:opacity-50"></div>
+                        <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:rtl:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-disabled:opacity-50"></div>
                         <span class="text-sm font-semibold text-slate-600" id="edit-status_label">Usuario Activo</span>
                     </label>
                     @error('is_active')
@@ -548,7 +548,7 @@
                 <button type="button" onclick="closeModal('edit-user-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Guardar Cambios
                 </button>

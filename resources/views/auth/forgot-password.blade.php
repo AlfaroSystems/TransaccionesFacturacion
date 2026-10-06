@@ -57,13 +57,13 @@
                     <button onclick="window.location.href='{{ route('login') }}'" class="flex-1 text-center pb-3 text-sm font-semibold text-gray-400 dark:text-slate-400 border-b-2 border-transparent hover:text-gray-600 dark:hover:text-slate-200 transition-all">
                         Iniciar sesión
                     </button>
-                    <button class="flex-1 text-center pb-3 text-sm font-bold border-b-2 border-[#3cb0a4] text-[#2b7f76] dark:text-customTeal-400">
+                    <button class="flex-1 text-center pb-3 text-sm font-bold border-b-2 border-[#3cb0a4] text-customTeal-700 dark:text-customTeal-400">
                         Recuperar contraseña
                     </button>
                 </div>
 
                 <!-- Info Message -->
-                <div class="mb-6 text-xs text-gray-500 dark:text-slate-300 font-medium leading-relaxed bg-[#edf9f6]/70 dark:bg-slate-900/60 p-4 rounded-2xl border border-customTeal-100 dark:border-slate-700">
+                <div class="mb-6 text-xs text-gray-500 dark:text-slate-300 font-medium leading-relaxed bg-customTeal-50/70 dark:bg-slate-900/60 p-4 rounded-2xl border border-customTeal-100 dark:border-slate-700">
                     ¿Olvidaste tu contraseña? No te preocupes. Ingresa tu correo electrónico y te enviaremos un enlace para restablecerla.
                 </div>
 
@@ -73,20 +73,20 @@
                     @csrf
                     <!-- Email Address -->
                     <div>
-                        <div class="relative flex items-center shadow-sm border border-gray-200 dark:border-slate-700 rounded-full bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-[#4ebbb0] transition-all">
-                            <span class="absolute left-1 w-9 h-9 rounded-full bg-[#edf9f6] dark:bg-slate-800 flex items-center justify-center text-[#3cb0a4]">
+                        <div class="relative flex items-center shadow-xs border border-gray-200 dark:border-slate-700 rounded-full bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
+                            <span class="absolute left-1 w-9 h-9 rounded-full bg-customTeal-50 dark:bg-slate-800 flex items-center justify-center text-[#3cb0a4]">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </span>
-                            <input id="email" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 dark:placeholder-slate-500 text-gray-700 dark:text-slate-100 font-medium bg-transparent" type="email" name="email" :value="old('email')" placeholder="Correo electrónico" required autofocus />
+                            <input id="email" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-hidden placeholder-gray-400 dark:placeholder-slate-500 text-gray-700 dark:text-slate-100 font-medium bg-transparent" type="email" name="email" :value="old('email')" placeholder="Correo electrónico" required autofocus />
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs ml-4" />
                     </div>
 
                     <!-- Action Button -->
                     <div>
-                        <button type="submit" class="w-full bg-[#3cb0a4] hover:bg-[#349b90] text-white rounded-full py-3 text-xs font-bold transition-all shadow-lg active:scale-95 uppercase tracking-wider">
+                        <button type="submit" class="w-full bg-customTeal-500 hover:bg-customTeal-600 text-white rounded-full py-3 text-xs font-bold transition-all shadow-lg active:scale-95 uppercase tracking-wider">
                             Enviar enlace de recuperación
                         </button>
                     </div>

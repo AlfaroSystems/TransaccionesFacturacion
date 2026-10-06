@@ -66,7 +66,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </span>
-                            <input id="email" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 text-gray-700 font-medium bg-gray-50/50" type="email" name="email" :value="old('email', $request->email)" placeholder="Correo electrónico" required autofocus autocomplete="username" />
+                            <input id="email" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-hidden placeholder-gray-400 text-gray-700 font-medium bg-gray-50/50" type="email" name="email" :value="old('email', $request->email)" placeholder="Correo electrónico" required autofocus autocomplete="username" />
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs ml-4" />
                     </div>
@@ -79,7 +79,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </span>
-                            <input id="password" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 text-gray-700 font-medium" type="password" name="password" placeholder="Nueva contraseña" required autocomplete="new-password" />
+                            <input id="password" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-hidden placeholder-gray-400 text-gray-700 font-medium" type="password" name="password" placeholder="Nueva contraseña" required autocomplete="new-password" />
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs ml-4" />
                     </div>
@@ -92,7 +92,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </span>
-                            <input id="password_confirmation" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 text-gray-700 font-medium" type="password" name="password_confirmation" placeholder="Confirmar nueva contraseña" required autocomplete="new-password" />
+                            <input id="password_confirmation" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-hidden placeholder-gray-400 text-gray-700 font-medium" type="password" name="password_confirmation" placeholder="Confirmar nueva contraseña" required autocomplete="new-password" />
                         </div>
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-xs ml-4" />
                     </div>
@@ -114,10 +114,10 @@
         <!-- RIGHT SIDE: Isometric Illustration -->
         <div class="w-full md:w-2/5 bg-[#89d5cc] relative flex items-center justify-center p-8 overflow-hidden select-none">
             <!-- Concentric design waves/borders -->
-            <div class="absolute w-[200%] h-[200%] border-[2px] border-white/10 rounded-full top-[-50%] right-[-50%] pointer-events-none"></div>
-            <div class="absolute w-[150%] h-[150%] border-[4px] border-white/15 rounded-full top-[-25%] right-[-25%] pointer-events-none"></div>
-            <div class="absolute w-[100%] h-[100%] border-[6px] border-white/20 rounded-full top-[0%] right-[0%] pointer-events-none"></div>
-            <div class="absolute w-[60%] h-[60%] border-[8px] border-white/25 rounded-full top-[20%] right-[20%] pointer-events-none"></div>
+            <div class="absolute w-[200%] h-[200%] border-2 border-white/10 rounded-full top-[-50%] right-[-50%] pointer-events-none"></div>
+            <div class="absolute w-[150%] h-[150%] border-4 border-white/15 rounded-full top-[-25%] right-[-25%] pointer-events-none"></div>
+            <div class="absolute w-full h-full border-[6px] border-white/20 rounded-full top-[0%] right-[0%] pointer-events-none"></div>
+            <div class="absolute w-[60%] h-[60%] border-8 border-white/25 rounded-full top-[20%] right-[20%] pointer-events-none"></div>
 
             <!-- Illustration Asset -->
             <div class="relative z-10 w-full max-w-[280px] h-auto drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)] hover:scale-105 transition-transform duration-500">

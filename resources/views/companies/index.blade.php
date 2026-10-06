@@ -37,7 +37,7 @@
         </div>
 
         @can('companies.crear')
-        <button type="button" onclick="openModal('create-company-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+        <button type="button" onclick="openModal('create-company-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
@@ -52,10 +52,10 @@
             <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
             </svg>
-            <input id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por empresa, NIT, NRC, teléfono o correo..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold shadow-sm">
+            <input id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por empresa, NIT, NRC, teléfono o correo..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-hidden transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold shadow-xs">
         </div>
         <div class="flex gap-2">
-            <button type="submit" class="px-5 py-3 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm transition-all">Buscar</button>
+            <button type="submit" class="px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm transition-all">Buscar</button>
             @if(request()->filled('search'))
                 <a href="{{ route('companies.index') }}" class="px-5 py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-transparent dark:border-slate-700 rounded-full font-bold text-sm transition-all">Limpiar</a>
             @endif
@@ -78,7 +78,7 @@
             </thead>
             <tbody>
                 @forelse($companies as $company)
-                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$company->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
+                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$company->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-l-2xl border-l border-y border-slate-100 dark:border-slate-700/80 text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-300">
                             <div class="flex items-center gap-3">
                                 @if($company->logo)
@@ -105,7 +105,7 @@
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
                             <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $company->addres }}">{{ $company->addres ?? 'N/A' }}</span>
                             @if($company->department || $company->municipality || $company->district)
-                                <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded mt-1 inline-block">
+                                <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-sm mt-1 inline-block">
                                     {{ $company->department?->name }} / {{ $company->municipality?->name }} / {{ $company->district?->name }}
                                 </span>
                             @endif
@@ -192,7 +192,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-sm transition-colors duration-300">
+                        <td colspan="7" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-xs transition-colors duration-300">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

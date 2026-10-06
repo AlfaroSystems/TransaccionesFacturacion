@@ -36,7 +36,7 @@
             </thead>
             <tbody>
                 @forelse($warehouses as $warehouse)
-                    <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$warehouse->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
+                    <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$warehouse->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm text-slate-400 font-bold">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500">
@@ -97,7 +97,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-12 bg-white rounded-2xl border border-slate-100 text-center text-slate-400 font-semibold shadow-sm">
+                        <td colspan="7" class="py-12 bg-white rounded-2xl border border-slate-100 text-center text-slate-400 font-semibold shadow-xs">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 7v10a2 2 0 002 2h11a2 2 0 002-2V7M3 7l9-4 9 4M4 10h16v8H4v-8z" />
@@ -113,7 +113,7 @@
 </div>
 
 <!-- MODAL DE REGISTRO DE BODEGA -->
-<div id="create-warehouse-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+<div id="create-warehouse-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-warehouse-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
@@ -137,7 +137,7 @@
             <!-- Sucursal -->
             <div>
                 <label for="id_branch" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
-                <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una sucursal</option>
                     @foreach($branches as $branch)
                         <option value="{{ $branch->id_branch }}" {{ (old('modal_type') === 'create' && old('id_branch') == $branch->id_branch) ? 'selected' : '' }}>
@@ -155,7 +155,7 @@
             <!-- Categoría -->
             <div>
                 <label for="id_warehouse_category" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
-                <select name="id_warehouse_category" id="id_warehouse_category" class="w-full bg-slate-50 border @error('id_warehouse_category') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_warehouse_category" id="id_warehouse_category" class="w-full bg-slate-50 border @error('id_warehouse_category') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una categoría</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->id_warehouse_category }}" {{ (old('modal_type') === 'create' && old('id_warehouse_category') == $category->id_warehouse_category) ? 'selected' : '' }}>
@@ -173,7 +173,7 @@
             <!-- Nombre -->
             <div>
                 <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre de la Bodega</label>
-                <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Bodega General A" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Bodega General A" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                 @error('name')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -184,7 +184,7 @@
             <!-- Descripción -->
             <div>
                 <label for="description" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción</label>
-                <textarea name="description" id="description" rows="2" placeholder="Detalles de la bodega..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('description') : '' }}</textarea>
+                <textarea name="description" id="description" rows="2" placeholder="Detalles de la bodega..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('description') : '' }}</textarea>
                 @error('description')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -207,14 +207,14 @@
 </div>
 
 <!-- MODAL DE EDICIÓN DE BODEGA -->
-<div id="edit-warehouse-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-all duration-200">
+<div id="edit-warehouse-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-warehouse-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-[#005e66] flex items-center justify-center text-white">
+            <div class="w-12 h-12 rounded-2xl bg-customTeal-800 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
@@ -233,7 +233,7 @@
             <!-- Sucursal -->
             <div>
                 <label for="edit-id_branch" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
-                <select name="id_branch" id="edit-id_branch" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_branch" id="edit-id_branch" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una sucursal</option>
                     @foreach($branches as $branch)
                         <option value="{{ $branch->id_branch }}" {{ (old('modal_type') === 'edit' && old('id_branch') == $branch->id_branch) ? 'selected' : '' }}>
@@ -251,7 +251,7 @@
             <!-- Categoría -->
             <div>
                 <label for="edit-id_warehouse_category" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
-                <select name="id_warehouse_category" id="edit-id_warehouse_category" class="w-full bg-slate-50 border @error('id_warehouse_category') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_warehouse_category" id="edit-id_warehouse_category" class="w-full bg-slate-50 border @error('id_warehouse_category') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione una categoría</option>
                     @foreach($categories as $category)
                         <option value="{{ $category->id_warehouse_category }}" {{ (old('modal_type') === 'edit' && old('id_warehouse_category') == $category->id_warehouse_category) ? 'selected' : '' }}>
@@ -269,7 +269,7 @@
             <!-- Nombre -->
             <div>
                 <label for="edit-name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre de la Bodega</label>
-                <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Bodega General A" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Bodega General A" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                 @error('name')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -280,7 +280,7 @@
             <!-- Descripción -->
             <div>
                 <label for="edit-description" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción</label>
-                <textarea name="description" id="edit-description" rows="2" placeholder="Detalles de la bodega..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('description') : '' }}</textarea>
+                <textarea name="description" id="edit-description" rows="2" placeholder="Detalles de la bodega..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('description') : '' }}</textarea>
                 @error('description')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -294,7 +294,7 @@
                 <label class="flex items-center gap-3 cursor-pointer">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" id="edit-is_active" value="1" class="sr-only peer" {{ old('modal_type') === 'edit' ? (old('is_active') ? 'checked' : '') : '' }}>
-                    <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:rtl:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                     <span class="text-sm font-semibold text-slate-600" id="edit-is_active_label">Bodega Activa</span>
                 </label>
             </div>
@@ -304,7 +304,7 @@
                 <button type="button" onclick="closeModal('edit-warehouse-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Guardar Cambios
                 </button>

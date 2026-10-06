@@ -17,7 +17,7 @@
             <button
                 type="button"
                 onclick="openModal('create-supplier-modal')"
-                class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                 </svg>
@@ -27,7 +27,7 @@
     </header>
 
     {{-- BUSCADOR --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-6">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4 mb-6">
         <form method="GET" action="{{ route('suppliers.index') }}" class="flex flex-col sm:flex-row gap-4">
             <div class="relative flex-1">
                 <input
@@ -41,7 +41,7 @@
                 </svg>
             </div>
             <div class="flex gap-2">
-                <button type="submit" class="px-5 py-2.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold rounded-xl text-sm transition-all">
+                <button type="submit" class="px-5 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold rounded-xl text-sm transition-all">
                     Buscar
                 </button>
                 @if(request('search'))
@@ -68,7 +68,7 @@
             </thead>
             <tbody>
                 @forelse($suppliers as $supplier)
-                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$supplier->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
+                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$supplier->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         <td class="py-4 px-6 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm">
                             <div class="flex items-center gap-2 mb-0.5">
                                 <span class="font-bold text-[#005e66] text-xs">{{ $supplier->code }}</span>
@@ -170,7 +170,7 @@
         $supplierId = $supplier->id_supplier;
     @endphp
     @can('suppliers.editar')
-        <div id="edit-supplier-modal-{{ $supplierId }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div id="edit-supplier-modal-{{ $supplierId }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
             <div class="bg-white rounded-3xl p-6 max-w-4xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between border-b pb-4 mb-6">
                     <div>
@@ -294,7 +294,7 @@
                                     <button type="button" 
                                             @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
                                             @click.away="open = false"
-                                            class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-100 focus:outline-none focus:border-[#005e66] transition-all">
+                                            class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-100 focus:outline-hidden focus:border-[#005e66] transition-all">
                                         <span x-text="selected || 'Seleccionar país'" :class="!selected ? 'text-slate-400 dark:text-slate-500' : ''"></span>
                                         <svg class="w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -308,7 +308,7 @@
                                         x-transition:leave="transition ease-in duration-100"
                                         x-transition:leave-start="opacity-100 scale-100"
                                         x-transition:leave-end="opacity-0 scale-95"
-                                        class="absolute z-[100] left-0 right-0 top-full mt-1.5 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden"
+                                        class="absolute z-100 left-0 right-0 top-full mt-1.5 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden"
                                         style="display: none; max-height: 230px;">
 
                                         <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60">
@@ -316,7 +316,7 @@
                                                     x-ref="searchInput"
                                                     x-model="search" 
                                                     placeholder="Buscar país..." 
-                                                    class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:border-[#005e66] bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-100 placeholder-slate-400">
+                                                    class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-hidden focus:border-[#005e66] bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-100 placeholder-slate-400">
                                         </div>
 
                                         <div style="max-height: 180px; overflow-y: auto;" class="p-2 pb-4 space-y-1 custom-scrollbar">
@@ -325,7 +325,7 @@
                                                         @click="selectCountry(c)"
                                                         style="padding-left: 1.25rem; padding-right: 1rem; padding-top: 0.6rem; padding-bottom: 0.6rem;"
                                                         class="w-full text-left px-5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-between"
-                                                        :class="selected === c ? 'bg-[#005e66]/15 text-[#005e66] dark:bg-teal-500/20 dark:text-teal-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
+                                                        :class="selected === c ? 'bg-customTeal-800/15 text-[#005e66] dark:bg-teal-500/20 dark:text-teal-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
                                                     <span x-text="c" class="truncate pr-2"></span>
                                                     <svg x-show="selected === c" class="w-4 h-4 text-[#005e66] dark:text-teal-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -360,7 +360,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <div>
                                     <label for="edit_supplier_{{ $supplierId }}_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                                    <select name="id_department" id="edit_supplier_{{ $supplierId }}_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                                    <select name="id_department" id="edit_supplier_{{ $supplierId }}_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                         <option value="">Seleccione departamento</option>
                                         @foreach($departments as $dept)
                                             <option value="{{ $dept->id_department }}" {{ old('id_department', $supplier->id_department) == $dept->id_department ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -369,7 +369,7 @@
                                 </div>
                                 <div>
                                     <label for="edit_supplier_{{ $supplierId }}_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                                    <select name="id_municipality" id="edit_supplier_{{ $supplierId }}_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                                    <select name="id_municipality" id="edit_supplier_{{ $supplierId }}_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                         <option value="">Seleccione municipio</option>
                                         @foreach($municipalities as $muni)
                                             <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}" {{ old('id_municipality', $supplier->id_municipality) == $muni->id_municipality ? 'selected' : '' }}>{{ $muni->name }}</option>
@@ -378,7 +378,7 @@
                                 </div>
                                 <div>
                                     <label for="edit_supplier_{{ $supplierId }}_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                                    <select name="id_district" id="edit_supplier_{{ $supplierId }}_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                                    <select name="id_district" id="edit_supplier_{{ $supplierId }}_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                         <option value="">Seleccione distrito</option>
                                         @foreach($districts as $dist)
                                             <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}" {{ old('id_district', $supplier->id_district) == $dist->id_district ? 'selected' : '' }}>{{ $dist->name }}</option>
@@ -410,7 +410,7 @@
                             <button
                                 type="button"
                                 onclick="addEditContactRow({{ $supplierId }})"
-                                class="px-3 py-1.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-lg text-xs font-bold transition-all whitespace-nowrap">
+                                class="px-3 py-1.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-lg text-xs font-bold transition-all whitespace-nowrap">
                                 + Agregar Contacto
                             </button>
                         </div>
@@ -478,7 +478,7 @@
                         <button type="button" onclick="closeModal('edit-supplier-modal-{{ $supplierId }}')" class="px-6 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">
                             Cancelar
                         </button>
-                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold text-sm">
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">
                             Guardar Cambios
                         </button>
                     </div>
@@ -489,7 +489,7 @@
 @endforeach
 
 {{-- MODAL CREAR PROVEEDOR --}}
-<div id="create-supplier-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+<div id="create-supplier-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
     <div class="bg-white rounded-3xl p-6 max-w-4xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b pb-4 mb-6">
             <div>
@@ -619,7 +619,7 @@
                             <button type="button" 
                                     @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
                                     @click.away="open = false"
-                                    class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-100 focus:outline-none focus:border-[#005e66] transition-all">
+                                    class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-100 focus:outline-hidden focus:border-[#005e66] transition-all">
                                 <span x-text="selected || 'Seleccionar país'" :class="!selected ? 'text-slate-400 dark:text-slate-500' : ''"></span>
                                 <svg class="w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -633,7 +633,7 @@
                                 x-transition:leave="transition ease-in duration-100"
                                 x-transition:leave-start="opacity-100 scale-100"
                                 x-transition:leave-end="opacity-0 scale-95"
-                                class="absolute z-[100] left-0 right-0 top-full mt-1.5 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden"
+                                class="absolute z-100 left-0 right-0 top-full mt-1.5 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden"
                                 style="display: none; max-height: 230px;">
 
                                 <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60">
@@ -641,7 +641,7 @@
                                         x-ref="searchInput"
                                         x-model="search" 
                                         placeholder="Buscar país..." 
-                                        class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-none focus:border-[#005e66] bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-100 placeholder-slate-400">
+                                        class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-hidden focus:border-[#005e66] bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-100 placeholder-slate-400">
                                 </div>
 
                                 <div style="max-height: 180px; overflow-y: auto;" class="p-2 pb-4 space-y-1 custom-scrollbar">
@@ -650,7 +650,7 @@
                                                 @click="selectCountry(c)"
                                                 style="padding-left: 1.25rem; padding-right: 1rem; padding-top: 0.6rem; padding-bottom: 0.6rem;"
                                                 class="w-full text-left px-5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-between"
-                                                :class="selected === c ? 'bg-[#005e66]/15 text-[#005e66] dark:bg-teal-500/20 dark:text-teal-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
+                                                :class="selected === c ? 'bg-customTeal-800/15 text-[#005e66] dark:bg-teal-500/20 dark:text-teal-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
                                             <span x-text="c" class="truncate pr-2"></span>
                                             <svg x-show="selected === c" class="w-4 h-4 text-[#005e66] dark:text-teal-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
@@ -681,7 +681,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                             <label for="create_supplier_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                            <select name="id_department" id="create_supplier_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                            <select name="id_department" id="create_supplier_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                 <option value="">Seleccione departamento</option>
                                 @foreach($departments as $dept)
                                     <option value="{{ $dept->id_department }}" {{ old('id_department') == $dept->id_department ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -690,7 +690,7 @@
                         </div>
                         <div>
                             <label for="create_supplier_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                            <select name="id_municipality" id="create_supplier_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                            <select name="id_municipality" id="create_supplier_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                 <option value="">Seleccione municipio</option>
                                 @foreach($municipalities as $muni)
                                     <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}" {{ old('id_municipality') == $muni->id_municipality ? 'selected' : '' }}>{{ $muni->name }}</option>
@@ -699,7 +699,7 @@
                         </div>
                         <div>
                             <label for="create_supplier_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                            <select name="id_district" id="create_supplier_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 font-semibold">
+                            <select name="id_district" id="create_supplier_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                 <option value="">Seleccione distrito</option>
                                 @foreach($districts as $dist)
                                     <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}" {{ old('id_district') == $dist->id_district ? 'selected' : '' }}>{{ $dist->name }}</option>
@@ -725,7 +725,7 @@
                     <button
                         type="button"
                         onclick="addModalContactRow()"
-                        class="px-3 py-1.5 bg-[#005e66] hover:bg-[#3cb0a4] text-white rounded-lg text-xs font-bold transition-all">
+                        class="px-3 py-1.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-lg text-xs font-bold transition-all">
                         + Agregar Contacto
                     </button>
                 </div>
@@ -762,7 +762,7 @@
                 <button type="button" onclick="closeModal('create-supplier-modal')" class="px-6 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#3cb0a4] text-white font-bold text-sm">
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">
                     Guardar Proveedor
                 </button>
             </div>

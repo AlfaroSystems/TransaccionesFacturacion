@@ -15,7 +15,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Gestione las solicitudes de cotización vinculadas a las solicitudes de compra aprobadas.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
-            <button type="button" onclick="openQuotationRequestModal()" class="w-full md:w-auto bg-[#005e66] hover:bg-[#00474f] text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
+            <button type="button" onclick="openQuotationRequestModal()" class="w-full md:w-auto bg-customTeal-800 hover:bg-navy-800 text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                 <span>Nueva Solicitud de Cotización</span>
             </button>
@@ -24,7 +24,7 @@
 
     <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-4">
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-[#005e66] dark:text-teal-300 flex items-center justify-center text-xl font-bold">
                 📨
             </div>
@@ -36,15 +36,15 @@
     </div>
 
     <!-- Filtros y Búsqueda -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-4">
         <form method="GET" action="{{ route('purchase-quotation-requests.index') }}" class="flex gap-3 items-center">
             <div class="flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por código o justificación de solicitud de compra..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-none">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por código o justificación de solicitud de compra..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-hidden">
             </div>
-            <button type="submit" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-2.5 px-5 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-1.5">
+            <button type="submit" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-2.5 px-5 rounded-xl text-sm transition-all shadow-xs flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                 <span>Filtrar</span>
             </button>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Listado Principal -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
                 <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
@@ -115,7 +115,7 @@
                                         {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización para una solicitud de compra aprobada.' }}
                                     </p>
                                     <div class="pt-2">
-                                        <button type="button" onclick="openQuotationRequestModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white font-bold text-sm shadow-md transition-all">
+                                        <button type="button" onclick="openQuotationRequestModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm shadow-md transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                             <span>Nueva Solicitud de Cotización</span>
                                         </button>
@@ -137,7 +137,7 @@
 </div>
 
 {{-- MODAL CREAR SOLICITUD DE COTIZACIÓN --}}
-<div id="quotation-request-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4">
+<div id="quotation-request-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
     <div id="quotation-request-card" class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
             <div>
@@ -156,7 +156,7 @@
                     <label for="modal_id_purchase_request" class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Solicitud de Compra Aprobada <span class="text-rose-500">*</span>
                     </label>
-                    <select id="modal_id_purchase_request" name="id_purchase_request" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:ring-2 focus:ring-[#005e66] outline-none transition-all">
+                    <select id="modal_id_purchase_request" name="id_purchase_request" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:ring-2 focus:ring-[#005e66] outline-hidden transition-all">
                         <option value="">-- Cargar solicitudes aprobadas... --</option>
                     </select>
                 </div>
@@ -206,7 +206,7 @@
                 <button type="button" onclick="closeQuotationRequestModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     <span>Guardar Solicitud</span>
                 </button>
@@ -364,11 +364,11 @@ function loadModalRequestItems(purchaseRequestId) {
                     <input type="hidden" name="items[${idx}][id_purchase_request_detail]" value="${detail.id_purchase_request_detail}">
                 </td>
                 <td class="py-2.5 px-3">
-                    <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">${unitName}</span>
+                    <span class="px-2 py-0.5 rounded-sm bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">${unitName}</span>
                 </td>
                 <td class="py-2.5 px-3 text-center font-bold font-mono">${originalQty}</td>
                 <td class="py-2.5 px-3 text-center">
-                    <input type="number" step="0.0001" min="0.0001" name="items[${idx}][quantity]" value="${originalQty}" required class="w-24 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-none">
+                    <input type="number" step="0.0001" min="0.0001" name="items[${idx}][quantity]" value="${originalQty}" required class="w-24 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                 </td>
             `;
             tbody.appendChild(tr);

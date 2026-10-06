@@ -10,7 +10,7 @@
         </div>
 
         @can('categories.crear')
-        <button type="button" onclick="openModal('create-category-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+        <button type="button" onclick="openModal('create-category-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
@@ -20,19 +20,19 @@
     </header>
 
     <!-- Barra de Búsqueda -->
-    <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/80 card-shadow mb-8 transition-colors duration-300">
+    <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/80 card-shadow transition-colors duration-300">
         <form method="GET" action="{{ route('categories.index') }}" class="w-full flex flex-col sm:flex-row gap-4 items-center">
             <div class="flex-1 w-full">
                 <label for="search-categories" class="block text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">Buscar Categoría</label>
                 <div class="relative">
-                    <input type="text" name="search" id="search-categories" value="{{ request('search') }}" placeholder="Buscar por nombre o descripción..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 pl-10 text-sm focus:outline-none focus:border-[#005e66] dark:focus:border-sky-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
+                    <input type="text" name="search" id="search-categories" value="{{ request('search') }}" placeholder="Buscar por nombre o descripción..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 pl-10 text-sm focus:outline-hidden focus:border-[#005e66] dark:focus:border-sky-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
                     <div class="absolute left-3.5 top-3.5 text-slate-400 dark:text-slate-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
                 </div>
             </div>
             <div class="flex items-end gap-2 self-end sm:self-auto pt-6">
-                <button type="submit" class="px-5 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-xl font-bold text-sm shadow-sm transition-all">
+                <button type="submit" class="px-5 py-2.5 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-xl font-bold text-sm shadow-xs transition-all">
                     Filtrar
                 </button>
                 @if(request('search'))
@@ -58,7 +58,7 @@
             </thead>
             <tbody id="categories-table-body">
                 @forelse($categories as $category)
-                    <tr class="table-row-item group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$category->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
+                    <tr class="table-row-item group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$category->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-l-2xl border-l border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-400 dark:text-slate-400 font-bold transition-colors duration-300">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-900/40 flex items-center justify-center text-[#005e66] dark:text-teal-400 font-bold">
@@ -113,7 +113,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-sm transition-colors duration-300">
+                        <td colspan="5" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-xs transition-colors duration-300">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2zM9 16h6M9 12h6" />
@@ -129,7 +129,7 @@
 </div>
 
 <!-- MODAL DE REGISTRO DE CATEGORÍA -->
-<div id="create-category-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm transition-all duration-200">
+<div id="create-category-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Botón cerrar -->
         <button type="button" onclick="closeModal('create-category-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -137,7 +137,7 @@
         </button>
 
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-[#005e66] dark:bg-sky-600 flex items-center justify-center text-white">
+            <div class="w-12 h-12 rounded-2xl bg-customTeal-800 dark:bg-sky-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -155,7 +155,7 @@
             <!-- Nombre -->
             <div>
                 <label for="create-name" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Nombre de la Categoría *</label>
-                <input type="text" name="name" id="create-name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Electrónica, Alimentos, Repuestos..." class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required max="100">
+                <input type="text" name="name" id="create-name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Electrónica, Alimentos, Repuestos..." class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required max="100">
                 @error('name')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -166,12 +166,12 @@
             <!-- Descripción -->
             <div>
                 <label for="create-description" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Descripción</label>
-                <textarea name="description" id="create-description" rows="3" placeholder="Descripción opcional de la categoría..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#005e66] dark:focus:border-sky-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">{{ old('modal_type') === 'create' ? old('description') : '' }}</textarea>
+                <textarea name="description" id="create-description" rows="3" placeholder="Descripción opcional de la categoría..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] dark:focus:border-sky-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">{{ old('modal_type') === 'create' ? old('description') : '' }}</textarea>
             </div>
 
             <!-- Estado -->
             <div class="flex items-center gap-3 pt-2">
-                <input type="checkbox" name="is_active" id="create-is_active" value="1" checked class="w-4 h-4 rounded border-slate-300 text-[#005e66] focus:ring-[#005e66]">
+                <input type="checkbox" name="is_active" id="create-is_active" value="1" checked class="w-4 h-4 rounded-sm border-slate-300 text-[#005e66] focus:ring-[#005e66]">
                 <label for="create-is_active" class="text-sm font-semibold text-slate-700 dark:text-slate-300">Activa inmediatamente</label>
             </div>
 
@@ -180,7 +180,7 @@
                 <button type="button" onclick="closeModal('create-category-modal')" class="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Guardar Categoría
                 </button>
@@ -190,7 +190,7 @@
 </div>
 
 <!-- MODAL DE EDICIÓN DE CATEGORÍA -->
-<div id="edit-category-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm transition-all duration-200">
+<div id="edit-category-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Botón cerrar -->
         <button type="button" onclick="closeModal('edit-category-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -198,7 +198,7 @@
         </button>
 
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-[#005e66] dark:bg-sky-600 flex items-center justify-center text-white">
+            <div class="w-12 h-12 rounded-2xl bg-customTeal-800 dark:bg-sky-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
@@ -218,7 +218,7 @@
             <!-- Nombre -->
             <div>
                 <label for="edit-name" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Nombre de la Categoría *</label>
-                <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Electrónica, Alimentos, Repuestos..." class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required max="100">
+                <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Electrónica, Alimentos, Repuestos..." class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required max="100">
                 @error('name')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -229,12 +229,12 @@
             <!-- Descripción -->
             <div>
                 <label for="edit-description" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Descripción</label>
-                <textarea name="description" id="edit-description" rows="3" placeholder="Descripción opcional..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">{{ old('modal_type') === 'edit' ? old('description') : '' }}</textarea>
+                <textarea name="description" id="edit-description" rows="3" placeholder="Descripción opcional..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">{{ old('modal_type') === 'edit' ? old('description') : '' }}</textarea>
             </div>
 
             <!-- Estado -->
             <div class="flex items-center gap-3 pt-2">
-                <input type="checkbox" name="is_active" id="edit-is_active" value="1" class="w-4 h-4 rounded border-slate-300 text-[#005e66] focus:ring-[#005e66]">
+                <input type="checkbox" name="is_active" id="edit-is_active" value="1" class="w-4 h-4 rounded-sm border-slate-300 text-[#005e66] focus:ring-[#005e66]">
                 <label for="edit-is_active" class="text-sm font-semibold text-slate-700 dark:text-slate-300">Categoría Activa</label>
             </div>
 
@@ -243,7 +243,7 @@
                 <button type="button" onclick="closeModal('edit-category-modal')" class="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Guardar Cambios
                 </button>

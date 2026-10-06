@@ -34,7 +34,7 @@
             </p>
         </div>
         @can('purchases.crear')
-            <button type="button" onclick="openCreatePurchaseModal()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5 cursor-pointer">
+            <button type="button" onclick="openCreatePurchaseModal()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5 cursor-pointer">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -44,21 +44,21 @@
     </div>
 
     @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-sm flex items-center gap-2">
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-xs flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             <span>{{ session('success') }}</span>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-sm flex items-center gap-2">
+        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-xs flex items-center gap-2">
             <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             <span>{{ session('error') }}</span>
         </div>
     @endif
 
     @if($errors->any())
-        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-sm">
+        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
             <div class="flex items-center gap-2 font-bold text-sm text-rose-800 dark:text-rose-200">
                 <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Por favor revise los errores encontrados:</span>
@@ -73,7 +73,7 @@
 
     <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Compras</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $totalCount }}</p>
@@ -82,7 +82,7 @@
                 🧾
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Borradores</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $draftCount }}</p>
@@ -91,7 +91,7 @@
                 ✎
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Recibidas / Completadas</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $completedCount }}</p>
@@ -100,7 +100,7 @@
                 ✓
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Monto Total</p>
                 <p class="text-2xl font-extrabold text-[#005e66] dark:text-teal-400 mt-1">${{ number_format($totalAmount, 2) }}</p>
@@ -112,7 +112,7 @@
     </div>
 
     <!-- Barra de Búsqueda y Filtros -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
+    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-xs">
         <form method="GET" action="{{ route('purchases.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="md:col-span-2">
                 <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Buscar</label>
@@ -140,7 +140,7 @@
                 </select>
             </div>
             <div class="flex items-end gap-2">
-                <button type="submit" class="w-full bg-[#005e66] hover:bg-[#00474f] text-white font-bold py-2 px-4 rounded-xl text-sm transition-all shadow-sm">
+                <button type="submit" class="w-full bg-customTeal-800 hover:bg-navy-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition-all shadow-xs">
                     Filtrar
                 </button>
                 @if(request()->hasAny(['search', 'id_supplier', 'status', 'date_from', 'date_to']))
@@ -153,7 +153,7 @@
     </div>
 
     <!-- Tabla de Compras -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
@@ -261,7 +261,7 @@
 <!-- ========================================== -->
 <!-- MODAL DE CREACIÓN / EDICIÓN DE COMPRA      -->
 <!-- ========================================== -->
-<div id="purchaseModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+<div id="purchaseModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto transform transition-all animate-scale-up">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/80">
@@ -294,7 +294,7 @@
                         </label>
                         <span class="text-[11px] text-indigo-600 dark:text-indigo-400">Solo órdenes emitidas o recibidas parciales</span>
                     </div>
-                    <select id="modalOrderSelect" class="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-none">
+                    <select id="modalOrderSelect" class="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden">
                         <option value="">-- Seleccione una orden de compra aprobada --</option>
                         @foreach($orders as $ord)
                             <option value="{{ $ord->id_purchase_order }}">
@@ -435,7 +435,7 @@
                 <button type="button" onclick="closePurchaseModal()" class="px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Cancelar
                 </button>
-                <button type="submit" id="btnSubmitPurchaseModal" class="px-6 py-2 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white font-bold text-xs shadow-md transition-all">
+                <button type="submit" id="btnSubmitPurchaseModal" class="px-6 py-2 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-xs shadow-md transition-all">
                     Guardar Compra
                 </button>
             </div>
@@ -446,7 +446,7 @@
 <!-- ========================================== -->
 <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN       -->
 <!-- ========================================== -->
-<div id="deletePurchaseModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+<div id="deletePurchaseModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl max-w-md w-full p-6 text-center animate-scale-up">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 flex items-center justify-center text-2xl mb-4">
             ⚠️

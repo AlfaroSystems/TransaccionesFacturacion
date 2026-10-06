@@ -87,7 +87,7 @@
                 </a>
             @endcan
 
-            <a href="{{ route('purchases.pdf', $purchase->id_purchase) }}" target="_blank" class="px-5 py-2.5 rounded-full bg-[#005e66] hover:bg-[#00474f] text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md" title="Descargar / Imprimir Factura Oficial">
+            <a href="{{ route('purchases.pdf', $purchase->id_purchase) }}" target="_blank" class="px-5 py-2.5 rounded-full bg-customTeal-800 hover:bg-navy-800 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md" title="Descargar / Imprimir Factura Oficial">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>Imprimir PDF</span>
             </a>
@@ -100,7 +100,7 @@
     </div>
 
     @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-sm flex items-center gap-2">
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-xs flex items-center gap-2">
             <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             <span>{{ session('success') }}</span>
         </div>
@@ -109,7 +109,7 @@
     <!-- Tarjetas de Información General -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Tarjeta Factura y Recepción -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-5 space-y-3">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
             <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">🧾</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Datos de Factura</h3>
@@ -135,7 +135,7 @@
         </div>
 
         <!-- Tarjeta Proveedor -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-5 space-y-3">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
             <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">🏢</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Proveedor</h3>
@@ -157,7 +157,7 @@
         </div>
 
         <!-- Tarjeta Orden de Compra y Destino -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-5 space-y-3">
+        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
             <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">📦</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Orden y Destino</h3>
@@ -186,7 +186,7 @@
     </div>
 
     <!-- Tabla de Productos de la Compra -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-6 space-y-4">
+    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
             <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <span>📋 Productos Recibidos</span>
@@ -282,7 +282,7 @@
 </div>
 
 <!-- Modal de Cambio de Estado -->
-<div id="statusModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm transition-all duration-200">
+<div id="statusModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center relative mx-4">
         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="statusModalTitle">¿Cambiar Estado?</h3>
         <p class="text-slate-500 dark:text-slate-400 text-xs mb-6" id="statusModalDesc"></p>
@@ -292,7 +292,7 @@
             <input type="hidden" name="status" id="statusModalInput" value="">
             <div class="flex justify-center gap-3">
                 <button type="button" onclick="closeStatusModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs transition-all">Cancelar</button>
-                <button type="submit" id="statusModalBtn" class="px-5 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white font-semibold rounded-xl text-xs transition-all shadow-sm">Confirmar</button>
+                <button type="submit" id="statusModalBtn" class="px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-semibold rounded-xl text-xs transition-all shadow-xs">Confirmar</button>
             </div>
         </form>
     </div>

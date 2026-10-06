@@ -22,7 +22,7 @@
                 {{ $isEdit ? 'Modifique los campos requeridos y guarde los cambios.' : 'Registre una nueva orden de compra o importe una cotización aprobada.' }}
             </p>
         </div>
-        <a href="{{ $isEdit ? route('purchase_orders.show', $purchase_order->id_purchase_order) : route('purchase_orders.index') }}" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm">
+        <a href="{{ $isEdit ? route('purchase_orders.show', $purchase_order->id_purchase_order) : route('purchase_orders.index') }}" class="px-5 py-2.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-xs">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             <span>Cancelar y Volver</span>
         </a>
@@ -30,7 +30,7 @@
 
     <!-- Alert de Errores de Validación -->
     @if ($errors->any())
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-sm">
+        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
             <div class="flex items-center gap-2 font-bold text-sm text-rose-800">
                 <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span>Por favor corrija los errores en el formulario:</span>
@@ -51,7 +51,7 @@
 
         {{-- Importar Cotización (Solo en Crear) --}}
         @if(!$isEdit)
-            <div class="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-5 space-y-3 shadow-sm">
+            <div class="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-5 space-y-3 shadow-xs">
                 <div>
                     <h3 class="font-extrabold text-indigo-900 text-xs uppercase tracking-wider flex items-center gap-2">
                         <span>⚡ Importar Cotización Aprobada</span>
@@ -61,7 +61,7 @@
                     </p>
                 </div>
                 <div class="w-full">
-                    <select id="quotationSelect" name="id_purchase_quotation" class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 bg-white text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+                    <select id="quotationSelect" name="id_purchase_quotation" class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 bg-white text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-hidden shadow-xs">
                         <option value="">-- Seleccionar cotización aprobada --</option>
                         @php $qList = $quotations ?? $purchase_quotations ?? []; @endphp
                         @foreach($qList as $quotation)
@@ -75,7 +75,7 @@
         @endif
 
         <!-- Datos de Encabezado -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-5">
             <h3 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
                 <span>📋 Datos Principales de la Orden</span>
             </h3>
@@ -155,13 +155,13 @@
         </div>
 
         <!-- Tabla de Productos -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Productos de la Orden</h3>
                     <p class="text-xs text-slate-400">Especifique los artículos, cantidades y precios acordados.</p>
                 </div>
-                <button type="button" onclick="agregarProducto()" class="px-4 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                <button type="button" onclick="agregarProducto()" class="px-4 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     <span>Agregar Producto</span>
                 </button>
@@ -189,13 +189,13 @@
         </div>
 
         <!-- Tabla de Gastos Adicionales -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Gastos Adicionales (Opcional)</h3>
                     <p class="text-xs text-slate-400">Registre fletes, seguros o aranceles asociados.</p>
                 </div>
-                <button type="button" onclick="agregarGasto()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                <button type="button" onclick="agregarGasto()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     <span>Agregar Gasto</span>
                 </button>
@@ -221,7 +221,7 @@
         <!-- Resumen de Totales y Botones de Envío -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <div class="lg:col-span-2"></div>
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3 text-sm">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-3 text-sm">
                 <h4 class="font-extrabold text-slate-800 text-sm border-b border-slate-100 pb-2">Resumen Financiero</h4>
                 <div class="flex justify-between text-slate-600">
                     <span>Subtotal:</span>
@@ -245,7 +245,7 @@
                 </div>
 
                 <div class="pt-4 flex flex-col gap-2">
-                    <button type="submit" class="w-full py-3 bg-[#005e66] hover:bg-[#00474f] text-white font-extrabold text-sm rounded-xl shadow-lg transition-all transform active:scale-98 flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full py-3 bg-customTeal-800 hover:bg-navy-800 text-white font-extrabold text-sm rounded-xl shadow-lg transition-all transform active:scale-98 flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         <span>{{ $isEdit ? 'Guardar Cambios' : 'Guardar Orden de Compra' }}</span>
                     </button>

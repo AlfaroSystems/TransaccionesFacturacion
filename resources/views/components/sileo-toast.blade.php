@@ -18,10 +18,10 @@
         >
             <div class="flex items-start gap-3.5">
                 <!-- Icono de Estado -->
-                <div class="flex-shrink-0 mt-0.5">
+                <div class="shrink-0 mt-0.5">
                     <!-- Éxito -->
                     <template x-if="toast.type === 'success'">
-                        <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800 flex items-center justify-center shadow-sm">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800 flex items-center justify-center shadow-xs">
                             <svg class="w-4 h-4 stroke-current text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
@@ -29,7 +29,7 @@
                     </template>
                     <!-- Error -->
                     <template x-if="toast.type === 'error'">
-                        <div class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800 flex items-center justify-center shadow-sm">
+                        <div class="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800 flex items-center justify-center shadow-xs">
                             <svg class="w-4 h-4 stroke-current text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -37,7 +37,7 @@
                     </template>
                     <!-- Info -->
                     <template x-if="toast.type === 'info'">
-                        <div class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200/80 dark:border-sky-800 flex items-center justify-center shadow-sm">
+                        <div class="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200/80 dark:border-sky-800 flex items-center justify-center shadow-xs">
                             <svg class="w-4 h-4 stroke-current text-sky-600 dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                             </svg>
@@ -45,7 +45,7 @@
                     </template>
                     <!-- Advertencia -->
                     <template x-if="toast.type === 'warning'">
-                        <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800 flex items-center justify-center shadow-sm">
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800 flex items-center justify-center shadow-xs">
                             <svg class="w-4 h-4 stroke-current text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                             </svg>

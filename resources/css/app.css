@@ -1,26 +1,113 @@
-@import "./custom-theme.css";
-@import "./dark-mode.css";
-@import "./components/theme-toggle.css";
-@import "./components/auth.css";
+/*
+  El CSS propio va sin capa (@layer), igual que en Tailwind 3: así sus reglas !important
+  y las del <style> de layouts/app.blade.php se siguen resolviendo por especificidad y
+  orden. Dentro de una capa, una regla !important ganaría a cualquiera sin capa.
+*/
+@import './custom-theme.css';
+@import './dark-mode.css';
+@import './components/theme-toggle.css';
+@import './components/auth.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Solo se buscan clases en las vistas y el JS (como en Tailwind 3), no en todo el proyecto */
+@import 'tailwindcss' source(none);
+@import './tailwind3-colors.css';
+
+@plugin '@tailwindcss/forms';
+
+@source '../views';
+@source '../js';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    Nunito, Figtree, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --color-customTeal-50: #edf9f6;
+  --color-customTeal-100: #d4eedc;
+  --color-customTeal-400: #4ebbb0;
+  --color-customTeal-500: #3cb0a4;
+  --color-customTeal-600: #349b90;
+  --color-customTeal-700: #2b7f76;
+  --color-customTeal-800: #005e66;
+
+  --color-navy-800: #00474f;
+  --color-navy-sidebar: #005e66;
+  --color-navy-active: #3cb0a4;
+
+  --color-darkBg-base: #0b1120;
+  --color-darkBg-sidebar: #0f172a;
+  --color-darkBg-card: #1e293b;
+  --color-darkBg-input: #0f172a;
+  --color-darkBg-border: #334155;
+  --color-darkBg-hover: #334155;
+
+  /*
+    Interlineado de Tailwind 3: medida fija (rem) en lugar de proporción. Con proporción,
+    un hijo con otro tamaño de letra (p. ej. text-[10px]) hereda un interlineado distinto.
+  */
+  --text-xs--line-height: 1rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+}
+
+/*
+  Compatibilidad con Tailwind 3:
+  - El color de borde por defecto pasó a ser `currentcolor`; se mantiene el gris 200.
+  - Los botones pasaron a usar el cursor por defecto; se mantiene la mano (pointer).
+  - El reinicio de estilos ahora quita el padding que el navegador da a celdas y opciones.
+  - Las utilidades ganan siempre a los estilos base del plugin de formularios; en v3, un
+    checkbox o radio marcado quitaba su borde y tomaba el color de texto aunque tuviera
+    border-* o bg-* (se usa :where para que las variantes como dark: sigan ganando).
+  Para quitar estas reglas, cada elemento que dependa de ellas necesita su propia clase.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  td,
+  th {
+    padding: 1px;
+  }
+
+  option {
+    padding: 0 2px 1px;
+  }
+}
 
 @layer utilities {
-    /* Sidebar en Claro y Oscuro */
-    .bg-navy-sidebar {
-        background-color: #005e66;
-    }
-    .dark .bg-navy-sidebar {
-        background-color: #0b1120 !important; /* Sidebar carbón oscuro */
-        border-right: 1px solid #1e293b;
-    }
+  [type='checkbox']:where(:checked),
+  [type='radio']:where(:checked) {
+    border-color: transparent;
+    background-color: currentColor;
+  }
+}
 
-    .bg-navy-active {
-        background-color: #3cb0a4;
-    }
-    .dark .bg-navy-active {
-        background-color: #0284c7 !important; /* Azul sutil para enlaces activos */
-    }
+/*
+  Sidebar en modo oscuro (bg-navy-sidebar y bg-navy-active salen de los colores del @theme).
+  Va sin capa, como en v3, para que el <style> de layouts/app.blade.php la pueda sobrescribir.
+*/
+.dark .bg-navy-sidebar {
+  background-color: #0b1120 !important; /* Sidebar carbón oscuro */
+  border-right: 1px solid #1e293b;
+}
+
+.dark .bg-navy-active {
+  background-color: #0284c7 !important; /* Azul sutil para enlaces activos */
 }

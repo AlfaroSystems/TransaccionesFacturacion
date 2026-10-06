@@ -17,9 +17,9 @@
     <!-- Rejilla de Ubicaciones en Bodega -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         @forelse($locations as $location)
-            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all">
+            <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-xs hover:shadow-md transition-all">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#005e66] text-white">
+                    <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-customTeal-800 text-white">
                         {{ $location->code }}
                     </span>
                     <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">

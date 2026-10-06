@@ -10,7 +10,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold mt-1">Administra y registra las sucursales, sucursales físicas y asignación de empresas.</p>
         </div>
         @can('branches.crear')
-        <button type="button" onclick="openModal('create-branch-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+        <button type="button" onclick="openModal('create-branch-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
@@ -34,7 +34,7 @@
             </thead>
             <tbody>
                 @forelse($branches as $branch)
-                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$branch->is_active ? 'opacity-50 grayscale-[35%]' : '' }}">
+                    <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$branch->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-l-2xl border-l border-y border-slate-100 dark:border-slate-700/80 text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-300">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/60">
@@ -51,7 +51,7 @@
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
                             <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $branch->addres }}">{{ $branch->addres }}</span>
                             @if($branch->department || $branch->municipality || $branch->district)
-                                <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded mt-1 inline-block">
+                                <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-sm mt-1 inline-block">
                                     {{ $branch->department?->name }} / {{ $branch->municipality?->name }} / {{ $branch->district?->name }}
                                 </span>
                             @endif
@@ -97,7 +97,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-sm transition-colors duration-300">
+                        <td colspan="7" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-xs transition-colors duration-300">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -113,7 +113,7 @@
 </div>
 
 <!-- MODAL DE REGISTRO DE SUCURSAL -->
-<div id="create-branch-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm transition-all duration-200">
+<div id="create-branch-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl p-8 max-w-3xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-branch-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -139,7 +139,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="id_company" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Empresa <span class="text-rose-500">*</span></label>
-                    <select name="id_company" id="id_company" class="w-full bg-slate-50 dark:bg-slate-900 border @error('id_company') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
+                    <select name="id_company" id="id_company" class="w-full bg-slate-50 dark:bg-slate-900 border @error('id_company') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
                         <option value="">Seleccione una empresa</option>
                         @foreach($companies as $company)
                             <option value="{{ $company->id_company }}" {{ (old('modal_type') === 'create' && old('id_company') == $company->id_company) ? 'selected' : '' }}>
@@ -156,7 +156,7 @@
 
                 <div>
                     <label for="name" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Nombre de la Sucursal <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Sucursal Central, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>
+                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Sucursal Central, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -169,7 +169,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="phone" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Teléfono</label>
-                    <input type="text" name="phone" id="phone" value="{{ old('modal_type') === 'create' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 dark:bg-slate-900 border @error('phone') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
+                    <input type="text" name="phone" id="phone" value="{{ old('modal_type') === 'create' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 dark:bg-slate-900 border @error('phone') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
                     @error('phone')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -178,7 +178,7 @@
                 </div>
                 <div>
                     <label for="email" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Correo electrónico</label>
-                    <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="Ej. sucursal@empresa.com" class="w-full bg-slate-50 dark:bg-slate-900 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
+                    <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="Ej. sucursal@empresa.com" class="w-full bg-slate-50 dark:bg-slate-900 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
                     @error('email')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -193,7 +193,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label for="create_id_department" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="id_department" id="create_id_department" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <select name="id_department" id="create_id_department" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id_department }}" {{ old('id_department') == $dept->id_department ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -202,7 +202,7 @@
                     </div>
                     <div>
                         <label for="create_id_municipality" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="id_municipality" id="create_id_municipality" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <select name="id_municipality" id="create_id_municipality" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
                                 <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}" {{ old('id_municipality') == $muni->id_municipality ? 'selected' : '' }}>{{ $muni->name }}</option>
@@ -211,7 +211,7 @@
                     </div>
                     <div>
                         <label for="create_id_district" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="id_district" id="create_id_district" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <select name="id_district" id="create_id_district" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
                                 <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}" {{ old('id_district') == $dist->id_district ? 'selected' : '' }}>{{ $dist->name }}</option>
@@ -225,7 +225,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="addres" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
-                    <textarea name="addres" id="addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'create' ? old('addres') : '' }}</textarea>
+                    <textarea name="addres" id="addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'create' ? old('addres') : '' }}</textarea>
                     @error('addres')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -239,7 +239,7 @@
                 <button type="button" onclick="closeModal('create-branch-modal')" class="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Guardar Sucursal
                 </button>
@@ -249,7 +249,7 @@
 </div>
 
 <!-- MODAL DE EDICIÓN DE SUCURSAL -->
-<div id="edit-branch-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm transition-all duration-200">
+<div id="edit-branch-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs transition-all duration-200">
     <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl p-8 max-w-3xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-branch-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
@@ -257,7 +257,7 @@
         </button>
 
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-[#005e66] dark:bg-sky-600 flex items-center justify-center text-white">
+            <div class="w-12 h-12 rounded-2xl bg-customTeal-800 dark:bg-sky-600 flex items-center justify-center text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
@@ -278,7 +278,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="edit-id_company" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Empresa <span class="text-rose-500">*</span></label>
-                    <select name="id_company" id="edit-id_company" class="w-full bg-slate-50 dark:bg-slate-900 border @error('id_company') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
+                    <select name="id_company" id="edit-id_company" class="w-full bg-slate-50 dark:bg-slate-900 border @error('id_company') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 font-semibold" required>
                         <option value="">Seleccione una empresa</option>
                         @foreach($companies as $company)
                             <option value="{{ $company->id_company }}">
@@ -295,7 +295,7 @@
 
                 <div>
                     <label for="edit-name" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Nombre de la Sucursal <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Sucursal Central, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>
+                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Sucursal Central, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -308,7 +308,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="edit-phone" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Teléfono</label>
-                    <input type="text" name="phone" id="edit-phone" value="{{ old('modal_type') === 'edit' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 dark:bg-slate-900 border @error('phone') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
+                    <input type="text" name="phone" id="edit-phone" value="{{ old('modal_type') === 'edit' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 dark:bg-slate-900 border @error('phone') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
                     @error('phone')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -318,7 +318,7 @@
 
                 <div>
                     <label for="edit-email" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Correo electrónico</label>
-                    <input type="email" name="email" id="edit-email" value="{{ old('modal_type') === 'edit' ? old('email') : '' }}" placeholder="Ej. sucursal@empresa.com" class="w-full bg-slate-50 dark:bg-slate-900 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
+                    <input type="email" name="email" id="edit-email" value="{{ old('modal_type') === 'edit' ? old('email') : '' }}" placeholder="Ej. sucursal@empresa.com" class="w-full bg-slate-50 dark:bg-slate-900 border @error('email') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold">
                     @error('email')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -333,7 +333,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label for="edit_id_department" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="id_department" id="edit_id_department" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <select name="id_department" id="edit_id_department" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id_department }}">{{ $dept->name }}</option>
@@ -342,7 +342,7 @@
                     </div>
                     <div>
                         <label for="edit_id_municipality" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="id_municipality" id="edit_id_municipality" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <select name="id_municipality" id="edit_id_municipality" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
                                 <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}">{{ $muni->name }}</option>
@@ -351,7 +351,7 @@
                     </div>
                     <div>
                         <label for="edit_id_district" class="block text-[10px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="id_district" id="edit_id_district" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-none text-slate-700 dark:text-slate-100 font-semibold">
+                        <select name="id_district" id="edit_id_district" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 dark:text-slate-100 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
                                 <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}">{{ $dist->name }}</option>
@@ -365,7 +365,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="edit-addres" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
-                    <textarea name="addres" id="edit-addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'edit' ? old('addres') : '' }}</textarea>
+                    <textarea name="addres" id="edit-addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'edit' ? old('addres') : '' }}</textarea>
                     @error('addres')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -380,7 +380,7 @@
                 <label class="flex items-center gap-3 cursor-pointer">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" id="edit-is_active" value="1" class="sr-only peer">
-                    <div class="relative w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    <div class="relative w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:rtl:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:inset-s-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                     <span class="text-sm font-semibold text-slate-600 dark:text-slate-300" id="edit-is_active_label">Sucursal Activa</span>
                 </label>
             </div>
@@ -390,7 +390,7 @@
                 <button type="button" onclick="closeModal('edit-branch-modal')" class="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-[#005e66] dark:bg-sky-600 hover:bg-[#3cb0a4] dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                     Guardar Cambios
                 </button>

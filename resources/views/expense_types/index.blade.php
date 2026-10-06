@@ -20,7 +20,7 @@
             <button
                 type="button"
                 onclick="openExpenseTypeModal('create')"
-                class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-sm font-bold shadow-sm transition-all"
+                class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-sm font-bold shadow-xs transition-all"
             >
                 <svg
                     class="w-5 h-5"
@@ -193,7 +193,7 @@
 {{-- ========================================================= --}}
 {{-- MODAL CREAR / EDITAR --}}
 {{-- ========================================================= --}}
-<div id="expense-type-form-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4">
+<div id="expense-type-form-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
     <div id="expense-type-form-card" class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200">
         {{-- CABECERA --}}
         <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 dark:border-slate-700">
@@ -256,7 +256,7 @@
                         name="name"
                         required
                         maxlength="150"
-                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-[#005e66] outline-none"
+                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-[#005e66] outline-hidden"
                         placeholder="Ej. Gastos de envío"
                     >
                 </div>
@@ -274,7 +274,7 @@
                         rows="4"
                         maxlength="1000"
                         required
-                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-[#005e66] outline-none resize-none"
+                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-[#005e66] outline-hidden resize-none"
                         placeholder="Describe el tipo de gasto..."
                     ></textarea>
                 </div>
@@ -292,7 +292,7 @@
                             name="is_active"
                             value="1"
                             checked
-                            class="w-4 h-4 rounded border-slate-300 text-[#005e66] focus:ring-[#005e66]"
+                            class="w-4 h-4 rounded-sm border-slate-300 text-[#005e66] focus:ring-[#005e66]"
                         >
                         <span class="text-sm font-bold text-slate-700 dark:text-slate-200">
                             Tipo de gasto activo
@@ -313,7 +313,7 @@
                 <button
                     type="submit"
                     id="expense-type-submit-btn"
-                    class="px-5 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-sm font-bold transition-all"
+                    class="px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-sm font-bold transition-all"
                 >
                     Guardar
                 </button>
@@ -323,7 +323,7 @@
 </div>
 
 {{-- MODAL INACTIVAR / REACTIVAR --}}
-<div id="expense-type-status-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4">
+<div id="expense-type-status-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
     <div id="expense-type-status-card" class="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200">
         <div class="p-6 text-center">
             {{-- ICONO --}}

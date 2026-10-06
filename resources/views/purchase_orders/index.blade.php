@@ -14,7 +14,7 @@
             <button
                 type="button"
                 onclick="mostrarCrear()"
-                class="mt-4 md:mt-0 inline-flex items-center gap-2 px-5 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5">
+                class="mt-4 md:mt-0 inline-flex items-center gap-2 px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -34,7 +34,7 @@
         <div id="ordersIndex">
             {{-- Tarjetas --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Total</p>
@@ -47,7 +47,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Borradores</p>
@@ -60,7 +60,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Emitidas</p>
@@ -73,7 +73,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Completadas</p>
@@ -89,7 +89,7 @@
 
             </div>
             {{-- Tabla --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h2 class="text-lg font-semibold text-gray-800">
                         Listado de Órdenes de Compra
@@ -204,7 +204,7 @@
                                             <a
                                                 href="{{ route('purchase_orders.pdf', $order->id_purchase_order) }}"
                                                 target="_blank"
-                                                class="p-2.5 rounded-xl bg-teal-50 text-[#005e66] hover:bg-[#005e66] hover:text-white dark:bg-teal-950/80 dark:text-teal-400 dark:border dark:border-teal-800/80 dark:hover:bg-teal-600 dark:hover:text-white transition-all flex items-center justify-center"
+                                                class="p-2.5 rounded-xl bg-teal-50 text-[#005e66] hover:bg-customTeal-800 hover:text-white dark:bg-teal-950/80 dark:text-teal-400 dark:border dark:border-teal-800/80 dark:hover:bg-teal-600 dark:hover:text-white transition-all flex items-center justify-center"
                                                 title="PDF / Imprimir">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
@@ -225,7 +225,7 @@
                                         <button
                                             type="button"
                                             onclick="mostrarCrear()"
-                                            class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#005e66] hover:bg-[#00474f] text-white font-bold text-sm rounded-xl shadow-md transition-all">
+                                            class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm rounded-xl shadow-md transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                             <span>Crear primera orden</span>
                                         </button>
@@ -243,7 +243,7 @@
             </div>
         </div>
         <div id="orderCreate" class="hidden">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="bg-white rounded-xl shadow-xs border border-gray-200">
                 {{-- Cabecera --}}
                 <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
                     <div>
@@ -280,7 +280,7 @@
                             <select
                                 id="quotationSelect"
                                 name="id_purchase_quotation"
-                                class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-900 text-sm font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden shadow-xs">
                                 <option value="">
                                     -- Seleccionar cotización aprobada --
                                 </option>
@@ -431,7 +431,7 @@
                             <button
                                 type="button"
                                 onclick="agregarProducto()"
-                                class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#005e66] hover:bg-[#00474f] text-white rounded-xl font-bold text-xs shadow-sm transition-all">
+                                class="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-customTeal-800 hover:bg-navy-800 text-white rounded-xl font-bold text-xs shadow-xs transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 <span>Agregar producto</span>
                             </button>
@@ -558,7 +558,7 @@
                         </button>
                         <button
                             type="submit"
-                            class="px-6 py-2.5 rounded-xl bg-[#005e66] hover:bg-[#00474f] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
+                            class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             <span>Guardar Orden</span>
                         </button>
@@ -568,7 +568,7 @@
         </div>
         <div id="orderShow" class="hidden">
             @if(isset($purchase_order))
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div class="bg-white rounded-xl shadow-xs border border-gray-200">
                     {{-- Cabecera --}}
                     <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
@@ -838,7 +838,7 @@
                     </div>
                 </div>
             @else
-                <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+                <div class="bg-white rounded-xl shadow-xs p-8 text-center">
                     <p class="text-gray-500">
                         Seleccione una orden para visualizarla.
                     </p>
@@ -1043,7 +1043,7 @@
                     name="expenses[${index}][id_expense_type]"
                     required
                     onchange="actualizarDescripcionGasto(this)"
-                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
                     <option value="">
                         -- Tipo de Gasto --
                     </option>
@@ -1064,7 +1064,7 @@
                     value="${data.description ?? ''}"
                     required
                     placeholder="Descripción del gasto (ej. flete)"
-                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
             </div>
             <div style="flex: 0 0 20%; min-width: 0;">
                 <input
@@ -1076,7 +1076,7 @@
                     required
                     placeholder="Monto $"
                     oninput="calcularTotales()"
-                    class="expense-amount w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-2 focus:ring-indigo-500 outline-none">
+                    class="expense-amount w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-2 focus:ring-indigo-500 outline-hidden">
             </div>
             <div style="flex: 0 0 auto;" class="text-center">
                 <button

@@ -2,30 +2,31 @@
     PALETA DE COLORES Y TOKENS PERSONALIZADOS
     ========================================================================= */
 
+/* Los teal usan el prefijo --custom-: --color-teal-* son las variables de la paleta de Tailwind 4 */
 :root {
     --color-primary: #005e66;
     --color-primary-active: #3cb0a4;
     --color-primary-dark: #00474f;
-    --color-teal-50: #edf9f6;
-    --color-teal-100: #d4eedc;
-    --color-teal-400: #4ebbb0;
-    --color-teal-500: #3cb0a4;
-    --color-teal-600: #349b90;
-    --color-teal-700: #2b7f76;
-    --color-teal-800: #005e66;
+    --custom-teal-50: #edf9f6;
+    --custom-teal-100: #d4eedc;
+    --custom-teal-400: #4ebbb0;
+    --custom-teal-500: #3cb0a4;
+    --custom-teal-600: #349b90;
+    --custom-teal-700: #2b7f76;
+    --custom-teal-800: #005e66;
 }
 
 /* Clases de utilidad personalizadas */
-.bg-custom-teal-50 { background-color: var(--color-teal-50); }
-.bg-custom-teal-100 { background-color: var(--color-teal-100); }
-.bg-custom-teal-500 { background-color: var(--color-teal-500); }
-.bg-custom-teal-600 { background-color: var(--color-teal-600); }
+.bg-custom-teal-50 { background-color: var(--custom-teal-50); }
+.bg-custom-teal-100 { background-color: var(--custom-teal-100); }
+.bg-custom-teal-500 { background-color: var(--custom-teal-500); }
+.bg-custom-teal-600 { background-color: var(--custom-teal-600); }
 
-.text-custom-teal-500 { color: var(--color-teal-500); }
-.text-custom-teal-600 { color: var(--color-teal-600); }
-.text-custom-teal-700 { color: var(--color-teal-700); }
-.text-custom-teal-800 { color: var(--color-teal-800); }
+.text-custom-teal-500 { color: var(--custom-teal-500); }
+.text-custom-teal-600 { color: var(--custom-teal-600); }
+.text-custom-teal-700 { color: var(--custom-teal-700); }
+.text-custom-teal-800 { color: var(--custom-teal-800); }
 
-.border-custom-teal-100 { border-color: var(--color-teal-100); }
-.border-custom-teal-400 { border-color: var(--color-teal-400); }
-.border-custom-teal-500 { border-color: var(--color-teal-500); }
+.border-custom-teal-100 { border-color: var(--custom-teal-100); }
+.border-custom-teal-400 { border-color: var(--custom-teal-400); }
+.border-custom-teal-500 { border-color: var(--custom-teal-500); }
