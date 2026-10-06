@@ -2,8 +2,10 @@
 @section('title', 'Panel de Control')
 
 @section('content')
-<!-- Chart.js para el gráfico de Rendimiento Mensual -->
+{{-- Chart.js para el gráfico de órdenes de compra; solo se carga con permiso sobre el módulo --}}
+@can('purchase_orders.ver')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endcan
 
 <!-- Encabezado de Página -->
 <header class="mb-6">
@@ -20,8 +22,10 @@
     </button>
 </header>
 
-<!-- SECCIÓN 1: TARJETAS SUPERIORES (3 COLUMNAS) -->
+<!-- SECCIÓN 1: TARJETAS SUPERIORES (3 COLUMNAS) — cada tarjeta solo con permiso sobre su módulo -->
+@canany(['usuarios.ver', 'products.ver', 'roles.administrar'])
 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    @can('usuarios.ver')
     <!-- Card 1: Usuarios en Sistema -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/80 card-shadow hover:scale-[1.01] transition-all duration-300">
         <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 dark:text-blue-400 mb-4">
@@ -38,7 +42,9 @@
             </a>
         </div>
     </div>
+    @endcan
 
+    @can('products.ver')
     <!-- Card 2: Productos Registrados -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/80 card-shadow hover:scale-[1.01] transition-all duration-300">
         <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 dark:text-emerald-400 mb-4">
@@ -55,7 +61,9 @@
             </a>
         </div>
     </div>
+    @endcan
 
+    @can('roles.administrar')
     <!-- Card 3: Roles Definidos -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/80 card-shadow hover:scale-[1.01] transition-all duration-300">
         <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center text-slate-500 dark:text-slate-300 mb-4">
@@ -72,11 +80,14 @@
             </a>
         </div>
     </div>
+    @endcan
 </section>
+@endcanany
 
 <!-- SECCIÓN 2: RENDIMIENTO MENSUAL Y ACCESOS RÁPIDOS -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- COLUMNA IZQUIERDA (2/3): GRÁFICO DE RENDIMIENTO MENSUAL -->
+    @can('purchase_orders.ver')
+    <!-- COLUMNA IZQUIERDA (2/3): GRÁFICO DE RENDIMIENTO MENSUAL (órdenes de compra) -->
     <div class="lg:col-span-2">
         <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/80 card-shadow h-full flex flex-col justify-between">
             <!-- Encabezado de la Tarjeta del Gráfico -->
@@ -93,12 +104,15 @@
             </div>
         </div>
     </div>
+    @endcan
 
-    <!-- COLUMNA DERECHA (1/3): ACCESOS RÁPIDOS (FICHAS HORIZONTALES) -->
+    @canany(['purchase_orders.ver', 'usuarios.ver', 'categories.ver'])
+    <!-- COLUMNA DERECHA (1/3): ACCESOS RÁPIDOS (FICHAS HORIZONTALES) — solo los módulos permitidos -->
     <div class="flex flex-col justify-start">
         <h2 class="text-xl font-extrabold text-navy-800 dark:text-slate-100 mb-4">Accesos Rápidos</h2>
 
         <div class="space-y-4">
+            @can('purchase_orders.ver')
             <!-- Tarjeta 1: Gestionar Compras / Ventas (Rosado / Rojo Suave) -->
             <a href="{{ route('purchase_orders.index') }}" class="flex items-center justify-between p-4 bg-rose-50/70 dark:bg-rose-950/20 hover:bg-rose-100/70 dark:hover:bg-rose-950/40 border border-rose-100/80 dark:border-rose-900/30 rounded-2xl transition-all group">
                 <div class="flex items-center gap-3.5">
@@ -120,7 +134,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </a>
+            @endcan
 
+            @can('usuarios.ver')
             <!-- Tarjeta 2: Seguridad y Permisos (Azul Suave) -->
             <a href="{{ route('users.index') }}" class="flex items-center justify-between p-4 bg-sky-50/70 dark:bg-sky-950/20 hover:bg-sky-100/70 dark:hover:bg-sky-950/40 border border-sky-100/80 dark:border-sky-900/30 rounded-2xl transition-all group">
                 <div class="flex items-center gap-3.5">
@@ -142,7 +158,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </a>
+            @endcan
 
+            @can('categories.ver')
             <!-- Tarjeta 3: Categorías (Verde Suave) -->
             <a href="{{ route('categories.index') }}" class="flex items-center justify-between p-4 bg-emerald-50/70 dark:bg-emerald-950/20 hover:bg-emerald-100/70 dark:hover:bg-emerald-950/40 border border-emerald-100/80 dark:border-emerald-900/30 rounded-2xl transition-all group">
                 <div class="flex items-center gap-3.5">
@@ -164,11 +182,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </a>
+            @endcan
         </div>
     </div>
+    @endcanany
 </div>
 
-<!-- Script del Gráfico Chart.js -->
+{{-- Script del gráfico: incluye los datos de órdenes, así que solo se envía con permiso --}}
+@can('purchase_orders.ver')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('performanceChart');
@@ -226,4 +247,5 @@
         });
     });
 </script>
+@endcan
 @endsection

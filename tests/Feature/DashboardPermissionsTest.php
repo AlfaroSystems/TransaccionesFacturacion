@@ -1,0 +1,82 @@
+<?php
+
+use App\Models\Branch;
+use App\Models\Company;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+
+function usuarioConPermisosDeDashboard(array $permisos): User
+{
+    $role = Role::create(['name' => 'dashboard-'.Str::lower(Str::random(8))]);
+
+    foreach ($permisos as $permiso) {
+        Permission::firstOrCreate(['id' => $permiso], ['name' => $permiso]);
+
+        if (! Gate::has($permiso)) {
+            Gate::define($permiso, fn (User $user) => $user->hasPermission($permiso));
+        }
+    }
+
+    $role->permissions()->sync($permisos);
+
+    $company = Company::create(['name' => 'Empresa '.Str::random(6)]);
+    $branch = Branch::create(['company_id' => $company->id, 'name' => 'Sucursal '.Str::random(6)]);
+
+    $user = User::factory()->create(['id_branch' => $branch->id]);
+    $user->roles()->attach($role->id, ['assigned_at' => now()]);
+
+    return $user->load('roles.permissions');
+}
+
+test('el dashboard solo muestra tarjetas, gráfico y accesos rápidos de los módulos permitidos', function () {
+    $user = usuarioConPermisosDeDashboard(['products.ver', 'categories.ver']);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    // Los datos de órdenes del gráfico no se calculan ni se envían en el código de la página
+    expect($response->viewData('chartData'))->toBe([]);
+
+    $response
+        ->assertOk()
+        ->assertDontSee('new Chart(', false)
+        ->assertDontSee('cdn.jsdelivr.net/npm/chart.js', false)
+        ->assertSee('Productos Registrados')
+        ->assertSee('Categorías')
+        ->assertDontSee('Usuarios en Sistema')
+        ->assertDontSee('Roles Definidos')
+        ->assertDontSee('Rendimiento Mensual')
+        ->assertDontSee('performanceChart')
+        ->assertDontSee('Gestionar Compras')
+        ->assertDontSee('Seguridad y Permisos');
+});
+
+test('sin permisos sobre ningún módulo el dashboard no muestra tarjetas ni accesos rápidos', function () {
+    $user = usuarioConPermisosDeDashboard([]);
+
+    $this->actingAs($user)->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('Productos Registrados')
+        ->assertDontSee('Usuarios en Sistema')
+        ->assertDontSee('Roles Definidos')
+        ->assertDontSee('Rendimiento Mensual')
+        ->assertDontSee('Accesos Rápidos');
+});
+
+test('el administrador ve todo el dashboard', function () {
+    $admin = User::factory()->create();
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
+
+    $this->actingAs($admin)->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('Usuarios en Sistema')
+        ->assertSee('Productos Registrados')
+        ->assertSee('Roles Definidos')
+        ->assertSee('Rendimiento Mensual')
+        ->assertSee('new Chart(', false)
+        ->assertSee('Gestionar Compras')
+        ->assertSee('Seguridad y Permisos')
+        ->assertSee('Categorías');
+});
