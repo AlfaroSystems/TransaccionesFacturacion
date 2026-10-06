@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\AuditLog;
+use App\Models\Branch;
+use App\Models\Company;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -45,11 +47,19 @@ function crearUsuarioConRol(Role $role, array $atributos = []): User
     return $user->load('roles.permissions');
 }
 
+function crearSucursal(): Branch
+{
+    $company = Company::create(['name' => 'Empresa '.Str::random(6)]);
+
+    return Branch::create(['company_id' => $company->id, 'name' => 'Sucursal '.Str::random(6)]);
+}
+
+// Usuario no admin con permisos de gestión de usuarios, asignado a una sucursal propia
 function gestorDeUsuarios(): User
 {
     return crearUsuarioConRol(crearRol([
         'usuarios.ver', 'usuarios.crear', 'usuarios.editar', 'usuarios.eliminar',
-    ]));
+    ]), ['id_branch' => crearSucursal()->id]);
 }
 
 function datosUsuario(User $user, array $cambios = []): array
@@ -104,7 +114,7 @@ test('una sesión abierta se cierra cuando el usuario es desactivado', function 
 
 test('un usuario que no es admin no puede asignar el rol admin a otro usuario', function () {
     $gestor = gestorDeUsuarios();
-    $objetivo = crearUsuarioConRol(crearRol());
+    $objetivo = crearUsuarioConRol(crearRol(), ['id_branch' => $gestor->id_branch]);
 
     $this->actingAs($gestor)
         ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [rolAdmin()->id]]))
@@ -123,6 +133,7 @@ test('un usuario que no es admin no puede crear un usuario con rol admin', funct
             'password'              => 'password123',
             'password_confirmation' => 'password123',
             'status'                => 'active',
+            'id_branch'             => $gestor->id_branch,
             'roles'                 => [rolAdmin()->id],
         ])
         ->assertSessionHasErrors('roles');
@@ -132,7 +143,7 @@ test('un usuario que no es admin no puede crear un usuario con rol admin', funct
 
 test('un usuario que no es admin no puede modificar a un administrador', function () {
     $gestor = gestorDeUsuarios();
-    $admin = crearUsuarioConRol(rolAdmin());
+    $admin = crearUsuarioConRol(rolAdmin(), ['id_branch' => $gestor->id_branch]);
     $passwordOriginal = $admin->password;
 
     $this->actingAs($gestor)
@@ -186,8 +197,9 @@ test('un usuario puede editar sus propios datos sin enviar roles ni estado', fun
 
     $this->actingAs($gestor)
         ->put(route('users.update', $gestor), [
-            'name'  => 'Nombre Actualizado',
-            'email' => $gestor->email,
+            'name'      => 'Nombre Actualizado',
+            'email'     => $gestor->email,
+            'id_branch' => $gestor->id_branch,
         ])
         ->assertSessionHasNoErrors()
         ->assertRedirect(route('users.index'));
@@ -200,7 +212,7 @@ test('un usuario puede editar sus propios datos sin enviar roles ni estado', fun
 
 test('la lista de usuarios oculta el rol admin y protege a los administradores ante un no admin', function () {
     $gestor = gestorDeUsuarios();
-    crearUsuarioConRol(rolAdmin());
+    crearUsuarioConRol(rolAdmin(), ['id_branch' => $gestor->id_branch]);
 
     $response = $this->actingAs($gestor)->get(route('users.index'))->assertOk();
 
@@ -225,7 +237,7 @@ test('un administrador puede asignar el rol admin', function () {
 
 test('eliminar desde la interfaz desactiva al usuario en lugar de borrarlo', function () {
     $gestor = gestorDeUsuarios();
-    $objetivo = crearUsuarioConRol(crearRol());
+    $objetivo = crearUsuarioConRol(crearRol(), ['id_branch' => $gestor->id_branch]);
 
     $this->actingAs($gestor)
         ->delete(route('users.destroy', $objetivo))

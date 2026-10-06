@@ -18,6 +18,7 @@ uses(DatabaseTransactions::class);
 test('solicitud de cotizacion se puede crear y relacionar correctamente', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
+    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
 
     // 2. Crear datos base
     $company = Company::first() ?? Company::create(['name' => 'Empresa Matriz']);

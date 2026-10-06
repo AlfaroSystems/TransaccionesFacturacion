@@ -1,13 +1,21 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PurchaseQuotationRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToBranch;
+
+    // Pertenece a la sucursal de su solicitud de compra
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->whereHas('purchaseRequest');
+    }
 
     const UPDATED_AT = null;
 

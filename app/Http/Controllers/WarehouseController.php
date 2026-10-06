@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 use App\Models\Warehouse;
 use App\Models\Branch;
 use App\Models\WarehouseCategory;
+use App\Rules\Accessible;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
 class WarehouseController extends Controller
 {
@@ -13,11 +16,8 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.ver');
 
-        $userBranchId = auth()->check() ? auth()->user()->id_branch : null;
-
-        $warehouses = Warehouse::with(['branch', 'warehouseCategory'])
-            ->when($userBranchId, fn ($q) => $q->where('branch_id', $userBranchId))
-            ->get();
+        // Warehouse y Branch se filtran por la sucursal del usuario (BranchScope)
+        $warehouses = Warehouse::with(['branch', 'warehouseCategory'])->get();
         $branches = Branch::where('is_active', true)->get();
         $categories = WarehouseCategory::where('is_active', true)->get();
         
@@ -54,7 +54,7 @@ class WarehouseController extends Controller
         Gate::authorize('warehouses.crear');
 
         $validated = $request->validate([
-            'branch_id'=>'required|exists:branches,id',
+            'branch_id'=>['required', new Accessible(Branch::class)],
             'warehouse_category_id'
             =>'required|exists:warehouse_categories,id',
             'name'
@@ -104,7 +104,7 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.editar');
         $validated=$request->validate([
-            'branch_id'=>'required|exists:branches,id',
+            'branch_id'=>['required', new Accessible(Branch::class)],
             'warehouse_category_id'
             =>'required|exists:warehouse_categories,id',
             'name'
@@ -114,6 +114,14 @@ class WarehouseController extends Controller
             'is_active'
             =>'boolean'
         ]);
+
+        // Una bodega con documentos no puede pasar a otra sucursal: los documentos
+        // quedarían apuntando a una bodega ajena a su sucursal
+        if ((int) $validated['branch_id'] !== (int) $warehouse->branch_id && $this->hasDocuments($warehouse)) {
+            throw ValidationException::withMessages([
+                'branch_id' => 'No se puede cambiar la sucursal de una bodega que ya tiene solicitudes, órdenes o compras registradas.',
+            ]);
+        }
 
         $warehouse->update($validated);
 
@@ -140,5 +148,14 @@ class WarehouseController extends Controller
         return redirect()
             ->route('warehouses.index')
             ->with('success', $message);
+    }
+
+    /**
+     * Indica si algún documento de compras usa la bodega, en cualquier sucursal.
+     */
+    private function hasDocuments(Warehouse $warehouse): bool
+    {
+        return collect(['purchase_requests', 'purchase_orders', 'purchases'])
+            ->contains(fn ($table) => DB::table($table)->where('id_warehouse', $warehouse->id)->exists());
     }
 }

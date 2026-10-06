@@ -10,6 +10,7 @@ use App\Models\PurchaseQuotation;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Warehouse;
+use App\Rules\Accessible;
 use App\Services\PurchaseOrderService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -57,10 +58,6 @@ class PurchaseOrderController extends Controller
         Gate::authorize('purchase_orders.ver');
 
         $query = PurchaseOrder::with(['supplier', 'branch', 'warehouse', 'user']);
-
-        if (auth()->check() && auth()->user()->id_branch) {
-            $query->where('id_branch', auth()->user()->id_branch);
-        }
 
         $purchase_orders = $query
             ->orderByDesc('id_purchase_order')
@@ -147,10 +144,6 @@ class PurchaseOrderController extends Controller
         }
 
         $validated = $this->validateOrderRequest($request, mode: 'store');
-
-        if (auth()->check() && auth()->user()->id_branch) {
-            $validated['id_branch'] = auth()->user()->id_branch;
-        }
 
         $this->service->crear($validated);
 
@@ -266,9 +259,10 @@ class PurchaseOrderController extends Controller
 
         return $request->validate([
             'id_supplier'                    => ['required', 'exists:suppliers,id_supplier'],
-            'id_branch'                      => ['required', 'exists:branches,id'],
-            'id_warehouse'                   => ['required', 'exists:warehouses,id'],
-            'id_purchase_quotation'          => ['nullable', 'exists:purchase_quotations,id_purchase_quotation'],
+            // Sucursal, bodega y cotización deben ser visibles para el usuario; la bodega, de la sucursal elegida
+            'id_branch'                      => ['required', new Accessible(Branch::class)],
+            'id_warehouse'                   => ['required', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $request->input('id_branch')))],
+            'id_purchase_quotation'          => ['nullable', new Accessible(PurchaseQuotation::class)],
             'order_date'                     => ['required', 'date'],
             'expected_date'                  => ['required', 'date', 'after_or_equal:order_date'],
             'currency'                       => ['required', 'string', 'max:3'],

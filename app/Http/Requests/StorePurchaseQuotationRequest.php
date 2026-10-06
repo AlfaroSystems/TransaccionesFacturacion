@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\PurchaseRequest;
+use App\Rules\Accessible;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePurchaseQuotationRequest extends FormRequest
 {
@@ -23,7 +25,7 @@ class StorePurchaseQuotationRequest extends FormRequest
         return [
             'id_purchase_request' => [
                 'required',
-                'exists:purchase_requests,id_purchase_request',
+                new Accessible(PurchaseRequest::class),
                 function ($attribute, $value, $fail) {
                     $pr = PurchaseRequest::find($value);
                     if (!$pr || $pr->status !== 'approved') {
@@ -32,10 +34,12 @@ class StorePurchaseQuotationRequest extends FormRequest
                 },
             ],
             'items' => ['required', 'array', 'min:1'],
+            // Cada ítem debe pertenecer a la solicitud de compra seleccionada
             'items.*.id_purchase_request_detail' => [
                 'required',
                 'integer',
-                'exists:purchase_request_details,id_purchase_request_detail',
+                Rule::exists('purchase_request_details', 'id_purchase_request_detail')
+                    ->where('id_purchase_request', $this->input('id_purchase_request')),
             ],
             'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
         ];

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +12,12 @@ use Illuminate\Support\Str;
 
 class Purchase extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToBranch;
+
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->where($this->qualifyColumn('id_branch'), $branchId);
+    }
 
     protected $table = 'purchases';
     protected $primaryKey = 'id_purchase';
@@ -52,7 +59,9 @@ class Purchase extends Model
             }
             if (!$purchase->purchase_code) {
                 $year = now()->year;
-                $last = self::whereYear('created_at', $year)
+                // El correlativo es global: debe considerar las compras de todas las sucursales
+                $last = self::queryAllBranches()
+                    ->whereYear('created_at', $year)
                     ->orderByDesc('id_purchase')
                     ->first();
                 $number = $last

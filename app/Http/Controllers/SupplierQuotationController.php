@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\PurchaseQuotationRequest;
 use App\Models\SupplierQuotation;
+use App\Rules\Accessible;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -12,8 +14,8 @@ class SupplierQuotationController extends Controller
         Gate::authorize('purchase_quotations.crear');
 
         $request->validate([
-            'purchase_quotation_request_id' => 'required|exists:purchase_quotation_requests,id', // O el nombre real de tu PK
-            'supplier_id' => 'required|exists:suppliers,id', // O id_supplier según tu BD
+            'purchase_quotation_request_id' => ['required', new Accessible(PurchaseQuotationRequest::class)],
+            'supplier_id' => 'required|exists:suppliers,id_supplier',
             'unit_price' => 'required|numeric|min:0',
         'taxes' => 'nullable|numeric|min:0',
         'additional_expenses' => 'nullable|numeric|min:0',

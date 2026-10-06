@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Location;
 use App\Models\Warehouse;
+use App\Rules\Accessible;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -55,7 +56,7 @@ class LocationController extends Controller
         Gate::authorize('locations.crear');
 
         $request->validate([
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => ['required', new Accessible(Warehouse::class)],
             'code' => 'required|string|max:255|unique:locations,code',
             'pasillo' => 'nullable|string|max:255',
             'rack' => 'nullable|string|max:255',
@@ -91,7 +92,7 @@ class LocationController extends Controller
         Gate::authorize('locations.crear');
 
         $request->validate([
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => ['required', new Accessible(Warehouse::class)],
             'pasillo_hasta' => 'required|string|max:10',
             'rack_hasta' => 'required|integer|min:1',
             'level_hasta' => 'required|integer|min:1',
@@ -198,7 +199,7 @@ class LocationController extends Controller
         Gate::authorize('locations.editar');
 
         $request->validate([
-            'warehouse_id' => 'required|exists:warehouses,id',
+            'warehouse_id' => ['required', new Accessible(Warehouse::class)],
             'code' => 'required|string|max:255|unique:locations,code,' . $location->id,
             'pasillo' => 'nullable|string|max:255',
             'rack' => 'nullable|string|max:255',

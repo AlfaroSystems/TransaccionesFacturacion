@@ -2,7 +2,9 @@
 
 namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\BranchAccess;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -79,6 +81,24 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->roles->contains('name', $role);
+    }
+
+    /**
+     * Usuarios que el usuario actual puede ver: todos si no tiene restricción, o solo
+     * los de su sucursal. User no usa BranchScope porque la autenticación consulta
+     * este modelo y el scope depende del usuario autenticado.
+     */
+    public function scopeAccessible(Builder $query): void
+    {
+        if (BranchAccess::isUnrestricted()) {
+            return;
+        }
+
+        $branchId = BranchAccess::branchId();
+
+        $branchId === null
+            ? $query->whereRaw('1 = 0')
+            : $query->where($this->qualifyColumn('id_branch'), $branchId);
     }
 
     /**

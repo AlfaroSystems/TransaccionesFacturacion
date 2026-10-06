@@ -1,12 +1,20 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Company extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToBranch;
+
+    // Solo la empresa a la que pertenece la sucursal del usuario
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->whereHas('branches');
+    }
 
     protected $fillable = [
         'name',

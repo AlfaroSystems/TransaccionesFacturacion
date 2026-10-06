@@ -1,12 +1,20 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Branch extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToBranch;
+
+    // Un usuario sin restricción ve todas las sucursales; los demás, solo la suya
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->whereKey($branchId);
+    }
 
     // Campos que se pueden guardar en la tabla branches
     protected $fillable = [

@@ -77,7 +77,10 @@ class PurchaseQuotationRequestController extends Controller
     {
         Gate::authorize('purchase_quotation_requests.ver');
 
-        $details = PurchaseRequestDetail::where('id_purchase_request', $id)
+        // La solicitud debe ser visible para el usuario (de su sucursal)
+        $purchaseRequest = PurchaseRequest::findOrFail($id);
+
+        $details = PurchaseRequestDetail::where('id_purchase_request', $purchaseRequest->id_purchase_request)
             ->with([
                 'product:id,name,sku',
                 'unit:id,name,abbreviation',
@@ -171,6 +174,12 @@ class PurchaseQuotationRequestController extends Controller
     public function selectQuotation(PurchaseQuotationRequest $purchaseQuotationRequest, PurchaseQuotation $purchaseQuotation)
     {
         Gate::authorize('purchase_quotation_requests.seleccionar_cotizacion');
+
+        // La oferta debe corresponder a esta solicitud de cotización
+        abort_unless(
+            (int) $purchaseQuotation->id_purchase_quotation_request === (int) $purchaseQuotationRequest->id_purchase_quotation_request,
+            404
+        );
 
         if ($purchaseQuotationRequest->id_purchase_quotation) {
             return redirect()

@@ -64,7 +64,7 @@ class PurchaseService
             $purchase = Purchase::create([
                 'id_purchase_order'       => $order->id_purchase_order,
                 'id_supplier'             => $validated['id_supplier'] ?? $order->id_supplier,
-                'id_branch'               => $validated['id_branch'] ?? $order->id_branch,
+                'id_branch'               => $order->id_branch,
                 'id_warehouse'            => $validated['id_warehouse'] ?? $order->id_warehouse,
                 'purchase_date'           => $validated['purchase_date'] ?? now(),
                 'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? null,
@@ -106,7 +106,6 @@ class PurchaseService
 
             $purchase->update([
                 'id_supplier'             => $validated['id_supplier'] ?? $purchase->id_supplier,
-                'id_branch'               => $validated['id_branch'] ?? $purchase->id_branch,
                 'id_warehouse'            => $validated['id_warehouse'] ?? $purchase->id_warehouse,
                 'purchase_date'           => $validated['purchase_date'] ?? $purchase->purchase_date,
                 'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? $purchase->supplier_invoice_number,

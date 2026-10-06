@@ -21,6 +21,7 @@ uses(DatabaseTransactions::class);
 test('se puede registrar una oferta de proveedor completa con items y gastos adicionales', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
+    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id, ['assigned_at' => now()]);
 
     // 2. Crear datos maestros
     $company = Company::first() ?? Company::create(['name' => 'Empresa Test']);

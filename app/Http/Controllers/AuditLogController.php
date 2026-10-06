@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Support\BranchAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -14,7 +15,10 @@ class AuditLogController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('bitacora.ver');
-        $query = AuditLog::with('user');
+
+        // Quien no es administrador solo ve los registros hechos por usuarios de su sucursal
+        $query = AuditLog::with('user')
+            ->when(! BranchAccess::isUnrestricted(), fn ($q) => $q->whereIn('user_id', User::accessible()->select('id')));
 
         // Filtrar por usuario
         if ($request->filled('user_id')) {
@@ -45,7 +49,7 @@ class AuditLogController extends Controller
         $logs = $query->latest('id')->paginate(15)->withQueryString();
 
         // Obtener usuarios para el selector del filtro
-        $users = User::orderBy('name')->get();
+        $users = User::accessible()->orderBy('name')->get();
 
         return view('audit_logs.index', compact('logs', 'users'));
     }

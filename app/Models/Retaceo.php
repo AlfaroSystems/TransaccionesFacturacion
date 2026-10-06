@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +12,13 @@ use Illuminate\Support\Str;
 
 class Retaceo extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToBranch;
+
+    // Pertenece a la sucursal de su compra
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->whereHas('purchase');
+    }
 
     protected $table = 'retaceos';
     protected $primaryKey = 'id_retaceo';
@@ -55,7 +63,9 @@ class Retaceo extends Model
             }
             if (!$retaceo->retaceo_code) {
                 $year = now()->year;
-                $last = self::whereYear('created_at', $year)
+                // El correlativo es global: debe considerar los retaceos de todas las sucursales
+                $last = self::queryAllBranches()
+                    ->whereYear('created_at', $year)
                     ->orderByDesc('id_retaceo')
                     ->first();
                 $number = $last

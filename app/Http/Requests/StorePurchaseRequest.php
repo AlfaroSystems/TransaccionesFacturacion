@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Branch;
+use App\Models\Warehouse;
+use App\Rules\Accessible;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StorePurchaseRequest extends FormRequest
@@ -20,16 +23,17 @@ class StorePurchaseRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // La sucursal debe ser visible para el usuario y la bodega pertenecer a ella
             'id_branch' => [
                 'required',
                 'integer',
-                'exists:branches,id',
+                new Accessible(Branch::class),
             ],
 
             'id_warehouse' => [
                 'required',
                 'integer',
-                'exists:warehouses,id',
+                new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $this->input('id_branch'))),
             ],
 
             'request_date' => [

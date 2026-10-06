@@ -32,7 +32,8 @@ function setupDatosMaestros(): array
     $company           = Company::first() ?? Company::create(['name' => 'Empresa Test']);
     $branch            = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'company_id' => $company->id]);
     $warehouseCategory = WarehouseCategory::first() ?? WarehouseCategory::create(['name' => 'General', 'description' => 'General']);
-    $warehouse         = Warehouse::first() ?? Warehouse::create([
+    // La bodega debe pertenecer a la sucursal de la orden
+    $warehouse         = Warehouse::where('branch_id', $branch->id)->first() ?? Warehouse::create([
         'name'                 => 'Bodega Central',
         'branch_id'            => $branch->id,
         'id_branch'            => $branch->id,

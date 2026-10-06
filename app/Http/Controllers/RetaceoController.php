@@ -6,6 +6,7 @@ use App\Models\Country;
 use App\Models\Purchase;
 use App\Models\Retaceo;
 use App\Models\Supplier;
+use App\Rules\Accessible;
 use App\Services\RetaceoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,10 +20,8 @@ class RetaceoController extends Controller
     {
         Gate::authorize('retaceos.ver');
 
-        $userBranchId = auth()->check() ? auth()->user()->id_branch : null;
-
+        // Retaceo y Purchase se filtran por la sucursal del usuario (BranchScope)
         $query = Retaceo::with(['purchase', 'supplier', 'user'])
-            ->when($userBranchId, fn ($q) => $q->whereHas('purchase', fn ($pq) => $pq->where('id_branch', $userBranchId)))
             ->orderByDesc('id_retaceo');
 
         if ($request->filled('search')) {
@@ -55,14 +54,13 @@ class RetaceoController extends Controller
         $retaceos = $query->paginate(10)->withQueryString();
 
         // Métricas
-        $totalCount      = Retaceo::when($userBranchId, fn ($q) => $q->whereHas('purchase', fn ($pq) => $pq->where('id_branch', $userBranchId)))->count();
-        $draftCount      = Retaceo::when($userBranchId, fn ($q) => $q->whereHas('purchase', fn ($pq) => $pq->where('id_branch', $userBranchId)))->where('status', 'draft')->count();
-        $calculatedCount = Retaceo::when($userBranchId, fn ($q) => $q->whereHas('purchase', fn ($pq) => $pq->where('id_branch', $userBranchId)))->whereIn('status', ['calculated', 'applied'])->count();
-        $totalCostAmount = Retaceo::when($userBranchId, fn ($q) => $q->whereHas('purchase', fn ($pq) => $pq->where('id_branch', $userBranchId)))->where('status', '!=', 'cancelled')->sum('total_cost');
+        $totalCount      = Retaceo::count();
+        $draftCount      = Retaceo::where('status', 'draft')->count();
+        $calculatedCount = Retaceo::whereIn('status', ['calculated', 'applied'])->count();
+        $totalCostAmount = Retaceo::where('status', '!=', 'cancelled')->sum('total_cost');
 
         $suppliers = Supplier::orderBy('name')->get();
         $purchasesForModal = Purchase::where('status', '!=', 'cancelled')
-            ->when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))
             ->with(['supplier', 'details.product', 'details.unit'])
             ->orderByDesc('id_purchase')
             ->get();
@@ -148,7 +146,7 @@ class RetaceoController extends Controller
         Gate::authorize('retaceos.crear');
 
         $validated = $request->validate([
-            'id_purchase'                 => ['required', 'exists:purchases,id_purchase'],
+            'id_purchase'                 => ['required', new Accessible(Purchase::class)],
             'id_supplier'                 => ['required', 'exists:suppliers,id_supplier'],
             'retaceo_date'                => ['required', 'date'],
             'origin_country'              => ['nullable', 'string', 'max:100'],
@@ -162,7 +160,7 @@ class RetaceoController extends Controller
             'notes'                       => ['nullable', 'string'],
             'details'                     => ['required', 'array', 'min:1'],
             'details.*.id_product'        => ['required', 'exists:products,id'],
-            'details.*.id_purchase_detail'=> ['nullable', 'exists:purchase_details,id_purchase_detail'],
+            'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $request->integer('id_purchase'))],
             'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
             'details.*.dai_amount'        => ['nullable', 'numeric', 'min:0'],
@@ -293,7 +291,7 @@ class RetaceoController extends Controller
             'notes'                       => ['nullable', 'string'],
             'details'                     => ['required', 'array', 'min:1'],
             'details.*.id_product'        => ['required', 'exists:products,id'],
-            'details.*.id_purchase_detail'=> ['nullable', 'exists:purchase_details,id_purchase_detail'],
+            'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $retaceo->id_purchase)],
             'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
             'details.*.dai_amount'        => ['nullable', 'numeric', 'min:0'],

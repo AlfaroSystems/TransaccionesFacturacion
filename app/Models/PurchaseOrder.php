@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -8,6 +10,13 @@ use Illuminate\Support\Str;
 
 class PurchaseOrder extends Model
 {
+    use BelongsToBranch;
+
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->where($this->qualifyColumn('id_branch'), $branchId);
+    }
+
     protected $table = 'purchase_orders';
     protected $primaryKey = 'id_purchase_order';
     protected $fillable = [
@@ -49,7 +58,9 @@ class PurchaseOrder extends Model
             }
             if (!$order->purchase_order_code) {
                 $year = now()->year;
-                $last = self::whereYear('created_at', $year)
+                // El correlativo es global: debe considerar las órdenes de todas las sucursales
+                $last = self::queryAllBranches()
+                    ->whereYear('created_at', $year)
                     ->orderByDesc('id_purchase_order')
                     ->first();
                 $number = $last

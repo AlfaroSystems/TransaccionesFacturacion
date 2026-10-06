@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +11,13 @@ use Illuminate\Support\Str;
 
 class PurchaseQuotation extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToBranch;
+
+    // Pertenece a la sucursal de su solicitud de cotización
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->whereHas('quotationRequest');
+    }
 
     protected $table = 'purchase_quotations';
     protected $primaryKey = 'id_purchase_quotation';
@@ -61,7 +69,9 @@ class PurchaseQuotation extends Model
         $year = date('Y');
         $prefix = "COT-{$year}-";
 
-        $lastQuotation = static::where('purchase_quotation_code', 'like', "{$prefix}%")
+        // El correlativo es global: debe considerar las cotizaciones de todas las sucursales
+        $lastQuotation = static::queryAllBranches()
+            ->where('purchase_quotation_code', 'like', "{$prefix}%")
             ->orderByDesc('id_purchase_quotation')
             ->first();
 

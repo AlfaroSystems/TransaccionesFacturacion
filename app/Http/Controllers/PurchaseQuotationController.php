@@ -6,6 +6,7 @@ use App\Models\PurchaseQuotation;
 use App\Models\PurchaseQuotationDetail;
 use App\Models\PurchaseQuotationExpense;
 use App\Models\PurchaseQuotationRequest;
+use App\Rules\Accessible;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -21,7 +22,7 @@ class PurchaseQuotationController extends Controller
         Gate::authorize('purchase_quotations.crear');
 
         $validated = $request->validate([
-            'id_purchase_quotation_request' => 'required|exists:purchase_quotation_requests,id_purchase_quotation_request',
+            'id_purchase_quotation_request' => ['required', new Accessible(PurchaseQuotationRequest::class)],
             'id_supplier'                   => 'required|exists:suppliers,id_supplier',
             'quotation_date'                => 'required|date',
             'valid_until'                   => 'nullable|date',

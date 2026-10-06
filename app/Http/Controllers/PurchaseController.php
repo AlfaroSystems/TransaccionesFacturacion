@@ -10,6 +10,7 @@ use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Warehouse;
+use App\Rules\Accessible;
 use App\Services\PurchaseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,10 +25,8 @@ class PurchaseController extends Controller
     {
         Gate::authorize('purchases.ver');
 
-        $userBranchId = auth()->check() ? auth()->user()->id_branch : null;
-
+        // Purchase, PurchaseOrder, Branch y Warehouse se filtran por la sucursal del usuario (BranchScope)
         $query = Purchase::with(['purchaseOrder', 'supplier', 'branch', 'warehouse', 'user'])
-            ->when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))
             ->orderByDesc('id_purchase');
 
         if ($request->filled('search')) {
@@ -59,16 +58,15 @@ class PurchaseController extends Controller
         $purchases = $query->paginate(10)->withQueryString();
 
         // Métricas
-        $totalCount     = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->count();
-        $draftCount     = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->where('status', 'draft')->count();
-        $completedCount = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->whereIn('status', ['received', 'completed'])->count();
-        $totalAmount    = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->where('status', '!=', 'cancelled')->sum('total');
+        $totalCount     = Purchase::count();
+        $draftCount     = Purchase::where('status', 'draft')->count();
+        $completedCount = Purchase::whereIn('status', ['received', 'completed'])->count();
+        $totalAmount    = Purchase::where('status', '!=', 'cancelled')->sum('total');
 
         $suppliers = Supplier::orderBy('name')->get();
         $branches   = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
         $orders     = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
-            ->when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))
             ->with(['supplier', 'branch', 'warehouse', 'details.product', 'details.unit'])
             ->orderByDesc('id_purchase_order')
             ->get();
@@ -178,11 +176,14 @@ class PurchaseController extends Controller
     {
         Gate::authorize('purchases.crear');
 
+        // La compra hereda la sucursal de su orden: la orden debe ser visible para el usuario,
+        // y la bodega y las líneas deben pertenecer a esa orden y su sucursal
+        $orderBranchId = fn () => PurchaseOrder::whereKey($request->integer('id_purchase_order'))->value('id_branch');
+
         $validated = $request->validate([
-            'id_purchase_order'          => ['required', 'exists:purchase_orders,id_purchase_order'],
+            'id_purchase_order'          => ['required', new Accessible(PurchaseOrder::class)],
             'id_supplier'                => ['required', 'exists:suppliers,id_supplier'],
-            'id_branch'                  => ['nullable', 'exists:branches,id'],
-            'id_warehouse'               => ['nullable', 'exists:warehouses,id'],
+            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $orderBranchId()))],
             'purchase_date'              => ['required', 'date'],
             'supplier_invoice_number'    => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date'      => ['nullable', 'date'],
@@ -197,7 +198,7 @@ class PurchaseController extends Controller
             'details.*.discount'         => ['nullable', 'numeric', 'min:0'],
             'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0'],
             'details.*.id_unit'          => ['nullable', 'exists:units,id'],
-            'details.*.id_purchase_order_detail' => ['nullable', 'exists:purchase_order_details,id_purchase_order_detail'],
+            'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes'            => ['nullable', 'string'],
         ]);
 
@@ -327,10 +328,10 @@ class PurchaseController extends Controller
                 ->with('error', 'Solo las compras en estado borrador pueden ser modificadas.');
         }
 
+        // La sucursal y la orden de la compra no cambian: la bodega y las líneas deben pertenecer a ellas
         $validated = $request->validate([
             'id_supplier'                => ['required', 'exists:suppliers,id_supplier'],
-            'id_branch'                  => ['nullable', 'exists:branches,id'],
-            'id_warehouse'               => ['nullable', 'exists:warehouses,id'],
+            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('branch_id', $purchase->id_branch))],
             'purchase_date'              => ['required', 'date'],
             'supplier_invoice_number'    => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date'      => ['nullable', 'date'],
@@ -344,7 +345,7 @@ class PurchaseController extends Controller
             'details.*.discount'         => ['nullable', 'numeric', 'min:0'],
             'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0'],
             'details.*.id_unit'          => ['nullable', 'exists:units,id'],
-            'details.*.id_purchase_order_detail' => ['nullable', 'exists:purchase_order_details,id_purchase_order_detail'],
+            'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes'            => ['nullable', 'string'],
         ]);
 

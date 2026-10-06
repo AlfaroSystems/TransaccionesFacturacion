@@ -1,11 +1,21 @@
 <?php
 
 namespace App\Models;
+use App\Models\Concerns\BelongsToBranch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Location extends Model
 {
+    use BelongsToBranch;
+
+    // Ubicaciones de las bodegas visibles (la bodega aplica su propio filtro)
+    public function restrictToBranch(Builder $query, int $branchId): void
+    {
+        $query->whereHas('warehouse');
+    }
+
     protected $fillable = [
         'warehouse_id',
         'code',

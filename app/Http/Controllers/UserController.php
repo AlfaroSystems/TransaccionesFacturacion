@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Branch;
+use App\Rules\Accessible;
+use App\Support\BranchAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -22,7 +24,7 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.ver');
 
-        $query = User::with(['roles', 'branch']);
+        $query = User::accessible()->with(['roles', 'branch']);
 
         // Búsqueda por nombre o email
         if ($request->filled('search')) {
@@ -82,7 +84,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'id_branch' => ['nullable', 'exists:branches,id'],
+            'id_branch' => $this->branchRules(),
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])],
             'roles' => ['required', 'array'],
@@ -119,6 +121,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         Gate::authorize('usuarios.editar');
+        $this->ensureAccessible($user);
 
         if ($denied = $this->denyIfProtected($user)) {
             return $denied;
@@ -137,6 +140,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         Gate::authorize('usuarios.editar');
+        $this->ensureAccessible($user);
 
         if ($denied = $this->denyIfProtected($user)) {
             return $denied;
@@ -148,7 +152,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'id_branch' => ['nullable', 'exists:branches,id'],
+            'id_branch' => $this->branchRules(),
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'status' => [$isSelf ? 'sometimes' : 'required', 'string', Rule::in(['active', 'inactive'])],
             'roles' => [$isSelf ? 'sometimes' : 'required', 'array'],
@@ -192,6 +196,7 @@ class UserController extends Controller
     public function destroy(Request $request, User $user)
     {
         Gate::authorize('usuarios.eliminar');
+        $this->ensureAccessible($user);
 
         if ($request->user()->is($user)) {
             return redirect()->route('users.index')
@@ -212,6 +217,26 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
             ->with('success', $message);
+    }
+
+    /**
+     * Un usuario fuera de la sucursal del usuario actual se trata como inexistente.
+     */
+    private function ensureAccessible(User $user): void
+    {
+        abort_unless(User::accessible()->whereKey($user->getKey())->exists(), 404);
+    }
+
+    /**
+     * La sucursal asignada debe ser visible para el usuario actual. Quien no es
+     * administrador solo puede asignar su propia sucursal y no puede dejarla vacía.
+     */
+    private function branchRules(): array
+    {
+        return [
+            BranchAccess::isUnrestricted() ? 'nullable' : 'required',
+            new Accessible(Branch::class),
+        ];
     }
 
     /**
