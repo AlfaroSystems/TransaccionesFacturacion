@@ -26,6 +26,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * Valores por defecto en memoria, iguales a los de la base de datos.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
@@ -70,6 +79,22 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->roles->contains('name', $role);
+    }
+
+    /**
+     * Verifica si la cuenta del usuario está activa.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Verifica si el usuario es administrador del sistema.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
     }
 
     /**

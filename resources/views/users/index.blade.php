@@ -156,7 +156,14 @@
 
                         <!-- Acciones -->
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
+                            @php
+                                // Solo un administrador puede modificar a otro administrador
+                                $isProtectedUser = $user->hasRole('admin') && ! auth()->user()->isAdmin();
+                            @endphp
                             <div class="flex items-center justify-end gap-2">
+                                @if($isProtectedUser)
+                                    <span class="text-xs text-slate-400 font-semibold italic">Protegido</span>
+                                @else
                                 @can('usuarios.editar')
                                     <!-- Botón Editar -->
                                     <button type="button" onclick="openEditUserModal('{{ route('users.update', $user) }}', {{ json_encode($user) }}, {{ json_encode($user->roles->pluck('id')->toArray()) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Usuario">
@@ -167,12 +174,23 @@
                                 @endcan
 
                                 @can('usuarios.eliminar')
-                                    <!-- Botón Eliminar -->
-                                    <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->name) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Eliminar Usuario">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                        </svg>
-                                    </button>
+                                    @if(auth()->id() !== $user->id)
+                                        @if($user->status === 'active')
+                                            <!-- Botón Desactivar -->
+                                            <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Desactivar Usuario">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                </svg>
+                                            </button>
+                                        @else
+                                            <!-- Botón Reactivar -->
+                                            <button type="button" onclick="confirmDelete('{{ route('users.destroy', $user) }}', 'Usuario {{ addslashes($user->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Usuario">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </button>
+                                        @endif
+                                    @endif
                                 @endcan
 
                                 @cannot('usuarios.editar')
@@ -180,6 +198,7 @@
                                         <span class="text-xs text-slate-400 font-semibold italic">Solo Lectura</span>
                                     @endcannot
                                 @endcannot
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -332,7 +351,7 @@
                     <label for="create-role-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
                     <select name="roles[]" id="create-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar rol</option>
-                        @foreach($roles as $role)
+                        @foreach($assignableRoles as $role)
                             <option value="{{ $role->id }}" {{ (old('modal_type') === 'create' && is_array(old('roles')) && in_array($role->id, old('roles'))) ? 'selected' : '' }}>
                                 {{ strtoupper($role->name) }}
                             </option>
@@ -493,7 +512,7 @@
                     <label for="edit-role-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol de Usuario</label>
                     <select name="roles[]" id="edit-role-select" class="w-full bg-slate-50 border @error('roles') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar rol</option>
-                        @foreach($roles as $role)
+                        @foreach($assignableRoles as $role)
                             <option value="{{ $role->id }}">
                                 {{ strtoupper($role->name) }}
                             </option>
@@ -504,17 +523,23 @@
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
                     @enderror
+                    <p id="edit-self-access-note" class="hidden text-slate-400 text-xs mt-1 font-semibold ml-2">No puedes modificar tus propios roles ni desactivar tu cuenta.</p>
                 </div>
 
                 <!-- Estado -->
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Estado de la Cuenta</label>
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="hidden" name="status" value="inactive">
+                        <input type="hidden" name="status" id="edit-status-hidden" value="inactive">
                         <input type="checkbox" name="status" id="edit-status" value="active" class="sr-only peer" {{ old('modal_type') === 'edit' ? (old('status') === 'active' ? 'checked' : '') : '' }}>
-                        <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-disabled:opacity-50"></div>
                         <span class="text-sm font-semibold text-slate-600" id="edit-status_label">Usuario Activo</span>
                     </label>
+                    @error('status')
+                        @if(old('modal_type') === 'edit')
+                            <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                        @endif
+                    @enderror
                 </div>
             </div>
 
@@ -556,6 +581,16 @@
 
         const statusChk = document.getElementById('edit-status');
         statusChk.checked = user.status === 'active';
+
+        // Un usuario no puede cambiar sus propios roles ni su estado: los campos
+        // deshabilitados no se envían y el servidor conserva los valores actuales.
+        const isSelf = Number(user.id) === {{ auth()->id() }};
+        if (roleSelect) {
+            roleSelect.disabled = isSelf;
+        }
+        statusChk.disabled = isSelf;
+        document.getElementById('edit-status-hidden').disabled = isSelf;
+        document.getElementById('edit-self-access-note').classList.toggle('hidden', !isSelf);
         
         const label = document.getElementById('edit-status_label');
         label.textContent = user.status === 'active' ? 'Usuario Activo' : 'Usuario Inactivo';

@@ -14,7 +14,10 @@ use Tests\TestCase;
 |
 */
 
+// Cada test de Feature corre dentro de una transacción que se revierte al terminar,
+// para no dejar datos de prueba en la base de datos.
 pest()->extend(TestCase::class)
+    ->use(DatabaseTransactions::class)
     ->in('Feature');
 
 /*
