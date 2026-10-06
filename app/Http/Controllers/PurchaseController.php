@@ -24,7 +24,10 @@ class PurchaseController extends Controller
     {
         Gate::authorize('purchases.ver');
 
+        $userBranchId = auth()->check() ? auth()->user()->id_branch : null;
+
         $query = Purchase::with(['purchaseOrder', 'supplier', 'branch', 'warehouse', 'user'])
+            ->when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))
             ->orderByDesc('id_purchase');
 
         if ($request->filled('search')) {
@@ -56,15 +59,16 @@ class PurchaseController extends Controller
         $purchases = $query->paginate(10)->withQueryString();
 
         // Métricas
-        $totalCount     = Purchase::count();
-        $draftCount     = Purchase::where('status', 'draft')->count();
-        $completedCount = Purchase::whereIn('status', ['received', 'completed'])->count();
-        $totalAmount    = Purchase::where('status', '!=', 'cancelled')->sum('total');
+        $totalCount     = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->count();
+        $draftCount     = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->where('status', 'draft')->count();
+        $completedCount = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->whereIn('status', ['received', 'completed'])->count();
+        $totalAmount    = Purchase::when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))->where('status', '!=', 'cancelled')->sum('total');
 
         $suppliers = Supplier::orderBy('name')->get();
         $branches   = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
         $orders     = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
+            ->when($userBranchId, fn ($q) => $q->where('id_branch', $userBranchId))
             ->with(['supplier', 'branch', 'warehouse', 'details.product', 'details.unit'])
             ->orderByDesc('id_purchase_order')
             ->get();

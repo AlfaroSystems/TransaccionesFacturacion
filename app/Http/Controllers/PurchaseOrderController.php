@@ -56,7 +56,13 @@ class PurchaseOrderController extends Controller
     {
         Gate::authorize('purchase_orders.ver');
 
-        $purchase_orders = PurchaseOrder::with(['supplier', 'branch', 'warehouse', 'user'])
+        $query = PurchaseOrder::with(['supplier', 'branch', 'warehouse', 'user']);
+
+        if (auth()->check() && auth()->user()->id_branch) {
+            $query->where('id_branch', auth()->user()->id_branch);
+        }
+
+        $purchase_orders = $query
             ->orderByDesc('id_purchase_order')
             ->paginate(10);
 
@@ -141,6 +147,10 @@ class PurchaseOrderController extends Controller
         }
 
         $validated = $this->validateOrderRequest($request, mode: 'store');
+
+        if (auth()->check() && auth()->user()->id_branch) {
+            $validated['id_branch'] = auth()->user()->id_branch;
+        }
 
         $this->service->crear($validated);
 

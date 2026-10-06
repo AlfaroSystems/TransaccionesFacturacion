@@ -34,6 +34,12 @@ class Branch extends Model
         return $this->hasMany(Warehouse::class);
     }
 
+    // Una sucursal tiene muchos usuarios asignados
+    public function users()
+    {
+        return $this->hasMany(User::class, 'id_branch');
+    }
+
     public function department()
     {
         return $this->belongsTo(Department::class);

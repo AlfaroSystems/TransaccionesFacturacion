@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +19,7 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.ver');
 
-        $query = User::with('roles');
+        $query = User::with(['roles', 'branch']);
 
         // Búsqueda por nombre o email
         if ($request->filled('search')) {
@@ -35,6 +37,11 @@ class UserController extends Controller
             });
         }
 
+        // Filtro por sucursal
+        if ($request->filled('id_branch')) {
+            $query->where('id_branch', $request->input('id_branch'));
+        }
+
         // Filtro por estado
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
@@ -43,8 +50,9 @@ class UserController extends Controller
         // Paginación y mantenimiento de los parámetros de búsqueda/filtro
         $users = $query->latest()->paginate(10)->withQueryString();
         $roles = Role::all();
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
 
-        return view('users.index', compact('users', 'roles'));
+        return view('users.index', compact('users', 'roles', 'branches'));
     }
 
     /**
@@ -55,8 +63,9 @@ class UserController extends Controller
         Gate::authorize('usuarios.crear');
 
         $roles = Role::all();
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
 
-        return view('users.create', compact('roles'));
+        return view('users.create', compact('roles', 'branches'));
     }
 
     /**
@@ -69,6 +78,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'id_branch' => ['nullable', 'exists:branches,id'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])],
             'roles' => ['required', 'array'],
@@ -78,6 +88,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'id_branch' => $validated['id_branch'] ?? null,
             'password' => Hash::make($validated['password']),
             'status' => $validated['status'],
         ]);
@@ -104,9 +115,10 @@ class UserController extends Controller
         Gate::authorize('usuarios.editar');
 
         $roles = Role::all();
+        $branches = Branch::where('is_active', true)->orderBy('name')->get();
         $userRoles = $user->roles->pluck('id')->toArray();
 
-        return view('users.edit', compact('user', 'roles', 'userRoles'));
+        return view('users.edit', compact('user', 'roles', 'branches', 'userRoles'));
     }
 
     /**
@@ -119,6 +131,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'id_branch' => ['nullable', 'exists:branches,id'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'status' => ['required', 'string', Rule::in(['active', 'inactive'])],
             'roles' => ['required', 'array'],
@@ -128,6 +141,7 @@ class UserController extends Controller
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'id_branch' => $validated['id_branch'] ?? null,
             'status' => $validated['status'],
         ];
 

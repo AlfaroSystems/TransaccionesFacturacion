@@ -13,7 +13,11 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.ver');
 
-        $warehouses = Warehouse::with(['branch', 'warehouseCategory'])->get();
+        $userBranchId = auth()->check() ? auth()->user()->id_branch : null;
+
+        $warehouses = Warehouse::with(['branch', 'warehouseCategory'])
+            ->when($userBranchId, fn ($q) => $q->where('branch_id', $userBranchId))
+            ->get();
         $branches = Branch::where('is_active', true)->get();
         $categories = WarehouseCategory::where('is_active', true)->get();
         

@@ -7,7 +7,7 @@
     <header class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Gestión de Usuarios</h1>
-            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso y sus niveles de permisos.</p>
+            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Administra las cuentas de acceso, asignación por sucursal y niveles de permisos.</p>
         </div>
         @can('usuarios.crear')
             <button type="button" onclick="openModal('create-user-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-[#005e66] dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-[#3cb0a4] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="w-full md:w-48">
+            <div class="w-full md:w-44">
                 <label for="role" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rol</label>
                 <select name="role" id="role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todos los Roles</option>
@@ -43,6 +43,17 @@
                 </select>
             </div>
             <div class="w-full md:w-48">
+                <label for="id_branch" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal</label>
+                <select name="id_branch" id="id_branch" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                    <option value="">Todas las Sucursales</option>
+                    @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}" {{ request('id_branch') == $branch->id ? 'selected' : '' }}>
+                            {{ $branch->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="w-full md:w-40">
                 <label for="status" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estado</label>
                 <select name="status" id="status" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">Todos los Estados</option>
@@ -55,7 +66,7 @@
                     Filtrar
                 </button>
             </div>
-            @if(request()->anyFilled(['search', 'role', 'status']))
+            @if(request()->anyFilled(['search', 'role', 'id_branch', 'status']))
                 <div class="w-full md:w-auto">
                     <a href="{{ route('users.index') }}" class="block w-full px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
                         Limpiar
@@ -71,6 +82,7 @@
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 pl-10">Usuario</th>
+                    <th class="px-6 py-3">Sucursal</th>
                     <th class="px-6 py-3">Rol</th>
                     <th class="px-6 py-3">Estado</th>
                     <th class="px-6 py-3">Fecha Registro</th>
@@ -91,6 +103,22 @@
                                     <div class="text-xs text-slate-400 font-semibold">{{ $user->email }}</div>
                                 </div>
                             </div>
+                        </td>
+
+                        <!-- Sucursal del Usuario -->
+                        <td class="px-6 py-4 bg-white border-y border-slate-100">
+                            @if($user->branch)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-600/10">
+                                    <svg class="w-3.5 h-3.5 text-sky-500 shrink-0" width="14" height="14" style="width: 14px; height: 14px; min-width: 14px; max-width: 14px; min-height: 14px; max-height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                    <span>{{ $user->branch->name }}</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-400 border border-slate-200">
+                                    Sin Sucursal
+                                </span>
+                            @endif
                         </td>
 
                         <!-- Rol del Usuario -->
@@ -157,7 +185,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-sm">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,6 +264,25 @@
                     @enderror
                 </div>
             </div>
+
+            <!-- Asignación de Sucursal -->
+            <div>
+                <label for="create-branch-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal Asignada</label>
+                <select name="id_branch" id="create-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                    <option value="">Todas / Sin Sucursal Específica</option>
+                    @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}" {{ (old('modal_type') === 'create' && old('id_branch') == $branch->id) ? 'selected' : '' }}>
+                            {{ $branch->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('id_branch')
+                    @if(old('modal_type') === 'create')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
             <div class="border-t border-slate-100 pt-4">
                 <div class="flex items-center gap-2 mb-4">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -250,7 +297,11 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </span>
-                            <input type="password" name="password" id="password" placeholder="Mínimo 8 caracteres" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                            <input type="password" name="password" id="password" placeholder="Mínimo 8 caracteres" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                            <button type="button" onclick="togglePasswordInput('password', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
+                                <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.957 9.957 0 013.98.937c4.478 0 8.268 2.943 9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
                         </div>
                         @error('password')
                             @if(old('modal_type') === 'create')
@@ -266,7 +317,11 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                             </span>
-                            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                            <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold" required>
+                            <button type="button" onclick="togglePasswordInput('password_confirmation', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
+                                <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.957 9.957 0 013.98.937c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21f-9-9m0 0L3 3"/></svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -329,7 +384,7 @@
             </div>
             <div>
                 <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Editar Usuario</h2>
-                <p class="text-slate-400 text-sm font-semibold mt-1">Modifica los accesos y credenciales del usuario.</p>
+                <p class="text-slate-400 text-sm font-semibold mt-1">Modifica los accesos, sucursal y credenciales del usuario.</p>
             </div>
         </div>
 
@@ -371,6 +426,25 @@
                     @enderror
                 </div>
             </div>
+
+            <!-- Asignación de Sucursal -->
+            <div>
+                <label for="edit-branch-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sucursal Asignada</label>
+                <select name="id_branch" id="edit-branch-select" class="w-full bg-slate-50 border @error('id_branch') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                    <option value="">Todas / Sin Sucursal Específica</option>
+                    @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}">
+                            {{ $branch->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('id_branch')
+                    @if(old('modal_type') === 'edit')
+                        <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
+                    @endif
+                @enderror
+            </div>
+
             <div class="border-t border-slate-100 pt-4">
                 <div class="flex items-center gap-2 mb-2">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -384,7 +458,11 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </span>
-                            <input type="password" name="password" id="edit-password" placeholder="Dejar en blanco para conservar" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                            <input type="password" name="password" id="edit-password" placeholder="Dejar en blanco para conservar" class="w-full bg-slate-50 border @error('password') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                            <button type="button" onclick="togglePasswordInput('edit-password', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
+                                <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.957 9.957 0 013.98.937c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21f-9-9m0 0L3 3"/></svg>
+                            </button>
                         </div>
                         @error('password')
                             @if(old('modal_type') === 'edit')
@@ -400,7 +478,11 @@
                             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                             </span>
-                            <input type="password" name="password_confirmation" id="edit-password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                            <input type="password" name="password_confirmation" id="edit-password_confirmation" placeholder="Repite la contraseña" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:bg-white transition-all text-slate-700 font-semibold">
+                            <button type="button" onclick="togglePasswordInput('edit-password_confirmation', this)" class="absolute inset-y-0 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
+                                <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.957 9.957 0 013.98.937c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21f-9-9m0 0L3 3"/></svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -460,12 +542,18 @@
         document.getElementById('edit-password').value = '';
         document.getElementById('edit-password_confirmation').value = '';
         
+        // Seleccionar sucursal
+        const branchSelect = document.getElementById('edit-branch-select');
+        if (branchSelect) {
+            branchSelect.value = user.id_branch || '';
+        }
+
         // Seleccionar rol en el desplegable
         const roleSelect = document.getElementById('edit-role-select');
         if (roleSelect) {
             roleSelect.value = (roleIds && roleIds.length > 0) ? roleIds[0] : '';
         }
-        
+
         const statusChk = document.getElementById('edit-status');
         statusChk.checked = user.status === 'active';
         
@@ -473,6 +561,20 @@
         label.textContent = user.status === 'active' ? 'Usuario Activo' : 'Usuario Inactivo';
         
         openModal('edit-user-modal');
+    }
+
+    function togglePasswordInput(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+
+        const eyeOpen = btn.querySelector('.eye-open');
+        const eyeClosed = btn.querySelector('.eye-closed');
+        if (eyeOpen && eyeClosed) {
+            eyeOpen.classList.toggle('hidden', isPassword);
+            eyeClosed.classList.toggle('hidden', !isPassword);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -495,6 +597,7 @@
                     id: "{{ old('id') }}",
                     name: "{{ old('name') }}",
                     email: "{{ old('email') }}",
+                    id_branch: "{{ old('id_branch') }}",
                     status: "{{ old('status', 'inactive') }}"
                 };
                 const oldRoles = {!! json_encode(old('roles', [])) !!}.map(Number);

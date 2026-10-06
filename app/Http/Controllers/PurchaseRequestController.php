@@ -29,6 +29,11 @@ class PurchaseRequestController extends Controller
             'details.unit',
         ]);
 
+        // Restricción por sucursal si el usuario tiene una asignada
+        if (auth()->check() && auth()->user()->id_branch) {
+            $query->where('id_branch', auth()->user()->id_branch);
+        }
+
         // Filtro por estado
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -112,7 +117,7 @@ class PurchaseRequestController extends Controller
                 'purchase_request_code' =>
                     $this->generatePurchaseRequestCode(),
 
-                'id_branch' => $validated['id_branch'],
+                'id_branch' => auth()->user()->id_branch ?? $validated['id_branch'],
                 'id_warehouse' => $validated['id_warehouse'],
 
                 'id_user' => auth()->id(),

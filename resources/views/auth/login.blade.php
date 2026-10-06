@@ -85,7 +85,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </span>
-                            <input id="password" class="w-full pl-12 pr-4 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 dark:placeholder-slate-500 text-gray-700 dark:text-slate-100 font-medium bg-transparent" type="password" name="password" placeholder="Contraseña" required autocomplete="current-password" />
+                            <input id="password" class="w-full pl-12 pr-10 py-3 rounded-full text-xs border-0 focus:outline-none placeholder-gray-400 dark:placeholder-slate-500 text-gray-700 dark:text-slate-100 font-medium bg-transparent" type="password" name="password" placeholder="Contraseña" required autocomplete="current-password" />
+                            <button type="button" onclick="togglePasswordInput('password', this)" class="absolute flex items-center text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 transition-colors cursor-pointer" style="right: 14px;" title="Mostrar/Ocultar contraseña">
+                                <svg class="w-4 h-4 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                <svg class="w-4 h-4 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a9.957 9.957 0 013.98.937c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21f-9-9m0 0L3 3"/></svg>
+                            </button>
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs ml-4" />
                     </div>
@@ -132,7 +136,7 @@
         </div>
     </div>
 
-    <!-- Toggle function for dark mode -->
+    <!-- Toggle function for dark mode & password visibility -->
     <script>
         function toggleDarkMode() {
             const html = document.documentElement;
@@ -142,6 +146,22 @@
             } else {
                 html.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function togglePasswordInput(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const eyeOpen = btn.querySelector('.eye-open');
+            const eyeClosed = btn.querySelector('.eye-closed');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (eyeOpen) eyeOpen.classList.add('hidden');
+                if (eyeClosed) eyeClosed.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                if (eyeOpen) eyeOpen.classList.remove('hidden');
+                if (eyeClosed) eyeClosed.classList.add('hidden');
             }
         }
     </script>
