@@ -22,11 +22,14 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <!-- Base de datos: PostgreSQL (igual que producción). Los tests usan DatabaseTransactions para rollback automático. -->
+        <!-- Base de datos: PostgreSQL (igual que producción), en una base separada de la de desarrollo.
+             Los tests usan RefreshDatabase: migran la base al iniciar y revierten cada test. -->
         <env name="DB_CONNECTION" value="pgsql" force="true"/>
         <env name="DB_HOST" value="db" force="true"/>
         <env name="DB_PORT" value="5432" force="true"/>
-        <env name="DB_DATABASE" value="transacciones_facturacion" force="true"/>
+        <env name="DB_DATABASE" value="transacciones_facturacion_testing" force="true"/>
+        <!-- docker-compose define DB_DATABASE en el entorno del contenedor ($_SERVER), que Laravel lee antes que $_ENV -->
+        <server name="DB_DATABASE" value="transacciones_facturacion_testing" force="true"/>
         <env name="DB_USERNAME" value="postgres" force="true"/>
         <env name="DB_PASSWORD" value="1234" force="true"/>
         <env name="DB_URL" value="" force="true"/>

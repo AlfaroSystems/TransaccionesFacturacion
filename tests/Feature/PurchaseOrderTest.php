@@ -12,9 +12,6 @@ use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
 use App\Services\PurchaseOrderService;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-uses(DatabaseTransactions::class);
 
 // =============================================================================
 // Helpers compartidos para montar datos maestros en cada test

@@ -6,11 +6,8 @@ use App\Models\Company;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
-
-uses(DatabaseTransactions::class);
 
 // =============================================================================
 // Helpers

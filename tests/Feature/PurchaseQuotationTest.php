@@ -14,9 +14,6 @@ use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequestDetail;
 use App\Models\PurchaseQuotation;
 use Illuminate\Support\Str;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-uses(DatabaseTransactions::class);
 
 test('se puede registrar una oferta de proveedor completa con items y gastos adicionales', function () {
     // 1. Simular usuario autenticado

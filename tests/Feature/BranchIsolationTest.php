@@ -175,6 +175,21 @@ function escenarioDosSucursales(): array
 }
 
 /**
+ * Compra recibida y sin retaceo de la sucursal: la única que admite un retaceo nuevo.
+ */
+function compraRecibidaSinRetaceo(object $sucursal): Purchase
+{
+    return Purchase::queryAllBranches()->create([
+        'id_purchase_order' => $sucursal->order->id_purchase_order,
+        'id_supplier'       => $sucursal->order->id_supplier,
+        'id_branch'         => $sucursal->branch->id,
+        'id_warehouse'      => $sucursal->warehouse->id,
+        'purchase_date'     => now(),
+        'status'            => 'received',
+    ]);
+}
+
+/**
  * Verifica que una colección de la vista contiene el registro propio y no el ajeno.
  */
 function expectSoloPropio($items, $propio, $ajeno): void
@@ -216,9 +231,12 @@ test('los listados y desplegables solo muestran datos de la sucursal del usuario
     expectSoloPropio($r->viewData('orders'), $a->order, $b->order);
     expect($r->viewData('totalCount'))->toBe(1);
 
+    // Para un retaceo nuevo solo se ofrecen compras recibidas y sin retaceo activo
+    [$recibidaA, $recibidaB] = [compraRecibidaSinRetaceo($a), compraRecibidaSinRetaceo($b)];
+
     $r = $this->get(route('retaceos.index'))->assertOk();
     expectSoloPropio($r->viewData('retaceos'), $a->retaceo, $b->retaceo);
-    expectSoloPropio($r->viewData('purchasesForModal'), $a->purchase, $b->purchase);
+    expectSoloPropio($r->viewData('purchasesForModal'), $recibidaA, $recibidaB);
     expect($r->viewData('totalCount'))->toBe(1);
 
     $r = $this->get(route('warehouses.index'))->assertOk();
@@ -240,7 +258,7 @@ test('los listados y desplegables solo muestran datos de la sucursal del usuario
     $r = $this->get(route('dashboard'))->assertOk();
     expect($r->viewData('purchaseOrderCount'))->toBe(1)
         ->and($r->viewData('purchaseRequestCount'))->toBe(1)
-        ->and($r->viewData('purchaseCount'))->toBe(1)
+        ->and($r->viewData('purchaseCount'))->toBe(2) // la del escenario y la recibida de este test
         ->and($r->viewData('retaceoCount'))->toBe(1)
         ->and($r->viewData('userCount'))->toBe(1);
 });
@@ -449,8 +467,8 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
             'id_purchase_detail' => $b->purchaseDetail->id_purchase_detail,
         ]],
     ];
-    $this->post(route('retaceos.store'), $retaceo($b->purchase))->assertSessionHasErrors(['id_purchase']);
-    $this->post(route('retaceos.store'), $retaceo($a->purchase))
+    $this->post(route('retaceos.store'), $retaceo(compraRecibidaSinRetaceo($b)))->assertSessionHasErrors(['id_purchase']);
+    $this->post(route('retaceos.store'), $retaceo(compraRecibidaSinRetaceo($a)))
         ->assertSessionHasErrors(['details.0.id_purchase_detail'])
         ->assertSessionDoesntHaveErrors(['id_purchase']);
 
@@ -567,7 +585,7 @@ test('los correlativos siguen siendo únicos aunque el usuario solo vea su sucur
 
     $orden = PurchaseOrder::create([
         'id_supplier' => $catalogos['supplier']->id_supplier, 'id_branch' => $a->branch->id,
-        'id_warehouse' => $a->warehouse->id, 'status' => 'draft',
+        'id_warehouse' => $a->warehouse->id, 'order_date' => now(), 'status' => 'draft',
     ]);
     $compra = Purchase::create([
         'id_purchase_order' => $a->order->id_purchase_order, 'id_supplier' => $catalogos['supplier']->id_supplier,

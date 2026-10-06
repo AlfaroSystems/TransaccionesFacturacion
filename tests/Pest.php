@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /*
@@ -14,10 +14,10 @@ use Tests\TestCase;
 |
 */
 
-// Cada test de Feature corre dentro de una transacción que se revierte al terminar,
-// para no dejar datos de prueba en la base de datos.
+// Los tests de Feature usan la base *_testing (ver phpunit.xml): RefreshDatabase la migra
+// al iniciar la corrida y revierte cada test en una transacción.
 pest()->extend(TestCase::class)
-    ->use(DatabaseTransactions::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
 
 /*
