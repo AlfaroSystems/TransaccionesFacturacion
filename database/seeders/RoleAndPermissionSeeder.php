@@ -360,6 +360,12 @@ class RoleAndPermissionSeeder extends Seeder
                 'action' => 'send',
             ],
             [
+                'id_permission' => 'purchase_requests.aprobar',
+                'name' => 'Aprobar Solicitudes de Compra',
+                'description' => 'Permite aprobar solicitudes enviadas para generar su solicitud de cotización.',
+                'action' => 'approve',
+            ],
+            [
                 'id_permission' => 'purchase_requests.devolver',
                 'name' => 'Devolver/Rechazar Solicitudes de Compra',
                 'description' => 'Permite devolver a la sucursal o rechazar solicitudes enviadas, indicando el motivo.',

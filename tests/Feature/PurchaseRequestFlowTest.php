@@ -14,8 +14,9 @@ use App\Models\WarehouseCategory;
 use Illuminate\Support\Str;
 
 // =============================================================================
-// Flujo: la sucursal crea y envía; el departamento de compras (Casa Matriz) devuelve,
-// rechaza o genera la cotización. Una vez enviada, nadie la modifica.
+// Flujo: la sucursal crea y envía; el departamento de compras (Casa Matriz) la aprueba,
+// devuelve o rechaza, y de las aprobadas genera la cotización. Una vez enviada, nadie
+// la modifica.
 // =============================================================================
 
 const PERMISOS_SUCURSAL_SOLICITUDES = [
@@ -25,7 +26,7 @@ const PERMISOS_SUCURSAL_SOLICITUDES = [
 
 const PERMISOS_COMPRAS_SOLICITUDES = [
     'purchase_requests.ver', 'purchase_requests.crear', 'purchase_requests.editar',
-    'purchase_requests.eliminar', 'purchase_requests.enviar', 'purchase_requests.devolver',
+    'purchase_requests.eliminar', 'purchase_requests.enviar', 'purchase_requests.aprobar', 'purchase_requests.devolver',
     'purchase_quotation_requests.ver', 'purchase_quotation_requests.crear',
 ];
 
@@ -245,12 +246,28 @@ test('una sucursal normal solo puede crear solicitudes para sí misma', function
         ->assertSessionHasErrors('id_branch');
 });
 
-test('compras genera la cotización de una solicitud de otra sucursal y la sigue viendo', function () {
+test('compras aprueba una solicitud de otra sucursal, genera su cotización y la sigue viendo', function () {
     $e = flujoEscenario();
     $request = flujoSolicitud($e, $e->sucursalA, $e->bodegaA, $e->usuarioA, 'sent');
     $detail = $request->details()->first();
+    $cotizar = fn () => $this->post(route('purchase-quotation-requests.store'), [
+        'id_purchase_request' => $request->id_purchase_request,
+        'items' => [['id_purchase_request_detail' => $detail->id_purchase_request_detail, 'quantity' => 2]],
+    ]);
 
-    $this->actingAs($e->compras)->post(route('purchase-quotation-requests.store'), [
+    // Enviada aún no se puede cotizar: primero se aprueba
+    $this->actingAs($e->compras);
+    $cotizar()->assertSessionHasErrors('id_purchase_request');
+
+    $this->post(route('purchase-requests.approve', $request))->assertSessionHas('success');
+    expect($request->fresh()->status)->toBe('approved');
+
+    // Aprobada ya no se devuelve ni se rechaza
+    $this->post(route('purchase-requests.return', $request), ['reason' => 'x'])->assertSessionHas('error');
+    $this->post(route('purchase-requests.reject', $request), ['reason' => 'x'])->assertSessionHas('error');
+    expect($request->fresh()->status)->toBe('approved');
+
+    $this->post(route('purchase-quotation-requests.store'), [
         'id_purchase_request' => $request->id_purchase_request,
         'items' => [['id_purchase_request_detail' => $detail->id_purchase_request_detail, 'quantity' => 2]],
     ])->assertSessionHasNoErrors();
@@ -361,4 +378,16 @@ test('un producto no puede repetirse en las filas de una solicitud', function ()
         ->assertSessionHasErrors(['details.1.id_product' => 'Un producto aparece en más de una fila; indique la cantidad total en una sola.']);
 
     expect(PurchaseRequest::queryAllBranches()->where('id_branch', $e->sucursalA->id_branch)->exists())->toBeFalse();
+});
+
+test('solo quien tiene el permiso de aprobar puede aprobar, y solo solicitudes enviadas', function () {
+    $e = flujoEscenario();
+    $enviada = flujoSolicitud($e, $e->sucursalA, $e->bodegaA, $e->usuarioA, 'sent');
+    $borrador = flujoSolicitud($e, $e->matriz, $e->bodegaMatriz, $e->compras, 'draft');
+
+    $this->actingAs($e->usuarioA)->post(route('purchase-requests.approve', $enviada))->assertForbidden();
+    expect($enviada->fresh()->status)->toBe('sent');
+
+    $this->actingAs($e->compras)->post(route('purchase-requests.approve', $borrador))->assertSessionHas('error');
+    expect($borrador->fresh()->status)->toBe('draft');
 });

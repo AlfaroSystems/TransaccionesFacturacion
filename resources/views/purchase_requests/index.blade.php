@@ -11,7 +11,7 @@
                 <span class="text-xs font-semibold text-slate-500">Módulo de Solicitudes</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">Solicitudes de Compra</h1>
-            <p class="text-slate-500 text-sm mt-0.5">Cada sucursal registra sus solicitudes y las envía al departamento de compras para cotizarlas.</p>
+            <p class="text-slate-500 text-sm mt-0.5">Cada sucursal registra sus solicitudes y las envía al departamento de compras para su aprobación.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
             <button type="button" onclick="openModal('create-purchase-request-modal')" class="w-full md:w-auto bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
@@ -35,7 +35,7 @@
         </div>
     @endif
     <!-- Métricas -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#005e66] flex items-center justify-center text-xl font-bold">📋</div>
             <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts->sum() }}</span></div>
@@ -50,6 +50,10 @@
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">✓</div>
+            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Aprobadas</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['approved'] ?? 0 }}</span></div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">🗂</div>
             <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">En cotización</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['quoted'] ?? 0 }}</span></div>
         </div>
     </div>
@@ -311,8 +315,11 @@
                         </div>
                     </form>
                 @endcan
-                @can('purchase_quotation_requests.crear')
-                    <a href="{{ route('purchase-quotation-requests.index', ['cotizar' => $purchaseRequest->id_purchase_request]) }}" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition">Generar Cotización</a>
+                @can('purchase_requests.aprobar')
+                    <form method="POST" action="{{ route('purchase-requests.approve', $purchaseRequest) }}">
+                        @csrf
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition">Aprobar Solicitud</button>
+                    </form>
                 @endcan
             @endif
         </div>

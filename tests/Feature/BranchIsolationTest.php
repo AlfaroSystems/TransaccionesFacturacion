@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 // =============================================================================
 
 const PERMISOS_AISLAMIENTO = [
-    'purchase_requests.ver', 'purchase_requests.crear', 'purchase_requests.editar', 'purchase_requests.eliminar', 'purchase_requests.enviar', 'purchase_requests.devolver',
+    'purchase_requests.ver', 'purchase_requests.crear', 'purchase_requests.editar', 'purchase_requests.eliminar', 'purchase_requests.enviar', 'purchase_requests.aprobar', 'purchase_requests.devolver',
     'purchase_quotation_requests.ver', 'purchase_quotation_requests.crear', 'purchase_quotation_requests.seleccionar_cotizacion',
     'purchase_quotations.crear', 'purchase_quotations.eliminar',
     'purchase_orders.ver', 'purchase_orders.crear', 'purchase_orders.editar', 'purchase_orders.eliminar', 'purchase_orders.aprobar', 'purchase_orders.pdf',
@@ -210,9 +210,9 @@ test('los listados y desplegables solo muestran datos de la sucursal del usuario
     $r = $this->get(route('purchase-quotation-requests.index'))->assertOk();
     expectSoloPropio($r->viewData('quotationRequests'), $a->quotationRequest, $b->quotationRequest);
 
-    // Solicitudes enviadas sin cotizar en ambas sucursales: cada una ve solo la suya
-    PurchaseRequest::queryAllBranches()->whereKey([$a->request->id_purchase_request, $b->request->id_purchase_request])->update(['status' => 'sent']);
-    $ids = collect($this->getJson(route('purchase-quotation-requests.sent-requests'))->assertOk()->json())
+    // Solicitudes aprobadas sin cotizar en ambas sucursales: cada una ve solo la suya
+    PurchaseRequest::queryAllBranches()->whereKey([$a->request->id_purchase_request, $b->request->id_purchase_request])->update(['status' => 'approved']);
+    $ids = collect($this->getJson(route('purchase-quotation-requests.approved-requests'))->assertOk()->json())
         ->pluck('id_purchase_request');
     expect($ids)->toContain($a->request->id_purchase_request)->not->toContain($b->request->id_purchase_request);
 
@@ -283,6 +283,7 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
         ['put', route('purchase-requests.update', $b->request)],
         ['delete', route('purchase-requests.destroy', $b->request)],
         ['post', route('purchase-requests.send', $b->request)],
+        ['post', route('purchase-requests.approve', $b->request)],
         ['post', route('purchase-requests.return', $b->request)],
         ['post', route('purchase-requests.reject', $b->request)],
 

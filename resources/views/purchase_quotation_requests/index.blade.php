@@ -112,7 +112,7 @@
                                     </div>
                                     <h3 class="font-extrabold text-slate-700 dark:text-slate-200 text-lg">No hay solicitudes de cotización registradas</h3>
                                     <p class="text-sm text-slate-400">
-                                        {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización para una solicitud de compra enviada.' }}
+                                        {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización para una solicitud de compra aprobada.' }}
                                     </p>
                                     <div class="pt-2">
                                         <button type="button" onclick="openQuotationRequestModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm shadow-md transition-all">
@@ -142,7 +142,7 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Nueva Solicitud de Cotización</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Vincule una solicitud de compra enviada por una sucursal.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Vincule una solicitud de compra aprobada por el departamento de compras.</p>
             </div>
             <button type="button" onclick="closeQuotationRequestModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -154,10 +154,10 @@
             <div class="p-6 space-y-5 overflow-y-auto flex-1">
                 <div class="space-y-1.5">
                     <label for="modal_id_purchase_request" class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Solicitud de Compra Enviada <span class="text-rose-500">*</span>
+                        Solicitud de Compra Aprobada <span class="text-rose-500">*</span>
                     </label>
                     <select id="modal_id_purchase_request" name="id_purchase_request" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:ring-2 focus:ring-[#005e66] outline-hidden transition-all">
-                        <option value="">-- Cargar solicitudes enviadas... --</option>
+                        <option value="">-- Cargar solicitudes aprobadas... --</option>
                     </select>
                 </div>
 
@@ -179,7 +179,7 @@
 
                     <div id="modal-items-wrapper" class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden min-h-[140px] flex items-center justify-center p-3">
                         <div id="modal-items-placeholder" class="text-center text-slate-400 text-xs space-y-1">
-                            <p class="font-semibold text-slate-500 dark:text-slate-400">Seleccione una solicitud de compra enviada</p>
+                            <p class="font-semibold text-slate-500 dark:text-slate-400">Seleccione una solicitud de compra aprobada</p>
                             <p>Los detalles se cargarán automáticamente.</p>
                         </div>
                         <div id="modal-items-loading" class="hidden text-center text-slate-400 text-xs space-y-2">
@@ -216,7 +216,7 @@
 </div>
 
 <script>
-let sentRequestsCache = [];
+let approvedRequestsCache = [];
 
 function openQuotationRequestModal(selectedId = null) {
     const modal = document.getElementById('quotation-request-modal');
@@ -230,7 +230,7 @@ function openQuotationRequestModal(selectedId = null) {
         card.classList.add('scale-100');
     }, 10);
 
-    loadSentRequestsModal(selectedId);
+    loadApprovedRequestsModal(selectedId);
 }
 
 function closeQuotationRequestModal() {
@@ -246,20 +246,20 @@ function closeQuotationRequestModal() {
     }, 150);
 }
 
-function loadSentRequestsModal(selectedId = null) {
+function loadApprovedRequestsModal(selectedId = null) {
     const select = document.getElementById('modal_id_purchase_request');
     select.disabled = true;
 
-    fetch('{{ route('purchase-quotation-requests.sent-requests') }}', {
+    fetch('{{ route('purchase-quotation-requests.approved-requests') }}', {
         headers: { 'Accept': 'application/json' }
     })
     .then(res => res.json())
     .then(data => {
-        sentRequestsCache = data;
+        approvedRequestsCache = data;
         select.innerHTML = '';
 
         if (data.length === 0) {
-            select.innerHTML = '<option value="">No hay solicitudes de compra enviadas pendientes de cotizar</option>';
+            select.innerHTML = '<option value="">No hay solicitudes de compra aprobadas pendientes de cotizar</option>';
             clearModalItemsTable();
             return;
         }
@@ -286,7 +286,7 @@ function loadSentRequestsModal(selectedId = null) {
     })
     .catch(err => {
         console.error('Error al cargar solicitudes:', err);
-        select.innerHTML = '<option value="">Error al cargar solicitudes enviadas</option>';
+        select.innerHTML = '<option value="">Error al cargar solicitudes aprobadas</option>';
     })
     .finally(() => {
         select.disabled = false;
@@ -305,7 +305,7 @@ function handleModalRequestChange(id) {
         return;
     }
 
-    const found = sentRequestsCache.find(r => r.id_purchase_request == id);
+    const found = approvedRequestsCache.find(r => r.id_purchase_request == id);
     if (found) {
         prevCode.textContent = found.purchase_request_code;
         prevDate.textContent = 'Requerida: ' + (found.required_date ? new Date(found.required_date).toLocaleDateString() : 'N/A');
@@ -392,10 +392,6 @@ function clearModalItemsTable() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // ?cotizar=ID abre el modal con esa solicitud de compra seleccionada
-    const requestToQuote = new URLSearchParams(window.location.search).get('cotizar');
-    if (requestToQuote) openQuotationRequestModal(requestToQuote);
-
     const select = document.getElementById('modal_id_purchase_request');
     if (select) {
         select.addEventListener('change', function() {

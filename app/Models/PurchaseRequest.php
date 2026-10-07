@@ -14,13 +14,15 @@ class PurchaseRequest extends Model
 
     /**
      * Flujo: la sucursal crea el borrador y lo envía al departamento de compras, que la
-     * devuelve (vuelve a la sucursal para corregirla), la rechaza o genera la solicitud
-     * de cotización. Una vez enviada, nadie puede editarla ni eliminarla.
+     * aprueba, la devuelve (vuelve a la sucursal para corregirla) o la rechaza. De una
+     * aprobada se genera la solicitud de cotización. Una vez enviada, nadie puede
+     * editarla ni eliminarla.
      */
     public const STATUS_DRAFT = 'draft';
     public const STATUS_SENT = 'sent';
     public const STATUS_RETURNED = 'returned';
     public const STATUS_REJECTED = 'rejected';
+    public const STATUS_APPROVED = 'approved';
     public const STATUS_QUOTED = 'quoted';
 
     public const STATUS_LABELS = [
@@ -28,6 +30,7 @@ class PurchaseRequest extends Model
         self::STATUS_SENT => 'Enviada',
         self::STATUS_RETURNED => 'Devuelta',
         self::STATUS_REJECTED => 'Rechazada',
+        self::STATUS_APPROVED => 'Aprobada',
         self::STATUS_QUOTED => 'En cotización',
     ];
 
@@ -35,7 +38,7 @@ class PurchaseRequest extends Model
     public const EDITABLE_STATUSES = [self::STATUS_DRAFT, self::STATUS_RETURNED];
 
     /** Estados que el departamento de compras ve de las demás sucursales */
-    public const SUBMITTED_STATUSES = [self::STATUS_SENT, self::STATUS_REJECTED, self::STATUS_QUOTED];
+    public const SUBMITTED_STATUSES = [self::STATUS_SENT, self::STATUS_REJECTED, self::STATUS_APPROVED, self::STATUS_QUOTED];
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {

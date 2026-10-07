@@ -14,9 +14,9 @@ use Illuminate\Support\Str;
 
 /**
  * Solicitudes de compra: cada sucursal crea las suyas y las envía al departamento de
- * compras (la sucursal marcada como tal, p. ej. Casa Matriz), que las devuelve a la
- * sucursal, las rechaza o genera la solicitud de cotización. Una vez enviada, nadie
- * puede editarla ni eliminarla (ver PurchaseRequest).
+ * compras (la sucursal marcada como tal, p. ej. Casa Matriz), que las aprueba, las
+ * devuelve a la sucursal o las rechaza; de las aprobadas se genera la solicitud de
+ * cotización. Una vez enviada, nadie puede editarla ni eliminarla (ver PurchaseRequest).
  */
 class PurchaseRequestController extends Controller
 {
@@ -360,6 +360,30 @@ class PurchaseRequestController extends Controller
         return redirect()
             ->route('purchase-requests.index')
             ->with('success', 'Solicitud enviada al departamento de compras.');
+    }
+
+    /**
+     * Compras aprueba la solicitud enviada: queda lista para generar su solicitud de
+     * cotización (y ya no puede devolverse ni rechazarse).
+     */
+    public function approve(PurchaseRequest $purchaseRequest)
+    {
+        Gate::authorize('purchase_requests.aprobar');
+
+        if ($purchaseRequest->status !== PurchaseRequest::STATUS_SENT) {
+            return redirect()
+                ->route('purchase-requests.index')
+                ->with('error', 'Solo se pueden aprobar solicitudes enviadas.');
+        }
+
+        $purchaseRequest->update([
+            'status' => PurchaseRequest::STATUS_APPROVED,
+            'status_reason' => null,
+        ]);
+
+        return redirect()
+            ->route('purchase-requests.index')
+            ->with('success', 'Solicitud aprobada; ya puede generar su solicitud de cotización.');
     }
 
     /**

@@ -50,14 +50,14 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Endpoint AJAX: Devuelve las Solicitudes de Compra enviadas al departamento de
+     * Endpoint AJAX: Devuelve las Solicitudes de Compra aprobadas por el departamento de
      * compras que aún no tienen solicitud de cotización.
      */
-    public function getSentPurchaseRequests(): JsonResponse
+    public function getApprovedPurchaseRequests(): JsonResponse
     {
         Gate::authorize('purchase_quotation_requests.ver');
 
-        $sentRequests = PurchaseRequest::where('status', PurchaseRequest::STATUS_SENT)
+        $approvedRequests = PurchaseRequest::where('status', PurchaseRequest::STATUS_APPROVED)
             ->with('branch:id_branch,name')
             ->select([
                 'id_purchase_request',
@@ -70,7 +70,7 @@ class PurchaseQuotationRequestController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return response()->json($sentRequests);
+        return response()->json($approvedRequests);
     }
 
     /**
@@ -110,7 +110,7 @@ class PurchaseQuotationRequestController extends Controller
             // dos solicitudes de cotización de la misma
             $purchaseRequest = PurchaseRequest::whereKey($purchaseRequestId)->lockForUpdate()->firstOrFail();
 
-            if ($purchaseRequest->status !== PurchaseRequest::STATUS_SENT) {
+            if ($purchaseRequest->status !== PurchaseRequest::STATUS_APPROVED) {
                 return false;
             }
 

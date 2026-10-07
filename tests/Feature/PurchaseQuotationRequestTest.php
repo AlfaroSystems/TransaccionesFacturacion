@@ -33,7 +33,7 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'id_unit' => $unit->id_unit,
     ]);
 
-    // 3. Crear solicitud de compra enviada al departamento de compras
+    // 3. Crear solicitud de compra aprobada por el departamento de compras
     $purchaseRequest = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(),
         'purchase_request_code' => 'REQ-2026-TEST',
@@ -43,7 +43,7 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'request_date' => now(),
         'required_date' => now()->addDays(7),
         'justification' => 'Renovación de equipos informáticos',
-        'status' => 'sent',
+        'status' => 'approved',
     ]);
 
     $detail = $purchaseRequest->details()->create([
@@ -53,8 +53,8 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'description' => 'Equipos para desarrollo',
     ]);
 
-    // Mientras no se cotiza, aparece en la lista de solicitudes enviadas
-    $this->actingAs($user)->getJson(route('purchase-quotation-requests.sent-requests'))
+    // Mientras no se cotiza, aparece en la lista de solicitudes aprobadas
+    $this->actingAs($user)->getJson(route('purchase-quotation-requests.approved-requests'))
         ->assertOk()
         ->assertJsonFragment(['purchase_request_code' => 'REQ-2026-TEST']);
 
@@ -85,9 +85,9 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'quantity' => 5.0000,
     ]);
 
-    // 7. La solicitud de compra queda en cotización y sale de la lista de enviadas
+    // 7. La solicitud de compra queda en cotización y sale de la lista de aprobadas
     expect($purchaseRequest->fresh()->status)->toBe('quoted');
-    $this->actingAs($user)->getJson(route('purchase-quotation-requests.sent-requests'))
+    $this->actingAs($user)->getJson(route('purchase-quotation-requests.approved-requests'))
         ->assertOk()
         ->assertJsonMissing(['purchase_request_code' => 'REQ-2026-TEST']);
 

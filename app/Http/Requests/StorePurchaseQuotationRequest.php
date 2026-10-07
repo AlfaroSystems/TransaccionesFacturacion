@@ -28,8 +28,8 @@ class StorePurchaseQuotationRequest extends FormRequest
                 new Accessible(PurchaseRequest::class),
                 function ($attribute, $value, $fail) {
                     $pr = PurchaseRequest::find($value);
-                    if (!$pr || $pr->status !== PurchaseRequest::STATUS_SENT) {
-                        $fail('La solicitud de compra seleccionada debe estar enviada al departamento de compras y sin cotizar.');
+                    if (!$pr || $pr->status !== PurchaseRequest::STATUS_APPROVED) {
+                        $fail('La solicitud de compra seleccionada debe estar aprobada por el departamento de compras y sin cotizar.');
                     }
                 },
             ],
@@ -51,7 +51,7 @@ class StorePurchaseQuotationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'id_purchase_request.required' => 'Debe seleccionar una solicitud de compra enviada.',
+            'id_purchase_request.required' => 'Debe seleccionar una solicitud de compra aprobada.',
             'id_purchase_request.exists' => 'La solicitud de compra seleccionada no existe.',
             'items.required' => 'La solicitud de compra debe contener al menos un producto a cotizar.',
             'items.min' => 'Debe cotizar al menos un producto.',

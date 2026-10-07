@@ -84,11 +84,15 @@ Route::middleware('auth')->group(function () {
         'purchase-requests',
         PurchaseRequestController::class
     );
-    // Flujo: la sucursal envía; compras devuelve o rechaza (con motivo)
+    // Flujo: la sucursal envía; compras aprueba, devuelve o rechaza (con motivo)
     Route::post(
         'purchase-requests/{purchaseRequest}/send',
         [PurchaseRequestController::class, 'send']
     )->name('purchase-requests.send');
+    Route::post(
+        'purchase-requests/{purchaseRequest}/approve',
+        [PurchaseRequestController::class, 'approve']
+    )->name('purchase-requests.approve');
     Route::post(
         'purchase-requests/{purchaseRequest}/return',
         [PurchaseRequestController::class, 'returnToBranch']
@@ -99,9 +103,9 @@ Route::middleware('auth')->group(function () {
     )->name('purchase-requests.reject');
     // Solicitudes de Cotización a Proveedores
     Route::get(
-        'purchase-quotation-requests/sent-requests',
-        [PurchaseQuotationRequestController::class, 'getSentPurchaseRequests']
-    )->name('purchase-quotation-requests.sent-requests');
+        'purchase-quotation-requests/approved-requests',
+        [PurchaseQuotationRequestController::class, 'getApprovedPurchaseRequests']
+    )->name('purchase-quotation-requests.approved-requests');
     Route::get(
         'purchase-quotation-requests/request-details/{id}',
         [PurchaseQuotationRequestController::class, 'getPurchaseRequestDetails']
