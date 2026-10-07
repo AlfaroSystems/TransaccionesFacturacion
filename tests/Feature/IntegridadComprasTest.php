@@ -181,7 +181,8 @@ test('borrar un documento con documentos posteriores muestra un aviso en lugar d
         'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'draft',
     ]);
-    $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
+    $request->details()->create(['id_product' => $e->product->id_product, 'quantity' => 1, 'id_unit' => $e->unit->id_unit]);
+    $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$request]));
     $this->delete(route('purchase-requests.destroy', $request))->assertSessionHas('error');
 
     $quotation = PurchaseQuotation::create([
@@ -227,18 +228,26 @@ test('al aceptar una oferta, el rechazo de las demás queda en la bitácora', fu
         'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'quoted',
     ]);
-    $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
+    $request->details()->create(['id_product' => $e->product->id_product, 'quantity' => 1, 'id_unit' => $e->unit->id_unit]);
+    $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$request]));
     [$aceptada, $rechazada] = collect([1, 2])->map(fn () => PurchaseQuotation::create([
         'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
         'id_supplier' => $e->supplier->id_supplier, 'quotation_date' => now(), 'status' => 'submitted',
     ]))->all();
 
+    foreach ([$aceptada, $rechazada] as $oferta) {
+        $oferta->details()->create(['id_product' => $e->product->id_product, 'id_unit' => $e->unit->id_unit, 'quantity' => 1, 'unit_price' => 10, 'total' => 10]);
+    }
+
+    // Todo a un solo proveedor
     $this->actingAs($e->admin)
-        ->patch(route('purchase-quotation-requests.select-quotation', [$quotationRequest, $aceptada]))
+        ->post(route('purchase-quotation-requests.award', $quotationRequest->id_purchase_quotation_request), [
+            'awards' => [$e->product->id_product.'-'.$e->unit->id_unit => $aceptada->details()->first()->id_purchase_quotation_detail],
+        ])
         ->assertSessionHas('success');
 
     expect($rechazada->fresh()->status)->toBe('rejected')
-        ->and(AuditLog::where('auditable_type', PurchaseQuotation::class)->where('id_record', $rechazada->id_purchase_quotation)->where('action', 'selectQuotation')->exists())->toBeTrue();
+        ->and(AuditLog::where('auditable_type', PurchaseQuotation::class)->where('id_record', $rechazada->id_purchase_quotation)->where('action', 'award')->exists())->toBeTrue();
 });
 
 // =============================================================================
@@ -293,7 +302,8 @@ test('el descuento de una línea no puede superar su subtotal y el IVA no puede 
         'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'quoted',
     ]);
-    $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
+    $request->details()->create(['id_product' => $e->product->id_product, 'quantity' => 1, 'id_unit' => $e->unit->id_unit]);
+    $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$request]));
 
     $this->post(route('purchase-quotations.store'), [
         'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,

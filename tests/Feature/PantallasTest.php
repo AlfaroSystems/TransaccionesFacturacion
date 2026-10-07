@@ -61,7 +61,8 @@ function registrosParaPantallas(User $admin): array
         'id_warehouse' => $warehouse->id_warehouse, 'id_user' => $admin->id_user, 'request_date' => now(),
         'required_date' => now(), 'justification' => 'x', 'status' => 'draft',
     ]);
-    $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
+    $request->details()->create(['id_product' => $product->id_product, 'quantity' => 1, 'id_unit' => $unit->id_unit]);
+    $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$request]));
     $order = PurchaseOrder::create([
         'id_supplier' => $supplier->id_supplier, 'id_branch' => $branch->id_branch, 'id_warehouse' => $warehouse->id_warehouse,
         'order_date' => now(), 'status' => 'draft',

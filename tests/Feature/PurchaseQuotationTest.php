@@ -69,14 +69,7 @@ test('se puede registrar una oferta de proveedor completa con items y gastos adi
         'description' => 'Monitores para oficinas',
     ]);
 
-    $quotationRequest = PurchaseQuotationRequest::create([
-        'id_purchase_request' => $purchaseRequest->id_purchase_request,
-    ]);
-
-    PurchaseQuotationRequestDetail::create([
-        'id_purchase_request_detail' => $detail->id_purchase_request_detail,
-        'quantity' => 10.0000,
-    ]);
+    $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$purchaseRequest]));
 
     // 4. Enviar petición para guardar la oferta del proveedor
     // 10 unidades x $200 = $2000 subtotal

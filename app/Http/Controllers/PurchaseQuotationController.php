@@ -52,10 +52,10 @@ class PurchaseQuotationController extends Controller
         ]);
 
         $quotationRequest = PurchaseQuotationRequest::findOrFail($validated['id_purchase_quotation_request']);
-        if ($quotationRequest->id_purchase_quotation) {
+        if ($quotationRequest->isAwarded()) {
             return redirect()
                 ->back()
-                ->with('error', 'No se pueden registrar nuevas ofertas porque esta solicitud de cotización ya tiene una oferta aceptada.');
+                ->with('error', 'No se pueden registrar nuevas ofertas porque esta solicitud de cotización ya fue adjudicada.');
         }
 
         DB::transaction(function () use ($validated, $request) {
@@ -161,10 +161,10 @@ class PurchaseQuotationController extends Controller
         $quotation = PurchaseQuotation::findOrFail($id);
 
         $quotationRequest = PurchaseQuotationRequest::find($quotation->id_purchase_quotation_request);
-        if ($quotationRequest && $quotationRequest->id_purchase_quotation) {
+        if ($quotationRequest && $quotationRequest->isAwarded()) {
             return redirect()
                 ->back()
-                ->with('error', 'No se puede eliminar ninguna oferta porque esta solicitud ya tiene una oferta aceptada.');
+                ->with('error', 'No se puede eliminar ninguna oferta porque esta solicitud ya fue adjudicada.');
         }
 
         if (DB::table('purchase_orders')->where('id_purchase_quotation', $quotation->id_purchase_quotation)->exists()) {

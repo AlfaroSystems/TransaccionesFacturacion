@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\PurchaseRequest;
 use App\Rules\Accessible;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StorePurchaseQuotationRequest extends FormRequest
 {
@@ -18,30 +17,25 @@ class StorePurchaseQuotationRequest extends FormRequest
     }
 
     /**
-     * Reglas de validación para crear solicitudes de cotización.
+     * Reglas de validación para crear solicitudes de cotización: una o varias solicitudes
+     * de compra aprobadas, que se cotizan completas.
      */
     public function rules(): array
     {
         return [
-            'id_purchase_request' => [
+            'purchase_requests' => ['required', 'array', 'min:1'],
+            'purchase_requests.*' => [
                 'required',
+                'integer',
+                'distinct',
                 new Accessible(PurchaseRequest::class),
                 function ($attribute, $value, $fail) {
                     $pr = PurchaseRequest::find($value);
-                    if (!$pr || $pr->status !== PurchaseRequest::STATUS_APPROVED) {
-                        $fail('La solicitud de compra seleccionada debe estar aprobada por el departamento de compras y sin cotizar.');
+                    if ($pr && $pr->status !== PurchaseRequest::STATUS_APPROVED) {
+                        $fail("La solicitud {$pr->purchase_request_code} debe estar aprobada por el departamento de compras y sin cotizar.");
                     }
                 },
             ],
-            'items' => ['required', 'array', 'min:1'],
-            // Cada ítem debe pertenecer a la solicitud de compra seleccionada
-            'items.*.id_purchase_request_detail' => [
-                'required',
-                'integer',
-                Rule::exists('purchase_request_details', 'id_purchase_request_detail')
-                    ->where('id_purchase_request', $this->input('id_purchase_request')),
-            ],
-            'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
         ];
     }
 
@@ -51,12 +45,9 @@ class StorePurchaseQuotationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'id_purchase_request.required' => 'Debe seleccionar una solicitud de compra aprobada.',
-            'id_purchase_request.exists' => 'La solicitud de compra seleccionada no existe.',
-            'items.required' => 'La solicitud de compra debe contener al menos un producto a cotizar.',
-            'items.min' => 'Debe cotizar al menos un producto.',
-            'items.*.quantity.required' => 'La cantidad a cotizar es obligatoria para cada ítem.',
-            'items.*.quantity.min' => 'La cantidad a cotizar debe ser mayor a 0.',
+            'purchase_requests.required' => 'Debe seleccionar al menos una solicitud de compra aprobada.',
+            'purchase_requests.min' => 'Debe seleccionar al menos una solicitud de compra aprobada.',
+            'purchase_requests.*.distinct' => 'Una solicitud de compra está seleccionada más de una vez.',
         ];
     }
 }

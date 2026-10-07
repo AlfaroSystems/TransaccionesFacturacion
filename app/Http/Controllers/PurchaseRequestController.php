@@ -319,7 +319,8 @@ class PurchaseRequestController extends Controller
                 );
         }
 
-        if (DB::table('purchase_quotation_requests')->where('id_purchase_request', $purchaseRequest->id_purchase_request)->exists()) {
+        // Alguna de sus líneas ya está en una solicitud de cotización
+        if ($purchaseRequest->details()->whereHas('quotationRequestDetails')->exists()) {
             return redirect()
                 ->route('purchase-requests.index')
                 ->with(

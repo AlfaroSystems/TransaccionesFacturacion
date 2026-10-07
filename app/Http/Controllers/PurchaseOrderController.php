@@ -85,18 +85,29 @@ class PurchaseOrderController extends Controller
 
         $quotation = PurchaseQuotation::with([
             'supplier',
-            'quotationRequest.purchaseRequest',
+            'quotationRequest.details.purchaseRequestDetail.purchaseRequest',
             'details.product',
             'details.unit',
             'expenses.expenseType',
         ])->findOrFail($id);
 
-        $originRequest = $quotation->quotationRequest?->purchaseRequest;
+        // La cotización puede reunir solicitudes de varias sucursales: la sucursal y bodega
+        // de destino solo se proponen si todas vienen de una misma solicitud
+        $originRequests = $quotation->quotationRequest?->purchaseRequests ?? collect();
+
+        // Con adjudicación por producto, la orden de este proveedor lleva solo lo que ganó
+        $awardedDetailIds = $quotation->quotationRequest?->details
+            ->pluck('id_purchase_quotation_detail')->filter()->unique() ?? collect();
+        $details = $awardedDetailIds->isEmpty()
+            ? $quotation->details
+            : $quotation->details->whereIn('id_purchase_quotation_detail', $awardedDetailIds)->values();
+        $originRequest = $originRequests->count() === 1 ? $originRequests->first() : null;
+        $earliestRequiredDate = $originRequests->pluck('required_date')->filter()->min();
 
         $expectedDate = match (true) {
-            !empty($quotation->delivery_days)       => now()->addDays((int) $quotation->delivery_days)->format('Y-m-d\TH:i'),
-            !empty($originRequest?->required_date)  => Carbon::parse($originRequest->required_date)->format('Y-m-d\TH:i'),
-            default                                 => now()->addDays(7)->format('Y-m-d\TH:i'),
+            !empty($quotation->delivery_days)  => now()->addDays((int) $quotation->delivery_days)->format('Y-m-d\TH:i'),
+            !empty($earliestRequiredDate)      => Carbon::parse($earliestRequiredDate)->format('Y-m-d\TH:i'),
+            default                            => now()->addDays(7)->format('Y-m-d\TH:i'),
         };
 
         return response()->json([
@@ -109,7 +120,7 @@ class PurchaseOrderController extends Controller
             'payment_terms'         => $quotation->payment_terms,
             'delivery_days'         => $quotation->delivery_days,
             'notes'                 => $quotation->notes,
-            'details'               => $quotation->details->map(fn ($d) => [
+            'details'               => $details->map(fn ($d) => [
                 'id_product' => $d->id_product,
                 'quantity'   => (float) $d->quantity,
                 'id_unit'    => $d->id_unit,

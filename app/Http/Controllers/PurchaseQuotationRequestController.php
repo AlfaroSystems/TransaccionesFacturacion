@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use App\Http\Requests\StorePurchaseQuotationRequest;
 use App\Models\PurchaseQuotationRequest;
-use App\Models\PurchaseQuotationRequestDetail;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestDetail;
 use Illuminate\Http\JsonResponse;
@@ -27,11 +26,12 @@ class PurchaseQuotationRequestController extends Controller
         $search = $request->input('search');
 
         $query = PurchaseQuotationRequest::with([
-            'purchaseRequest',
+            'details.purchaseRequestDetail.purchaseRequest.branch',
+            'details.quotationDetail.quotation.supplier',
         ]);
 
         if ($search) {
-            $query->whereHas('purchaseRequest', function ($sub) use ($search) {
+            $query->whereHas('details.purchaseRequestDetail.purchaseRequest', function ($sub) use ($search) {
                 $sub->where('purchase_request_code', 'ilike', "%{$search}%")
                     ->orWhere('justification', 'ilike', "%{$search}%");
             });
@@ -94,41 +94,33 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Almacena la solicitud de cotización y sus detalles.
+     * Crea la solicitud de cotización con una o varias solicitudes de compra aprobadas,
+     * que se cotizan completas.
      */
     public function store(StorePurchaseQuotationRequest $request)
     {
         Gate::authorize('purchase_quotation_requests.crear');
 
-        $validated = $request->validated();
+        $purchaseRequestIds = $request->validated()['purchase_requests'];
 
-        $created = DB::transaction(function () use ($validated) {
-            $purchaseRequestId = $validated['id_purchase_request'];
-            $items = $validated['items'];
+        $created = DB::transaction(function () use ($purchaseRequestIds) {
+            // Se bloquean las solicitudes de compra para que dos usuarios no las coticen a la vez
+            $purchaseRequests = PurchaseRequest::whereKey($purchaseRequestIds)
+                ->lockForUpdate()
+                ->with('details')
+                ->get();
 
-            // Se bloquea la solicitud de compra para que dos usuarios no generen a la vez
-            // dos solicitudes de cotización de la misma
-            $purchaseRequest = PurchaseRequest::whereKey($purchaseRequestId)->lockForUpdate()->firstOrFail();
+            $allApproved = $purchaseRequests->count() === count($purchaseRequestIds)
+                && $purchaseRequests->every(fn ($pr) => $pr->status === PurchaseRequest::STATUS_APPROVED);
 
-            if ($purchaseRequest->status !== PurchaseRequest::STATUS_APPROVED) {
+            if (! $allApproved) {
                 return false;
             }
 
-            $quotationRequest = PurchaseQuotationRequest::create([
-                'id_purchase_request' => $purchaseRequestId,
-                'id_purchase_quotation' => null,
-            ]);
+            PurchaseQuotationRequest::createFromPurchaseRequests($purchaseRequests);
 
-            foreach ($items as $item) {
-                PurchaseQuotationRequestDetail::create([
-                    'id_purchase_request_detail' => $item['id_purchase_request_detail'],
-                    'id_purchase_quotation_detail' => null,
-                    'quantity' => $item['quantity'],
-                ]);
-            }
-
-            // La solicitud de compra queda en cotización: ya no puede devolverse ni rechazarse
-            $purchaseRequest->update([
+            // Quedan en cotización: ya no pueden devolverse, rechazarse ni cotizarse otra vez
+            $purchaseRequests->each->update([
                 'status' => PurchaseRequest::STATUS_QUOTED,
             ]);
 
@@ -138,7 +130,7 @@ class PurchaseQuotationRequestController extends Controller
         if (! $created) {
             return redirect()
                 ->route('purchase-quotation-requests.index')
-                ->with('error', 'La solicitud de compra ya no está disponible para cotizar.');
+                ->with('error', 'Alguna de las solicitudes de compra ya no está disponible para cotizar.');
         }
 
         return redirect()
@@ -154,18 +146,15 @@ class PurchaseQuotationRequestController extends Controller
         Gate::authorize('purchase_quotation_requests.ver');
 
         $quotationRequest = PurchaseQuotationRequest::with([
-            'purchaseRequest.branch',
-            'purchaseRequest.warehouse',
-            'purchaseRequest.user',
-            'purchaseRequest.details.product',
-            'purchaseRequest.details.unit',
+            'details.purchaseRequestDetail.product',
+            'details.purchaseRequestDetail.unit',
+            'details.purchaseRequestDetail.purchaseRequest.branch',
+            'details.purchaseRequestDetail.purchaseRequest.warehouse',
+            'details.purchaseRequestDetail.purchaseRequest.user',
         ])->findOrFail($id);
 
-        $detailIds = $quotationRequest->purchaseRequest->details->pluck('id_purchase_request_detail');
-
-        $details = PurchaseQuotationRequestDetail::whereIn('id_purchase_request_detail', $detailIds)
-            ->with(['purchaseRequestDetail.product', 'purchaseRequestDetail.unit'])
-            ->get();
+        // Una línea por producto y unidad, con el total de todas las solicitudes de compra
+        $lines = $quotationRequest->quotationLines();
 
         $suppliers = Supplier::where('is_active', true)
             ->orderBy('name')
@@ -185,7 +174,7 @@ class PurchaseQuotationRequestController extends Controller
         return view('purchase_quotation_requests.show', compact(
             'quotationRequest',
             'purchaseQuotationRequest',
-            'details',
+            'lines',
             'suppliers',
             'expenseTypes',
             'supplierQuotations'
@@ -193,68 +182,87 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Acepta/Selecciona una cotización de proveedor para la solicitud.
+     * Adjudica cada producto a la oferta de un proveedor: todo a uno solo, o unos
+     * productos a uno y otros a otro. Cada línea de la solicitud queda apuntando a la
+     * línea ganadora; las ofertas con algún producto ganado quedan aprobadas (de cada una
+     * sale una orden de compra con lo adjudicado) y las demás, rechazadas.
      */
-    public function selectQuotation(PurchaseQuotationRequest $purchaseQuotationRequest, PurchaseQuotation $purchaseQuotation)
+    public function award(Request $request, PurchaseQuotationRequest $purchaseQuotationRequest)
     {
         Gate::authorize('purchase_quotation_requests.seleccionar_cotizacion');
 
-        // La oferta debe corresponder a esta solicitud de cotización
-        abort_unless(
-            (int) $purchaseQuotation->id_purchase_quotation_request === (int) $purchaseQuotationRequest->id_purchase_quotation_request,
-            404
-        );
+        $awards = (array) $request->input('awards', []);
 
-        if ($purchaseQuotationRequest->id_purchase_quotation) {
-            return redirect()
-                ->back()
-                ->with('error', 'Esta solicitud de cotización ya tiene una oferta aceptada.');
-        }
+        $result = DB::transaction(function () use ($purchaseQuotationRequest, $awards) {
+            // Se bloquea la solicitud para que no se adjudique dos veces a la vez
+            $quotationRequest = PurchaseQuotationRequest::whereKey($purchaseQuotationRequest->getKey())
+                ->lockForUpdate()
+                ->with([
+                    'details.purchaseRequestDetail.product',
+                    'details.purchaseRequestDetail.unit',
+                    'details.purchaseRequestDetail.purchaseRequest',
+                ])
+                ->firstOrFail();
 
-        DB::transaction(function () use ($purchaseQuotationRequest, $purchaseQuotation) {
-            // 1. Vincular la cotización seleccionada en la solicitud
-            $purchaseQuotationRequest->update([
-                'id_purchase_quotation' => $purchaseQuotation->id_purchase_quotation,
-            ]);
-
-            // 2. Marcar la cotización como aprobada
-            $purchaseQuotation->update([
-                'status' => 'approved',
-            ]);
-
-            // 3. Marcar las demás cotizaciones de esta solicitud como 'rejected' (rechazadas),
-            //    una por una para que cada cambio quede en la bitácora
-            PurchaseQuotation::where('id_purchase_quotation_request', $purchaseQuotationRequest->id_purchase_quotation_request)
-                ->where('id_purchase_quotation', '!=', $purchaseQuotation->id_purchase_quotation)
-                ->get()
-                ->each->update([
-                    'status' => 'rejected',
-                ]);
-
-            // 4. Vincular id_purchase_quotation_detail en los detalles de la solicitud
-            $pqrDetails = PurchaseQuotationRequestDetail::whereIn(
-                'id_purchase_request_detail',
-                $purchaseQuotationRequest->purchaseRequest->details->pluck('id_purchase_request_detail')
-            )->get();
-
-            foreach ($pqrDetails as $pqrDetail) {
-                $productObj = $pqrDetail->purchaseRequestDetail?->product;
-                if ($productObj) {
-                    $qDetail = PurchaseQuotationDetail::where('id_purchase_quotation', $purchaseQuotation->id_purchase_quotation)
-                        ->where('id_product', $productObj->id_product)
-                        ->first();
-                    if ($qDetail) {
-                        $pqrDetail->update([
-                            'id_purchase_quotation_detail' => $qDetail->id_purchase_quotation_detail,
-                        ]);
-                    }
-                }
+            if ($quotationRequest->isAwarded()) {
+                return 'Esta solicitud de cotización ya fue adjudicada.';
             }
+
+            // Líneas de las ofertas de esta solicitud (no de otra)
+            $offerDetails = PurchaseQuotationDetail::whereHas('quotation', fn ($q) => $q
+                ->where('id_purchase_quotation_request', $quotationRequest->id_purchase_quotation_request))
+                ->get()
+                ->keyBy('id_purchase_quotation_detail');
+
+            // Cada producto debe adjudicarse a una línea de oferta del mismo producto y unidad
+            $selected = [];
+            foreach ($quotationRequest->quotationLines() as $line) {
+                $offerDetail = $offerDetails->get((int) ($awards[$line->key] ?? 0));
+
+                $matches = $offerDetail
+                    && (int) $offerDetail->id_product === (int) $line->product?->id_product
+                    && ($offerDetail->id_unit === null || (int) $offerDetail->id_unit === (int) $line->unit?->id_unit);
+
+                if (! $matches) {
+                    return 'Elija el proveedor que gana "' . ($line->product?->name ?? 'producto') . '".';
+                }
+
+                $selected[$line->key] = $offerDetail;
+            }
+
+            foreach ($quotationRequest->details as $detail) {
+                $key = $detail->purchaseRequestDetail->id_product . '-' . $detail->purchaseRequestDetail->id_unit;
+                $detail->update([
+                    'id_purchase_quotation_detail' => $selected[$key]->id_purchase_quotation_detail,
+                ]);
+            }
+
+            // Ofertas con algún producto ganado: aprobadas; las demás, rechazadas (una por una,
+            // para que cada cambio quede en la bitácora)
+            $winners = collect($selected)->pluck('id_purchase_quotation')->unique();
+
+            PurchaseQuotation::where('id_purchase_quotation_request', $quotationRequest->id_purchase_quotation_request)
+                ->get()
+                ->each(fn ($quotation) => $quotation->update([
+                    'status' => $winners->contains($quotation->id_purchase_quotation) ? 'approved' : 'rejected',
+                ]));
+
+            // La cotización asociada solo existe cuando un único proveedor gana todo
+            $quotationRequest->update([
+                'id_purchase_quotation' => $winners->count() === 1 ? $winners->first() : null,
+            ]);
+
+            return true;
         });
 
-        $code = $purchaseQuotation->purchase_quotation_code ?? ('Cotización #' . $purchaseQuotation->id_purchase_quotation);
+        if ($result !== true) {
+            return redirect()
+                ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+                ->with('error', $result);
+        }
+
         return redirect()
-            ->back()
-            ->with('success', "La oferta {$code} del proveedor {$purchaseQuotation->supplier->name} ha sido ACEPTADA exitosamente.");
+            ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+            ->with('success', 'Adjudicación guardada. Cada proveedor ganador ya puede pasar a orden de compra con sus productos.');
     }
 }

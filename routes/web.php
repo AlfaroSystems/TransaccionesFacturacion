@@ -164,10 +164,11 @@ Route::middleware('auth')->group(function () {
         [RetaceoController::class, 'generatePdf']
     )->name('retaceos.pdf');
     Route::resource('retaceos', RetaceoController::class);
-    Route::patch(
-        'purchase-quotation-requests/{purchaseQuotationRequest}/select-quotation/{purchaseQuotation}',
-        [PurchaseQuotationRequestController::class, 'selectQuotation']
-    )->name('purchase-quotation-requests.select-quotation');
+    // Adjudicación por producto: todo a un proveedor o repartido entre varios
+    Route::post(
+        'purchase-quotation-requests/{purchaseQuotationRequest}/award',
+        [PurchaseQuotationRequestController::class, 'award']
+    )->name('purchase-quotation-requests.award');
     Route::resource(
         'purchase-quotation-requests',
         PurchaseQuotationRequestController::class

@@ -16,6 +16,7 @@ class PurchaseQuotationRequestDetail extends Model
     protected $primaryKey = 'id_purchase_quotation_request_detail';
 
     protected $fillable = [
+        'id_purchase_quotation_request',
         'id_purchase_quotation_detail',
         'id_purchase_request_detail',
         'quantity',
@@ -24,6 +25,30 @@ class PurchaseQuotationRequestDetail extends Model
     protected $casts = [
         'quantity' => 'decimal:4',
     ];
+
+    /**
+     * Solicitud de cotización a la que pertenece la línea.
+     */
+    public function quotationRequest(): BelongsTo
+    {
+        return $this->belongsTo(
+            PurchaseQuotationRequest::class,
+            'id_purchase_quotation_request',
+            'id_purchase_quotation_request'
+        );
+    }
+
+    /**
+     * Línea de la oferta de proveedor adjudicada (null mientras no se adjudica).
+     */
+    public function quotationDetail(): BelongsTo
+    {
+        return $this->belongsTo(
+            PurchaseQuotationDetail::class,
+            'id_purchase_quotation_detail',
+            'id_purchase_quotation_detail'
+        );
+    }
 
     /**
      * Detalle de la solicitud de compra asociada.

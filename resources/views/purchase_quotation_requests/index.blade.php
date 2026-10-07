@@ -56,6 +56,14 @@
         </form>
     </div>
 
+    @if($errors->any())
+        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl text-sm font-semibold">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
     <!-- Listado Principal -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
@@ -63,8 +71,8 @@
                 <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
                     <tr>
                         <th class="py-4 px-6">ID</th>
-                        <th class="py-4 px-6">Solicitud de Compra</th>
-                        <th class="py-4 px-6">ID Cotización Asociada</th>
+                        <th class="py-4 px-6">Solicitudes de Compra</th>
+                        <th class="py-4 px-6">Adjudicación</th>
                         <th class="py-4 px-6">Fecha Creación</th>
                         <th class="py-4 px-6 text-right">Acciones</th>
                     </tr>
@@ -75,21 +83,31 @@
                             <td class="py-4 px-6 font-mono text-xs font-bold text-slate-500">
                                 #{{ str_pad($quotation->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT) }}
                             </td>
+                            @php $originRequests = $quotation->purchaseRequests; @endphp
                             <td class="py-4 px-6">
-                                <div class="font-extrabold text-slate-800 dark:text-white flex items-center gap-1.5">
-                                    <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 text-xs font-mono border border-teal-200 dark:border-teal-800">
-                                        {{ $quotation->purchaseRequest->purchase_request_code ?? 'N/A' }}
-                                    </span>
-                                    <span class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
-                                        (ID: #{{ $quotation->purchaseRequest->id_purchase_request ?? 'N/A' }})
-                                    </span>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    @forelse($originRequests as $originRequest)
+                                        <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 text-xs font-mono font-extrabold border border-teal-200 dark:border-teal-800" title="{{ $originRequest->justification }}">
+                                            {{ $originRequest->purchase_request_code }}
+                                        </span>
+                                    @empty
+                                        <span class="text-xs text-slate-400">N/A</span>
+                                    @endforelse
                                 </div>
-                                <span class="text-xs text-slate-400 line-clamp-1 mt-0.5">
-                                    {{ $quotation->purchaseRequest->justification ?? 'Sin justificación' }}
+                                <span class="text-xs text-slate-400 line-clamp-1 mt-1">
+                                    {{ $originRequests->map(fn ($pr) => $pr->branch?->name)->filter()->unique()->join(' · ') ?: 'Sin sucursal' }}
                                 </span>
                             </td>
                             <td class="py-4 px-6 font-mono text-xs font-bold text-slate-600 dark:text-slate-300">
-                                {{ $quotation->id_purchase_quotation ? '#' . $quotation->id_purchase_quotation : 'Pendiente' }}
+                                @php
+                                    // Proveedores que ganaron alguno de sus productos
+                                    $winners = $quotation->details->map(fn ($d) => $d->quotationDetail?->quotation?->supplier?->name)->filter()->unique();
+                                @endphp
+                                @if($winners->isNotEmpty())
+                                    <span class="text-emerald-600 dark:text-emerald-400">{{ $winners->join(' · ') }}</span>
+                                @else
+                                    Pendiente
+                                @endif
                             </td>
                             <td class="py-4 px-6 whitespace-nowrap">
                                 <span class="font-medium text-slate-700 dark:text-slate-300">{{ $quotation->created_at->format('d/m/Y') }}</span>
@@ -142,7 +160,7 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Nueva Solicitud de Cotización</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Vincule una solicitud de compra aprobada por el departamento de compras.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Reúna una o varias solicitudes de compra aprobadas; se cotizan completas.</p>
             </div>
             <button type="button" onclick="closeQuotationRequestModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -152,35 +170,32 @@
         <form id="quotation-request-form" method="POST" action="{{ route('purchase-quotation-requests.store') }}" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             <div class="p-6 space-y-5 overflow-y-auto flex-1">
-                <div class="space-y-1.5">
-                    <label for="modal_id_purchase_request" class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Solicitud de Compra Aprobada <span class="text-rose-500">*</span>
-                    </label>
-                    <select id="modal_id_purchase_request" name="id_purchase_request" required class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900 text-slate-800 dark:text-white text-sm font-medium focus:ring-2 focus:ring-[#005e66] outline-hidden transition-all">
-                        <option value="">-- Cargar solicitudes aprobadas... --</option>
-                    </select>
-                </div>
-
-                <div id="modal-request-preview" class="hidden p-3.5 rounded-xl bg-teal-50/60 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/50 text-xs space-y-1">
-                    <div class="flex justify-between font-bold text-[#005e66] dark:text-teal-300">
-                        <span id="modal-prev-code"></span>
-                        <span id="modal-prev-date" class="text-slate-600 dark:text-slate-300"></span>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Solicitudes de Compra Aprobadas <span class="text-rose-500">*</span>
+                        </label>
+                        <span id="modal-requests-counter" class="text-xs font-extrabold text-slate-400">0 seleccionadas</span>
                     </div>
-                    <p id="modal-prev-justification" class="text-slate-600 dark:text-slate-400 italic"></p>
+                    <div id="modal-requests-list" class="border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-56 overflow-y-auto">
+                        <p class="p-4 text-center text-xs text-slate-400">Cargando solicitudes aprobadas...</p>
+                    </div>
+                    <p id="modal-requests-error" class="hidden text-xs font-semibold text-rose-500">Seleccione al menos una solicitud de compra.</p>
                 </div>
 
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Ítems y Cantidades a Cotizar
+                            Productos a Cotizar
                         </label>
-                        <span id="modal-items-counter" class="text-xs font-extrabold text-slate-400">0 ítems</span>
+                        <span id="modal-items-counter" class="text-xs font-extrabold text-slate-400">0 productos</span>
                     </div>
+                    <p class="text-xs text-slate-400">Si varias solicitudes piden el mismo producto, se cotiza en una sola línea con la cantidad total.</p>
 
                     <div id="modal-items-wrapper" class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden min-h-[140px] flex items-center justify-center p-3">
                         <div id="modal-items-placeholder" class="text-center text-slate-400 text-xs space-y-1">
-                            <p class="font-semibold text-slate-500 dark:text-slate-400">Seleccione una solicitud de compra aprobada</p>
-                            <p>Los detalles se cargarán automáticamente.</p>
+                            <p class="font-semibold text-slate-500 dark:text-slate-400">Seleccione una o varias solicitudes de compra</p>
+                            <p>Sus productos se mostrarán aquí.</p>
                         </div>
                         <div id="modal-items-loading" class="hidden text-center text-slate-400 text-xs space-y-2">
                             <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-[#005e66] border-t-transparent"></div>
@@ -191,8 +206,8 @@
                                 <tr>
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-3">Unidad</th>
-                                    <th class="py-2.5 px-3 text-center">Cant. Solicitada</th>
-                                    <th class="py-2.5 px-3 text-center w-32">Cant. a Cotizar</th>
+                                    <th class="py-2.5 px-3 text-center">Cantidad Total</th>
+                                    <th class="py-2.5 px-3">Por Solicitud</th>
                                 </tr>
                             </thead>
                             <tbody id="modal-items-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -217,8 +232,11 @@
 
 <script>
 let approvedRequestsCache = [];
+const requestDetailsCache = {};
+let previewSequence = 0;
+const requestDetailsUrl = @json(route('purchase-quotation-requests.request-details', ['id' => '__ID__']));
 
-function openQuotationRequestModal(selectedId = null) {
+function openQuotationRequestModal() {
     const modal = document.getElementById('quotation-request-modal');
     const card = document.getElementById('quotation-request-card');
 
@@ -230,7 +248,7 @@ function openQuotationRequestModal(selectedId = null) {
         card.classList.add('scale-100');
     }, 10);
 
-    loadApprovedRequestsModal(selectedId);
+    loadApprovedRequestsModal();
 }
 
 function closeQuotationRequestModal() {
@@ -246,9 +264,18 @@ function closeQuotationRequestModal() {
     }, 150);
 }
 
-function loadApprovedRequestsModal(selectedId = null) {
-    const select = document.getElementById('modal_id_purchase_request');
-    select.disabled = true;
+function setRequestsMessage(text) {
+    const list = document.getElementById('modal-requests-list');
+    list.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = 'p-4 text-center text-xs text-slate-400';
+    p.textContent = text;
+    list.appendChild(p);
+}
+
+// Lista de solicitudes de compra aprobadas, con una casilla cada una
+function loadApprovedRequestsModal() {
+    setRequestsMessage('Cargando solicitudes aprobadas...');
 
     fetch('{{ route('purchase-quotation-requests.approved-requests') }}', {
         headers: { 'Accept': 'application/json' }
@@ -256,157 +283,155 @@ function loadApprovedRequestsModal(selectedId = null) {
     .then(res => res.json())
     .then(data => {
         approvedRequestsCache = data;
-        select.innerHTML = '';
 
         if (data.length === 0) {
-            select.innerHTML = '<option value="">No hay solicitudes de compra aprobadas pendientes de cotizar</option>';
-            clearModalItemsTable();
+            setRequestsMessage('No hay solicitudes de compra aprobadas pendientes de cotizar.');
+            refreshQuotationPreview();
             return;
         }
 
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = '-- Seleccione una Solicitud de Compra --';
-        select.appendChild(defaultOption);
+        const list = document.getElementById('modal-requests-list');
+        list.innerHTML = '';
 
         data.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item.id_purchase_request;
-            const formattedDate = item.required_date ? new Date(item.required_date).toLocaleDateString() : 'N/A';
-            opt.textContent = `${item.purchase_request_code} · ${item.branch ? item.branch.name : 'Sin sucursal'} - Requerida: ${formattedDate} (${item.justification ? item.justification.substring(0, 35) + '...' : 'Sin justificación'})`;
-            if (selectedId && selectedId == item.id_purchase_request) {
-                opt.selected = true;
-            }
-            select.appendChild(opt);
+            const label = document.createElement('label');
+            label.className = 'flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'purchase_requests[]';
+            checkbox.value = item.id_purchase_request;
+            checkbox.className = 'mt-0.5 rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer';
+            checkbox.addEventListener('change', refreshQuotationPreview);
+
+            const text = document.createElement('span');
+            text.className = 'flex-1 min-w-0';
+
+            const title = document.createElement('span');
+            title.className = 'block text-sm font-bold text-slate-800 dark:text-white';
+            title.textContent = item.purchase_request_code + ' · ' + (item.branch ? item.branch.name : 'Sin sucursal');
+
+            const subtitle = document.createElement('span');
+            subtitle.className = 'block text-xs text-slate-400 truncate';
+            const requiredDate = item.required_date ? new Date(item.required_date).toLocaleDateString() : 'N/A';
+            subtitle.textContent = 'Requerida: ' + requiredDate + ' · ' + (item.justification || 'Sin justificación');
+
+            text.append(title, subtitle);
+            label.append(checkbox, text);
+            list.appendChild(label);
         });
 
-        if (selectedId) {
-            handleModalRequestChange(selectedId);
-        }
+        refreshQuotationPreview();
     })
     .catch(err => {
         console.error('Error al cargar solicitudes:', err);
-        select.innerHTML = '<option value="">Error al cargar solicitudes aprobadas</option>';
-    })
-    .finally(() => {
-        select.disabled = false;
+        setRequestsMessage('Error al cargar las solicitudes aprobadas.');
     });
 }
 
-function handleModalRequestChange(id) {
-    const preview = document.getElementById('modal-request-preview');
-    const prevCode = document.getElementById('modal-prev-code');
-    const prevDate = document.getElementById('modal-prev-date');
-    const prevJustification = document.getElementById('modal-prev-justification');
-
-    if (!id) {
-        preview.classList.add('hidden');
-        clearModalItemsTable();
-        return;
-    }
-
-    const found = approvedRequestsCache.find(r => r.id_purchase_request == id);
-    if (found) {
-        prevCode.textContent = found.purchase_request_code;
-        prevDate.textContent = 'Requerida: ' + (found.required_date ? new Date(found.required_date).toLocaleDateString() : 'N/A');
-        prevJustification.textContent = found.justification || 'Sin justificación';
-        preview.classList.remove('hidden');
-    }
-
-    loadModalRequestItems(id);
+function selectedRequestIds() {
+    return Array.from(document.querySelectorAll('#modal-requests-list input[name="purchase_requests[]"]:checked'))
+        .map(checkbox => checkbox.value);
 }
 
-function loadModalRequestItems(purchaseRequestId) {
+function formatQuantity(value) {
+    return Number(value).toLocaleString(undefined, { maximumFractionDigits: 4 });
+}
+
+// Vista previa: una línea por producto y unidad, con la cantidad total y el desglose
+async function refreshQuotationPreview() {
+    const ids = selectedRequestIds();
+    const sequence = ++previewSequence;
+
+    document.getElementById('modal-requests-counter').textContent = ids.length + (ids.length === 1 ? ' seleccionada' : ' seleccionadas');
+    if (ids.length > 0) document.getElementById('modal-requests-error').classList.add('hidden');
+
     const placeholder = document.getElementById('modal-items-placeholder');
     const loading = document.getElementById('modal-items-loading');
     const table = document.getElementById('modal-items-table');
     const tbody = document.getElementById('modal-items-tbody');
     const counter = document.getElementById('modal-items-counter');
 
+    if (ids.length === 0) {
+        tbody.innerHTML = '';
+        table.classList.add('hidden');
+        loading.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        counter.textContent = '0 productos';
+        return;
+    }
+
     placeholder.classList.add('hidden');
     table.classList.add('hidden');
     loading.classList.remove('hidden');
-    tbody.innerHTML = '';
 
-    const url = '{{ url('purchase-quotation-requests/request-details') }}/' + purchaseRequestId;
+    try {
+        // El detalle de cada solicitud se pide una sola vez
+        await Promise.all(ids.filter(id => !requestDetailsCache[id]).map(id =>
+            fetch(requestDetailsUrl.replace('__ID__', id), { headers: { 'Accept': 'application/json' } })
+                .then(res => res.json())
+                .then(details => { requestDetailsCache[id] = details; })
+        ));
+    } catch (err) {
+        console.error('Error al cargar productos:', err);
+    }
 
-    fetch(url, {
-        headers: { 'Accept': 'application/json' }
-    })
-    .then(res => {
-        if (!res.ok) throw new Error('Error al consultar el servidor');
-        return res.json();
-    })
-    .then(details => {
-        loading.classList.add('hidden');
+    // Otra selección empezó mientras se cargaba: esta vista previa ya no aplica
+    if (sequence !== previewSequence) return;
 
-        if (!Array.isArray(details) || details.length === 0) {
-            placeholder.classList.remove('hidden');
-            placeholder.innerHTML = '<p class="text-rose-500 font-bold">Esta solicitud no tiene productos registrados.</p>';
-            counter.textContent = '0 ítems';
-            return;
-        }
-
-        counter.textContent = `${details.length} ítem(s)`;
-        table.classList.remove('hidden');
-
-        details.forEach((detail, idx) => {
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-slate-50/60 dark:hover:bg-slate-700/40 transition-colors';
-
-            const productName = detail.product ? detail.product.name : 'Producto no disponible';
-            const unitName = detail.unit ? detail.unit.name : 'Unidad';
-            const originalQty = parseFloat(detail.quantity) || 1;
-
-            tr.innerHTML = `
-                <td class="py-2.5 px-3">
-                    <span class="font-bold text-slate-800 dark:text-white">${productName}</span>
-                    <input type="hidden" name="items[${idx}][id_purchase_request_detail]" value="${detail.id_purchase_request_detail}">
-                </td>
-                <td class="py-2.5 px-3">
-                    <span class="px-2 py-0.5 rounded-sm bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold">${unitName}</span>
-                </td>
-                <td class="py-2.5 px-3 text-center font-bold font-mono">${originalQty}</td>
-                <td class="py-2.5 px-3 text-center">
-                    <input type="number" step="0.0001" min="0.0001" name="items[${idx}][quantity]" value="${originalQty}" required class="w-24 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
-                </td>
-            `;
-            tbody.appendChild(tr);
+    const lines = new Map();
+    ids.forEach(id => {
+        const request = approvedRequestsCache.find(r => String(r.id_purchase_request) === String(id));
+        const code = request ? request.purchase_request_code : '#' + id;
+        (requestDetailsCache[id] || []).forEach(detail => {
+            const key = detail.id_product + '-' + detail.id_unit;
+            if (!lines.has(key)) {
+                lines.set(key, { product: detail.product, unit: detail.unit, total: 0, sources: [] });
+            }
+            const line = lines.get(key);
+            const quantity = parseFloat(detail.quantity);
+            line.total += quantity;
+            line.sources.push(code + ': ' + formatQuantity(quantity));
         });
-    })
-    .catch(err => {
-        console.error('Error al cargar ítems:', err);
-        loading.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-        placeholder.innerHTML = '<p class="text-rose-500 font-bold">Error al cargar productos.</p>';
-        counter.textContent = '0 ítems';
     });
-}
 
-function clearModalItemsTable() {
-    document.getElementById('modal-items-placeholder').classList.remove('hidden');
-    document.getElementById('modal-items-table').classList.add('hidden');
-    document.getElementById('modal-items-loading').classList.add('hidden');
-    document.getElementById('modal-items-tbody').innerHTML = '';
-    document.getElementById('modal-items-counter').textContent = '0 ítems';
+    tbody.innerHTML = '';
+    lines.forEach(line => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-50 dark:hover:bg-slate-900/30';
+
+        const productCell = document.createElement('td');
+        productCell.className = 'py-2.5 px-3 font-bold text-slate-800 dark:text-white';
+        productCell.textContent = line.product ? line.product.name : 'Producto';
+
+        const unitCell = document.createElement('td');
+        unitCell.className = 'py-2.5 px-3';
+        unitCell.textContent = line.unit ? (line.unit.abbreviation || line.unit.name) : '—';
+
+        const totalCell = document.createElement('td');
+        totalCell.className = 'py-2.5 px-3 text-center font-mono font-extrabold';
+        totalCell.textContent = formatQuantity(line.total);
+
+        const sourcesCell = document.createElement('td');
+        sourcesCell.className = 'py-2.5 px-3 text-slate-500 dark:text-slate-400';
+        sourcesCell.textContent = line.sources.join(' · ');
+
+        row.append(productCell, unitCell, totalCell, sourcesCell);
+        tbody.appendChild(row);
+    });
+
+    loading.classList.add('hidden');
+    table.classList.remove('hidden');
+    counter.textContent = lines.size + (lines.size === 1 ? ' producto' : ' productos');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const select = document.getElementById('modal_id_purchase_request');
-    if (select) {
-        select.addEventListener('change', function() {
-            handleModalRequestChange(this.value);
-        });
-    }
-
     const form = document.getElementById('quotation-request-form');
     if (form) {
         form.addEventListener('submit', function(e) {
-            const itemsRows = document.getElementById('modal-items-tbody').querySelectorAll('tr').length;
-            if (itemsRows === 0) {
+            if (selectedRequestIds().length === 0) {
                 e.preventDefault();
-                alert('Debe seleccionar una solicitud de compra que contenga al menos un producto.');
-                return false;
+                document.getElementById('modal-requests-error').classList.remove('hidden');
             }
         });
     }

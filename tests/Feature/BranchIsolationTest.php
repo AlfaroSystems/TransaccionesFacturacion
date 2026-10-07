@@ -94,7 +94,7 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
     ]);
     $requestDetail = $request->details()->create(['id_product' => $product->id_product, 'quantity' => 5, 'id_unit' => $unit->id_unit]);
 
-    $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
+    $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$request]));
     $quotation = PurchaseQuotation::create([
         'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
         'id_supplier'                   => $supplier->id_supplier,
@@ -289,7 +289,7 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
 
         ['get', route('purchase-quotation-requests.show', $b->quotationRequest->id_purchase_quotation_request)],
         ['get', route('purchase-quotation-requests.request-details', $b->request->id_purchase_request)],
-        ['patch', route('purchase-quotation-requests.select-quotation', [$b->quotationRequest, $b->quotation])],
+        ['post', route('purchase-quotation-requests.award', $b->quotationRequest->id_purchase_quotation_request)],
         ['delete', route('purchase-quotations.destroy', $b->quotation->id_purchase_quotation)],
 
         ['get', route('purchase_orders.show', $b->order)],
@@ -410,17 +410,10 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
         'justification' => 'x', 'details' => $detalle,
     ])->assertSessionHasErrors(['id_warehouse'])->assertSessionDoesntHaveErrors(['id_branch']);
 
-    // Solicitud de cotización sobre una solicitud de otra sucursal
+    // Solicitud de cotización que incluye una solicitud de otra sucursal
     $this->post(route('purchase-quotation-requests.store'), [
-        'id_purchase_request' => $b->request->id_purchase_request,
-        'items' => [['id_purchase_request_detail' => $b->requestDetail->id_purchase_request_detail, 'quantity' => 1]],
-    ])->assertSessionHasErrors(['id_purchase_request']);
-
-    // Ítems de otra solicitud aunque la solicitud sea propia
-    $this->post(route('purchase-quotation-requests.store'), [
-        'id_purchase_request' => $a->request->id_purchase_request,
-        'items' => [['id_purchase_request_detail' => $b->requestDetail->id_purchase_request_detail, 'quantity' => 1]],
-    ])->assertSessionHasErrors(['items.0.id_purchase_request_detail']);
+        'purchase_requests' => [$a->request->id_purchase_request, $b->request->id_purchase_request],
+    ])->assertSessionHasErrors(['purchase_requests.1']);
 
     // Oferta para una solicitud de cotización de otra sucursal
     $this->post(route('purchase-quotations.store'), [
@@ -500,13 +493,20 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
 test('una oferta solo se puede aceptar dentro de su propia solicitud de cotización', function () {
     [$a] = escenarioDosSucursales();
 
-    $otraSolicitud = PurchaseQuotationRequest::create(['id_purchase_request' => $a->request->id_purchase_request]);
+    $otraSolicitud = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$a->request]));
+    $lineaDeOtraOferta = $a->quotation->details()->create([
+        'id_product' => $a->requestDetail->id_product, 'id_unit' => $a->requestDetail->id_unit, 'quantity' => 5, 'unit_price' => 10, 'total' => 50,
+    ]);
 
+    // Adjudicar con la línea de una oferta que pertenece a otra solicitud de cotización
     $this->actingAs($a->user)
-        ->patch(route('purchase-quotation-requests.select-quotation', [$otraSolicitud, $a->quotation]))
-        ->assertNotFound();
+        ->post(route('purchase-quotation-requests.award', $otraSolicitud->id_purchase_quotation_request), [
+            'awards' => [$a->requestDetail->id_product.'-'.$a->requestDetail->id_unit => $lineaDeOtraOferta->id_purchase_quotation_detail],
+        ])
+        ->assertSessionHas('error');
 
-    expect($otraSolicitud->fresh()->id_purchase_quotation)->toBeNull();
+    expect($otraSolicitud->fresh()->isAwarded())->toBeFalse()
+        ->and($otraSolicitud->fresh()->id_purchase_quotation)->toBeNull();
 });
 
 test('una bodega con documentos no puede pasar a otra sucursal', function () {

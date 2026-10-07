@@ -60,26 +60,17 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
 
     // 4. Enviar petición para crear la solicitud de cotización
     $response = $this->actingAs($user)->post(route('purchase-quotation-requests.store'), [
-        'id_purchase_request' => $purchaseRequest->id_purchase_request,
-        'items' => [
-            [
-                'id_purchase_request_detail' => $detail->id_purchase_request_detail,
-                'quantity' => 5.0000,
-            ],
-        ],
+        'purchase_requests' => [$purchaseRequest->id_purchase_request],
     ]);
 
     $response->assertRedirect(route('purchase-quotation-requests.index'));
     $response->assertSessionHas('success');
 
-    // 5. Verificar que se creó la solicitud de cotización
-    $this->assertDatabaseHas('purchase_quotation_requests', [
-        'id_purchase_request' => $purchaseRequest->id_purchase_request,
-        'id_purchase_quotation' => null,
-    ]);
-
-    // 6. Verificar que el detalle se guardó
+    // 5. Se creó la solicitud de cotización con la línea completa de la solicitud de compra
+    $quotation = PurchaseQuotationRequest::sole();
+    expect($quotation->id_purchase_quotation)->toBeNull();
     $this->assertDatabaseHas('purchase_quotation_request_details', [
+        'id_purchase_quotation_request' => $quotation->id_purchase_quotation_request,
         'id_purchase_request_detail' => $detail->id_purchase_request_detail,
         'id_purchase_quotation_detail' => null,
         'quantity' => 5.0000,
@@ -93,13 +84,11 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
 
     // No se puede generar otra solicitud de cotización de la misma solicitud de compra
     $this->actingAs($user)->post(route('purchase-quotation-requests.store'), [
-        'id_purchase_request' => $purchaseRequest->id_purchase_request,
-        'items' => [['id_purchase_request_detail' => $detail->id_purchase_request_detail, 'quantity' => 5]],
-    ])->assertSessionHasErrors('id_purchase_request');
-    expect(PurchaseQuotationRequest::where('id_purchase_request', $purchaseRequest->id_purchase_request)->count())->toBe(1);
+        'purchase_requests' => [$purchaseRequest->id_purchase_request],
+    ])->assertSessionHasErrors('purchase_requests.0');
+    expect(PurchaseQuotationRequest::count())->toBe(1);
 
     // 8. Probar vista detalle show
-    $quotation = PurchaseQuotationRequest::where('id_purchase_request', $purchaseRequest->id_purchase_request)->first();
     $showResponse = $this->actingAs($user)->get(route('purchase-quotation-requests.show', $quotation->id_purchase_quotation_request));
     $showResponse->assertOk();
     $showResponse->assertSee('REQ-2026-TEST');
