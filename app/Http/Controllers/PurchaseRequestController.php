@@ -6,11 +6,18 @@ use App\Models\Product;
 use App\Models\PurchaseRequest;
 use App\Models\Unit;
 use App\Models\Warehouse;
+use App\Support\BranchAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
+/**
+ * Solicitudes de compra: cada sucursal crea las suyas y las envía al departamento de
+ * compras (la sucursal marcada como tal, p. ej. Casa Matriz), que las devuelve a la
+ * sucursal, las rechaza o genera la solicitud de cotización. Una vez enviada, nadie
+ * puede editarla ni eliminarla (ver PurchaseRequest).
+ */
 class PurchaseRequestController extends Controller
 {
     /**
@@ -57,12 +64,27 @@ class PurchaseRequestController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Catálogos necesarios para los formularios
-        $branches = Branch::where('is_active', true)
+        // Conteo por estado de todas las solicitudes visibles (no solo de la página actual)
+        $statusCounts = PurchaseRequest::query()
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        // Sucursales y bodegas para los formularios. El departamento de compras puede
+        // crear solicitudes para cualquier sucursal de su empresa.
+        $isPurchasingDepartment = BranchAccess::isPurchasingDepartment();
+
+        $branchQuery = $isPurchasingDepartment
+            ? Branch::queryAllBranches()->where('id_company', BranchAccess::companyId())
+            : Branch::query();
+
+        $branches = $branchQuery->where('is_active', true)
             ->orderBy('name')
             ->get();
 
-        $warehouses = Warehouse::where('is_active', true)
+        $warehouses = ($isPurchasingDepartment ? Warehouse::queryAllBranches() : Warehouse::query())
+            ->whereIn('id_branch', $branches->pluck('id_branch'))
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
@@ -74,12 +96,17 @@ class PurchaseRequestController extends Controller
             ->orderBy('name')
             ->get();
 
+        // Sucursal propia: las solicitudes para otra sucursal se envían al crearlas
+        $ownBranchId = BranchAccess::isUnrestricted() ? null : BranchAccess::branchId();
+
         return view('purchase_requests.index', compact(
             'purchaseRequests',
+            'statusCounts',
             'branches',
             'warehouses',
             'products',
-            'units'
+            'units',
+            'ownBranchId'
         ));
     }
 
@@ -96,7 +123,7 @@ class PurchaseRequestController extends Controller
     }
 
     /**
-     * Guarda una solicitud con sus detalles.
+     * Guarda una solicitud con sus detalles, como borrador o ya enviada a compras.
      */
     public function store(StorePurchaseRequest $request)
     {
@@ -104,7 +131,15 @@ class PurchaseRequestController extends Controller
 
         $validated = $request->validated();
 
-        DB::transaction(function () use ($validated) {
+        // Una solicitud para otra sucursal (la crea el departamento de compras) se envía
+        // directamente: como borrador solo la vería y editaría esa sucursal
+        $send = $request->boolean('send') || $this->isForAnotherBranch($validated['id_branch']);
+
+        if ($send) {
+            Gate::authorize('purchase_requests.enviar');
+        }
+
+        DB::transaction(function () use ($validated, $send) {
 
             $purchaseRequest = PurchaseRequest::create([
                 'uuid' => (string) Str::uuid(),
@@ -122,7 +157,11 @@ class PurchaseRequestController extends Controller
 
                 'justification' => $validated['justification'],
 
-                'status' => 'draft',
+                'status' => $send
+                    ? PurchaseRequest::STATUS_SENT
+                    : PurchaseRequest::STATUS_DRAFT,
+
+                'sent_at' => $send ? now() : null,
 
                 'notes' => $validated['notes'] ?? null,
             ]);
@@ -146,7 +185,9 @@ class PurchaseRequestController extends Controller
             ->route('purchase-requests.index')
             ->with(
                 'success',
-                'Solicitud de compra creada correctamente.'
+                $send
+                    ? 'Solicitud de compra creada y enviada al departamento de compras.'
+                    : 'Solicitud de compra guardada como borrador.'
             );
     }
 
@@ -171,12 +212,12 @@ class PurchaseRequestController extends Controller
     {
         Gate::authorize('purchase_requests.editar');
 
-        if ($purchaseRequest->status !== 'draft') {
+        if (! $purchaseRequest->isEditable()) {
             return redirect()
                 ->route('purchase-requests.index')
                 ->with(
                     'error',
-                    'Solo se pueden editar solicitudes en estado borrador.'
+                    'Solo se pueden editar solicitudes en borrador o devueltas.'
                 );
         }
 
@@ -196,12 +237,12 @@ class PurchaseRequestController extends Controller
     ) {
         Gate::authorize('purchase_requests.editar');
 
-        if ($purchaseRequest->status !== 'draft') {
+        if (! $purchaseRequest->isEditable()) {
             return redirect()
                 ->route('purchase-requests.index')
                 ->with(
                     'error',
-                    'Solo se pueden modificar solicitudes en estado borrador.'
+                    'Solo se pueden modificar solicitudes en borrador o devueltas.'
                 );
         }
 
@@ -269,12 +310,12 @@ class PurchaseRequestController extends Controller
     ) {
         Gate::authorize('purchase_requests.eliminar');
 
-        if ($purchaseRequest->status !== 'draft') {
+        if (! $purchaseRequest->isEditable()) {
             return redirect()
                 ->route('purchase-requests.index')
                 ->with(
                     'error',
-                    'Solo se pueden eliminar solicitudes en estado borrador.'
+                    'Solo se pueden eliminar solicitudes en borrador o devueltas.'
                 );
         }
 
@@ -298,34 +339,97 @@ class PurchaseRequestController extends Controller
     }
 
     /**
-     * Actualiza el estado de una solicitud.
+     * La sucursal envía la solicitud al departamento de compras.
      */
-    public function updateStatus(
-        Request $request,
-        PurchaseRequest $purchaseRequest
-    ) {
-        Gate::authorize('purchase_requests.aprobar');
+    public function send(PurchaseRequest $purchaseRequest)
+    {
+        Gate::authorize('purchase_requests.enviar');
 
-        $validated = $request->validate([
-            'status' => [
-                'required',
-                'in:draft,pending,approved,rejected',
-            ],
-        ]);
+        if (! $purchaseRequest->isEditable()) {
+            return redirect()
+                ->route('purchase-requests.index')
+                ->with('error', 'Esta solicitud ya fue enviada.');
+        }
 
         $purchaseRequest->update([
-            'status' => $validated['status'],
+            'status' => PurchaseRequest::STATUS_SENT,
+            'sent_at' => now(),
+            'status_reason' => null,
         ]);
 
         return redirect()
-            ->route('purchase-requests.index', [
-                'show' =>
-                    $purchaseRequest->id_purchase_request,
-            ])
-            ->with(
-                'success',
-                'Estado de la solicitud actualizado correctamente.'
-            );
+            ->route('purchase-requests.index')
+            ->with('success', 'Solicitud enviada al departamento de compras.');
+    }
+
+    /**
+     * Compras devuelve la solicitud a la sucursal para que la corrija y la reenvíe.
+     */
+    public function returnToBranch(Request $request, PurchaseRequest $purchaseRequest)
+    {
+        return $this->review(
+            $request,
+            $purchaseRequest,
+            PurchaseRequest::STATUS_RETURNED,
+            'Solicitud devuelta a la sucursal.'
+        );
+    }
+
+    /**
+     * Compras rechaza la solicitud de forma definitiva.
+     */
+    public function reject(Request $request, PurchaseRequest $purchaseRequest)
+    {
+        return $this->review(
+            $request,
+            $purchaseRequest,
+            PurchaseRequest::STATUS_REJECTED,
+            'Solicitud rechazada.'
+        );
+    }
+
+    /**
+     * Devuelve o rechaza una solicitud enviada; el motivo es obligatorio.
+     */
+    private function review(
+        Request $request,
+        PurchaseRequest $purchaseRequest,
+        string $status,
+        string $message
+    ) {
+        Gate::authorize('purchase_requests.devolver');
+
+        if ($purchaseRequest->status !== PurchaseRequest::STATUS_SENT) {
+            return redirect()
+                ->route('purchase-requests.index')
+                ->with('error', 'Solo se pueden devolver o rechazar solicitudes enviadas.');
+        }
+
+        $reason = trim((string) $request->input('reason'));
+
+        if ($reason === '' || mb_strlen($reason) > 1000) {
+            return redirect()
+                ->route('purchase-requests.index', ['show' => $purchaseRequest->id_purchase_request])
+                ->with('error', 'Debe indicar el motivo (máximo 1000 caracteres).');
+        }
+
+        $purchaseRequest->update([
+            'status' => $status,
+            'status_reason' => $reason,
+        ]);
+
+        return redirect()
+            ->route('purchase-requests.index')
+            ->with('success', $message);
+    }
+
+    /**
+     * La solicitud es para una sucursal distinta de la del usuario.
+     */
+    private function isForAnotherBranch(int|string $branchId): bool
+    {
+        return ! BranchAccess::isUnrestricted()
+            && (int) $branchId !== BranchAccess::branchId();
     }
 
     /**

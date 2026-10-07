@@ -29,7 +29,12 @@ class Branch extends Model
         'phone',
         'email',
         'description',
-        'is_active'
+        'is_active',
+        'is_purchasing_department',
+    ];
+
+    protected $casts = [
+        'is_purchasing_department' => 'boolean',
     ];
 
     // Una sucursal pertenece a una empresa

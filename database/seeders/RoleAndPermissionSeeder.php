@@ -354,10 +354,16 @@ class RoleAndPermissionSeeder extends Seeder
                 'action' => 'destroy',
             ],
             [
-                'id_permission' => 'purchase_requests.aprobar',
-                'name' => 'Aprobar/Rechazar Solicitudes de Compra',
-                'description' => 'Permite cambiar el estado de las solicitudes de compra.',
-                'action' => 'updateStatus',
+                'id_permission' => 'purchase_requests.enviar',
+                'name' => 'Enviar Solicitudes de Compra',
+                'description' => 'Permite enviar solicitudes de compra al departamento de compras.',
+                'action' => 'send',
+            ],
+            [
+                'id_permission' => 'purchase_requests.devolver',
+                'name' => 'Devolver/Rechazar Solicitudes de Compra',
+                'description' => 'Permite devolver a la sucursal o rechazar solicitudes enviadas, indicando el motivo.',
+                'action' => 'review',
             ],
             // Solicitudes de Cotización a Proveedores
             [

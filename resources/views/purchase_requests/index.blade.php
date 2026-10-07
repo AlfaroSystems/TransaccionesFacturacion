@@ -11,7 +11,7 @@
                 <span class="text-xs font-semibold text-slate-500">Módulo de Solicitudes</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">Solicitudes de Compra</h1>
-            <p class="text-slate-500 text-sm mt-0.5">Registre y gestione las solicitudes de productos requeridos por sucursal y bodega.</p>
+            <p class="text-slate-500 text-sm mt-0.5">Cada sucursal registra sus solicitudes y las envía al departamento de compras para cotizarlas.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
             <button type="button" onclick="openModal('create-purchase-request-modal')" class="w-full md:w-auto bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
@@ -38,19 +38,19 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#005e66] flex items-center justify-center text-xl font-bold">📋</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total</span><span class="text-xl font-extrabold text-slate-800">{{ $purchaseRequests->total() }}</span></div>
+            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts->sum() }}</span></div>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl font-bold">✎</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Borradores</span><span class="text-xl font-extrabold text-slate-800">{{ $purchaseRequests->getCollection()->where('status', 'draft')->count() }}</span></div>
+            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Borradores y devueltas</span><span class="text-xl font-extrabold text-slate-800">{{ ($statusCounts['draft'] ?? 0) + ($statusCounts['returned'] ?? 0) }}</span></div>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">⏳</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Pendientes</span><span class="text-xl font-extrabold text-slate-800">{{ $purchaseRequests->getCollection()->where('status', 'pending')->count() }}</span></div>
+            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Enviadas a compras</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['sent'] ?? 0 }}</span></div>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">✓</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Aprobadas</span><span class="text-xl font-extrabold text-slate-800">{{ $purchaseRequests->getCollection()->where('status', 'approved')->count() }}</span></div>
+            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">En cotización</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['quoted'] ?? 0 }}</span></div>
         </div>
     </div>
     <!-- Filtros -->
@@ -62,10 +62,9 @@
             <div>
                 <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                     <option value="">Todos los estados</option>
-                    <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Borrador</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pendiente</option>
-                    <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Aprobada</option>
-                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rechazada</option>
+                    @foreach(\App\Models\PurchaseRequest::STATUS_LABELS as $statusValue => $statusLabel)
+                        <option value="{{ $statusValue }}" {{ request('status') === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="flex gap-2">
@@ -105,33 +104,27 @@
                             <div class="font-bold text-slate-700">{{ $purchaseRequest->branch?->name ?? 'Sin sucursal' }}</div>
                             <div class="text-xs text-slate-400 font-semibold">{{ $purchaseRequest->warehouse?->name ?? 'Sin bodega' }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100"><div class="font-semibold text-slate-700 text-sm">{{ $purchaseRequest->user?->name ?? 'Usuario no disponible' }}</div></td>
+                        <td class="py-4 px-6 bg-white border-y border-slate-100"><div class="font-semibold text-slate-700 text-sm">{{ $purchaseRequest->user?->username ?? 'Usuario no disponible' }}</div></td>
                         <td class="py-4 px-6 bg-white border-y border-slate-100 text-center"><span class="inline-flex items-center justify-center min-w-8 px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-extrabold">{{ $purchaseRequest->details->count() }}</span></td>
                         <td class="py-4 px-6 bg-white border-y border-slate-100 text-center">
-                            @if($purchaseRequest->status === 'draft')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">● Borrador</span>
-                            @elseif($purchaseRequest->status === 'pending')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">● Pendiente</span>
-                            @elseif($purchaseRequest->status === 'approved')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">● Aprobada</span>
-                            @elseif($purchaseRequest->status === 'rejected')
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">● Rechazada</span>
-                            @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">{{ ucfirst($purchaseRequest->status) }}</span>
-                            @endif
+                            @include('purchase_requests._status_badge')
                         </td>
                         <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <button type="button" onclick="openModal('show-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="Ver detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </button>
-                                @if($purchaseRequest->status === 'draft')
+                                @if($purchaseRequest->isEditable())
+                                    @can('purchase_requests.editar')
                                     <button type="button" onclick="openModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </button>
-                                    <button type="button" onclick="confirmDelete('{{ route('purchase-requests.destroy', $purchaseRequest) }}', 'Solicitud {{ addslashes($purchaseRequest->code) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar Solicitud">
+                                    @endcan
+                                    @can('purchase_requests.eliminar')
+                                    <button type="button" onclick="confirmDelete('{{ route('purchase-requests.destroy', $purchaseRequest) }}', 'Solicitud {{ addslashes($purchaseRequest->purchase_request_code) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar Solicitud">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
                                     </button>
+                                    @endcan
                                 @endif
                             </div>
                         </td>
@@ -164,10 +157,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sucursal *</label>
-                        <select name="id_branch" id="create_id_branch" required onchange="filterWarehouses(this, document.getElementById('create_id_warehouse'))" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <select name="id_branch" id="create_id_branch" required onchange="filterWarehouses(this, document.getElementById('create_id_warehouse')); updateDraftButton()" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Seleccione sucursal...</option>
                             @foreach($branches as $branch)
-                                <option value="{{ $branch->id_branch }}" {{ old('id_branch') == $branch->id_branch ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                {{-- Por defecto, la sucursal del usuario (el administrador no tiene una) --}}
+                                <option value="{{ $branch->id_branch }}" {{ old('id_branch', $ownBranchId) == $branch->id_branch ? 'selected' : '' }}>{{ $branch->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -188,7 +182,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha Requerida *</label>
-                        <input type="datetime-local" name="required_date" value="{{ old('required_date') }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <input type="datetime-local" name="required_date" value="{{ old('required_date') }}" data-min-date="today" min="{{ today()->format('Y-m-d\TH:i') }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                     </div>
                 </div>
                 <div>
@@ -226,7 +220,11 @@
             </div>
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
                 <button type="button" onclick="closeModal('create-purchase-request-modal')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar Solicitud</button>
+                <span id="create-other-branch-hint" class="hidden text-xs font-semibold text-slate-500 mr-auto">Las solicitudes para otra sucursal se envían a compras al guardarlas.</span>
+                <button type="submit" name="send" value="0" id="create-draft-button" class="px-6 py-2.5 rounded-xl bg-white border border-[#005e66] text-[#005e66] font-bold text-sm hover:bg-teal-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">Guardar Borrador</button>
+                @can('purchase_requests.enviar')
+                    <button type="submit" name="send" value="1" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar y Enviar a Compras</button>
+                @endcan
             </div>
         </form>
     </div>
@@ -240,15 +238,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h3 class="text-xl font-extrabold text-slate-800">{{ $purchaseRequest->purchase_request_code }}</h3>
-                    @if($purchaseRequest->status === 'draft')
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Borrador</span>
-                    @elseif($purchaseRequest->status === 'pending')
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Pendiente</span>
-                    @elseif($purchaseRequest->status === 'approved')
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Aprobada</span>
-                    @else
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">Rechazada</span>
-                    @endif
+                    @include('purchase_requests._status_badge')
                 </div>
                 <p class="text-xs text-slate-400 mt-1">Detalle completo de la solicitud de compra.</p>
             </div>
@@ -257,9 +247,18 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-slate-50 rounded-2xl p-4"><span class="text-[10px] uppercase font-bold text-slate-400">Sucursal</span><p class="font-bold text-slate-700 mt-1">{{ $purchaseRequest->branch?->name ?? 'N/A' }}</p></div>
             <div class="bg-slate-50 rounded-2xl p-4"><span class="text-[10px] uppercase font-bold text-slate-400">Bodega</span><p class="font-bold text-slate-700 mt-1">{{ $purchaseRequest->warehouse?->name ?? 'N/A' }}</p></div>
-            <div class="bg-slate-50 rounded-2xl p-4"><span class="text-[10px] uppercase font-bold text-slate-400">Solicitante</span><p class="font-bold text-slate-700 mt-1">{{ $purchaseRequest->user?->name ?? 'N/A' }}</p></div>
+            <div class="bg-slate-50 rounded-2xl p-4"><span class="text-[10px] uppercase font-bold text-slate-400">Solicitante</span><p class="font-bold text-slate-700 mt-1">{{ $purchaseRequest->user?->username ?? 'N/A' }}</p></div>
             <div class="bg-slate-50 rounded-2xl p-4"><span class="text-[10px] uppercase font-bold text-slate-400">Fecha requerida</span><p class="font-bold text-slate-700 mt-1">{{ $purchaseRequest->required_date?->format('d/m/Y H:i') }}</p></div>
         </div>
+        @if($purchaseRequest->status_reason && in_array($purchaseRequest->status, ['returned', 'rejected']))
+            <div class="rounded-2xl p-4 mb-6 border {{ $purchaseRequest->status === 'rejected' ? 'bg-rose-50 border-rose-100' : 'bg-amber-50 border-amber-100' }}">
+                <span class="text-[10px] uppercase font-bold {{ $purchaseRequest->status === 'rejected' ? 'text-rose-600' : 'text-amber-700' }}">{{ $purchaseRequest->status === 'rejected' ? 'Motivo del rechazo' : 'Motivo de la devolución' }}</span>
+                <p class="text-sm text-slate-700 mt-1">{{ $purchaseRequest->status_reason }}</p>
+            </div>
+        @endif
+        @if($purchaseRequest->sent_at)
+            <p class="text-xs text-slate-400 font-semibold mb-4">Enviada a compras el {{ $purchaseRequest->sent_at->format('d/m/Y H:i') }}</p>
+        @endif
         <div class="bg-slate-50 rounded-2xl p-4 mb-6">
             <span class="text-[10px] uppercase font-bold text-slate-400">Justificación</span>
             <p class="text-sm text-slate-700 mt-2">{{ $purchaseRequest->justification }}</p>
@@ -291,27 +290,30 @@
                 </tbody>
             </table>
         </div>
-        <div class="flex flex-wrap items-center justify-end gap-3 pt-5 border-t border-slate-200">
-            @if($purchaseRequest->status === 'draft')
-                <form method="POST" action="{{ route('purchase-requests.update-status', $purchaseRequest) }}">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="pending">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition">Enviar a Aprobación</button>
-                </form>
-            @elseif($purchaseRequest->status === 'pending')
-                <form method="POST" action="{{ route('purchase-requests.update-status', $purchaseRequest) }}">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="rejected">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm transition">Rechazar</button>
-                </form>
-                <form method="POST" action="{{ route('purchase-requests.update-status', $purchaseRequest) }}">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="approved">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition">Aprobar</button>
-                </form>
+        <div class="flex flex-wrap items-end justify-end gap-3 pt-5 border-t border-slate-200">
+            @if($purchaseRequest->isEditable())
+                @can('purchase_requests.enviar')
+                    <form method="POST" action="{{ route('purchase-requests.send', $purchaseRequest) }}">
+                        @csrf
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition">Enviar a Compras</button>
+                    </form>
+                @endcan
+            @elseif($purchaseRequest->status === 'sent')
+                @can('purchase_requests.devolver')
+                    {{-- Un solo motivo para devolver (vuelve a la sucursal) o rechazar (definitivo) --}}
+                    <form method="POST" action="{{ route('purchase-requests.return', $purchaseRequest) }}" class="flex-1 min-w-[260px] flex flex-col gap-2">
+                        @csrf
+                        <label class="text-[10px] uppercase font-bold text-slate-400">Motivo para devolver o rechazar *</label>
+                        <textarea name="reason" rows="2" required maxlength="1000" placeholder="Explique qué debe corregir la sucursal o por qué se rechaza..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></textarea>
+                        <div class="flex flex-wrap justify-end gap-3">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition">Devolver a la Sucursal</button>
+                            <button type="button" onclick="confirmReject(this, '{{ route('purchase-requests.reject', $purchaseRequest) }}', '{{ $purchaseRequest->purchase_request_code }}')" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm transition">Rechazar</button>
+                        </div>
+                    </form>
+                @endcan
+                @can('purchase_quotation_requests.crear')
+                    <a href="{{ route('purchase-quotation-requests.index', ['cotizar' => $purchaseRequest->id_purchase_request]) }}" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition">Generar Cotización</a>
+                @endcan
             @endif
         </div>
     </div>
@@ -320,13 +322,19 @@
 
 <!-- MODALES EDITAR -->
 @foreach($purchaseRequests as $purchaseRequest)
-@if($purchaseRequest->status === 'draft')
+@if($purchaseRequest->isEditable())
 <div id="edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-6xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-slate-100 relative">
         <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
-            <div><h3 class="text-xl font-extrabold text-slate-800">Editar {{ $purchaseRequest->purchase_request_code }}</h3><p class="text-xs text-slate-400">Modifique los datos mientras la solicitud permanezca en borrador.</p></div>
+            <div><h3 class="text-xl font-extrabold text-slate-800">Editar {{ $purchaseRequest->purchase_request_code }}</h3><p class="text-xs text-slate-400">Modifique los datos antes de enviarla al departamento de compras.</p></div>
             <button type="button" onclick="closeModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">✕</button>
         </div>
+        @if($purchaseRequest->status === 'returned' && $purchaseRequest->status_reason)
+            <div class="rounded-2xl p-4 mb-6 border bg-amber-50 border-amber-100">
+                <span class="text-[10px] uppercase font-bold text-amber-700">Devuelta por compras</span>
+                <p class="text-sm text-slate-700 mt-1">{{ $purchaseRequest->status_reason }}</p>
+            </div>
+        @endif
         <form action="{{ route('purchase-requests.update', $purchaseRequest) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
@@ -334,18 +342,15 @@
                 <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">1. Información General</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sucursal *</label>
-                        <select name="id_branch" id="edit_branch_{{ $purchaseRequest->id_purchase_request }}" required onchange="filterWarehouses(this, document.getElementById('edit_warehouse_{{ $purchaseRequest->id_purchase_request }}'))" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id_branch }}" {{ $purchaseRequest->id_branch == $branch->id_branch ? 'selected' : '' }}>{{ $branch->name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sucursal</label>
+                        <input type="hidden" name="id_branch" value="{{ $purchaseRequest->id_branch }}">
+                        <p class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-600">{{ $purchaseRequest->branch?->name ?? 'Sin sucursal' }}</p>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Bodega *</label>
-                        <select name="id_warehouse" id="edit_warehouse_{{ $purchaseRequest->id_purchase_request }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-                            @foreach($warehouses as $warehouse)
-                                <option value="{{ $warehouse->id_warehouse }}" data-branch="{{ $warehouse->id_branch }}" {{ $purchaseRequest->id_warehouse == $warehouse->id_warehouse ? 'selected' : '' }}>{{ $warehouse->name }}</option>
+                        <select name="id_warehouse" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                            @foreach($warehouses->where('id_branch', $purchaseRequest->id_branch) as $warehouse)
+                                <option value="{{ $warehouse->id_warehouse }}" {{ $purchaseRequest->id_warehouse == $warehouse->id_warehouse ? 'selected' : '' }}>{{ $warehouse->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -424,6 +429,21 @@
 @endif
 @endforeach
 
+<!-- MODAL CONFIRMAR RECHAZO (por encima del modal de detalle) -->
+<div id="reject-confirm-modal" class="hidden fixed inset-0 z-60 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
+    <div id="reject-confirm-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200">
+        <div class="w-14 h-14 rounded-full border-2 border-rose-400 flex items-center justify-center mx-auto text-rose-500 dark:text-rose-400 mb-5">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">¿Rechazar <span id="reject-confirm-code"></span>?</h3>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">La solicitud quedará rechazada de forma definitiva: la sucursal no podrá corregirla ni reenviarla. Si solo necesita cambios, use "Devolver a la Sucursal".</p>
+        <div class="flex justify-center gap-3">
+            <button type="button" onclick="closeModal('reject-confirm-modal')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-sm transition-all">Cancelar</button>
+            <button type="button" onclick="submitReject()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition-all shadow-xs">Sí, rechazar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Plantilla de fila dinámica -->
 <template id="purchase-request-row-template">
     <tr class="purchase-detail-row">
@@ -450,6 +470,24 @@
 </template>
 
 <script>
+// Rechazar es definitivo: se confirma en un modal antes de enviar el formulario con el motivo
+let pendingReject = null;
+function confirmReject(button, actionUrl, code) {
+    const form = button.closest('form');
+    if (!form || !form.reportValidity()) return; // el motivo es obligatorio
+    pendingReject = { form, actionUrl };
+    document.getElementById('reject-confirm-code').textContent = code;
+    const modal = document.getElementById('reject-confirm-modal');
+    const card = document.getElementById('reject-confirm-card');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => { card.classList.remove('scale-95'); card.classList.add('scale-100'); }, 10);
+}
+function submitReject() {
+    if (!pendingReject) return;
+    pendingReject.form.action = pendingReject.actionUrl;
+    pendingReject.form.submit();
+}
 const purchaseRequestRowCounters = {};
 function addPurchaseRequestRow(containerId = 'purchase-request-details') {
     const container = document.getElementById(containerId);
@@ -465,6 +503,7 @@ function addPurchaseRequestRow(containerId = 'purchase-request-details') {
         element.name = `details[${index}][${field}]`;
     });
     container.appendChild(clone);
+    refreshProductOptions(container);
 }
 function removePurchaseRequestRow(button) {
     const row = button.closest('.purchase-detail-row');
@@ -476,8 +515,25 @@ function removePurchaseRequestRow(button) {
         return;
     }
     row.remove();
+    refreshProductOptions(tbody);
+}
+// Cada producto se elige una sola vez por solicitud: en cada fila se ocultan los que ya
+// están elegidos en otra (vuelven a aparecer si se cambian o se quita la fila)
+function refreshProductOptions(container) {
+    if (!container) return;
+    const selects = container.querySelectorAll('.product-select');
+    const chosen = Array.from(selects).map(select => select.value).filter(value => value);
+    selects.forEach(select => {
+        Array.from(select.options).forEach(option => {
+            if (!option.value) return;
+            const takenElsewhere = option.value !== select.value && chosen.includes(option.value);
+            option.hidden = takenElsewhere;
+            option.disabled = takenElsewhere;
+        });
+    });
 }
 function setPurchaseUnit(productSelect) {
+    refreshProductOptions(productSelect.closest('tbody'));
     const selectedOption = productSelect.options[productSelect.selectedIndex];
     if (!selectedOption) return;
     const unitId = selectedOption.dataset.unit;
@@ -486,6 +542,17 @@ function setPurchaseUnit(productSelect) {
     const unitSelect = row.querySelector('.unit-select');
     if (!unitSelect) return;
     if (unitId) unitSelect.value = unitId;
+}
+// Una solicitud para otra sucursal (departamento de compras) no puede quedar en borrador
+const ownBranchId = @json($ownBranchId);
+function updateDraftButton() {
+    const branchSelect = document.getElementById('create_id_branch');
+    const draftButton = document.getElementById('create-draft-button');
+    const hint = document.getElementById('create-other-branch-hint');
+    if (!branchSelect || !draftButton) return;
+    const otherBranch = ownBranchId !== null && branchSelect.value !== '' && Number(branchSelect.value) !== ownBranchId;
+    draftButton.disabled = otherBranch;
+    if (hint) hint.classList.toggle('hidden', !otherBranch);
 }
 function filterWarehouses(branchSelect, warehouseSelect) {
     if (!branchSelect || !warehouseSelect) return;
@@ -498,19 +565,21 @@ function filterWarehouses(branchSelect, warehouseSelect) {
         option.disabled = !belongsToBranch;
         if (option.selected && belongsToBranch) selectedStillValid = true;
     });
-    if (!selectedStillValid) warehouseSelect.value = '';
+    if (!selectedStillValid) {
+        // Si la sucursal tiene una sola bodega, se elige sola
+        const available = Array.from(options).filter(option => !option.disabled);
+        warehouseSelect.value = available.length === 1 ? available[0].value : '';
+    }
 }
 document.addEventListener('DOMContentLoaded', function () {
     const createBranch = document.getElementById('create_id_branch');
     const createWarehouse = document.getElementById('create_id_warehouse');
     if (createBranch && createWarehouse) filterWarehouses(createBranch, createWarehouse);
+    updateDraftButton();
     const createDetails = document.getElementById('purchase-request-details');
     if (createDetails && createDetails.children.length === 0) addPurchaseRequestRow();
-    document.querySelectorAll('[id^="edit_branch_"]').forEach(branchSelect => {
-        const requestId = branchSelect.id.replace('edit_branch_', '');
-        const warehouseSelect = document.getElementById('edit_warehouse_' + requestId);
-        if (warehouseSelect) filterWarehouses(branchSelect, warehouseSelect);
-    });
+    // Las solicitudes en edición ya traen productos elegidos
+    document.querySelectorAll('[id^="edit-details-"]').forEach(refreshProductOptions);
     @if(session('open_create_modal'))
         openModal('create-purchase-request-modal');
     @endif

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,10 +28,12 @@ class Warehouse extends Model
 
     public function branch()
     {
+        // Sin el filtro por sucursal: quien ve la bodega (p. ej. el departamento de
+        // compras, de otra sucursal) debe ver también a qué sucursal pertenece
         return $this->belongsTo(
             Branch::class,
             'id_branch'
-        );
+        )->withoutGlobalScope(BranchScope::class);
     }
 
     public function warehouseCategory()

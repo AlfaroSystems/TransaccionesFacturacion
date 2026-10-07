@@ -50,16 +50,19 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Endpoint AJAX: Devuelve las Solicitudes de Compra en estado approved.
+     * Endpoint AJAX: Devuelve las Solicitudes de Compra enviadas al departamento de
+     * compras que aún no tienen solicitud de cotización.
      */
-    public function getApprovedPurchaseRequests(): JsonResponse
+    public function getSentPurchaseRequests(): JsonResponse
     {
         Gate::authorize('purchase_quotation_requests.ver');
 
-        $approvedRequests = PurchaseRequest::where('status', 'approved')
+        $sentRequests = PurchaseRequest::where('status', PurchaseRequest::STATUS_SENT)
+            ->with('branch:id_branch,name')
             ->select([
                 'id_purchase_request',
                 'purchase_request_code',
+                'id_branch',
                 'justification',
                 'request_date',
                 'required_date',
@@ -67,7 +70,7 @@ class PurchaseQuotationRequestController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return response()->json($approvedRequests);
+        return response()->json($sentRequests);
     }
 
     /**
@@ -99,9 +102,17 @@ class PurchaseQuotationRequestController extends Controller
 
         $validated = $request->validated();
 
-        DB::transaction(function () use ($validated) {
+        $created = DB::transaction(function () use ($validated) {
             $purchaseRequestId = $validated['id_purchase_request'];
             $items = $validated['items'];
+
+            // Se bloquea la solicitud de compra para que dos usuarios no generen a la vez
+            // dos solicitudes de cotización de la misma
+            $purchaseRequest = PurchaseRequest::whereKey($purchaseRequestId)->lockForUpdate()->firstOrFail();
+
+            if ($purchaseRequest->status !== PurchaseRequest::STATUS_SENT) {
+                return false;
+            }
 
             $quotationRequest = PurchaseQuotationRequest::create([
                 'id_purchase_request' => $purchaseRequestId,
@@ -115,7 +126,20 @@ class PurchaseQuotationRequestController extends Controller
                     'quantity' => $item['quantity'],
                 ]);
             }
+
+            // La solicitud de compra queda en cotización: ya no puede devolverse ni rechazarse
+            $purchaseRequest->update([
+                'status' => PurchaseRequest::STATUS_QUOTED,
+            ]);
+
+            return true;
         });
+
+        if (! $created) {
+            return redirect()
+                ->route('purchase-quotation-requests.index')
+                ->with('error', 'La solicitud de compra ya no está disponible para cotizar.');
+        }
 
         return redirect()
             ->route('purchase-quotation-requests.index')

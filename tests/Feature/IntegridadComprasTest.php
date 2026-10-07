@@ -225,7 +225,7 @@ test('al aceptar una oferta, el rechazo de las demás queda en la bitácora', fu
     $request = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-OFERTAS', 'id_branch' => $e->branch->id_branch,
         'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
-        'required_date' => now(), 'justification' => 'x', 'status' => 'approved',
+        'required_date' => now(), 'justification' => 'x', 'status' => 'quoted',
     ]);
     $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
     [$aceptada, $rechazada] = collect([1, 2])->map(fn () => PurchaseQuotation::create([
@@ -291,7 +291,7 @@ test('el descuento de una línea no puede superar su subtotal y el IVA no puede 
     $request = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-TOPES', 'id_branch' => $e->branch->id_branch,
         'id_warehouse' => $e->warehouse->id_warehouse, 'id_user' => $e->admin->id_user, 'request_date' => now(),
-        'required_date' => now(), 'justification' => 'x', 'status' => 'approved',
+        'required_date' => now(), 'justification' => 'x', 'status' => 'quoted',
     ]);
     $quotationRequest = PurchaseQuotationRequest::create(['id_purchase_request' => $request->id_purchase_request]);
 

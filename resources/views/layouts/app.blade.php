@@ -438,7 +438,9 @@
                     dateFormat: 'Y-m-d H:i',
                     altInput: true,
                     altFormat: 'd/m/Y h:i K',
-                    allowInput: true
+                    allowInput: true,
+                    // data-min-date="today" (u otra fecha) bloquea las fechas anteriores
+                    minDate: el.dataset.minDate || null
                 });
             });
 
@@ -450,7 +452,8 @@
                     dateFormat: 'Y-m-d',
                     altInput: true,
                     altFormat: 'd/m/Y',
-                    allowInput: true
+                    allowInput: true,
+                    minDate: el.dataset.minDate || null
                 });
             });
         }

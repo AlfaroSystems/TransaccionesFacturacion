@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 use App\Models\Company;
 use App\Rules\Accessible;
+use App\Support\BranchAccess;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -33,7 +34,10 @@ class BranchRequest extends FormRequest
             'id_district' => 'nullable|exists:districts,id_district',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            // Solo el administrador designa la sucursal del departamento de compras: da acceso
+            // a las solicitudes de compra de todas las sucursales de la empresa
+            'is_purchasing_department' => BranchAccess::isUnrestricted() ? ['boolean'] : ['prohibited'],
         ];
     }
 }

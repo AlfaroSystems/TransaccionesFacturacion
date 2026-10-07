@@ -5,6 +5,7 @@ use App\Models\Warehouse;
 use App\Models\Branch;
 use App\Models\WarehouseCategory;
 use App\Rules\Accessible;
+use App\Support\BranchAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -16,8 +17,13 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.ver');
 
-        // Warehouse y Branch se filtran por la sucursal del usuario (BranchScope)
-        $warehouses = Warehouse::with(['branch', 'warehouseCategory'])->get();
+        // Warehouse y Branch se filtran por la sucursal del usuario (BranchScope); el
+        // departamento de compras ve además (solo lectura) las bodegas de toda su empresa
+        $warehouseQuery = BranchAccess::isPurchasingDepartment()
+            ? Warehouse::queryAllBranches()->whereIn('id_branch', BranchAccess::companyBranchIds())
+            : Warehouse::query();
+
+        $warehouses = $warehouseQuery->with(['branch', 'warehouseCategory'])->get();
         $branches = Branch::where('is_active', true)->get();
         $categories = WarehouseCategory::where('is_active', true)->get();
         

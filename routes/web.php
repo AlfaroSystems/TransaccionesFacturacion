@@ -84,15 +84,24 @@ Route::middleware('auth')->group(function () {
         'purchase-requests',
         PurchaseRequestController::class
     );
-    Route::patch(
-        'purchase-requests/{purchaseRequest}/status',
-        [PurchaseRequestController::class, 'updateStatus']
-    )->name('purchase-requests.update-status');
+    // Flujo: la sucursal envía; compras devuelve o rechaza (con motivo)
+    Route::post(
+        'purchase-requests/{purchaseRequest}/send',
+        [PurchaseRequestController::class, 'send']
+    )->name('purchase-requests.send');
+    Route::post(
+        'purchase-requests/{purchaseRequest}/return',
+        [PurchaseRequestController::class, 'returnToBranch']
+    )->name('purchase-requests.return');
+    Route::post(
+        'purchase-requests/{purchaseRequest}/reject',
+        [PurchaseRequestController::class, 'reject']
+    )->name('purchase-requests.reject');
     // Solicitudes de Cotización a Proveedores
     Route::get(
-        'purchase-quotation-requests/approved-requests',
-        [PurchaseQuotationRequestController::class, 'getApprovedPurchaseRequests']
-    )->name('purchase-quotation-requests.approved-requests');
+        'purchase-quotation-requests/sent-requests',
+        [PurchaseQuotationRequestController::class, 'getSentPurchaseRequests']
+    )->name('purchase-quotation-requests.sent-requests');
     Route::get(
         'purchase-quotation-requests/request-details/{id}',
         [PurchaseQuotationRequestController::class, 'getPurchaseRequestDetails']

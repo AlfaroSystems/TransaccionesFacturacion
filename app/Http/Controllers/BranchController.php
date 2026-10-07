@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Municipality;
 use App\Models\District;
 use App\Http\Requests\BranchRequest;
+use App\Support\BranchAccess;
 use Illuminate\Support\Facades\Gate;
 
 class BranchController extends Controller
@@ -19,7 +20,12 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.ver');
 
-        $branches = Branch::with(['company', 'department', 'municipality', 'district'])->orderBy('id_branch', 'desc')->get();
+        // El departamento de compras ve (solo lectura) las sucursales de toda su empresa
+        $query = BranchAccess::isPurchasingDepartment()
+            ? Branch::queryAllBranches()->whereIn('id_branch', BranchAccess::companyBranchIds())
+            : Branch::query();
+
+        $branches = $query->with(['company', 'department', 'municipality', 'district'])->orderBy('id_branch', 'desc')->get();
         $companies = Company::all();
         $departments = Department::orderBy('name')->get();
         $municipalities = Municipality::orderBy('name')->get();

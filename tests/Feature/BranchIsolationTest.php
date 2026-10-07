@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
 // =============================================================================
 
 const PERMISOS_AISLAMIENTO = [
-    'purchase_requests.ver', 'purchase_requests.crear', 'purchase_requests.editar', 'purchase_requests.eliminar', 'purchase_requests.aprobar',
+    'purchase_requests.ver', 'purchase_requests.crear', 'purchase_requests.editar', 'purchase_requests.eliminar', 'purchase_requests.enviar', 'purchase_requests.devolver',
     'purchase_quotation_requests.ver', 'purchase_quotation_requests.crear', 'purchase_quotation_requests.seleccionar_cotizacion',
     'purchase_quotations.crear', 'purchase_quotations.eliminar',
     'purchase_orders.ver', 'purchase_orders.crear', 'purchase_orders.editar', 'purchase_orders.eliminar', 'purchase_orders.aprobar', 'purchase_orders.pdf',
@@ -90,7 +90,7 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
         'request_date'          => now(),
         'required_date'         => now()->addWeek(),
         'justification'         => "Justificación {$tag}",
-        'status'                => 'approved',
+        'status'                => 'quoted',
     ]);
     $requestDetail = $request->details()->create(['id_product' => $product->id_product, 'quantity' => 5, 'id_unit' => $unit->id_unit]);
 
@@ -210,7 +210,9 @@ test('los listados y desplegables solo muestran datos de la sucursal del usuario
     $r = $this->get(route('purchase-quotation-requests.index'))->assertOk();
     expectSoloPropio($r->viewData('quotationRequests'), $a->quotationRequest, $b->quotationRequest);
 
-    $ids = collect($this->getJson(route('purchase-quotation-requests.approved-requests'))->assertOk()->json())
+    // Solicitudes enviadas sin cotizar en ambas sucursales: cada una ve solo la suya
+    PurchaseRequest::queryAllBranches()->whereKey([$a->request->id_purchase_request, $b->request->id_purchase_request])->update(['status' => 'sent']);
+    $ids = collect($this->getJson(route('purchase-quotation-requests.sent-requests'))->assertOk()->json())
         ->pluck('id_purchase_request');
     expect($ids)->toContain($a->request->id_purchase_request)->not->toContain($b->request->id_purchase_request);
 
@@ -280,7 +282,9 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
         ['get', route('purchase-requests.edit', $b->request)],
         ['put', route('purchase-requests.update', $b->request)],
         ['delete', route('purchase-requests.destroy', $b->request)],
-        ['patch', route('purchase-requests.update-status', $b->request)],
+        ['post', route('purchase-requests.send', $b->request)],
+        ['post', route('purchase-requests.return', $b->request)],
+        ['post', route('purchase-requests.reject', $b->request)],
 
         ['get', route('purchase-quotation-requests.show', $b->quotationRequest->id_purchase_quotation_request)],
         ['get', route('purchase-quotation-requests.request-details', $b->request->id_purchase_request)],
@@ -342,7 +346,7 @@ test('los registros de otra sucursal no se pueden ver, editar ni borrar por ID',
     }
 
     // Nada de la otra sucursal cambió
-    $this->assertDatabaseHas('purchase_requests', ['id_purchase_request' => $b->request->id_purchase_request, 'status' => 'approved']);
+    $this->assertDatabaseHas('purchase_requests', ['id_purchase_request' => $b->request->id_purchase_request, 'status' => 'quoted']);
     $this->assertDatabaseHas('purchase_orders', ['id_purchase_order' => $b->order->id_purchase_order, 'status' => 'issued']);
     $this->assertDatabaseHas('purchases', ['id_purchase' => $b->purchase->id_purchase, 'status' => 'draft']);
     $this->assertDatabaseHas('retaceos', ['id_retaceo' => $b->retaceo->id_retaceo, 'status' => 'draft']);

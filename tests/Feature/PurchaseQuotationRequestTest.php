@@ -33,7 +33,7 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'id_unit' => $unit->id_unit,
     ]);
 
-    // 3. Crear solicitud de compra aprobada
+    // 3. Crear solicitud de compra enviada al departamento de compras
     $purchaseRequest = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(),
         'purchase_request_code' => 'REQ-2026-TEST',
@@ -43,7 +43,7 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'request_date' => now(),
         'required_date' => now()->addDays(7),
         'justification' => 'Renovación de equipos informáticos',
-        'status' => 'approved',
+        'status' => 'sent',
     ]);
 
     $detail = $purchaseRequest->details()->create([
@@ -52,6 +52,11 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'id_unit' => $unit->id_unit,
         'description' => 'Equipos para desarrollo',
     ]);
+
+    // Mientras no se cotiza, aparece en la lista de solicitudes enviadas
+    $this->actingAs($user)->getJson(route('purchase-quotation-requests.sent-requests'))
+        ->assertOk()
+        ->assertJsonFragment(['purchase_request_code' => 'REQ-2026-TEST']);
 
     // 4. Enviar petición para crear la solicitud de cotización
     $response = $this->actingAs($user)->post(route('purchase-quotation-requests.store'), [
@@ -80,12 +85,18 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'quantity' => 5.0000,
     ]);
 
-    // 7. Probar endpoint AJAX de solicitudes aprobadas
-    $ajaxResponse = $this->actingAs($user)->getJson(route('purchase-quotation-requests.approved-requests'));
-    $ajaxResponse->assertOk();
-    $ajaxResponse->assertJsonFragment([
-        'purchase_request_code' => 'REQ-2026-TEST',
-    ]);
+    // 7. La solicitud de compra queda en cotización y sale de la lista de enviadas
+    expect($purchaseRequest->fresh()->status)->toBe('quoted');
+    $this->actingAs($user)->getJson(route('purchase-quotation-requests.sent-requests'))
+        ->assertOk()
+        ->assertJsonMissing(['purchase_request_code' => 'REQ-2026-TEST']);
+
+    // No se puede generar otra solicitud de cotización de la misma solicitud de compra
+    $this->actingAs($user)->post(route('purchase-quotation-requests.store'), [
+        'id_purchase_request' => $purchaseRequest->id_purchase_request,
+        'items' => [['id_purchase_request_detail' => $detail->id_purchase_request_detail, 'quantity' => 5]],
+    ])->assertSessionHasErrors('id_purchase_request');
+    expect(PurchaseQuotationRequest::where('id_purchase_request', $purchaseRequest->id_purchase_request)->count())->toBe(1);
 
     // 8. Probar vista detalle show
     $quotation = PurchaseQuotationRequest::where('id_purchase_request', $purchaseRequest->id_purchase_request)->first();

@@ -47,6 +47,9 @@
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm font-bold text-slate-950 dark:text-slate-100 transition-colors duration-300">
                             {{ $branch->name }}
+                            @if($branch->is_purchasing_department)
+                                <span class="ml-2 inline-flex px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-teal-100 dark:bg-teal-900/40 text-[#005e66] dark:text-teal-300">Dpto. de compras</span>
+                            @endif
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
                             <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $branch->addres }}">{{ $branch->addres }}</span>
@@ -68,30 +71,35 @@
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-r-2xl border-r border-y border-slate-100 dark:border-slate-700/80 text-center transition-colors duration-300">
                             <div class="flex items-center justify-center gap-2">
-                                <!-- Editar -->
-                                @can('branches.editar')
-                                <button type="button" onclick="openEditBranchModal('{{ route('branches.update', $branch) }}', {{ json_encode($branch) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Sucursal">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                @endcan
-                                <!-- Eliminar / Inactivar -->
-                                @can('branches.eliminar')
-                                    @if($branch->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Sucursal">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                            </svg>
-                                        </button>
-                                    @else
-                                        <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Sucursal">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </button>
-                                    @endif
-                                @endcan
+                                {{-- Las de otras sucursales (departamento de compras) son de solo lectura --}}
+                                @if(\App\Support\BranchAccess::ownsBranch($branch->id_branch))
+                                    <!-- Editar -->
+                                    @can('branches.editar')
+                                    <button type="button" onclick="openEditBranchModal('{{ route('branches.update', $branch) }}', {{ json_encode($branch) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar Sucursal">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    @endcan
+                                    <!-- Eliminar / Inactivar -->
+                                    @can('branches.eliminar')
+                                        @if($branch->is_active)
+                                            <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Sucursal">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                </svg>
+                                            </button>
+                                        @else
+                                            <button type="button" onclick="confirmDelete('{{ route('branches.destroy', $branch) }}', '{{ addslashes($branch->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Sucursal">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </button>
+                                        @endif
+                                    @endcan
+                                @else
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Solo lectura</span>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -233,6 +241,20 @@
                     @enderror
                 </div>
             </div>
+
+            @if(auth()->user()->isAdmin())
+            <!-- Departamento de compras (solo el administrador lo designa) -->
+            <div>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="hidden" name="is_purchasing_department" value="0">
+                    <input type="checkbox" name="is_purchasing_department" id="create-is_purchasing_department" value="1" {{ old('modal_type') === 'create' && old('is_purchasing_department') ? 'checked' : '' }} class="mt-0.5 rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                    <span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 block">Departamento de compras</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-400 block">Recibe las solicitudes de compra que envían las demás sucursales de la empresa (Casa Matriz).</span>
+                    </span>
+                </label>
+            </div>
+            @endif
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
@@ -385,6 +407,20 @@
                 </label>
             </div>
 
+            @if(auth()->user()->isAdmin())
+            <!-- Departamento de compras (solo el administrador lo designa) -->
+            <div>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input type="hidden" name="is_purchasing_department" value="0">
+                    <input type="checkbox" name="is_purchasing_department" id="edit-is_purchasing_department" value="1" class="mt-0.5 rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                    <span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-200 block">Departamento de compras</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-400 block">Recibe las solicitudes de compra que envían las demás sucursales de la empresa (Casa Matriz).</span>
+                    </span>
+                </label>
+            </div>
+            @endif
+
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <button type="button" onclick="closeModal('edit-branch-modal')" class="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-full font-bold text-sm transition-all text-center">
@@ -452,6 +488,9 @@
         
         const isActiveChk = document.getElementById('edit-is_active');
         isActiveChk.checked = branch.is_active == 1;
+
+        const purchasingChk = document.getElementById('edit-is_purchasing_department');
+        if (purchasingChk) purchasingChk.checked = !!branch.is_purchasing_department;
         
         const label = document.getElementById('edit-is_active_label');
         label.textContent = branch.is_active == 1 ? 'Sucursal Activa' : 'Sucursal Inactiva';

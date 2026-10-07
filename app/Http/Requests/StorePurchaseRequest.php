@@ -5,7 +5,10 @@ namespace App\Http\Requests;
 use App\Models\Branch;
 use App\Models\Warehouse;
 use App\Rules\Accessible;
+use App\Support\BranchAccess;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePurchaseRequest extends FormRequest
 {
@@ -22,18 +25,26 @@ class StorePurchaseRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Al crear, el departamento de compras puede elegir cualquier sucursal de su
+        // empresa; al editar, y para los demás usuarios, solo la sucursal propia
+        $anyCompanyBranch = $this->isMethod('post') && BranchAccess::isPurchasingDepartment();
+
         return [
             // La sucursal debe ser visible para el usuario y la bodega pertenecer a ella
             'id_branch' => [
                 'required',
                 'integer',
-                new Accessible(Branch::class),
+                $anyCompanyBranch
+                    ? Rule::exists('branches', 'id_branch')->where('id_company', BranchAccess::companyId())
+                    : new Accessible(Branch::class),
             ],
 
             'id_warehouse' => [
                 'required',
                 'integer',
-                new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $this->input('id_branch'))),
+                $anyCompanyBranch
+                    ? Rule::exists('warehouses', 'id_warehouse')->where('id_branch', $this->input('id_branch'))
+                    : new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $this->input('id_branch'))),
             ],
 
             'request_date' => [
@@ -42,9 +53,16 @@ class StorePurchaseRequest extends FormRequest
             ],
 
             'required_date' => [
+                'bail',
                 'required',
                 'date',
                 'after_or_equal:request_date',
+                // Al crear no se aceptan fechas pasadas (al corregir una devuelta, sí)
+                function ($attribute, $value, $fail) {
+                    if ($this->isMethod('post') && Carbon::parse($value)->lt(today())) {
+                        $fail('La fecha requerida no puede ser anterior a hoy.');
+                    }
+                },
             ],
 
             'justification' => [
@@ -68,6 +86,7 @@ class StorePurchaseRequest extends FormRequest
             'details.*.id_product' => [
                 'required',
                 'integer',
+                'distinct',
                 'exists:products,id_product',
             ],
 
@@ -127,6 +146,8 @@ class StorePurchaseRequest extends FormRequest
                 'Debe seleccionar un producto en cada fila.',
             'details.*.id_product.exists' =>
                 'Uno de los productos seleccionados no existe.',
+            'details.*.id_product.distinct' =>
+                'Un producto aparece en más de una fila; indique la cantidad total en una sola.',
 
             'details.*.quantity.required' =>
                 'Debe indicar la cantidad de cada producto.',
