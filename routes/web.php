@@ -110,10 +110,6 @@ Route::middleware('auth')->group(function () {
         'purchase-quotation-requests/request-details/{id}',
         [PurchaseQuotationRequestController::class, 'getPurchaseRequestDetails']
     )->name('purchase-quotation-requests.request-details');
-    Route::get(
-        'purchase_orders/quotation-data/{id}',
-        [PurchaseOrderController::class, 'getQuotationData']
-    )->name('purchase_orders.quotation-data');
     Route::resource(
         'purchase_orders',
         PurchaseOrderController::class
@@ -169,6 +165,11 @@ Route::middleware('auth')->group(function () {
         'purchase-quotation-requests/{purchaseQuotationRequest}/award',
         [PurchaseQuotationRequestController::class, 'award']
     )->name('purchase-quotation-requests.award');
+    // Órdenes de compra de la adjudicación: una por proveedor y sucursal destino
+    Route::post(
+        'purchase-quotation-requests/{purchaseQuotationRequest}/generate-orders',
+        [PurchaseQuotationRequestController::class, 'generateOrders']
+    )->name('purchase-quotation-requests.generate-orders');
     Route::resource(
         'purchase-quotation-requests',
         PurchaseQuotationRequestController::class

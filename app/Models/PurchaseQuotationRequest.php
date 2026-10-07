@@ -121,6 +121,19 @@ class PurchaseQuotationRequest extends Model
     }
 
     /**
+     * Órdenes de compra generadas de sus ofertas (de cualquier sucursal destino).
+     */
+    public function generatedOrders(): Builder
+    {
+        return PurchaseOrder::queryAllBranches()->whereIn(
+            'id_purchase_quotation',
+            PurchaseQuotation::queryAllBranches()
+                ->where('id_purchase_quotation_request', $this->id_purchase_quotation_request)
+                ->select('id_purchase_quotation')
+        );
+    }
+
+    /**
      * Cotizaciones recibidas de proveedores para esta solicitud.
      */
     public function supplierQuotations(): HasMany

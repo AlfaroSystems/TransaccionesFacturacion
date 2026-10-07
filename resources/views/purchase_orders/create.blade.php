@@ -49,31 +49,6 @@
             @method('PUT')
         @endif
 
-        {{-- Importar Cotización (Solo en Crear) --}}
-        @if(!$isEdit)
-            <div class="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-5 space-y-3 shadow-xs">
-                <div>
-                    <h3 class="font-extrabold text-indigo-900 text-xs uppercase tracking-wider flex items-center gap-2">
-                        <span>⚡ Importar Cotización Aprobada</span>
-                    </h3>
-                    <p class="text-xs text-indigo-700 mt-0.5">
-                        Seleccione una cotización aprobada para autocompletar proveedor, productos, precios e impuestos.
-                    </p>
-                </div>
-                <div class="w-full">
-                    <select id="quotationSelect" name="id_purchase_quotation" class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 bg-white text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-hidden shadow-xs">
-                        <option value="">-- Seleccionar cotización aprobada --</option>
-                        @php $qList = $quotations ?? $purchase_quotations ?? []; @endphp
-                        @foreach($qList as $quotation)
-                            <option value="{{ $quotation->id_purchase_quotation }}" {{ old('id_purchase_quotation', $purchase_order->id_purchase_quotation ?? '') == $quotation->id_purchase_quotation ? 'selected' : '' }}>
-                                {{ $quotation->purchase_quotation_code ?? $quotation->quotation_code ?? ('Cotización #'.$quotation->id_purchase_quotation) }} {{ $quotation->supplier ? '- '.$quotation->supplier->name : '' }} (${{ number_format($quotation->total, 2) }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-        @endif
-
         <!-- Datos de Encabezado -->
         <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-5">
             <h3 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -290,45 +265,6 @@
 
         recalcularTotales();
 
-        // Autocompletar por Cotización
-        const qSelect = document.getElementById('quotationSelect');
-        if (qSelect) {
-            qSelect.addEventListener('change', async function() {
-                const qId = this.value;
-                if (!qId) return;
-                
-                try {
-                    const res = await fetch(`/purchase_orders/quotation-data/${qId}`);
-                    if (!res.ok) return;
-                    const data = await res.json();
-
-                    if (data.id_supplier) document.getElementById('id_supplier').value = data.id_supplier;
-                    if (data.id_branch) document.getElementById('id_branch').value = data.id_branch;
-                    if (data.id_warehouse) document.getElementById('id_warehouse').value = data.id_warehouse;
-                    if (data.payment_terms) document.getElementById('payment_terms').value = data.payment_terms;
-
-                    // Limpiar productos e importar
-                    document.getElementById('productsTbody').innerHTML = '';
-                    productRowCount = 0;
-
-                    if (data.details && data.details.length > 0) {
-                        data.details.forEach(d => {
-                            agregarProducto({
-                                id_product: d.id_product,
-                                quantity: d.quantity,
-                                id_unit: d.id_unit,
-                                unit_price: d.unit_price,
-                                discount: d.discount,
-                                tax_rate: d.tax_rate ?? 13
-                            });
-                        });
-                    }
-                    recalcularTotales();
-                } catch (e) {
-                    console.error("Error al importar cotización:", e);
-                }
-            });
-        }
     });
 
     function agregarProducto(data = null) {

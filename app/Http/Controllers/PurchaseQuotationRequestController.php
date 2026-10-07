@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\ExpenseType;
 use App\Models\PurchaseQuotation;
 use App\Models\PurchaseQuotationDetail;
+use App\Models\PurchaseOrder;
 use App\Models\Supplier;
+use App\Services\PurchaseOrderService;
 
 class PurchaseQuotationRequestController extends Controller
 {
@@ -169,6 +171,12 @@ class PurchaseQuotationRequestController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // Órdenes de compra que ya salieron de esta adjudicación
+        $generatedOrders = PurchaseOrder::whereIn('id_purchase_quotation', $supplierQuotations->pluck('id_purchase_quotation'))
+            ->with(['supplier', 'branch', 'warehouse'])
+            ->orderBy('id_purchase_order')
+            ->get();
+
         $purchaseQuotationRequest = $quotationRequest;
 
         return view('purchase_quotation_requests.show', compact(
@@ -177,7 +185,8 @@ class PurchaseQuotationRequestController extends Controller
             'lines',
             'suppliers',
             'expenseTypes',
-            'supplierQuotations'
+            'supplierQuotations',
+            'generatedOrders'
         ));
     }
 
@@ -264,5 +273,136 @@ class PurchaseQuotationRequestController extends Controller
         return redirect()
             ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
             ->with('success', 'Adjudicación guardada. Cada proveedor ganador ya puede pasar a orden de compra con sus productos.');
+    }
+
+    /**
+     * Genera en borrador las órdenes de compra de la adjudicación: una por cada proveedor
+     * ganador y cada sucursal/bodega que pidió sus productos, con las cantidades de cada
+     * solicitud. Los gastos adicionales de cada oferta se reparten entre sus órdenes según
+     * el subtotal de cada una.
+     */
+    public function generateOrders(PurchaseQuotationRequest $purchaseQuotationRequest, PurchaseOrderService $service)
+    {
+        Gate::authorize('purchase_orders.crear');
+
+        $result = DB::transaction(function () use ($purchaseQuotationRequest, $service) {
+            // Se bloquea la solicitud para que las órdenes no se generen dos veces a la vez
+            $quotationRequest = PurchaseQuotationRequest::whereKey($purchaseQuotationRequest->getKey())
+                ->lockForUpdate()
+                ->with([
+                    'details.purchaseRequestDetail.purchaseRequest',
+                    'details.quotationDetail.quotation.expenses',
+                ])
+                ->firstOrFail();
+
+            if (! $quotationRequest->isAwarded()) {
+                return 'Primero adjudique cada producto a un proveedor.';
+            }
+
+            if ($quotationRequest->generatedOrders()->exists()) {
+                return 'Las órdenes de compra de esta solicitud ya se generaron.';
+            }
+
+            $orders = 0;
+
+            $byQuotation = $quotationRequest->details
+                ->filter(fn ($line) => $line->quotationDetail)
+                ->groupBy(fn ($line) => $line->quotationDetail->id_purchase_quotation);
+
+            foreach ($byQuotation as $lines) {
+                $quotation = $lines->first()->quotationDetail->quotation;
+
+                // Una orden por sucursal y bodega de destino (las de la solicitud de compra)
+                $groups = $lines
+                    ->groupBy(fn ($line) => $line->purchaseRequestDetail->purchaseRequest->id_branch
+                        . '|' . $line->purchaseRequestDetail->purchaseRequest->id_warehouse)
+                    ->values()
+                    ->map(function ($groupLines) {
+                        $products = $groupLines
+                            ->groupBy('id_purchase_quotation_detail')
+                            ->map(function ($sameLine) {
+                                $offerLine = $sameLine->first()->quotationDetail;
+                                $quantity = $sameLine->sum(fn ($line) => (float) $line->quantity);
+
+                                return [
+                                    'id_product' => $offerLine->id_product,
+                                    'quantity'   => $quantity,
+                                    'id_unit'    => $offerLine->id_unit ?? $sameLine->first()->purchaseRequestDetail->id_unit,
+                                    'unit_price' => (float) $offerLine->unit_price,
+                                    // Descuento de la oferta, en proporción a la cantidad de esta orden
+                                    'discount'   => (float) $offerLine->quantity > 0
+                                        ? round((float) $offerLine->discount * $quantity / (float) $offerLine->quantity, 2)
+                                        : 0,
+                                    'tax_rate'   => (float) $offerLine->tax_rate,
+                                ];
+                            })
+                            ->values()
+                            ->all();
+
+                        return [
+                            'products' => $products,
+                            'subtotal' => collect($products)->sum(fn ($p) => $p['quantity'] * $p['unit_price'] - $p['discount']),
+                            'requests' => $groupLines->map(fn ($line) => $line->purchaseRequestDetail->purchaseRequest)->unique('id_purchase_request')->values(),
+                        ];
+                    });
+
+                // Gastos de la oferta repartidos según el subtotal; la última orden recibe el
+                // resto para no perder centavos al redondear
+                $totalSubtotal = $groups->sum('subtotal');
+                $expensesByGroup = $groups->map(fn () => [])->all();
+                foreach ($quotation->expenses as $expense) {
+                    $remaining = (float) $expense->amount;
+                    foreach ($groups as $i => $group) {
+                        $share = $totalSubtotal > 0 ? $group['subtotal'] / $totalSubtotal : 1 / $groups->count();
+                        $amount = $i === $groups->count() - 1 ? round($remaining, 2) : round((float) $expense->amount * $share, 2);
+                        $remaining -= $amount;
+
+                        if ($amount > 0) {
+                            $expensesByGroup[$i][] = [
+                                'id_expense_type' => $expense->id_expense_type,
+                                'description'     => $expense->description,
+                                'amount'          => $amount,
+                            ];
+                        }
+                    }
+                }
+
+                foreach ($groups as $i => $group) {
+                    $destination = $group['requests']->first();
+                    $codes = $group['requests']->pluck('purchase_request_code')->join(', ');
+
+                    $service->crear([
+                        'id_supplier'           => $quotation->id_supplier,
+                        'id_branch'             => $destination->id_branch,
+                        'id_warehouse'          => $destination->id_warehouse,
+                        'id_purchase_quotation' => $quotation->id_purchase_quotation,
+                        'order_date'            => now(),
+                        'expected_date'         => $quotation->delivery_days
+                            ? now()->addDays((int) $quotation->delivery_days)
+                            : ($group['requests']->pluck('required_date')->filter()->min() ?? now()->addDays(7)),
+                        'currency'              => $quotation->currency ?: 'USD',
+                        'payment_terms'         => $quotation->payment_terms ?: 'Según cotización',
+                        'notes'                 => 'Generada de la solicitud de cotización #'
+                            . str_pad($quotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT)
+                            . " para {$codes}.",
+                        'products'              => $group['products'],
+                        'expenses'              => $expensesByGroup[$i],
+                    ]);
+                    $orders++;
+                }
+            }
+
+            return $orders;
+        });
+
+        if (is_string($result)) {
+            return redirect()
+                ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+                ->with('error', $result);
+        }
+
+        return redirect()
+            ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+            ->with('success', "Se generaron {$result} órdenes de compra en borrador. Revíselas y emítalas en Órdenes de Compra.");
     }
 }

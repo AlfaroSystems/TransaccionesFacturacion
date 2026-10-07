@@ -123,10 +123,32 @@
                             </div>
                         @endif
                     @endforeach
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                        <a href="{{ route('purchase_orders.index') }}" class="w-full text-center px-3 py-2 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1">
-                            📦 Crear Órdenes de Compra
-                        </a>
+                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                        @if($generatedOrders->isEmpty())
+                            @can('purchase_orders.crear')
+                                <form method="POST" action="{{ route('purchase-quotation-requests.generate-orders', $purchaseQuotationRequest->id_purchase_quotation_request) }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-center px-3 py-2 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1">
+                                        📦 Generar Órdenes de Compra
+                                    </button>
+                                </form>
+                                <p class="text-[11px] text-slate-400">En borrador: una por proveedor y por sucursal que pidió los productos.</p>
+                            @endcan
+                        @else
+                            @php
+                                $orderStatusLabels = ['draft' => 'Borrador', 'issued' => 'Emitida', 'partial_received' => 'Recibida parcial', 'completed' => 'Completada', 'cancelled' => 'Cancelada'];
+                            @endphp
+                            <span class="text-xs font-bold text-slate-400 uppercase block">Órdenes de compra</span>
+                            @foreach($generatedOrders as $order)
+                                <a href="{{ route('purchase_orders.show', $order) }}" class="block p-2 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+                                    <span class="flex justify-between items-center gap-2">
+                                        <span class="font-mono font-extrabold text-xs text-[#005e66] dark:text-teal-300">{{ $order->purchase_order_code }}</span>
+                                        <span class="text-[10px] font-bold uppercase text-slate-400">{{ $orderStatusLabels[$order->status] ?? $order->status }}</span>
+                                    </span>
+                                    <span class="block text-xs text-slate-500 dark:text-slate-400">{{ $order->supplier?->name }} → {{ $order->branch?->name }} / {{ $order->warehouse?->name }}</span>
+                                </a>
+                            @endforeach
+                        @endif
                     </div>
                 @else
                     <div class="flex justify-between items-center">

@@ -13,7 +13,7 @@ use App\Models\Warehouse;
 use App\Rules\Accessible;
 use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseOrderService;
-use Carbon\Carbon;
+use App\Support\BranchAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -30,24 +30,30 @@ class PurchaseOrderController extends Controller
     /**
      * Datos de catálogo necesarios para el formulario de creación / edición.
      */
-    private function formData(?int $excludeQuotationExceptId = null): array
+    private function formData(): array
     {
-        $usedQuotationIds = PurchaseOrder::whereNotNull('id_purchase_quotation')
-            ->when($excludeQuotationExceptId, fn ($q) => $q->where('id_purchase_quotation', '!=', $excludeQuotationExceptId))
-            ->pluck('id_purchase_quotation');
+        // El departamento de compras emite órdenes para cualquier sucursal de su empresa:
+        // cada orden va a la sucursal que pidió los productos
+        $isPurchasingDepartment = BranchAccess::isPurchasingDepartment();
+
+        $branches = ($isPurchasingDepartment
+            ? Branch::queryAllBranches()->where('id_company', BranchAccess::companyId())
+            : Branch::query())
+            ->orderBy('name')
+            ->get();
+
+        $warehouses = ($isPurchasingDepartment ? Warehouse::queryAllBranches() : Warehouse::query())
+            ->whereIn('id_branch', $branches->pluck('id_branch'))
+            ->orderBy('name')
+            ->get();
 
         return [
             'suppliers'    => Supplier::orderBy('name')->get(),
-            'branches'     => Branch::orderBy('name')->get(),
-            'warehouses'   => Warehouse::orderBy('name')->get(),
+            'branches'     => $branches,
+            'warehouses'   => $warehouses,
             'products'     => Product::orderBy('name')->get(),
             'units'        => Unit::orderBy('name')->get(),
             'expenseTypes' => ExpenseType::orderBy('name')->get(),
-            'quotations'   => PurchaseQuotation::whereIn('status', ['approved', 'aprobada'])
-                ->whereNotIn('id_purchase_quotation', $usedQuotationIds)
-                ->with(['supplier', 'details.product', 'details.unit', 'expenses.expenseType'])
-                ->orderByDesc('id_purchase_quotation')
-                ->get(),
         ];
     }
 
@@ -65,76 +71,10 @@ class PurchaseOrderController extends Controller
             ->orderByDesc('id_purchase_order')
             ->paginate(10);
 
-        // formData() ya carga las cotizaciones aprobadas sin orden; la vista también las usa
-        // como $purchase_quotations, así que se reutilizan en lugar de consultarlas otra vez
-        $formData = $this->formData();
-        $purchase_quotations = $formData['quotations'];
-
         return view('purchase_orders.index', array_merge(
-            $formData,
-            compact('purchase_orders', 'purchase_quotations')
+            $this->formData(),
+            compact('purchase_orders')
         ));
-    }
-
-    /**
-     * Endpoint AJAX para obtener los datos completados de una cotización aprobada.
-     */
-    public function getQuotationData($id)
-    {
-        Gate::authorize('purchase_orders.ver');
-
-        $quotation = PurchaseQuotation::with([
-            'supplier',
-            'quotationRequest.details.purchaseRequestDetail.purchaseRequest',
-            'details.product',
-            'details.unit',
-            'expenses.expenseType',
-        ])->findOrFail($id);
-
-        // La cotización puede reunir solicitudes de varias sucursales: la sucursal y bodega
-        // de destino solo se proponen si todas vienen de una misma solicitud
-        $originRequests = $quotation->quotationRequest?->purchaseRequests ?? collect();
-
-        // Con adjudicación por producto, la orden de este proveedor lleva solo lo que ganó
-        $awardedDetailIds = $quotation->quotationRequest?->details
-            ->pluck('id_purchase_quotation_detail')->filter()->unique() ?? collect();
-        $details = $awardedDetailIds->isEmpty()
-            ? $quotation->details
-            : $quotation->details->whereIn('id_purchase_quotation_detail', $awardedDetailIds)->values();
-        $originRequest = $originRequests->count() === 1 ? $originRequests->first() : null;
-        $earliestRequiredDate = $originRequests->pluck('required_date')->filter()->min();
-
-        $expectedDate = match (true) {
-            !empty($quotation->delivery_days)  => now()->addDays((int) $quotation->delivery_days)->format('Y-m-d\TH:i'),
-            !empty($earliestRequiredDate)      => Carbon::parse($earliestRequiredDate)->format('Y-m-d\TH:i'),
-            default                            => now()->addDays(7)->format('Y-m-d\TH:i'),
-        };
-
-        return response()->json([
-            'id_purchase_quotation' => $quotation->id_purchase_quotation,
-            'id_supplier'           => $quotation->id_supplier,
-            'id_branch'             => $originRequest?->id_branch,
-            'id_warehouse'          => $originRequest?->id_warehouse,
-            'expected_date'         => $expectedDate,
-            'currency'              => $quotation->currency,
-            'payment_terms'         => $quotation->payment_terms,
-            'delivery_days'         => $quotation->delivery_days,
-            'notes'                 => $quotation->notes,
-            'details'               => $details->map(fn ($d) => [
-                'id_product' => $d->id_product,
-                'quantity'   => (float) $d->quantity,
-                'id_unit'    => $d->id_unit,
-                'unit_price' => (float) $d->unit_price,
-                'discount'   => (float) $d->discount,
-                'tax_rate'   => (float) $d->tax_rate,
-                'total'      => (float) $d->total,
-            ]),
-            'expenses'              => $quotation->expenses->map(fn ($e) => [
-                'id_expense_type' => $e->id_expense_type,
-                'description'     => $e->description,
-                'amount'          => (float) $e->amount,
-            ]),
-        ]);
     }
 
     public function create()
@@ -187,7 +127,7 @@ class PurchaseOrderController extends Controller
         $purchase_order->load(['details', 'expenses']);
 
         return view('purchase_orders.create', array_merge(
-            $this->formData(excludeQuotationExceptId: $purchase_order->id_purchase_quotation),
+            $this->formData(),
             compact('purchase_order')
         ));
     }
@@ -271,11 +211,18 @@ class PurchaseOrderController extends Controller
             ? 'exists:units,id_unit'
             : 'exists:units,id_unit';
 
+        // El departamento de compras puede elegir cualquier sucursal de su empresa
+        $anyCompanyBranch = BranchAccess::isPurchasingDepartment();
+
         return $request->validate([
             'id_supplier'                    => ['required', 'exists:supliers,id_supplier'],
             // Sucursal, bodega y cotización deben ser visibles para el usuario; la bodega, de la sucursal elegida
-            'id_branch'                      => ['required', new Accessible(Branch::class)],
-            'id_warehouse'                   => ['required', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $request->input('id_branch')))],
+            'id_branch'                      => ['required', $anyCompanyBranch
+                ? Rule::exists('branches', 'id_branch')->where('id_company', BranchAccess::companyId())
+                : new Accessible(Branch::class)],
+            'id_warehouse'                   => ['required', $anyCompanyBranch
+                ? Rule::exists('warehouses', 'id_warehouse')->where('id_branch', $request->input('id_branch'))
+                : new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $request->input('id_branch')))],
             'id_purchase_quotation'          => ['nullable', new Accessible(PurchaseQuotation::class)],
             'order_date'                     => ['required', 'date'],
             'expected_date'                  => ['required', 'date', 'after_or_equal:order_date'],

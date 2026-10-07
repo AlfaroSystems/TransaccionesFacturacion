@@ -106,11 +106,11 @@ class PurchaseOrderService
                 $validated['expenses'] ?? []
             );
 
+            // id_purchase_quotation no se toca: la orden conserva la cotización de la que salió
             $order->update([
                 'id_supplier'           => $validated['id_supplier'],
                 'id_branch'             => $validated['id_branch'],
                 'id_warehouse'          => $validated['id_warehouse'],
-                'id_purchase_quotation' => $validated['id_purchase_quotation'] ?? null,
                 'order_date'            => $validated['order_date'],
                 'expected_date'         => $validated['expected_date'],
                 'currency'              => strtoupper($validated['currency']),

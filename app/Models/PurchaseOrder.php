@@ -2,6 +2,8 @@
 
 namespace App\Models;
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Scopes\BranchScope;
+use App\Support\BranchAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +16,14 @@ class PurchaseOrder extends Model
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {
+        // El departamento de compras emite y gestiona las órdenes de todas las sucursales
+        // de su empresa (cada orden va a la sucursal que pidió los productos)
+        if (BranchAccess::isPurchasingDepartment()) {
+            $query->whereIn($this->qualifyColumn('id_branch'), BranchAccess::companyBranchIds());
+
+            return;
+        }
+
         $query->where($this->qualifyColumn('id_branch'), $branchId);
     }
 
@@ -79,12 +89,13 @@ class PurchaseOrder extends Model
 
     public function branch(): BelongsTo
     {
-        return $this->belongsTo(Branch::class, 'id_branch');
+        // Sin el filtro por sucursal: quien ve la orden (p. ej. compras) ve su destino
+        return $this->belongsTo(Branch::class, 'id_branch')->withoutGlobalScope(BranchScope::class);
     }
 
     public function warehouse(): BelongsTo
     {
-        return $this->belongsTo(Warehouse::class, 'id_warehouse');
+        return $this->belongsTo(Warehouse::class, 'id_warehouse')->withoutGlobalScope(BranchScope::class);
     }
 
     public function user(): BelongsTo

@@ -420,19 +420,6 @@ test('una solicitud de cotización reúne varias solicitudes de compra y suma lo
         ->assertSee($deA->purchase_request_code)
         ->assertSee($deB->purchase_request_code)
         ->assertSee('4.00');
-
-    // Al pasar a orden de compra, con solicitudes de dos sucursales no se propone un destino
-    $supplier = \App\Models\Supplier::create(['name' => 'Proveedor '.Str::random(4), 'email' => Str::random(6).'@example.com', 'country' => 'El Salvador', 'is_active' => true]);
-    $quotation = \App\Models\PurchaseQuotation::create([
-        'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
-        'id_supplier' => $supplier->id_supplier, 'quotation_date' => now(),
-    ]);
-    $admin = User::factory()->create();
-    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
-
-    $this->actingAs($admin)->getJson(route('purchase_orders.quotation-data', $quotation->id_purchase_quotation))
-        ->assertOk()
-        ->assertJson(['id_branch' => null, 'id_warehouse' => null]);
 });
 
 test('no se genera la solicitud de cotización si alguna de las solicitudes no está aprobada', function () {
@@ -515,11 +502,6 @@ test('se puede adjudicar cada producto a un proveedor distinto y cada orden llev
     $this->get(route('purchase-quotation-requests.show', $c->quotationRequest->id_purchase_quotation_request))
         ->assertOk()->assertSee('Adjudicada: 1 de 2 productos')->assertDontSee('Guardar Adjudicación');
 
-    // La orden de cada proveedor trae solo los productos que ganó
-    $productosDeOrden = fn ($oferta) => collect($this->getJson(route('purchase_orders.quotation-data', $oferta->id_purchase_quotation))->assertOk()->json('details'))->pluck('id_product')->all();
-    expect($productosDeOrden($c->ofertaUno))->toBe([$c->monitor->id_product])
-        ->and($productosDeOrden($c->ofertaDos))->toBe([$e->product->id_product]);
-
     // No se adjudica dos veces
     $this->post(route('purchase-quotation-requests.award', $c->quotationRequest->id_purchase_quotation_request), [
         'awards' => [
@@ -563,4 +545,77 @@ test('la adjudicación exige un proveedor para cada producto y una línea del mi
 
     expect($c->quotationRequest->fresh()->isAwarded())->toBeFalse()
         ->and($c->ofertaUno->fresh()->status)->toBe('submitted');
+});
+
+test('las órdenes se generan por proveedor y por sucursal que pidió, con su parte del flete', function () {
+    $e = flujoEscenario();
+    $c = flujoCotizacionConOfertas($e);
+    $linea = fn ($oferta, $producto) => $oferta->details->firstWhere('id_product', $producto)->id_purchase_quotation_detail;
+    $flete = \App\Models\ExpenseType::create(['name' => 'Flete '.Str::random(4)]);
+    $c->ofertaDos->expenses()->create(['id_expense_type' => $flete->id_expense_type, 'description' => 'Envío', 'amount' => 25]);
+
+    $this->actingAs($c->admin);
+
+    // Sin adjudicar no se generan
+    $this->post(route('purchase-quotation-requests.generate-orders', $c->quotationRequest->id_purchase_quotation_request))
+        ->assertSessionHas('error');
+
+    // El producto (lo piden A y B) al Proveedor Dos; el monitor (solo B) al Proveedor Uno
+    $this->post(route('purchase-quotation-requests.award', $c->quotationRequest->id_purchase_quotation_request), [
+        'awards' => [
+            $c->claveProducto => $linea($c->ofertaDos, $e->product->id_product),
+            $c->claveMonitor => $linea($c->ofertaUno, $c->monitor->id_product),
+        ],
+    ])->assertSessionHas('success');
+
+    $this->post(route('purchase-quotation-requests.generate-orders', $c->quotationRequest->id_purchase_quotation_request))
+        ->assertSessionHas('success');
+
+    $orders = \App\Models\PurchaseOrder::queryAllBranches()->with('details', 'expenses')->get();
+    expect($orders)->toHaveCount(3)
+        ->and($orders->pluck('status')->unique()->all())->toBe(['draft']);
+
+    $orden = fn ($oferta, $branch) => $orders->first(fn ($o) => $o->id_purchase_quotation === $oferta->id_purchase_quotation && $o->id_branch === $branch->id_branch);
+
+    // Proveedor Uno: una orden a la sucursal B con los 3 monitores
+    $unoB = $orden($c->ofertaUno, $e->sucursalB);
+    expect($unoB->id_warehouse)->toBe($e->bodegaB->id_warehouse)
+        ->and($unoB->details->pluck('id_product')->all())->toBe([$c->monitor->id_product])
+        ->and((float) $unoB->details->first()->quantity)->toBe(3.0);
+
+    // Proveedor Dos: una orden por sucursal con las 2 unidades de cada una y el flete repartido
+    $dosA = $orden($c->ofertaDos, $e->sucursalA);
+    $dosB = $orden($c->ofertaDos, $e->sucursalB);
+    expect((float) $dosA->details->first()->quantity)->toBe(2.0)
+        ->and((float) $dosB->details->first()->quantity)->toBe(2.0)
+        ->and((float) $dosA->details->first()->unit_price)->toBe(8.0)
+        ->and((float) $dosA->additional_expenses + (float) $dosB->additional_expenses)->toBe(25.0)
+        ->and((float) $dosA->additional_expenses)->toBe(12.5);
+
+    // No se generan dos veces
+    $this->post(route('purchase-quotation-requests.generate-orders', $c->quotationRequest->id_purchase_quotation_request))
+        ->assertSessionHas('error', 'Las órdenes de compra de esta solicitud ya se generaron.');
+    expect(\App\Models\PurchaseOrder::queryAllBranches()->count())->toBe(3);
+
+    // El detalle de la solicitud de cotización lista las órdenes generadas
+    $this->get(route('purchase-quotation-requests.show', $c->quotationRequest->id_purchase_quotation_request))
+        ->assertOk()->assertSee($dosA->purchase_order_code)->assertDontSee('Generar Órdenes de Compra');
+
+    // Compras ve las órdenes de todas las sucursales; la sucursal A, solo la suya
+    $comprasOrdenes = flujoUsuario($e->matriz, ['purchase_orders.ver', 'purchase_orders.editar']);
+    $visibles = fn (User $user) => $this->actingAs($user)->get(route('purchase_orders.index'))->assertOk()->viewData('purchase_orders')->pluck('id_purchase_order');
+    expect($visibles($comprasOrdenes)->sort()->values()->all())->toBe($orders->pluck('id_purchase_order')->sort()->values()->all());
+
+    $sucursalOrdenes = flujoUsuario($e->sucursalA, ['purchase_orders.ver']);
+    expect($visibles($sucursalOrdenes)->all())->toBe([$dosA->id_purchase_order]);
+
+    // Al editar, la orden conserva su cotización de origen
+    $this->actingAs($comprasOrdenes)->put(route('purchase_orders.update', $dosB), [
+        'id_supplier' => $dosB->id_supplier, 'id_branch' => $dosB->id_branch, 'id_warehouse' => $dosB->id_warehouse,
+        'order_date' => now()->format('Y-m-d H:i'), 'expected_date' => now()->addWeek()->format('Y-m-d H:i'),
+        'currency' => 'USD', 'payment_terms' => 'Contado',
+        'products' => [['id_product' => $e->product->id_product, 'quantity' => 2, 'id_unit' => $e->unit->id_unit, 'unit_price' => 8, 'discount' => 0, 'tax_rate' => 13]],
+    ])->assertSessionHasNoErrors();
+    expect($dosB->fresh()->id_purchase_quotation)->toBe($c->ofertaDos->id_purchase_quotation)
+        ->and($dosB->fresh()->payment_terms)->toBe('Contado');
 });
