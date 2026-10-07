@@ -7,6 +7,7 @@ use App\Models\PurchaseRequest;
 use App\Models\Unit;
 use App\Models\Warehouse;
 use App\Support\BranchAccess;
+use App\Support\DocumentSequence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -463,35 +464,7 @@ class PurchaseRequestController extends Controller
      */
     private function generatePurchaseRequestCode(): string
     {
-        $year = now()->format('Y');
-
-        $prefix = "REQ-{$year}-";
-
-        // El correlativo es global: debe considerar las solicitudes de todas las sucursales
-        $lastRequest = PurchaseRequest::queryAllBranches()->where(
-            'purchase_request_code',
-            'like',
-            "{$prefix}%"
-        )
-            ->orderByDesc('purchase_request_code')
-            ->first();
-
-        if (!$lastRequest) {
-            $nextNumber = 1;
-        } else {
-            $lastNumber = (int) substr(
-                $lastRequest->purchase_request_code,
-                -4
-            );
-
-            $nextNumber = $lastNumber + 1;
-        }
-
-        return $prefix . str_pad(
-            $nextNumber,
-            4,
-            '0',
-            STR_PAD_LEFT
-        );
+        // El correlativo es global: lo comparten las solicitudes de todas las sucursales
+        return DocumentSequence::next('REQ-' . now()->year . '-', 'purchase_requests', 'purchase_request_code');
     }
 }

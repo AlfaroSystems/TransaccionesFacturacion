@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use App\Models\Concerns\BelongsToBranch;
+use App\Support\DocumentSequence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -66,23 +67,8 @@ class PurchaseQuotation extends Model
 
     public static function generateUniqueCode(): string
     {
-        $year = date('Y');
-        $prefix = "COT-{$year}-";
-
-        // El correlativo es global: debe considerar las cotizaciones de todas las sucursales
-        $lastQuotation = static::queryAllBranches()
-            ->where('purchase_quotation_code', 'like', "{$prefix}%")
-            ->orderByDesc('id_purchase_quotation')
-            ->first();
-
-        if ($lastQuotation) {
-            $lastNum = (int) substr($lastQuotation->purchase_quotation_code, -4);
-            $nextNum = $lastNum + 1;
-        } else {
-            $nextNum = 1;
-        }
-
-        return $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+        // El correlativo es global: lo comparten las cotizaciones de todas las sucursales
+        return DocumentSequence::next('COT-' . now()->year . '-', 'purchase_quotations', 'purchase_quotation_code');
     }
 
     public function supplier(): BelongsTo

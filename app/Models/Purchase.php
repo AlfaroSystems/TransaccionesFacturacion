@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
+use App\Support\DocumentSequence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -79,17 +80,8 @@ class Purchase extends Model
                 $purchase->uuid = (string) Str::uuid();
             }
             if (!$purchase->purchase_code) {
-                $year = now()->year;
-                // El correlativo es global: debe considerar las compras de todas las sucursales
-                $last = self::queryAllBranches()
-                    ->whereYear('created_at', $year)
-                    ->orderByDesc('id_purchase')
-                    ->first();
-                $number = $last
-                    ? ((int) substr($last->purchase_code, -4)) + 1
-                    : 1;
-                $purchase->purchase_code =
-                    'CMP-' . $year . '-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+                // El correlativo es global: lo comparten las compras de todas las sucursales
+                $purchase->purchase_code = DocumentSequence::next('CMP-' . now()->year . '-', 'purchases', 'purchase_code');
             }
         });
     }

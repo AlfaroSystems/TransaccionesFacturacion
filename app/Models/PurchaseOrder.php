@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToBranch;
 use App\Models\Scopes\BranchScope;
 use App\Support\BranchAccess;
+use App\Support\DocumentSequence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -80,17 +81,8 @@ class PurchaseOrder extends Model
                 $order->uuid = (string) Str::uuid();
             }
             if (!$order->purchase_order_code) {
-                $year = now()->year;
-                // El correlativo es global: debe considerar las órdenes de todas las sucursales
-                $last = self::queryAllBranches()
-                    ->whereYear('created_at', $year)
-                    ->orderByDesc('id_purchase_order')
-                    ->first();
-                $number = $last
-                    ? ((int) substr($last->purchase_order_code, -4)) + 1
-                    : 1;
-                $order->purchase_order_code =
-                    'OC-' . $year . '-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+                // El correlativo es global: lo comparten las órdenes de todas las sucursales
+                $order->purchase_order_code = DocumentSequence::next('OC-' . now()->year . '-', 'purchase_orders', 'purchase_order_code');
             }
         });
     }
