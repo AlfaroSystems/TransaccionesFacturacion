@@ -5,11 +5,15 @@ use App\Models\Location;
 use App\Models\Warehouse;
 use App\Rules\Accessible;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class LocationController extends Controller
 {
+    /** Máximo de ubicaciones por generación masiva */
+    private const BATCH_LIMIT = 2000;
+
     /**
      * Mostrar listado de ubicaciones.
      */
@@ -56,7 +60,8 @@ class LocationController extends Controller
 
         $request->validate([
             'id_warehouse' => ['required', new Accessible(Warehouse::class)],
-            'code' => 'required|string|max:255|unique:locations,code',
+            // El código se repite entre bodegas (A-1-1-1 en cada una), pero no dentro de una
+            'code' => ['required', 'string', 'max:255', Rule::unique('locations', 'code')->where('id_warehouse', $request->input('id_warehouse'))],
             'aisle' => 'nullable|string|max:255',
             'rack' => 'nullable|string|max:255',
             'level' => 'nullable|string|max:255',
@@ -123,21 +128,39 @@ class LocationController extends Controller
             $pasillos[] = $pasilloHasta;
         }
 
+        // Tope por generación: un dato mal escrito (p. ej. 500 racks) crearía miles de
+        // ubicaciones y la petición tardaría demasiado
+        $total = count($pasillos) * $rackHasta * $levelHasta * $positionHasta;
+
+        if ($total > self::BATCH_LIMIT) {
+            return redirect()
+                ->route('locations.index')
+                ->with('error', "La generación produciría {$total} ubicaciones; el máximo por vez es " . self::BATCH_LIMIT . '.');
+        }
+
         $createdCount = 0;
         $skippedCount = 0;
 
-        foreach ($pasillos as $pasillo) {
-            for ($r = 1; $r <= $rackHasta; $r++) {
-                for ($l = 1; $l <= $levelHasta; $l++) {
-                    for ($pos = 1; $pos <= $positionHasta; $pos++) {
-                        $code = "{$pasillo}-{$r}-{$l}-{$pos}";
+        // Todo o nada: si algo falla, no quedan ubicaciones generadas a medias
+        DB::transaction(function () use ($pasillos, $rackHasta, $levelHasta, $positionHasta, $warehouseId, $capacity, $notes, &$createdCount, &$skippedCount) {
+            // Códigos que ya existen en la bodega, en una sola consulta
+            $existing = Location::where('id_warehouse', $warehouseId)->pluck('code')->flip();
 
-                        $location = Location::firstOrCreate(
-                            [
+            foreach ($pasillos as $pasillo) {
+                for ($r = 1; $r <= $rackHasta; $r++) {
+                    for ($l = 1; $l <= $levelHasta; $l++) {
+                        for ($pos = 1; $pos <= $positionHasta; $pos++) {
+                            $code = "{$pasillo}-{$r}-{$l}-{$pos}";
+
+                            if ($existing->has($code)) {
+                                $skippedCount++;
+
+                                continue;
+                            }
+
+                            Location::create([
                                 'id_warehouse' => $warehouseId,
                                 'code' => $code,
-                            ],
-                            [
                                 'aisle' => $pasillo,
                                 'rack' => (string) $r,
                                 'level' => (string) $l,
@@ -145,18 +168,13 @@ class LocationController extends Controller
                                 'capacity' => $capacity,
                                 'notes' => $notes,
                                 'is_active' => true,
-                            ]
-                        );
-
-                        if ($location->wasRecentlyCreated) {
+                            ]);
                             $createdCount++;
-                        } else {
-                            $skippedCount++;
                         }
                     }
                 }
             }
-        }
+        });
 
         $msg = "Se generaron exitosamente {$createdCount} ubicaciones masivas.";
         if ($skippedCount > 0) {
@@ -199,7 +217,7 @@ class LocationController extends Controller
 
         $request->validate([
             'id_warehouse' => ['required', new Accessible(Warehouse::class)],
-            'code' => ['required', 'string', 'max:255', Rule::unique('locations', 'code')->ignore($location)],
+            'code' => ['required', 'string', 'max:255', Rule::unique('locations', 'code')->where('id_warehouse', $request->input('id_warehouse'))->ignore($location)],
             'aisle' => 'nullable|string|max:255',
             'rack' => 'nullable|string|max:255',
             'level' => 'nullable|string|max:255',
