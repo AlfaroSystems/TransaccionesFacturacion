@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Purchase;
-use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Warehouse;
@@ -21,7 +21,30 @@ use Illuminate\Validation\Rule;
 
 class PurchaseController extends Controller
 {
+    /** Mensajes de las reglas de líneas (solo productos de la orden, una vez cada uno) */
+    private const MENSAJES_LINEAS = [
+        'details.*.id_purchase_order_detail.required' => 'Solo se pueden recibir productos de la orden de compra.',
+        'details.*.id_purchase_order_detail.exists'   => 'Solo se pueden recibir productos de la orden de compra.',
+        'details.*.id_purchase_order_detail.distinct' => 'Un producto de la orden aparece en más de una línea.',
+    ];
+
     public function __construct(private readonly PurchaseService $service) {}
+
+    /**
+     * El producto de cada línea debe ser el de su línea de orden.
+     */
+    private function productoDeSuLinea(Request $request): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+            $index = explode('.', $attribute)[1] ?? null;
+            $orderLineId = $request->input("details.{$index}.id_purchase_order_detail");
+            $orderLineProduct = $orderLineId ? PurchaseOrderDetail::whereKey($orderLineId)->value('id_product') : null;
+
+            if ($orderLineProduct !== null && (int) $orderLineProduct !== (int) $value) {
+                $fail('El producto no corresponde a su línea de la orden de compra.');
+            }
+        };
+    }
 
     public function index(Request $request)
     {
@@ -131,13 +154,8 @@ class PurchaseController extends Controller
             'details.unit',
         ])->findOrFail($id);
 
-        // Calcular cantidades previamente recibidas para cada detalle de la orden
-        $orderDetailIds = $order->details->pluck('id_purchase_order_detail');
-        $receivedSums = PurchaseDetail::whereHas('purchase', fn ($q) => $q->where('status', '!=', 'cancelled'))
-            ->whereIn('id_purchase_order_detail', $orderDetailIds)
-            ->groupBy('id_purchase_order_detail')
-            ->selectRaw('id_purchase_order_detail, SUM(quantity_received) as sum_received')
-            ->pluck('sum_received', 'id_purchase_order_detail');
+        // Cantidad ya recibida de cada línea en compras confirmadas (el borrador no cuenta)
+        $receivedSums = $this->service->recibidoPorLinea($order->details->pluck('id_purchase_order_detail'));
 
         return response()->json([
             'id_purchase_order'   => $order->id_purchase_order,
@@ -149,7 +167,10 @@ class PurchaseController extends Controller
             'id_warehouse'        => $order->id_warehouse,
             'warehouse_name'      => $order->warehouse?->name,
             'currency'            => $order->currency,
-            'details'             => $order->details->map(function ($d) use ($receivedSums) {
+            // Solo las líneas a las que aún les falta recibir algo
+            'details'             => $order->details->filter(
+                fn ($d) => (float) $d->quantity - (float) ($receivedSums[$d->id_purchase_order_detail] ?? 0) > 0
+            )->values()->map(function ($d) use ($receivedSums) {
                 $ordered = (float) $d->quantity;
                 $alreadyReceived = (float) ($receivedSums[$d->id_purchase_order_detail] ?? 0);
                 $pending = max(0, $ordered - $alreadyReceived);
@@ -193,16 +214,16 @@ class PurchaseController extends Controller
             'status'                     => ['required', Rule::in(['draft', 'received', 'completed'])],
             'notes'                      => ['nullable', 'string'],
             'details'                    => ['required', 'array', 'min:1'],
-            'details.*.id_product'       => ['required', 'exists:products,id_product'],
+            'details.*.id_product'       => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
             'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
             'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
             'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
             'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
-            'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
+            'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes'            => ['nullable', 'string'],
-        ]);
+        ], self::MENSAJES_LINEAS);
 
         $purchase = $this->service->crear($validated);
 
@@ -340,16 +361,16 @@ class PurchaseController extends Controller
             'currency'                   => ['nullable', 'string', 'max:3'],
             'notes'                      => ['nullable', 'string'],
             'details'                    => ['required', 'array', 'min:1'],
-            'details.*.id_product'       => ['required', 'exists:products,id_product'],
+            'details.*.id_product'       => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
             'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
             'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
             'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
             'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
-            'details.*.id_purchase_order_detail' => ['nullable', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
+            'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes'            => ['nullable', 'string'],
-        ]);
+        ], self::MENSAJES_LINEAS);
 
         $this->service->actualizar($purchase, $validated);
 
@@ -387,7 +408,7 @@ class PurchaseController extends Controller
             return back()->with('error', 'No se puede eliminar una compra que ya tiene retaceos registrados.');
         }
 
-        $purchase->delete();
+        $this->service->eliminar($purchase);
 
         return redirect()
             ->route('purchases.index')

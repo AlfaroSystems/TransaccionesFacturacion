@@ -7,11 +7,28 @@ use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
+/**
+ * Compras (recepción de mercadería) contra órdenes de compra.
+ *
+ * - Solo cuentan como recibidas las compras recibidas o completadas; el borrador no.
+ * - Ninguna línea puede recibir más de lo que falta de su línea de orden, ni productos
+ *   que no estén en la orden.
+ * - El estado de la orden (emitida, recibida parcial, completada) se recalcula con cada
+ *   cambio: crear, editar, cambiar de estado o eliminar una compra.
+ */
 class PurchaseService
 {
+    /** Estados de compra que cuentan como mercadería recibida */
+    public const RECEIVED_STATUSES = ['received', 'completed'];
+
+    /** Estados de orden en los que se puede registrar mercadería */
+    public const RECEIVABLE_ORDER_STATUSES = ['issued', 'partial_received'];
+
     /**
      * Calcula los totales consolidados (subtotal, descuento, impuestos, total) a partir de los detalles.
      *
@@ -57,9 +74,18 @@ class PurchaseService
     public function crear(array $validated): Purchase
     {
         return DB::transaction(function () use ($validated) {
-            $totales = $this->calcularTotales($validated['details']);
+            // Se bloquea la orden: dos recepciones a la vez no deben superar lo ordenado
+            $order = $this->ordenBloqueada($validated['id_purchase_order']);
 
-            $order = PurchaseOrder::findOrFail($validated['id_purchase_order']);
+            if (! in_array($order->status, self::RECEIVABLE_ORDER_STATUSES, true)) {
+                throw ValidationException::withMessages([
+                    'id_purchase_order' => 'Solo se puede registrar mercadería de órdenes emitidas o recibidas parcialmente.',
+                ]);
+            }
+
+            $this->validarExcedentes($order, $validated['details']);
+
+            $totales = $this->calcularTotales($validated['details']);
 
             $purchase = Purchase::create([
                 'id_purchase_order'       => $order->id_purchase_order,
@@ -102,6 +128,12 @@ class PurchaseService
         }
 
         return DB::transaction(function () use ($purchase, $validated) {
+            $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
+
+            if ($order) {
+                $this->validarExcedentes($order, $validated['details'], $purchase->id_purchase);
+            }
+
             $totales = $this->calcularTotales($validated['details']);
 
             $purchase->update([
@@ -122,8 +154,8 @@ class PurchaseService
             $purchase->details()->get()->each->delete();
             $this->guardarDetalles($purchase, $validated['details']);
 
-            if ($purchase->purchaseOrder) {
-                $this->actualizarEstadoOrden($purchase->purchaseOrder);
+            if ($order) {
+                $this->actualizarEstadoOrden($order);
             }
 
             return $purchase;
@@ -148,11 +180,52 @@ class PurchaseService
             throw new InvalidArgumentException('Una compra cancelada no puede ser modificada.');
         }
 
-        $purchase->update(['status' => $nuevoEstado]);
+        DB::transaction(function () use ($purchase, $nuevoEstado) {
+            $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
 
-        if ($purchase->purchaseOrder) {
-            $this->actualizarEstadoOrden($purchase->purchaseOrder);
-        }
+            // Al confirmar un borrador, otras compras pudieron recibirse después de crearlo
+            $confirma = in_array($nuevoEstado, self::RECEIVED_STATUSES, true)
+                && ! in_array($purchase->status, self::RECEIVED_STATUSES, true);
+
+            if ($order && $confirma) {
+                if ($order->status === 'cancelled') {
+                    throw new InvalidArgumentException('No se puede confirmar la recepción: la orden de compra está cancelada.');
+                }
+
+                $lineas = $purchase->details()->get()->map(fn ($d) => [
+                    'id_purchase_order_detail' => $d->id_purchase_order_detail,
+                    'id_product'               => $d->id_product,
+                    'quantity_received'        => $d->quantity_received,
+                ])->all();
+
+                $excedentes = $this->excedentes($order, $lineas, $purchase->id_purchase);
+                if ($excedentes) {
+                    throw new InvalidArgumentException('No se puede confirmar la recepción. ' . reset($excedentes));
+                }
+            }
+
+            $purchase->update(['status' => $nuevoEstado]);
+
+            if ($order) {
+                $this->actualizarEstadoOrden($order);
+            }
+        });
+    }
+
+    /**
+     * Elimina una compra (solo borradores, ver el controlador) y recalcula su orden.
+     */
+    public function eliminar(Purchase $purchase): void
+    {
+        DB::transaction(function () use ($purchase) {
+            $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
+
+            $purchase->delete();
+
+            if ($order) {
+                $this->actualizarEstadoOrden($order);
+            }
+        });
     }
 
     /**
@@ -190,43 +263,111 @@ class PurchaseService
     }
 
     /**
-     * Actualiza el estado de la orden de compra en función del total recibido.
+     * Recalcula el estado de la orden según lo recibido en compras confirmadas: emitida
+     * (nada), recibida parcial o completada. Las órdenes en borrador o canceladas no cambian.
      */
-    private function actualizarEstadoOrden(PurchaseOrder $order): void
+    public function actualizarEstadoOrden(PurchaseOrder $order): void
     {
+        if (! in_array($order->status, ['issued', 'partial_received', 'completed'], true)) {
+            return;
+        }
+
         $orderDetails = $order->details()->get();
         if ($orderDetails->isEmpty()) {
             return;
         }
 
-        // Obtener la suma total recibida por cada línea de orden en compras no canceladas
-        $receivedSums = PurchaseDetail::whereHas('purchase', function ($q) {
-            $q->where('status', '!=', 'cancelled');
-        })
-        ->whereIn('id_purchase_order_detail', $orderDetails->pluck('id_purchase_order_detail'))
-        ->groupBy('id_purchase_order_detail')
-        ->selectRaw('id_purchase_order_detail, SUM(quantity_received) as total_received')
-        ->pluck('total_received', 'id_purchase_order_detail');
+        $received = $this->recibidoPorLinea($orderDetails->pluck('id_purchase_order_detail'));
 
         $allComplete = true;
         $anyReceived = false;
 
         foreach ($orderDetails as $detail) {
-            $ordered = (float) $detail->quantity;
-            $received = (float) ($receivedSums[$detail->id_purchase_order_detail] ?? 0);
+            $receivedQty = (float) ($received[$detail->id_purchase_order_detail] ?? 0);
 
-            if ($received > 0) {
+            if ($receivedQty > 0) {
                 $anyReceived = true;
             }
-            if ($received < $ordered) {
+            if ($receivedQty < (float) $detail->quantity) {
                 $allComplete = false;
             }
         }
 
-        if ($allComplete) {
-            $order->update(['status' => 'completed']);
-        } elseif ($anyReceived) {
-            $order->update(['status' => 'partial_received']);
+        $status = $allComplete ? 'completed' : ($anyReceived ? 'partial_received' : 'issued');
+
+        if ($order->status !== $status) {
+            $order->update(['status' => $status]);
         }
+    }
+
+    /**
+     * Cantidad recibida de cada línea de orden en compras confirmadas (recibidas o
+     * completadas), de cualquier sucursal; opcionalmente sin contar una compra.
+     *
+     * @return Collection<int, float> id_purchase_order_detail => cantidad
+     */
+    public function recibidoPorLinea(Collection $orderDetailIds, ?int $exceptPurchaseId = null): Collection
+    {
+        $confirmed = Purchase::queryAllBranches()
+            ->whereIn('status', self::RECEIVED_STATUSES)
+            ->when($exceptPurchaseId, fn ($q) => $q->whereKeyNot($exceptPurchaseId))
+            ->select('id_purchase');
+
+        return PurchaseDetail::whereIn('id_purchase', $confirmed)
+            ->whereIn('id_purchase_order_detail', $orderDetailIds)
+            ->groupBy('id_purchase_order_detail')
+            ->selectRaw('id_purchase_order_detail, SUM(quantity_received) as total_received')
+            ->pluck('total_received', 'id_purchase_order_detail')
+            ->map(fn ($qty) => (float) $qty);
+    }
+
+    /**
+     * Líneas que reciben más de lo que falta de su línea de orden. Lo pendiente descuenta
+     * lo recibido en otras compras confirmadas; los borradores no reservan cantidad.
+     *
+     * @return array<string, string> mensaje por campo (details.N.quantity_received)
+     */
+    private function excedentes(PurchaseOrder $order, array $details, ?int $exceptPurchaseId = null): array
+    {
+        $orderLines = $order->details()->with('product')->get()->keyBy('id_purchase_order_detail');
+        $received = $this->recibidoPorLinea($orderLines->keys(), $exceptPurchaseId);
+        $errors = [];
+
+        foreach ($details as $key => $item) {
+            $line = $orderLines->get((int) ($item['id_purchase_order_detail'] ?? 0));
+
+            if (! $line) {
+                $errors["details.{$key}.id_purchase_order_detail"] = 'Solo se pueden recibir productos de la orden de compra.';
+                continue;
+            }
+
+            $pending = max(0, (float) $line->quantity - (float) ($received[$line->id_purchase_order_detail] ?? 0));
+
+            if ((float) $item['quantity_received'] > $pending + 0.00001) {
+                $name = $line->product?->name ?? 'el producto';
+                $errors["details.{$key}.quantity_received"] = "De {$name} solo faltan "
+                    . rtrim(rtrim(number_format($pending, 4, '.', ''), '0'), '.') . ' por recibir.';
+            }
+        }
+
+        return $errors;
+    }
+
+    private function validarExcedentes(PurchaseOrder $order, array $details, ?int $exceptPurchaseId = null): void
+    {
+        $errors = $this->excedentes($order, $details, $exceptPurchaseId);
+
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
+    }
+
+    /**
+     * Orden de compra bloqueada hasta el fin de la transacción. El acceso ya lo validó el
+     * controlador (la orden de la compra o la elegida en el formulario).
+     */
+    private function ordenBloqueada(int|string $orderId): PurchaseOrder
+    {
+        return PurchaseOrder::queryAllBranches()->whereKey($orderId)->lockForUpdate()->firstOrFail();
     }
 }

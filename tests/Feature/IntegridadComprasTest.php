@@ -209,7 +209,7 @@ test('la bitácora registra el modelo de cada cambio, incluidas las líneas reem
     $this->actingAs($e->admin)->put(route('purchases.update', $e->purchase), [
         'id_supplier'   => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(),
-        'details'       => [['id_product' => $e->product->id_product, 'quantity_received' => 4, 'unit_price' => 50]],
+        'details'       => [['id_product' => $e->product->id_product, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail, 'quantity_received' => 4, 'unit_price' => 50]],
     ])->assertSessionHasNoErrors();
 
     // La compra editada y la línea borrada quedan registradas con su modelo
@@ -271,7 +271,8 @@ test('no se aceptan imágenes SVG como logo ni como imagen de producto', functio
 // =============================================================================
 
 test('el descuento de una línea no puede superar su subtotal y el IVA no puede pasar de 100 %', function () {
-    $e = escenarioCompras();
+    // La compra del escenario queda en borrador: no consume lo pendiente de la orden
+    $e = escenarioCompras('draft');
     $this->actingAs($e->admin);
 
     // Orden de compra: 5 x 10 = 50
@@ -286,14 +287,14 @@ test('el descuento de una línea no puede superar su subtotal y el IVA no puede 
     $this->post(route('purchases.store'), [
         'id_purchase_order' => $e->order->id_purchase_order, 'id_supplier' => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(), 'status' => 'draft',
-        'details' => [['id_product' => $e->product->id_product, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100.01, 'tax_rate' => 101]],
+        'details' => [['id_product' => $e->product->id_product, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100.01, 'tax_rate' => 101]],
     ])->assertSessionHasErrors(['details.0.discount', 'details.0.tax_rate']);
 
     // Un descuento igual al subtotal sí es válido
     $this->post(route('purchases.store'), [
         'id_purchase_order' => $e->order->id_purchase_order, 'id_supplier' => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(), 'status' => 'draft',
-        'details' => [['id_product' => $e->product->id_product, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100, 'tax_rate' => 13]],
+        'details' => [['id_product' => $e->product->id_product, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail, 'quantity_received' => 2, 'unit_price' => 50, 'discount' => 100, 'tax_rate' => 13]],
     ])->assertSessionHasNoErrors();
 
     // Oferta de proveedor: 1 x 20 = 20
@@ -317,7 +318,8 @@ test('el descuento de una línea no puede superar su subtotal y el IVA no puede 
 // =============================================================================
 
 test('al registrar una compra se guardan sus totales y líneas calculados en el servidor', function () {
-    $e = escenarioCompras();
+    // La compra del escenario queda en borrador: no consume lo pendiente de la orden
+    $e = escenarioCompras('draft');
 
     $this->actingAs($e->admin)->post(route('purchases.store'), [
         'id_purchase_order' => $e->order->id_purchase_order, 'id_supplier' => $e->supplier->id_supplier,

@@ -536,7 +536,7 @@ test('una compra siempre queda en la sucursal de su orden', function () {
         'id_branch'         => $b->branch->id_branch,
         'purchase_date'     => now()->toDateString(),
         'status'            => 'draft',
-        'details'           => [['id_product' => $catalogos['product']->id_product, 'quantity_received' => 1, 'unit_price' => 1]],
+        'details'           => [['id_product' => $catalogos['product']->id_product, 'id_purchase_order_detail' => $a->orderDetail->id_purchase_order_detail, 'quantity_received' => 1, 'unit_price' => 1]],
     ])->assertSessionHasNoErrors();
 
     $compra = Purchase::where('id_purchase_order', $a->order->id_purchase_order)->latest('id_purchase')->first();
