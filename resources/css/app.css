@@ -16,6 +16,8 @@
 
 @source '../views';
 @source '../js';
+/* Colores de los grupos de permisos de la pantalla de roles */
+@source '../../app/Support/PermissionGroups.php';
 
 @custom-variant dark (&:is(.dark *));
 

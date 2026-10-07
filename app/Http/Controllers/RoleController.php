@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Support\PermissionGroups;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -18,9 +19,9 @@ class RoleController extends Controller
 
         // Paginación de roles cargando el conteo de permisos y usuarios
         $roles = Role::with(['permissions'])->withCount(['permissions', 'users'])->paginate(10);
-        $permissions = Permission::all();
+        $permissionGroups = PermissionGroups::group(Permission::all());
 
-        return view('roles.index', compact('roles', 'permissions'));
+        return view('roles.index', compact('roles', 'permissionGroups'));
     }
 
     /**
