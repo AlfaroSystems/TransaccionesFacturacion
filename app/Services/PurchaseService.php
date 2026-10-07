@@ -6,6 +6,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use App\Models\Retaceo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,8 +24,14 @@ use InvalidArgumentException;
  */
 class PurchaseService
 {
-    /** Estados de compra que cuentan como mercadería recibida */
-    public const RECEIVED_STATUSES = ['received', 'completed'];
+    /**
+     * Cambios de estado permitidos. Completada y Anulada son finales; anular una recibida
+     * exige que no tenga un retaceo activo.
+     */
+    private const TRANSITIONS = [
+        'draft'    => ['received', 'completed', 'cancelled'],
+        'received' => ['completed', 'cancelled'],
+    ];
 
     /** Estados de orden en los que se puede registrar mercadería */
     public const RECEIVABLE_ORDER_STATUSES = ['issued', 'partial_received'];
@@ -171,25 +178,32 @@ class PurchaseService
      */
     public function cambiarEstado(Purchase $purchase, string $nuevoEstado): void
     {
-        $validos = ['draft', 'received', 'completed', 'cancelled'];
-        if (!in_array($nuevoEstado, $validos, true)) {
-            throw new InvalidArgumentException("Estado '{$nuevoEstado}' no reconocido.");
+        if (! in_array($nuevoEstado, self::TRANSITIONS[$purchase->status] ?? [], true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Una compra %s no puede pasar a %s.',
+                mb_strtolower(Purchase::STATUS_LABELS[$purchase->status] ?? $purchase->status),
+                mb_strtolower(Purchase::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
+            ));
         }
 
-        if ($purchase->status === 'cancelled') {
-            throw new InvalidArgumentException('Una compra cancelada no puede ser modificada.');
+        if ($nuevoEstado === 'cancelled' && Retaceo::queryAllBranches()
+            ->where('id_purchase', $purchase->id_purchase)
+            ->where('status', '!=', 'cancelled')
+            ->exists()) {
+            throw new InvalidArgumentException('No se puede anular una compra con un retaceo activo: cancele primero el retaceo.');
         }
 
         DB::transaction(function () use ($purchase, $nuevoEstado) {
             $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
 
             // Al confirmar un borrador, otras compras pudieron recibirse después de crearlo
-            $confirma = in_array($nuevoEstado, self::RECEIVED_STATUSES, true)
-                && ! in_array($purchase->status, self::RECEIVED_STATUSES, true);
+            $confirma = in_array($nuevoEstado, Purchase::RECEIVED_STATUSES, true)
+                && ! in_array($purchase->status, Purchase::RECEIVED_STATUSES, true);
 
             if ($order && $confirma) {
-                if ($order->status === 'cancelled') {
-                    throw new InvalidArgumentException('No se puede confirmar la recepción: la orden de compra está cancelada.');
+                if (! in_array($order->status, self::RECEIVABLE_ORDER_STATUSES, true)) {
+                    throw new InvalidArgumentException('No se puede confirmar la recepción: la orden de compra ya no admite recepciones ('
+                        . mb_strtolower(PurchaseOrder::STATUS_LABELS[$order->status] ?? $order->status) . ').');
                 }
 
                 $lineas = $purchase->details()->get()->map(fn ($d) => [
@@ -309,7 +323,7 @@ class PurchaseService
     public function recibidoPorLinea(Collection $orderDetailIds, ?int $exceptPurchaseId = null): Collection
     {
         $confirmed = Purchase::queryAllBranches()
-            ->whereIn('status', self::RECEIVED_STATUSES)
+            ->whereIn('status', Purchase::RECEIVED_STATUSES)
             ->when($exceptPurchaseId, fn ($q) => $q->whereKeyNot($exceptPurchaseId))
             ->select('id_purchase');
 

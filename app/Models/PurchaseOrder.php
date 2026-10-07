@@ -14,6 +14,19 @@ class PurchaseOrder extends Model
 {
     use BelongsToBranch;
 
+    /**
+     * Recibida parcial y Completada se calculan según lo recibido; Cerrada es una orden
+     * que se dio por terminada a mano porque el proveedor no entregará el resto.
+     */
+    public const STATUS_LABELS = [
+        'draft'            => 'Borrador',
+        'issued'           => 'Emitida',
+        'partial_received' => 'Recibida parcial',
+        'completed'        => 'Completada',
+        'closed'           => 'Cerrada',
+        'cancelled'        => 'Cancelada',
+    ];
+
     public function restrictToBranch(Builder $query, int $branchId): void
     {
         // El departamento de compras emite y gestiona las órdenes de todas las sucursales

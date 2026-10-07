@@ -205,18 +205,19 @@ class RetaceoService
      */
     public function cambiarEstado(Retaceo $retaceo, string $nuevoEstado): void
     {
-        $validos = ['draft', 'calculated', 'applied', 'cancelled'];
-        if (!in_array($nuevoEstado, $validos, true)) {
-            throw new InvalidArgumentException("Estado '{$nuevoEstado}' no reconocido.");
-        }
+        // Borrador → Liquidado → Aplicado; se cancela antes de aplicarlo. Aplicado es final:
+        // los costos ya se liquidaron y no deben cambiar
+        $transitions = [
+            'draft'      => ['calculated', 'cancelled'],
+            'calculated' => ['applied', 'cancelled'],
+        ];
 
-        if ($retaceo->status === 'cancelled') {
-            throw new InvalidArgumentException('Un retaceo cancelado no puede modificarse.');
-        }
-
-        // Aplicado es el estado final: los costos ya se liquidaron y no deben cambiar
-        if ($retaceo->status === 'applied') {
-            throw new InvalidArgumentException('Un retaceo aplicado es definitivo y no puede cambiar de estado.');
+        if (! in_array($nuevoEstado, $transitions[$retaceo->status] ?? [], true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Un retaceo %s no puede pasar a %s.',
+                mb_strtolower(Retaceo::STATUS_LABELS[$retaceo->status] ?? $retaceo->status),
+                mb_strtolower(Retaceo::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
+            ));
         }
 
         $retaceo->update(['status' => $nuevoEstado]);

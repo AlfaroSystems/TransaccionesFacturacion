@@ -24,6 +24,13 @@ class Purchase extends Model
      */
     public const RECEIVED_STATUSES = ['received', 'completed'];
 
+    public const STATUS_LABELS = [
+        'draft'     => 'Borrador',
+        'received'  => 'Recibida',
+        'completed' => 'Completada',
+        'cancelled' => 'Anulada',
+    ];
+
     /**
      * Compras recibidas sin un retaceo activo (no cancelado): las que admiten un retaceo nuevo.
      */

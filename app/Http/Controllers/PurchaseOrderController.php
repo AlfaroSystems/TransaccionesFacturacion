@@ -154,7 +154,7 @@ class PurchaseOrderController extends Controller
         Gate::authorize('purchase_orders.aprobar');
 
         $request->validate([
-            'status' => ['required', Rule::in(['draft', 'issued', 'partial_received', 'completed', 'cancelled'])],
+            'status' => ['required', Rule::in(array_keys(PurchaseOrder::STATUS_LABELS))],
         ]);
 
         try {

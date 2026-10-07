@@ -154,7 +154,7 @@ test('PurchaseOrderService lanza excepción al cambiar estado de orden cancelada
     $service = new PurchaseOrderService();
 
     expect(fn () => $service->cambiarEstado($order, 'issued'))
-        ->toThrow(\InvalidArgumentException::class, 'Una orden cancelada no puede cambiar de estado.');
+        ->toThrow(\InvalidArgumentException::class, 'Una orden cancelada no puede pasar a emitida.');
 });
 
 test('PurchaseOrderService lanza excepción al intentar regresar issued a draft', function () {
@@ -179,7 +179,7 @@ test('PurchaseOrderService lanza excepción al intentar regresar issued a draft'
     $service = new PurchaseOrderService();
 
     expect(fn () => $service->cambiarEstado($order, 'draft'))
-        ->toThrow(\InvalidArgumentException::class, 'Una orden emitida no puede regresar a borrador.');
+        ->toThrow(\InvalidArgumentException::class, 'Una orden emitida no puede pasar a borrador.');
 });
 
 // =============================================================================

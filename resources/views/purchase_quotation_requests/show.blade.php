@@ -136,7 +136,7 @@
                             @endcan
                         @else
                             @php
-                                $orderStatusLabels = ['draft' => 'Borrador', 'issued' => 'Emitida', 'partial_received' => 'Recibida parcial', 'completed' => 'Completada', 'cancelled' => 'Cancelada'];
+                                $orderStatusLabels = ['draft' => 'Borrador', 'issued' => 'Emitida', 'partial_received' => 'Recibida parcial', 'completed' => 'Completada', 'closed' => 'Cerrada', 'cancelled' => 'Cancelada'];
                             @endphp
                             <span class="text-xs font-bold text-slate-400 uppercase block">Órdenes de compra</span>
                             @foreach($generatedOrders as $order)

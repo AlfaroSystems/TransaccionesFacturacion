@@ -128,7 +128,7 @@ test('el borrador no cuenta como recibido y al confirmarlo se vuelve a revisar l
     expect($segundo->fresh()->status)->toBe('draft');
 });
 
-test('el estado de la orden se recalcula al recibir, cancelar y eliminar compras', function () {
+test('el estado de la orden se recalcula al recibir, anular y eliminar compras', function () {
     $e = recepcionEscenario();
     $this->actingAs($e->admin);
 
@@ -140,21 +140,24 @@ test('el estado de la orden se recalcula al recibir, cancelar y eliminar compras
     // Ya no se puede recibir nada de una orden completada
     $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaMonitor, 1]]))->assertSessionHasErrors('id_purchase_order');
 
-    // Al cancelar la compra, la orden vuelve a emitida
+    // Al anular la recepción, la orden vuelve a emitida
     $this->patch(route('purchases.updateStatus', $completa), ['status' => 'cancelled'])->assertSessionHas('success');
     expect($e->order->fresh()->status)->toBe('issued');
 
-    // Recepción parcial y luego vuelta a borrador: la orden regresa a emitida
+    // Recepción parcial; una recibida no vuelve a borrador, pero se puede anular
     $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaMonitor, 2]]))->assertSessionHasNoErrors();
     $parcial = Purchase::latest('id_purchase')->first();
     expect($e->order->fresh()->status)->toBe('partial_received');
 
-    $this->patch(route('purchases.updateStatus', $parcial), ['status' => 'draft'])->assertSessionHas('success');
+    $this->patch(route('purchases.updateStatus', $parcial), ['status' => 'draft'])->assertSessionHas('error');
+    $this->patch(route('purchases.updateStatus', $parcial), ['status' => 'cancelled'])->assertSessionHas('success');
     expect($e->order->fresh()->status)->toBe('issued');
 
-    // Eliminar el borrador deja la orden como estaba
-    $this->delete(route('purchases.destroy', $parcial))->assertSessionHas('success');
-    expect(Purchase::find($parcial->id_purchase))->toBeNull()
+    // Eliminar un borrador deja la orden como estaba
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaMonitor, 1]], 'draft'))->assertSessionHasNoErrors();
+    $borrador = Purchase::latest('id_purchase')->first();
+    $this->delete(route('purchases.destroy', $borrador))->assertSessionHas('success');
+    expect(Purchase::find($borrador->id_purchase))->toBeNull()
         ->and($e->order->fresh()->status)->toBe('issued');
 });
 
@@ -170,4 +173,86 @@ test('el formulario de recepción solo ofrece lo que falta recibir', function ()
     expect($detalles)->toHaveCount(1)
         ->and($detalles[0]['id_product'])->toBe($e->monitor->id_product)
         ->and((float) $detalles[0]['pending_quantity'])->toBe(3.0);
+});
+
+// =============================================================================
+// Punto 7: transiciones de estado
+// =============================================================================
+
+test('la orden solo cambia de estado por los caminos permitidos', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $cambiar = fn (string $status) => $this->patch(route('purchase_orders.updateStatus', $e->order), ['status' => $status]);
+
+    // Recibida parcial y Completada no se ponen a mano: salen de lo recibido
+    $cambiar('completed')->assertSessionHas('error', 'Una orden emitida no puede pasar a completada.');
+    $cambiar('partial_received')->assertSessionHas('error');
+    $cambiar('draft')->assertSessionHas('error');
+    expect($e->order->fresh()->status)->toBe('issued');
+
+    // Con un borrador registrado no se cancela
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 1]], 'draft'))->assertSessionHasNoErrors();
+    $cambiar('cancelled')->assertSessionHas('error', 'No se puede cancelar una orden con compras registradas: elimine o anule sus borradores.');
+
+    // Con mercadería recibida tampoco: se cierra con lo recibido
+    $borrador = Purchase::latest('id_purchase')->first();
+    $this->patch(route('purchases.updateStatus', $borrador), ['status' => 'received'])->assertSessionHas('success');
+    expect($e->order->fresh()->status)->toBe('partial_received');
+    $cambiar('cancelled')->assertSessionHas('error');
+
+    $cambiar('closed')->assertSessionHas('success');
+    expect($e->order->fresh()->status)->toBe('closed');
+
+    // Cerrada es final y ya no admite recepciones, ni se reabre al anular lo recibido
+    $cambiar('issued')->assertSessionHas('error');
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaMonitor, 1]]))->assertSessionHasErrors('id_purchase_order');
+    $this->patch(route('purchases.updateStatus', $borrador), ['status' => 'cancelled'])->assertSessionHas('success');
+    expect($e->order->fresh()->status)->toBe('closed');
+});
+
+test('una orden sin compras se puede cancelar y queda así', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    $this->patch(route('purchase_orders.updateStatus', $e->order), ['status' => 'cancelled'])->assertSessionHas('success');
+    $this->patch(route('purchase_orders.updateStatus', $e->order), ['status' => 'issued'])
+        ->assertSessionHas('error', 'Una orden cancelada no puede pasar a emitida.');
+    expect($e->order->fresh()->status)->toBe('cancelled');
+});
+
+test('una compra completada es definitiva y una con retaceo activo no se anula', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $cambiar = fn (Purchase $purchase, string $status) => $this->patch(route('purchases.updateStatus', $purchase), ['status' => $status]);
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]], 'completed'))->assertSessionHasNoErrors();
+    $completada = Purchase::latest('id_purchase')->first();
+    $cambiar($completada, 'cancelled')->assertSessionHas('error', 'Una compra completada no puede pasar a anulada.');
+    $cambiar($completada, 'draft')->assertSessionHas('error');
+    expect($completada->fresh()->status)->toBe('completed');
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
+    $recibida = Purchase::latest('id_purchase')->first();
+    \App\Models\Retaceo::create(['id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $recibida->id_purchase, 'retaceo_date' => now(), 'status' => 'draft']);
+
+    $cambiar($recibida, 'cancelled')
+        ->assertSessionHas('error', 'No se puede anular una compra con un retaceo activo: cancele primero el retaceo.');
+    $cambiar($recibida, 'completed')->assertSessionHas('success');
+});
+
+test('el retaceo va de borrador a liquidado y aplicado, y se cancela antes de aplicarse', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+    $retaceo = \App\Models\Retaceo::create(['id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $purchase->id_purchase, 'retaceo_date' => now(), 'status' => 'draft']);
+    $cambiar = fn (string $status) => $this->patch(route('retaceos.updateStatus', $retaceo), ['status' => $status]);
+
+    $cambiar('applied')->assertSessionHas('error', 'Un retaceo borrador no puede pasar a aplicado.');
+    $cambiar('calculated')->assertSessionHas('success');
+    $cambiar('draft')->assertSessionHas('error');
+    $cambiar('applied')->assertSessionHas('success');
+    $cambiar('cancelled')->assertSessionHas('error', 'Un retaceo aplicado no puede pasar a cancelado.');
+    expect($retaceo->fresh()->status)->toBe('applied');
 });

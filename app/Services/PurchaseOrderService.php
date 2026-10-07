@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\PurchaseOrderExpense;
@@ -10,6 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderService
 {
+    /**
+     * Cambios de estado que se hacen a mano. Recibida parcial y Completada no están: las
+     * calcula PurchaseService según lo recibido. Completada, Cerrada y Cancelada son finales.
+     */
+    private const TRANSITIONS = [
+        'draft'            => ['issued', 'cancelled'],
+        'issued'           => ['cancelled'],
+        'partial_received' => ['closed'],
+    ];
+
     /**
      * Calcula los totales consolidados (subtotal, descuento, impuestos, gastos) de una OC.
      *
@@ -145,12 +156,21 @@ class PurchaseOrderService
      */
     public function cambiarEstado(PurchaseOrder $order, string $nuevoEstado): void
     {
-        if ($order->status === 'cancelled') {
-            throw new \InvalidArgumentException('Una orden cancelada no puede cambiar de estado.');
+        if (! in_array($nuevoEstado, self::TRANSITIONS[$order->status] ?? [], true)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Una orden %s no puede pasar a %s.',
+                mb_strtolower(PurchaseOrder::STATUS_LABELS[$order->status] ?? $order->status),
+                mb_strtolower(PurchaseOrder::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
+            ));
         }
 
-        if ($order->status === 'issued' && $nuevoEstado === 'draft') {
-            throw new \InvalidArgumentException('Una orden emitida no puede regresar a borrador.');
+        // Con compras registradas (aunque sean borradores) no se cancela: si ya llegó algo
+        // se cierra; los borradores se eliminan o anulan antes
+        if ($nuevoEstado === 'cancelled' && Purchase::queryAllBranches()
+            ->where('id_purchase_order', $order->id_purchase_order)
+            ->where('status', '!=', 'cancelled')
+            ->exists()) {
+            throw new \InvalidArgumentException('No se puede cancelar una orden con compras registradas: elimine o anule sus borradores.');
         }
 
         $order->update(['status' => $nuevoEstado]);

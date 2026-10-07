@@ -20,6 +20,13 @@ class Retaceo extends Model
         $query->whereHas('purchase');
     }
 
+    public const STATUS_LABELS = [
+        'draft'      => 'Borrador',
+        'calculated' => 'Liquidado',
+        'applied'    => 'Aplicado',
+        'cancelled'  => 'Cancelado',
+    ];
+
     protected $table = 'retaceos';
     protected $primaryKey = 'id_retaceo';
 

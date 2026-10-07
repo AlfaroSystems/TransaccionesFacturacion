@@ -148,6 +148,7 @@
                                                 'issued' => 'bg-blue-100 text-blue-800 dark:bg-sky-950/80 dark:text-sky-300 dark:border dark:border-sky-700/60',
                                                 'partial_received' => 'bg-orange-100 text-orange-800 dark:bg-indigo-950/80 dark:text-indigo-300 dark:border dark:border-indigo-700/60',
                                                 'completed' => 'bg-green-100 text-green-800 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border dark:border-emerald-700/60',
+                                                'closed' => 'bg-teal-100 text-teal-800 dark:bg-teal-950/80 dark:text-teal-300 dark:border dark:border-teal-700/60',
                                                 'cancelled' => 'bg-red-100 text-red-800 dark:bg-rose-950/80 dark:text-rose-300 dark:border dark:border-rose-700/60',
                                             ];
                                             $statusNames = [
@@ -155,6 +156,7 @@
                                                 'issued' => 'Emitida',
                                                 'partial_received' => 'Recepción parcial',
                                                 'completed' => 'Completada',
+                                                'closed' => 'Cerrada',
                                                 'cancelled' => 'Cancelada',
                                             ];
                                         @endphp

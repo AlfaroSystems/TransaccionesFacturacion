@@ -9,6 +9,7 @@
         'issued' => 'bg-sky-50 text-sky-700 border-sky-200',
         'partial_received' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
         'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'closed' => 'bg-teal-50 text-teal-700 border-teal-200',
         'cancelled' => 'bg-rose-50 text-rose-700 border-rose-200',
     ];
     $statusNames = [
@@ -16,6 +17,7 @@
         'issued' => 'Emitida',
         'partial_received' => 'Recepción Parcial',
         'completed' => 'Completada',
+        'closed' => 'Cerrada',
         'cancelled' => 'Cancelada',
     ];
 @endphp
@@ -55,13 +57,6 @@
                         <span class="text-white">Registrar Compra / Factura</span>
                     </a>
                 @endcan
-                <button type="button" onclick="openStatusModal('{{ route('purchase_orders.updateStatus', $purchase_order->id_purchase_order) }}', 'partial_received', '¿Registrar Recepción Parcial?', 'El estado cambiará a recepción parcial de productos.', 'Sí, registrar recepción', 'indigo')" class="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
-                    <span>📦 Recepción Parcial</span>
-                </button>
-                <button type="button" onclick="openStatusModal('{{ route('purchase_orders.updateStatus', $purchase_order->id_purchase_order) }}', 'completed', '¿Marcar Orden como Completada?', 'Se confirmará la recepción total de los productos de esta orden de compra.', 'Sí, marcar completada', 'emerald')" class="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span>Marcar Completada</span>
-                </button>
             @elseif($purchase_order->status === 'partial_received')
                 @can('purchases.crear')
                     <a href="{{ route('purchases.create', ['id_purchase_order' => $purchase_order->id_purchase_order]) }}" style="background-color: #005e66; color: #ffffff;" class="px-5 py-2.5 rounded-full text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md hover:opacity-90 hover:shadow-lg" title="Registrar Factura / Recepción de Compra">
@@ -69,13 +64,13 @@
                         <span class="text-white">Registrar Compra / Factura</span>
                     </a>
                 @endcan
-                <button type="button" onclick="openStatusModal('{{ route('purchase_orders.updateStatus', $purchase_order->id_purchase_order) }}', 'completed', '¿Marcar Orden como Completada?', 'Se confirmará la recepción total de los productos de esta orden de compra.', 'Sí, marcar completada', 'emerald')" class="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
+                <button type="button" onclick="openStatusModal('{{ route('purchase_orders.updateStatus', $purchase_order->id_purchase_order) }}', 'closed', '¿Cerrar la orden con lo recibido?', 'Úselo cuando el proveedor no entregará el resto: la orden queda cerrada con lo recibido y ya no admite más recepciones.', 'Sí, cerrar orden', 'indigo')" class="px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    <span>Marcar Completada</span>
+                    <span>Cerrar Orden</span>
                 </button>
             @endif
 
-            @if(in_array($purchase_order->status, ['draft', 'issued', 'partial_received']))
+            @if(in_array($purchase_order->status, ['draft', 'issued']))
                 <button type="button" onclick="openStatusModal('{{ route('purchase_orders.updateStatus', $purchase_order->id_purchase_order) }}', 'cancelled', '¿Cancelar Orden de Compra?', 'Esta acción no se puede deshacer y la orden quedará anulada.', 'Sí, cancelar orden', 'rose')" class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     <span>Cancelar</span>
