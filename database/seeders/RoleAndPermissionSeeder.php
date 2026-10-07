@@ -40,13 +40,7 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar usuarios del sistema.',
                 'action' => 'destroy',
             ],
-            // Roles y Bitácora
-            [
-                'id_permission' => 'roles.administrar',
-                'name' => 'Administrar Roles y Permisos',
-                'description' => 'Permite configurar roles y asignarles permisos.',
-                'action' => 'manage',
-            ],
+            // Bitácora (los roles los administra solo el admin: Gate 'admin')
             [
                 'id_permission' => 'bitacora.ver',
                 'name' => 'Ver Bitácora de Logs',
@@ -153,30 +147,12 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar ubicaciones físicas.',
                 'action' => 'destroy',
             ],
-            // Empresas
+            // Empresas (crear, editar y desactivar: solo el admin, Gate 'admin')
             [
                 'id_permission' => 'companies.ver',
                 'name' => 'Ver Empresas',
                 'description' => 'Permite ver el listado y detalle de las empresas.',
                 'action' => 'index',
-            ],
-            [
-                'id_permission' => 'companies.crear',
-                'name' => 'Crear Empresas',
-                'description' => 'Permite registrar nuevas empresas.',
-                'action' => 'create',
-            ],
-            [
-                'id_permission' => 'companies.editar',
-                'name' => 'Editar Empresas',
-                'description' => 'Permite modificar la información de las empresas.',
-                'action' => 'edit',
-            ],
-            [
-                'id_permission' => 'companies.eliminar',
-                'name' => 'Eliminar Empresas',
-                'description' => 'Permite eliminar empresas del sistema.',
-                'action' => 'destroy',
             ],
             // Categorías de Productos
             [

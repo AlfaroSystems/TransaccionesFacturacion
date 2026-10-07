@@ -15,7 +15,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        Gate::authorize('roles.administrar');
+        Gate::authorize('admin');
 
         // Paginación de roles cargando el conteo de permisos y usuarios
         $roles = Role::with(['permissions'])->withCount(['permissions', 'users'])->paginate(10);
@@ -29,7 +29,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        Gate::authorize('roles.administrar');
+        Gate::authorize('admin');
 
         // El formulario está en un modal del listado
         return redirect()->route('roles.index');
@@ -40,7 +40,7 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        Gate::authorize('roles.administrar');
+        Gate::authorize('admin');
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:roles'],
@@ -67,7 +67,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-        Gate::authorize('roles.administrar');
+        Gate::authorize('admin');
 
         if ($role->name === 'admin') {
             return redirect()->route('roles.index')
@@ -83,7 +83,7 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
-        Gate::authorize('roles.administrar');
+        Gate::authorize('admin');
 
         if ($role->name === 'admin') {
             return redirect()->route('roles.index')
@@ -114,7 +114,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        Gate::authorize('roles.administrar');
+        Gate::authorize('admin');
 
         if ($role->name === 'admin') {
             return redirect()->route('roles.index')

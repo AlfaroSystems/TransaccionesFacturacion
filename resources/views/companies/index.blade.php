@@ -36,7 +36,7 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold mt-1">Registra y administra la información fiscal, giros comerciales, ubicaciones geográficas y logos de las empresas.</p>
         </div>
 
-        @can('companies.crear')
+        @can('admin')
         <button type="button" onclick="openModal('create-company-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -137,7 +137,7 @@
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-r-2xl border-r border-y border-slate-100 dark:border-slate-700/80 text-center transition-colors duration-300">
                             <div class="flex items-center justify-center gap-2">
                                 <!-- Editar -->
-                                @can('companies.editar')
+                                @can('admin')
                                 <button
                                     type="button"
                                     data-action="{{ route('companies.update', $company) }}"
@@ -158,7 +158,7 @@
                                 @endcan
 
                                 <!-- Eliminar / Inactivar -->
-                                @can('companies.eliminar')
+                                @can('admin')
                                     @if($company->is_active)
                                         <button
                                             type="button"

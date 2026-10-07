@@ -8,7 +8,7 @@
             <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Roles y Permisos</h1>
             <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Configura las etiquetas de roles y asóciales permisos del sistema.</p>
         </div>
-        @can('roles.administrar')
+        @can('admin')
             <button type="button" onclick="openModal('create-role-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-customTeal-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
@@ -60,7 +60,7 @@
                         </td>
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                @can('roles.administrar')
+                                @can('admin')
                                     @if($role->name === 'admin')
                                         <!-- Rol Admin Protegido (No editable ni eliminable) -->
                                         <span class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-not-allowed border border-slate-200" title="Rol del sistema protegido: posee acceso total permanente y no se puede modificar ni eliminar.">

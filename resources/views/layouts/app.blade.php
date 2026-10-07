@@ -217,7 +217,7 @@
                     $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
                     $administracionRoute = $firstAllowedRoute([
                         'usuarios.ver' => 'users.index',
-                        'roles.administrar' => 'roles.index',
+                        'admin' => 'roles.index',
                         'bitacora.ver' => 'audit-logs.index',
                     ]);
                 @endphp
@@ -336,7 +336,7 @@
                 @can('usuarios.ver')
                     <a href="{{ route('users.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('users.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Usuarios</span></a>
                 @endcan
-                @can('roles.administrar')
+                @can('admin')
                     <a href="{{ route('roles.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('roles.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Roles y Permisos</span></a>
                 @endcan
                 @can('bitacora.ver')

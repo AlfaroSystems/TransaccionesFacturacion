@@ -49,7 +49,7 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        Gate::authorize('companies.crear');
+        Gate::authorize('admin');
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -104,7 +104,7 @@ class CompanyController extends Controller
      */
     public function update(Request $request, Company $company)
     {
-        Gate::authorize('companies.editar');
+        Gate::authorize('admin');
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -163,7 +163,7 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
-        Gate::authorize('companies.eliminar');
+        Gate::authorize('admin');
 
         $newStatus = !$company->is_active;
 
@@ -186,7 +186,7 @@ class CompanyController extends Controller
 
     public function edit(Company $company)
     {
-        Gate::authorize('companies.editar');
+        Gate::authorize('admin');
 
         // El formulario está en un modal del listado
         return redirect()->route('companies.index');

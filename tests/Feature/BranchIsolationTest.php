@@ -38,7 +38,7 @@ const PERMISOS_AISLAMIENTO = [
     'warehouses.ver', 'warehouses.crear', 'warehouses.editar', 'warehouses.eliminar',
     'locations.ver', 'locations.crear', 'locations.editar', 'locations.eliminar',
     'branches.ver', 'branches.crear', 'branches.editar', 'branches.eliminar',
-    'companies.ver', 'companies.crear', 'companies.editar', 'companies.eliminar',
+    'companies.ver',
     'usuarios.ver', 'usuarios.crear', 'usuarios.editar', 'usuarios.eliminar',
     'bitacora.ver',
 ];

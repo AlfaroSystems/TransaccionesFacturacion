@@ -23,7 +23,7 @@
 </header>
 
 <!-- SECCIÓN 1: TARJETAS SUPERIORES (3 COLUMNAS) — cada tarjeta solo con permiso sobre su módulo -->
-@canany(['usuarios.ver', 'products.ver', 'roles.administrar'])
+@canany(['usuarios.ver', 'products.ver', 'admin'])
 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     @can('usuarios.ver')
     <!-- Card 1: Usuarios en Sistema -->
@@ -63,7 +63,7 @@
     </div>
     @endcan
 
-    @can('roles.administrar')
+    @can('admin')
     <!-- Card 3: Roles Definidos -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/80 card-shadow hover:scale-[1.01] transition-all duration-300">
         <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700/50 flex items-center justify-center text-slate-500 dark:text-slate-300 mb-4">

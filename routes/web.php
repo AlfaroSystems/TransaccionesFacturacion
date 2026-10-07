@@ -32,8 +32,6 @@ Route::middleware('auth')->group(function () {
         ->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
     // Los módulos crean y editan con modales en el listado; se excluyen las
     // acciones que no tienen método en el controlador
     Route::resource('branches', BranchController::class);

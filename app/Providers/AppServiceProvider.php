@@ -41,5 +41,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function (User $user, string $ability) {
             return $user->isAdmin() || $user->hasPermission($ability) ? true : null;
         });
+
+        // Crear y editar empresas y administrar roles: solo el administrador. No es un permiso
+        // asignable porque un rol con él podría darse a sí mismo cualquier otro permiso
+        Gate::define('admin', fn (User $user) => $user->isAdmin());
     }
 }
