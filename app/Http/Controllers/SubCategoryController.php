@@ -43,6 +43,8 @@ class SubCategoryController extends Controller
      */
     public function create()
     {
+        Gate::authorize('subcategories.crear');
+
         return redirect()->route('subcategories.index');
     }
 
@@ -115,6 +117,8 @@ class SubCategoryController extends Controller
      */
     public function show(SubCategory $subCategory)
     {
+        Gate::authorize('subcategories.ver');
+
         return redirect()->route('subcategories.index');
     }
 
@@ -123,6 +127,8 @@ class SubCategoryController extends Controller
      */
     public function edit(SubCategory $subCategory)
     {
+        Gate::authorize('subcategories.editar');
+
         return redirect()->route('subcategories.index');
     }
 

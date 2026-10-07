@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liquidación de Retaceo {{ $retaceo->retaceo_code ?? 'RET-' . $retaceo->id_retaceo }}</title>
-    <!-- Tailwind CSS CDN para renderizado perfecto de impresión -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Estilos del build (sin depender de internet para imprimir) -->
+    @vite(['resources/css/app.css'])
     <style>
         @media print {
             .no-print {
