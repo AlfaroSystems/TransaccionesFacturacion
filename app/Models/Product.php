@@ -45,6 +45,9 @@ class Product extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        // Último costo: lo fija ProductCostService, no el formulario del producto
+        'last_cost' => 'decimal:4',
+        'last_cost_date' => 'datetime',
     ];
 
     /**
@@ -160,6 +163,14 @@ class Product extends Model
     public function saleUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'sale_unit');
+    }
+
+    /**
+     * Línea de compra de donde salió el último costo (da la unidad, la compra y la fecha).
+     */
+    public function lastCostPurchaseDetail(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseDetail::class, 'id_last_cost_purchase_detail', 'id_purchase_detail');
     }
 
     /**

@@ -83,6 +83,7 @@
                     <th class="py-3 px-6">Producto / Códigos</th>
                     <th class="py-3 px-6">Categoría / Subcat.</th>
                     <th class="py-3 px-6">Presentación & Medidas</th>
+                    <th class="py-3 px-6 text-right" title="Costo de la compra más reciente: con descuento, sin IVA, más gastos que forman parte del costo; o el del retaceo aplicado">Último Costo</th>
                     <th class="py-3 px-6 text-center">Estado</th>
                     <th class="py-3 px-6 text-center">Acciones</th>
                 </tr>
@@ -129,6 +130,16 @@
                                 {{ $product->size ? 'Talla/Tam: '.$product->size : '' }} 
                                 {{ $product->dimensions ? '('.$product->dimensions.')' : '' }}
                             </div>
+                        </td>
+                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-xs text-right whitespace-nowrap">
+                            @if($product->last_cost !== null)
+                                <div class="font-mono font-bold text-slate-800">${{ number_format($product->last_cost, 4) }}</div>
+                                <div class="text-slate-400">
+                                    {{ $product->lastCostPurchaseDetail?->unit?->name ? 'por '.$product->lastCostPurchaseDetail->unit->name.' · ' : '' }}{{ $product->last_cost_date?->format('d/m/Y') }}
+                                </div>
+                            @else
+                                <span class="text-slate-400">Sin compras</span>
+                            @endif
                         </td>
                         <td class="py-4 px-6 bg-white border-y border-slate-100 text-center">
                             @if($product->is_active)

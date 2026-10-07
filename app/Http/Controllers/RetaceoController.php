@@ -7,6 +7,7 @@ use App\Models\Purchase;
 use App\Models\Retaceo;
 use App\Models\Supplier;
 use App\Rules\Accessible;
+use App\Services\ProductCostService;
 use App\Services\RetaceoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -119,6 +120,8 @@ class RetaceoController extends Controller
             'supplier_invoice_number' => $purchase->supplier_invoice_number,
             'supplier_invoice_date'   => $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('Y-m-d') : null,
             'currency'                => $purchase->currency,
+            // Gastos de la orden marcados como costo que le tocan a esta compra, como sugerencia
+            'suggested_expenses'      => app(ProductCostService::class)->gastosDeLaCompra($purchase),
             'details'                 => $purchase->details->map(function ($d) {
                 $qty = (float) $d->quantity_received;
                 if ($qty <= 0) {

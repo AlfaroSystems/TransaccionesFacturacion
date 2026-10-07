@@ -225,6 +225,8 @@ class PurchaseOrderService
                 'id_expense_type'   => $expense['id_expense_type'],
                 'description'       => $expense['description'] ?? null,
                 'amount'            => $amount,
+                // Si se reparte en el costo de los productos (ver ProductCostService)
+                'is_costable'       => (bool) ($expense['is_costable'] ?? true),
             ]);
         }
     }

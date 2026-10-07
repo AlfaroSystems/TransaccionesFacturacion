@@ -256,3 +256,125 @@ test('el retaceo va de borrador a liquidado y aplicado, y se cancela antes de ap
     $cambiar('cancelled')->assertSessionHas('error', 'Un retaceo aplicado no puede pasar a cancelado.');
     expect($retaceo->fresh()->status)->toBe('applied');
 });
+
+// =============================================================================
+// Punto 9: último costo de los productos
+// =============================================================================
+
+/** Gastos de la orden: $30 forman parte del costo y $20 no. La orden vale 10 × $10 + 5 × $10 = $150 */
+function costoConGastos(object $e): void
+{
+    $e->order->update(['subtotal' => 150, 'discount' => 0]);
+    $tipo = \App\Models\ExpenseType::create(['name' => 'Flete '.Str::random(5)]);
+    $e->order->expenses()->createMany([
+        ['id_expense_type' => $tipo->id_expense_type, 'amount' => 30, 'is_costable' => true],
+        ['id_expense_type' => $tipo->id_expense_type, 'amount' => 20, 'is_costable' => false],
+    ]);
+}
+
+test('al completar una compra se fija el último costo con los gastos que son costo', function () {
+    $e = recepcionEscenario();
+    costoConGastos($e);
+    $this->actingAs($e->admin);
+
+    $datos = recepcionDatos($e, [[$e->lineaLaptop, 10], [$e->lineaMonitor, 5]], 'completed');
+    $datos['details'][1]['discount'] = 5;
+    $this->post(route('purchases.store'), $datos)->assertSessionHasNoErrors();
+
+    // Laptop: $100 + 30 × 100/150 = $120 entre 10 → $12
+    // Monitor: ($50 − $5) + 30 × 45/150 = $54 entre 5 → $10.80
+    $lineaLaptop = Purchase::latest('id_purchase')->first()->details()->where('id_product', $e->laptop->id_product)->first();
+    expect((float) $lineaLaptop->unit_cost)->toBe(12.0)
+        ->and((float) $e->laptop->fresh()->last_cost)->toBe(12.0)
+        ->and($e->laptop->fresh()->id_last_cost_purchase_detail)->toBe($lineaLaptop->id_purchase_detail)
+        ->and((float) $e->monitor->fresh()->last_cost)->toBe(10.8);
+});
+
+test('una compra recibida no fija el costo hasta completarse', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 4]]))->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+    expect($e->laptop->fresh()->last_cost)->toBeNull();
+
+    $this->patch(route('purchases.updateStatus', $purchase), ['status' => 'completed'])->assertSessionHas('success');
+    expect((float) $e->laptop->fresh()->last_cost)->toBe(10.0);
+});
+
+test('el retaceo aplicado reemplaza el costo de la factura', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 10]], 'completed'))->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+    $linea = $purchase->details()->first();
+    expect((float) $e->laptop->fresh()->last_cost)->toBe(10.0);
+
+    // FOB $100 + flete $20 + DAI $10 = $130 entre 10 → $13
+    $this->post(route('retaceos.store'), [
+        'id_purchase' => $purchase->id_purchase, 'id_supplier' => $e->supplier->id_supplier,
+        'retaceo_date' => now()->toDateString(), 'total_freight' => 20, 'total_expenses' => 0, 'status' => 'calculated',
+        'details' => [[
+            'id_product' => $e->laptop->id_product, 'id_purchase_detail' => $linea->id_purchase_detail,
+            'quantity' => 10, 'cost_fob' => 100, 'dai_amount' => 10,
+        ]],
+    ])->assertSessionHasNoErrors();
+    $retaceo = \App\Models\Retaceo::latest('id_retaceo')->first();
+
+    // Liquidado todavía no cambia el costo
+    expect((float) $e->laptop->fresh()->last_cost)->toBe(10.0);
+
+    $this->patch(route('retaceos.updateStatus', $retaceo), ['status' => 'applied'])->assertSessionHas('success');
+    expect((float) $e->laptop->fresh()->last_cost)->toBe(13.0)
+        ->and((float) $linea->fresh()->unit_cost)->toBe(13.0);
+});
+
+test('solo la compra más reciente fija el último costo', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 4]], 'completed'))->assertSessionHasNoErrors();
+
+    // Una compra con fecha anterior, registrada después, guarda su costo pero no cambia el del producto
+    $anterior = recepcionDatos($e, [[$e->lineaLaptop, 4]], 'completed');
+    $anterior['purchase_date'] = now()->subDays(3)->toDateString();
+    $anterior['details'][0]['unit_price'] = 8;
+    $this->post(route('purchases.store'), $anterior)->assertSessionHasNoErrors();
+
+    expect((float) $e->laptop->fresh()->last_cost)->toBe(10.0)
+        ->and((float) Purchase::latest('id_purchase')->first()->details()->first()->unit_cost)->toBe(8.0);
+});
+
+test('cada gasto de la orden indica si forma parte del costo', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $tipo = \App\Models\ExpenseType::create(['name' => 'Flete '.Str::random(5)]);
+
+    $this->post(route('purchase_orders.store'), [
+        'id_supplier' => $e->supplier->id_supplier, 'id_branch' => $e->order->id_branch, 'id_warehouse' => $e->order->id_warehouse,
+        'order_date' => now()->toDateString(), 'expected_date' => now()->addWeek()->toDateString(),
+        'currency' => 'USD', 'payment_terms' => 'Contado',
+        'products' => [['id_product' => $e->laptop->id_product, 'quantity' => 1, 'id_unit' => $e->lineaLaptop->id_unit, 'unit_price' => 10]],
+        'expenses' => [
+            ['id_expense_type' => $tipo->id_expense_type, 'description' => 'Flete', 'amount' => 30, 'is_costable' => '1'],
+            ['id_expense_type' => $tipo->id_expense_type, 'description' => 'Comisión', 'amount' => 20, 'is_costable' => '0'],
+            ['id_expense_type' => $tipo->id_expense_type, 'description' => 'Seguro', 'amount' => 5],
+        ],
+    ])->assertSessionHasNoErrors();
+
+    $gastos = PurchaseOrder::latest('id_purchase_order')->first()->expenses()->orderBy('amount')->pluck('is_costable', 'description');
+    expect($gastos->all())->toBe(['Seguro' => true, 'Comisión' => false, 'Flete' => true]);
+});
+
+test('el retaceo sugiere los gastos de la orden que son costo', function () {
+    $e = recepcionEscenario();
+    costoConGastos($e);
+    $this->actingAs($e->admin);
+
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 10]]))->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+
+    // Lo recibido vale $100 de los $150 de la orden: le tocan $20 de los $30
+    $this->getJson(route('retaceos.purchase-data', $purchase->id_purchase))->assertJsonPath('suggested_expenses', fn ($v) => (float) $v === 20.0);
+});

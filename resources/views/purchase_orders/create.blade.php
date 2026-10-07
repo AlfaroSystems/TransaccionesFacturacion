@@ -183,6 +183,7 @@
                             <th class="py-3 px-3">Tipo de Gasto</th>
                             <th class="py-3 px-3">Descripción</th>
                             <th class="py-3 px-3 text-right w-36">Monto ($)</th>
+                            <th class="py-3 px-3 text-center w-24" title="El gasto se reparte en el costo de los productos al completar la compra">Es costo</th>
                             <th class="py-3 px-3 text-center w-12">Acción</th>
                         </tr>
                     </thead>
@@ -367,6 +368,8 @@
 
         const desc = data ? data.description : '';
         const amt = data ? data.amount : 0;
+        // Por defecto el gasto forma parte del costo (flete, seguro, etc.)
+        const isCostable = data ? data.is_costable !== false : true;
 
         tr.innerHTML = `
             <td class="py-2.5 px-3">
@@ -379,6 +382,10 @@
             </td>
             <td class="py-2.5 px-3">
                 <input type="number" step="0.0001" min="0" name="expenses[${index}][amount]" value="${amt}" required oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-right font-semibold text-amber-600 focus:border-[#005e66]">
+            </td>
+            <td class="py-2.5 px-3 text-center">
+                <input type="hidden" name="expenses[${index}][is_costable]" value="0">
+                <input type="checkbox" name="expenses[${index}][is_costable]" value="1" ${isCostable ? 'checked' : ''} title="Forma parte del costo de los productos" class="w-4 h-4 rounded border-slate-300 text-[#005e66] focus:ring-[#005e66]">
             </td>
             <td class="py-2.5 px-3 text-center">
                 <button type="button" onclick="eliminarFila('expenseRow_${index}')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar gasto">

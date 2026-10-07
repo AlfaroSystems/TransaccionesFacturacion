@@ -207,6 +207,7 @@
                         <th class="py-3 px-4 text-right">Subtotal</th>
                         <th class="py-3 px-4 text-right">Impuesto</th>
                         <th class="py-3 px-4 text-right">Total</th>
+                        <th class="py-3 px-4 text-right" title="Precio con descuento, sin IVA, más los gastos de la orden que forman parte del costo; o el costo del retaceo aplicado">Costo Unit.</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -242,6 +243,9 @@
                             </td>
                             <td class="py-3.5 px-4 text-right font-mono font-extrabold text-slate-800 dark:text-slate-100">
                                 ${{ number_format($item->total, 2) }}
+                            </td>
+                            <td class="py-3.5 px-4 text-right font-mono font-bold text-teal-700 dark:text-teal-400">
+                                {{ $item->unit_cost !== null ? '$'.number_format($item->unit_cost, 4) : '—' }}
                             </td>
                         </tr>
                     @endforeach

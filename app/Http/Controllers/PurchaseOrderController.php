@@ -241,6 +241,7 @@ class PurchaseOrderController extends Controller
             'expenses.*.id_expense_type'     => ['required_with:expenses', 'exists:expense_types,id_expense_type'],
             'expenses.*.description'         => ['nullable', 'string', 'max:255'],
             'expenses.*.amount'              => ['required_with:expenses', 'numeric', 'min:0'],
+            'expenses.*.is_costable'         => ['nullable', 'boolean'],
         ], [
             'required'       => 'El campo :attribute es obligatorio.',
             'min'            => 'El campo :attribute no cumple el valor mínimo requerido.',

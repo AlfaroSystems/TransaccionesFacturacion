@@ -11,6 +11,8 @@ use InvalidArgumentException;
 
 class RetaceoService
 {
+    public function __construct(private readonly ProductCostService $costos = new ProductCostService()) {}
+
     /**
      * Calcula el prorrateo de flete, gastos y aranceles (DAI) por línea de producto.
      *
@@ -144,6 +146,11 @@ class RetaceoService
                 ]);
             }
 
+            // Un retaceo que nace aplicado fija el costo de los productos de su compra
+            if ($retaceo->status === 'applied') {
+                $this->costos->actualizarDesdeCompra($purchase);
+            }
+
             return $retaceo;
         });
     }
@@ -220,6 +227,13 @@ class RetaceoService
             ));
         }
 
-        $retaceo->update(['status' => $nuevoEstado]);
+        DB::transaction(function () use ($retaceo, $nuevoEstado) {
+            $retaceo->update(['status' => $nuevoEstado]);
+
+            // Al aplicarlo, su costo puesto en bodega pasa a ser el costo de los productos
+            if ($nuevoEstado === 'applied') {
+                $this->costos->actualizarDesdeCompra(Purchase::queryAllBranches()->findOrFail($retaceo->id_purchase));
+            }
+        });
     }
 }

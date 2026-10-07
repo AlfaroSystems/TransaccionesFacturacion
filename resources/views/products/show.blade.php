@@ -158,6 +158,20 @@
                                 {{ $product->purchaseUnit->name ?? 'N/A' }} / {{ $product->saleUnit->name ?? 'N/A' }}
                             </dd>
                         </div>
+                        <div class="flex justify-between items-center gap-3">
+                            <dt class="text-slate-500 font-medium" title="Costo de la compra más reciente: con descuento, sin IVA, más gastos que forman parte del costo; o el del retaceo aplicado">Último Costo:</dt>
+                            <dd class="font-bold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200 text-right">
+                                @if($product->last_cost !== null)
+                                    <span class="font-mono">${{ number_format($product->last_cost, 4) }}</span>
+                                    @php($origen = $product->lastCostPurchaseDetail)
+                                    <span class="block text-[11px] font-semibold text-slate-400">
+                                        {{ $origen?->unit?->name ? 'por '.$origen->unit->name.' · ' : '' }}{{ $origen?->purchase?->purchase_code ? $origen->purchase->purchase_code.' · ' : '' }}{{ $product->last_cost_date?->format('d/m/Y') }}
+                                    </span>
+                                @else
+                                    <span class="text-slate-400 font-semibold">Sin compras completadas</span>
+                                @endif
+                            </dd>
+                        </div>
                     </dl>
                 </div>
             </div>

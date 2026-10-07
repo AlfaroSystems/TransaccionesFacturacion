@@ -22,7 +22,7 @@ class ProductController extends Controller
     {
         Gate::authorize('products.ver');
 
-        $query = Product::with(['category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images']);
+        $query = Product::with(['category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images', 'lastCostPurchaseDetail.unit']);
 
         // Filtro por búsqueda (nombre, sku, código original, código interno)
         if ($request->filled('search')) {
@@ -116,7 +116,12 @@ class ProductController extends Controller
     {
         Gate::authorize('products.ver');
 
-        $relations = ['category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images'];
+        $relations = [
+            'category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images',
+            'lastCostPurchaseDetail.unit',
+            // El código de la compra que fijó el costo, aunque sea de otra sucursal
+            'lastCostPurchaseDetail.purchase' => fn ($q) => $q->withoutGlobalScope(\App\Models\Scopes\BranchScope::class),
+        ];
 
         if (\Illuminate\Support\Facades\Schema::hasTable('product_location')) {
             $relations[] = 'locations';

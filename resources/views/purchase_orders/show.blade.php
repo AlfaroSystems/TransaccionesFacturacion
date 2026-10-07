@@ -295,6 +295,7 @@
                             <th class="py-3 px-4">#</th>
                             <th class="py-3 px-4">Tipo de Gasto</th>
                             <th class="py-3 px-4">Descripción</th>
+                            <th class="py-3 px-4 text-center" title="El gasto se reparte en el costo de los productos al completar la compra">Es costo</th>
                             <th class="py-3 px-4 text-right">Monto</th>
                         </tr>
                     </thead>
@@ -307,6 +308,13 @@
                                 </td>
                                 <td class="py-3 px-4 text-slate-600 text-xs font-medium">
                                     {{ $expense->description ?? 'Sin descripción' }}
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    @if($expense->is_costable)
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Sí</span>
+                                    @else
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">No</span>
+                                    @endif
                                 </td>
                                 <td class="py-3 px-4 text-right font-extrabold text-amber-600">
                                     +${{ number_format($expense->amount, 4) }}

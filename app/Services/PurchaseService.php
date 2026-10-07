@@ -36,6 +36,8 @@ class PurchaseService
     /** Estados de orden en los que se puede registrar mercadería */
     public const RECEIVABLE_ORDER_STATUSES = ['issued', 'partial_received'];
 
+    public function __construct(private readonly ProductCostService $costos = new ProductCostService()) {}
+
     /**
      * Calcula los totales consolidados (subtotal, descuento, impuestos, total) a partir de los detalles.
      *
@@ -116,6 +118,9 @@ class PurchaseService
 
             // Actualizar estado de la Orden de Compra de acuerdo a las cantidades recibidas
             $this->actualizarEstadoOrden($order);
+
+            // Una compra que nace completada fija el último costo de sus productos
+            $this->costos->actualizarDesdeCompra($purchase);
 
             return $purchase;
         });
@@ -223,6 +228,10 @@ class PurchaseService
             if ($order) {
                 $this->actualizarEstadoOrden($order);
             }
+
+            if ($nuevoEstado === 'completed') {
+                $this->costos->actualizarDesdeCompra($purchase);
+            }
         });
     }
 
@@ -247,6 +256,10 @@ class PurchaseService
      */
     private function guardarDetalles(Purchase $purchase, array $details): void
     {
+        // La unidad es la de la línea de la orden: lo recibido y el costo se cuentan en ella
+        $unidades = PurchaseOrderDetail::whereIn('id_purchase_order_detail', array_column($details, 'id_purchase_order_detail'))
+            ->pluck('id_unit', 'id_purchase_order_detail');
+
         foreach ($details as $item) {
             $qtyReceived  = (float) ($item['quantity_received'] ?? 0);
             $qtyOrdered   = (float) ($item['quantity_ordered'] ?? $qtyReceived);
@@ -264,7 +277,7 @@ class PurchaseService
                 'id_product'               => $item['id_product'],
                 'quantity_ordered'         => $qtyOrdered,
                 'quantity_received'        => $qtyReceived,
-                'id_unit'                  => $item['id_unit'] ?? null,
+                'id_unit'                  => $unidades->get($item['id_purchase_order_detail'] ?? 0, $item['id_unit'] ?? null),
                 'unit_price'               => $unitPrice,
                 'discount'                 => $lineDiscount,
                 'subtotal'                 => $subtotal,

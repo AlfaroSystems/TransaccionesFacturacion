@@ -28,6 +28,7 @@ class PurchaseDetail extends Model
         'tax_amount',
         'total',
         'notes',
+        'unit_cost',
     ];
 
     protected $casts = [
@@ -39,6 +40,8 @@ class PurchaseDetail extends Model
         'tax_rate' => 'decimal:2',
         'tax_amount' => 'decimal:4',
         'total' => 'decimal:4',
+        // Costo con que entró la línea (ver ProductCostService)
+        'unit_cost' => 'decimal:4',
     ];
 
     public function purchase(): BelongsTo

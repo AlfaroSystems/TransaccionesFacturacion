@@ -307,6 +307,7 @@
                     if (data.origin_country) document.getElementById('origin_country').value = data.origin_country;
                     if (data.supplier_invoice_number) document.getElementById('import_invoice_number').value = data.supplier_invoice_number;
                     if (data.supplier_invoice_date) document.getElementById('import_invoice_date').value = data.supplier_invoice_date;
+                    sugerirGastos(expensesInput, data.suggested_expenses);
 
                     retaceoBody.innerHTML = '';
                     if (!data.details || data.details.length === 0) {
@@ -350,6 +351,16 @@
                     console.error(err);
                     retaceoBody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-rose-500">Error al cargar productos de la compra.</td></tr>';
                 });
+        }
+
+        // Gastos de la orden marcados como costo: se sugieren sin pisar lo que el usuario escribió
+        function sugerirGastos(input, sugerido) {
+            if (!input) return;
+            const actual = parseFloat(input.value) || 0;
+            if (actual === 0 || actual === parseFloat(input.dataset.sugerido)) {
+                input.value = sugerido || 0;
+                input.dataset.sugerido = sugerido || 0;
+            }
         }
 
         function vincularInputs() {

@@ -624,6 +624,14 @@
                     if (data.supplier_invoice_number) document.getElementById('modal_r_import_invoice_number').value = data.supplier_invoice_number;
                     if (data.supplier_invoice_date) document.getElementById('modal_r_import_invoice_date').value = data.supplier_invoice_date;
 
+                    // Gastos de la orden marcados como costo: se sugieren sin pisar lo que el usuario escribió
+                    const gastos = document.getElementById('modal_r_total_expenses');
+                    const actual = parseFloat(gastos.value) || 0;
+                    if (actual === 0 || actual === parseFloat(gastos.dataset.sugerido)) {
+                        gastos.value = data.suggested_expenses || 0;
+                        gastos.dataset.sugerido = data.suggested_expenses || 0;
+                    }
+
                     renderizarDetallesRetaceoModal(data.details);
                 })
                 .catch(err => {
