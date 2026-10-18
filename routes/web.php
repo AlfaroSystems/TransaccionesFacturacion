@@ -7,6 +7,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\SubCategoryController;
@@ -48,6 +49,9 @@ Route::middleware('auth')->group(function () {
         [LocationController::class, 'batchStore']
     )->name('locations.batch-store');
     Route::resource('locations', LocationController::class);
+    // Inventario: existencias por lote, bodega y ubicación, y su kardex
+    Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('inventory/movements', [InventoryController::class, 'movements'])->name('inventory.movements');
     Route::resource('products', ProductController::class);
     Route::delete(
         '/product-images/{image}',

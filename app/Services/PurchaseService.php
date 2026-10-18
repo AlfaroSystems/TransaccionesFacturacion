@@ -36,7 +36,10 @@ class PurchaseService
     /** Estados de orden en los que se puede registrar mercadería */
     public const RECEIVABLE_ORDER_STATUSES = ['issued', 'partial_received'];
 
-    public function __construct(private readonly ProductCostService $costos = new ProductCostService()) {}
+    public function __construct(
+        private readonly ProductCostService $costos = new ProductCostService(),
+        private readonly InventoryService $inventario = new InventoryService(),
+    ) {}
 
     /**
      * Calcula los totales consolidados (subtotal, descuento, impuestos, total) a partir de los detalles.
@@ -121,6 +124,9 @@ class PurchaseService
 
             // Una compra que nace completada fija el último costo de sus productos
             $this->costos->actualizarDesdeCompra($purchase);
+
+            // Recibida o completada: su mercadería entra al inventario
+            $this->inventario->sincronizarCompra($purchase);
 
             return $purchase;
         });
@@ -232,6 +238,9 @@ class PurchaseService
             if ($nuevoEstado === 'completed') {
                 $this->costos->actualizarDesdeCompra($purchase);
             }
+
+            // Al recibirla entra al inventario; al anularla, sale
+            $this->inventario->sincronizarCompra($purchase);
         });
     }
 
@@ -285,6 +294,8 @@ class PurchaseService
                 'tax_amount'               => $taxAmount,
                 'total'                    => $total,
                 'notes'                    => $item['notes'] ?? null,
+                // Ubicación de la bodega donde se guarda lo recibido (entra ahí al inventario)
+                'id_location'              => $item['id_location'] ?? null,
             ]);
         }
     }

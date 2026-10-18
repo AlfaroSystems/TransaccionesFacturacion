@@ -11,7 +11,10 @@ use InvalidArgumentException;
 
 class RetaceoService
 {
-    public function __construct(private readonly ProductCostService $costos = new ProductCostService()) {}
+    public function __construct(
+        private readonly ProductCostService $costos = new ProductCostService(),
+        private readonly InventoryService $inventario = new InventoryService(),
+    ) {}
 
     /**
      * Calcula el prorrateo de flete, gastos y aranceles (DAI) por línea de producto.
@@ -149,6 +152,7 @@ class RetaceoService
             // Un retaceo que nace aplicado fija el costo de los productos de su compra
             if ($retaceo->status === 'applied') {
                 $this->costos->actualizarDesdeCompra($purchase);
+                $this->inventario->sincronizarCompra($purchase);
             }
 
             return $retaceo;
@@ -230,9 +234,12 @@ class RetaceoService
         DB::transaction(function () use ($retaceo, $nuevoEstado) {
             $retaceo->update(['status' => $nuevoEstado]);
 
-            // Al aplicarlo, su costo puesto en bodega pasa a ser el costo de los productos
+            // Al aplicarlo, su costo puesto en bodega pasa a ser el costo de los productos y
+            // de los lotes que ya entraron al inventario
             if ($nuevoEstado === 'applied') {
-                $this->costos->actualizarDesdeCompra(Purchase::queryAllBranches()->findOrFail($retaceo->id_purchase));
+                $purchase = Purchase::queryAllBranches()->findOrFail($retaceo->id_purchase);
+                $this->costos->actualizarDesdeCompra($purchase);
+                $this->inventario->sincronizarCompra($purchase);
             }
         });
     }

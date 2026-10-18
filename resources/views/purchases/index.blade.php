@@ -390,6 +390,7 @@
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-2 text-center w-20">Pedida</th>
                                     <th class="py-2.5 px-2 text-center w-24">Recibida *</th>
+                                    <th class="py-2.5 px-2 w-32" title="Dónde se guarda en la bodega destino; ahí entra al inventario">Ubicación</th>
                                     <th class="py-2.5 px-2 w-24">Precio *</th>
                                     <th class="py-2.5 px-2 w-20">Desc. ($)</th>
                                     <th class="py-2.5 px-2 w-16">% IVA</th>
@@ -400,7 +401,7 @@
                             </thead>
                             <tbody id="modalItemsBody" class="divide-y divide-slate-100 dark:divide-slate-700/60">
                                 <tr>
-                                    <td colspan="9" class="py-8 text-center text-slate-400">
+                                    <td colspan="10" class="py-8 text-center text-slate-400">
                                         Seleccione una orden de compra en la parte superior para cargar los productos.
                                     </td>
                                 </tr>
@@ -472,7 +473,13 @@
     </div>
 </div>
 
+@include('purchases._locations')
 <script>
+    // Al cambiar la bodega destino, las líneas muestran sus ubicaciones
+    document.getElementById('modal_id_warehouse').addEventListener('change', function () {
+        refreshPurchaseLocations(document.getElementById('modalItemsBody'), this.value);
+    });
+
     // Referencias del modal de compra
     const purchaseModal            = document.getElementById('purchaseModal');
     const purchaseModalForm        = document.getElementById('purchaseModalForm');
@@ -514,7 +521,7 @@
         document.getElementById('modal_currency').value                = 'USD';
         document.getElementById('modal_notes').value                   = '';
 
-        modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Seleccione una orden de compra en la parte superior para cargar los productos.</td></tr>';
+        modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">Seleccione una orden de compra en la parte superior para cargar los productos.</td></tr>';
         recalcularTotalesModal();
 
         purchaseModal.classList.remove('hidden');
@@ -535,7 +542,7 @@
         modalOrderSelectContainer.classList.add('hidden');
         modalOrderInfoBox.classList.remove('hidden');
 
-        modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Cargando datos de la compra...</td></tr>';
+        modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">Cargando datos de la compra...</td></tr>';
         purchaseModal.classList.remove('hidden');
         purchaseModal.classList.add('flex');
 
@@ -563,7 +570,7 @@
             })
             .catch(err => {
                 console.error(err);
-                modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-rose-500">Error al cargar la compra. Intente nuevamente.</td></tr>';
+                modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-rose-500">Error al cargar la compra. Intente nuevamente.</td></tr>';
             });
     }
 
@@ -578,12 +585,12 @@
             const orderId = this.value;
             modalHiddenOrderId.value = orderId;
             if (!orderId) {
-                modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Seleccione una orden de compra para cargar productos.</td></tr>';
+                modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">Seleccione una orden de compra para cargar productos.</td></tr>';
                 recalcularTotalesModal();
                 return;
             }
 
-            modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Cargando productos de la orden...</td></tr>';
+            modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">Cargando productos de la orden...</td></tr>';
 
             fetch(`/purchases/order-data/${orderId}`)
                 .then(res => res.json())
@@ -597,7 +604,7 @@
                 })
                 .catch(err => {
                     console.error('Error al cargar datos de orden:', err);
-                    modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-rose-500">Error al cargar la orden de compra. Intente nuevamente.</td></tr>';
+                    modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-rose-500">Error al cargar la orden de compra. Intente nuevamente.</td></tr>';
                 });
         });
     }
@@ -605,7 +612,7 @@
     function renderizarDetallesModal(details, isEditing) {
         modalItemsBody.innerHTML = '';
         if (!details || details.length === 0) {
-            modalItemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">La orden no tiene productos registrados.</td></tr>';
+            modalItemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">La orden no tiene productos registrados.</td></tr>';
             recalcularTotalesModal();
             return;
         }
@@ -632,6 +639,9 @@
                 </td>
                 <td class="py-2.5 px-2">
                     <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity_received]" value="${qtyVal}" required class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 m-qty-input focus:ring-1 focus:ring-[#005e66]">
+                </td>
+                <td class="py-2.5 px-2">
+                    ${purchaseLocationSelect(idx, document.getElementById('modal_id_warehouse').value, d.id_product, isEditing ? d.id_location : null)}
                 </td>
                 <td class="py-2.5 px-2">
                     <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${d.unit_price}" required class="w-full px-2 py-1 text-right font-mono rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 m-price-input focus:ring-1 focus:ring-[#005e66]">

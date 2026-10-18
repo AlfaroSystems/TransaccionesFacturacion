@@ -131,8 +131,9 @@
                     $firstAllowedRoute = fn (array $modules) => collect($modules)
                         ->first(fn ($route, $permission) => auth()->user()->can($permission));
 
-                    $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
+                    $isInventario = request()->routeIs('inventory.*') || request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
                     $inventarioRoute = $firstAllowedRoute([
+                        'inventory.ver' => 'inventory.index',
                         'warehouses.ver' => 'warehouses.index',
                         'warehouse_categories.ver' => 'warehouse_categories.index',
                         'locations.ver' => 'locations.index',
@@ -263,7 +264,7 @@
     <main class="relative flex-1 p-6 md:p-8 overflow-y-auto bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300">
         @php
             $isAdministracion = request()->routeIs('users.*') || request()->routeIs('roles.*') || request()->routeIs('audit-logs.*');
-            $isInventario = request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
+            $isInventario = request()->routeIs('inventory.*') || request()->routeIs('warehouses.*') || request()->routeIs('warehouse_categories.*') || request()->routeIs('locations.*');
             $isEmpresa = request()->routeIs('branches.*') || request()->routeIs('empleados.*') || request()->routeIs('companies.*');
             $isProductos = request()->routeIs('products.*') || request()->routeIs('categories.*') || request()->routeIs('subcategories.*') || request()->routeIs('units.*');
             $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');
@@ -293,6 +294,10 @@
         @endif
         @if($isInventario)
             <div class="mb-6 flex flex-wrap items-center gap-3">
+                @can('inventory.ver')
+                    <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('inventory.index') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Existencias</span></a>
+                    <a href="{{ route('inventory.movements') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('inventory.movements') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Movimientos</span></a>
+                @endcan
                 @can('warehouses.ver')
                     <a href="{{ route('warehouses.index') }}" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('warehouses.*') ? 'bg-customTeal-800 dark:bg-sky-600 text-white shadow-sm' : 'bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"><span>Bodegas</span></a>
                 @endcan

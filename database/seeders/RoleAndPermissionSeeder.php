@@ -147,6 +147,13 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar ubicaciones físicas.',
                 'action' => 'destroy',
             ],
+            // Inventario
+            [
+                'id_permission' => 'inventory.ver',
+                'name' => 'Ver Existencias de Inventario',
+                'description' => 'Permite consultar las existencias por lote, bodega y ubicación, sus movimientos y el costo promedio.',
+                'action' => 'index',
+            ],
             // Empresas (crear, editar y desactivar: solo el admin, Gate 'admin')
             [
                 'id_permission' => 'companies.ver',

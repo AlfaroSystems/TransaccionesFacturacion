@@ -29,6 +29,7 @@ class PurchaseDetail extends Model
         'total',
         'notes',
         'unit_cost',
+        'id_location',
     ];
 
     protected $casts = [
@@ -70,6 +71,24 @@ class PurchaseDetail extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'id_unit');
+    }
+
+    /**
+     * Ubicación de la bodega donde se guarda lo recibido.
+     */
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'id_location', 'id_location')
+            ->withoutGlobalScope(\App\Models\Scopes\BranchScope::class);
+    }
+
+    /**
+     * Lotes con que entró al inventario (uno; el anulado queda como historial).
+     */
+    public function inventoryLots(): HasMany
+    {
+        return $this->hasMany(InventoryLot::class, 'id_purchase_detail', 'id_purchase_detail')
+            ->withoutGlobalScope(\App\Models\Scopes\BranchScope::class);
     }
 
     public function retaceoDetails(): HasMany

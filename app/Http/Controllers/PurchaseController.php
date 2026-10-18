@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\InventoryMovement;
+use App\Models\Location;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
@@ -26,9 +28,47 @@ class PurchaseController extends Controller
         'details.*.id_purchase_order_detail.required' => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.exists'   => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.distinct' => 'Un producto de la orden aparece en más de una línea.',
+        'details.*.id_location.exists'                => 'La ubicación de cada producto debe ser de la bodega destino de la compra.',
     ];
 
     public function __construct(private readonly PurchaseService $service) {}
+
+    /**
+     * Ubicaciones activas de las bodegas visibles, para elegir dónde se guarda cada línea, y
+     * la última ubicación donde entró cada producto en cada bodega, para prellenarla.
+     *
+     * @return array{purchaseLocations: \Illuminate\Support\Collection, purchaseLastLocations: \Illuminate\Support\Collection}
+     */
+    private function datosUbicaciones(): array
+    {
+        $locations = Location::where('is_active', true)
+            ->orderBy('code')
+            ->get(['id_location', 'id_warehouse', 'code']);
+
+        $ultimas = InventoryMovement::query()
+            ->selectRaw('DISTINCT ON (id_warehouse, id_product) id_warehouse, id_product, id_location')
+            ->where('movement_type', InventoryMovement::TYPE_PURCHASE_RECEIPT)
+            ->whereNotNull('id_location')
+            ->orderBy('id_warehouse')
+            ->orderBy('id_product')
+            ->orderByDesc('id_inventory_movement')
+            ->get();
+
+        return [
+            'purchaseLocations' => $locations->groupBy('id_warehouse')
+                ->map(fn ($grupo) => $grupo->map(fn ($l) => ['id' => $l->id_location, 'code' => $l->code])->values()),
+            'purchaseLastLocations' => $ultimas->groupBy('id_warehouse')
+                ->map(fn ($grupo) => $grupo->pluck('id_location', 'id_product')),
+        ];
+    }
+
+    /**
+     * Regla de la ubicación de cada línea: de la bodega destino de la compra.
+     */
+    private function ubicacionDeLaBodega(?int $warehouseId): array
+    {
+        return ['nullable', 'integer', Rule::exists('locations', 'id_location')->where('id_warehouse', $warehouseId ?? 0)];
+    }
 
     /**
      * El producto de cada línea debe ser el de su línea de orden.
@@ -96,17 +136,20 @@ class PurchaseController extends Controller
             ->orderByDesc('id_purchase_order')
             ->get();
 
-        return view('purchases.index', compact(
-            'purchases',
-            'totalCount',
-            'draftCount',
-            'completedCount',
-            'totalAmount',
-            'suppliers',
-            'branches',
-            'warehouses',
-            'orders'
-        ));
+        return view('purchases.index', [
+            ...compact(
+                'purchases',
+                'totalCount',
+                'draftCount',
+                'completedCount',
+                'totalAmount',
+                'suppliers',
+                'branches',
+                'warehouses',
+                'orders'
+            ),
+            ...$this->datosUbicaciones(),
+        ]);
     }
 
     public function create(Request $request)
@@ -131,15 +174,18 @@ class PurchaseController extends Controller
         $products   = Product::orderBy('name')->get();
         $units      = Unit::orderBy('name')->get();
 
-        return view('purchases.create', compact(
-            'orders',
-            'preselectedOrder',
-            'suppliers',
-            'branches',
-            'warehouses',
-            'products',
-            'units'
-        ));
+        return view('purchases.create', [
+            ...compact(
+                'orders',
+                'preselectedOrder',
+                'suppliers',
+                'branches',
+                'warehouses',
+                'products',
+                'units'
+            ),
+            ...$this->datosUbicaciones(),
+        ]);
     }
 
     public function getOrderData($id)
@@ -202,6 +248,9 @@ class PurchaseController extends Controller
         // La compra hereda la sucursal de su orden: la orden debe ser visible para el usuario,
         // y la bodega y las líneas deben pertenecer a esa orden y su sucursal
         $orderBranchId = fn () => PurchaseOrder::whereKey($request->integer('id_purchase_order'))->value('id_branch');
+        // Sin bodega elegida, la compra va a la bodega de su orden
+        $destino = $request->integer('id_warehouse')
+            ?: PurchaseOrder::whereKey($request->integer('id_purchase_order'))->value('id_warehouse');
 
         $validated = $request->validate([
             'id_purchase_order'          => ['required', new Accessible(PurchaseOrder::class)],
@@ -223,9 +272,14 @@ class PurchaseController extends Controller
             'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes'            => ['nullable', 'string'],
+            'details.*.id_location'      => $this->ubicacionDeLaBodega($destino),
         ], self::MENSAJES_LINEAS);
 
-        $purchase = $this->service->crear($validated);
+        try {
+            $purchase = $this->service->crear($validated);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('purchases.show', $purchase->id_purchase)
@@ -245,6 +299,8 @@ class PurchaseController extends Controller
             'details.product',
             'details.unit',
             'details.purchaseOrderDetail',
+            'details.location',
+            'details.inventoryLots',
         ]);
 
         return view('purchases.show', compact('purchase'));
@@ -309,6 +365,7 @@ class PurchaseController extends Controller
                 'discount'                 => (float) $d->discount,
                 'tax_rate'                 => (float) $d->tax_rate,
                 'notes'                    => $d->notes ?? '',
+                'id_location'              => $d->id_location,
             ]),
         ]);
     }
@@ -331,14 +388,17 @@ class PurchaseController extends Controller
         $products   = Product::orderBy('name')->get();
         $units      = Unit::orderBy('name')->get();
 
-        return view('purchases.create', compact(
-            'purchase',
-            'suppliers',
-            'branches',
-            'warehouses',
-            'products',
-            'units'
-        ));
+        return view('purchases.create', [
+            ...compact(
+                'purchase',
+                'suppliers',
+                'branches',
+                'warehouses',
+                'products',
+                'units'
+            ),
+            ...$this->datosUbicaciones(),
+        ]);
     }
 
     public function update(Request $request, Purchase $purchase)
@@ -370,6 +430,10 @@ class PurchaseController extends Controller
             'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes'            => ['nullable', 'string'],
+            'details.*.id_location'      => $this->ubicacionDeLaBodega(
+                $request->integer('id_warehouse') ?: ($purchase->id_warehouse
+                    ?? PurchaseOrder::queryAllBranches()->whereKey($purchase->id_purchase_order)->value('id_warehouse'))
+            ),
         ], self::MENSAJES_LINEAS);
 
         $this->service->actualizar($purchase, $validated);

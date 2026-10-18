@@ -25,11 +25,7 @@ class ProductCostService
     {
         $purchase->load('details');
 
-        $retaceo = Retaceo::queryAllBranches()
-            ->with('details')
-            ->where('id_purchase', $purchase->id_purchase)
-            ->where('status', 'applied')
-            ->first();
+        $retaceo = $this->retaceoAplicado($purchase);
 
         if (! $retaceo && $purchase->status !== 'completed') {
             return;
@@ -56,6 +52,30 @@ class ProductCostService
                     'id_last_cost_purchase_detail' => $detail->id_purchase_detail,
                 ]);
         }
+    }
+
+    /**
+     * Costo unitario de cada línea de la compra: el del retaceo aplicado o, si no tiene, el
+     * de la factura (aunque la compra solo esté recibida). Lo usa el inventario para el
+     * costo de los lotes.
+     *
+     * @return array<int, float> costo unitario por id_purchase_detail
+     */
+    public function costosDeCompra(Purchase $purchase): array
+    {
+        $purchase->loadMissing('details');
+        $retaceo = $this->retaceoAplicado($purchase);
+
+        return $retaceo ? $this->costosDelRetaceo($purchase, $retaceo) : $this->costosDeLaFactura($purchase);
+    }
+
+    private function retaceoAplicado(Purchase $purchase): ?Retaceo
+    {
+        return Retaceo::queryAllBranches()
+            ->with('details')
+            ->where('id_purchase', $purchase->id_purchase)
+            ->where('status', 'applied')
+            ->first();
     }
 
     /**

@@ -22,6 +22,7 @@ class PermissionGroups
         ['Configuración de Empresa y Sucursales', 'bg-indigo-500', ['companies.', 'branches.']],
         ['Gestión de Almacenes y Categorías', 'bg-teal-500', ['warehouses.', 'warehouse_categories.']],
         ['Ubicaciones y Mapa', 'bg-cyan-500', ['locations.']],
+        ['Inventario: Existencias y Movimientos', 'bg-green-600', ['inventory.']],
         ['Seguridad y Auditoría', 'bg-emerald-500', ['roles.', 'bitacora.']],
         ['Catálogo de Productos y Unidades', 'bg-rose-500', ['products.', 'categories.', 'subcategories.', 'units.']],
         ['Gestión de Proveedores', 'bg-purple-500', ['suppliers.']],
