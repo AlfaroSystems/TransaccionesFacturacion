@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 use App\Http\Requests\StorePurchaseQuotationRequest;
+use App\Http\Requests\UpdatePurchaseQuotationRequest;
+use App\Models\Branch;
+use App\Models\Company;
+use App\Models\Product;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestDetail;
+use App\Models\Unit;
+use App\Models\Warehouse;
+use App\Support\BranchAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use App\Models\ExpenseType;
@@ -28,6 +36,7 @@ class PurchaseQuotationRequestController extends Controller
         $search = $request->input('search');
 
         $query = PurchaseQuotationRequest::with([
+            'branch',
             'details.purchaseRequestDetail.purchaseRequest.branch',
             'details.quotationDetail.quotation.supplier',
         ]);
@@ -48,7 +57,41 @@ class PurchaseQuotationRequestController extends Controller
             'total' => PurchaseQuotationRequest::count(),
         ];
 
-        return view('purchase_quotation_requests.index', compact('quotationRequests', 'metrics', 'search'));
+        return view('purchase_quotation_requests.index', [
+            ...compact('quotationRequests', 'metrics', 'search'),
+            ...$this->productFormData(),
+        ]);
+    }
+
+    /**
+     * Productos, unidades y destinos para los formularios de productos sin solicitud de
+     * compra. El departamento de compras puede elegir cualquier sucursal de su empresa.
+     */
+    private function productFormData(): array
+    {
+        $isPurchasingDepartment = BranchAccess::isPurchasingDepartment();
+
+        $branches = ($isPurchasingDepartment
+                ? Branch::queryAllBranches()->where('id_company', BranchAccess::companyId())
+                : Branch::query())
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        $warehouses = ($isPurchasingDepartment ? Warehouse::queryAllBranches() : Warehouse::query())
+            ->whereIn('id_branch', $branches->pluck('id_branch'))
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return [
+            'products' => Product::where('is_active', true)->orderBy('name')->get(),
+            'units' => Unit::where('is_active', true)->orderBy('name')->get(),
+            'branches' => $branches,
+            'warehouses' => $warehouses,
+            // Destino por defecto: la sucursal del usuario (Casa Matriz para compras)
+            'ownBranchId' => BranchAccess::isUnrestricted() ? null : BranchAccess::branchId(),
+        ];
     }
 
     /**
@@ -96,16 +139,18 @@ class PurchaseQuotationRequestController extends Controller
     }
 
     /**
-     * Crea la solicitud de cotización con una o varias solicitudes de compra aprobadas,
-     * que se cotizan completas.
+     * Crea la solicitud de cotización en borrador con solicitudes de compra aprobadas (se
+     * cotizan completas) y/o productos sin solicitud de compra, que van al destino elegido.
      */
     public function store(StorePurchaseQuotationRequest $request)
     {
         Gate::authorize('purchase_quotation_requests.crear');
 
-        $purchaseRequestIds = $request->validated()['purchase_requests'];
+        $validated = $request->validated();
+        $purchaseRequestIds = $validated['purchase_requests'] ?? [];
+        $products = array_values($validated['products'] ?? []);
 
-        $created = DB::transaction(function () use ($purchaseRequestIds) {
+        $quotationRequest = DB::transaction(function () use ($validated, $purchaseRequestIds, $products) {
             // Se bloquean las solicitudes de compra para que dos usuarios no las coticen a la vez
             $purchaseRequests = PurchaseRequest::whereKey($purchaseRequestIds)
                 ->lockForUpdate()
@@ -116,28 +161,171 @@ class PurchaseQuotationRequestController extends Controller
                 && $purchaseRequests->every(fn ($pr) => $pr->status === PurchaseRequest::STATUS_APPROVED);
 
             if (! $allApproved) {
-                return false;
+                return null;
             }
 
-            PurchaseQuotationRequest::createFromPurchaseRequests($purchaseRequests);
+            $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests($purchaseRequests, $products, $products ? [
+                'id_branch' => $validated['id_branch'],
+                'id_warehouse' => $validated['id_warehouse'],
+            ] : []);
 
             // Quedan en cotización: ya no pueden devolverse, rechazarse ni cotizarse otra vez
             $purchaseRequests->each->update([
                 'status' => PurchaseRequest::STATUS_QUOTED,
             ]);
 
-            return true;
+            return $quotationRequest;
         });
 
-        if (! $created) {
+        if (! $quotationRequest) {
             return redirect()
                 ->route('purchase-quotation-requests.index')
                 ->with('error', 'Alguna de las solicitudes de compra ya no está disponible para cotizar.');
         }
 
         return redirect()
-            ->route('purchase-quotation-requests.index')
-            ->with('success', 'Se generó exitosamente la solicitud de cotización.');
+            ->route('purchase-quotation-requests.show', $quotationRequest->id_purchase_quotation_request)
+            ->with('success', 'Solicitud de cotización creada en borrador. Revise sus productos y genere el PDF para enviarlo a los proveedores.');
+    }
+
+    /**
+     * Cambia los productos de una solicitud en borrador: quita o cambia la cantidad total
+     * de los productos que vienen de solicitudes de compra, y reemplaza los productos sin
+     * solicitud de compra (con su destino) por los del formulario.
+     */
+    public function update(UpdatePurchaseQuotationRequest $request, PurchaseQuotationRequest $purchaseQuotationRequest)
+    {
+        Gate::authorize('purchase_quotation_requests.editar');
+
+        $validated = $request->validated();
+        $quantities = $validated['lines'] ?? [];
+        $products = array_values($validated['products'] ?? []);
+
+        $result = DB::transaction(function () use ($purchaseQuotationRequest, $validated, $quantities, $products) {
+            // Se bloquea la solicitud para que no reciba ofertas mientras cambian sus productos
+            $quotationRequest = PurchaseQuotationRequest::whereKey($purchaseQuotationRequest->getKey())
+                ->lockForUpdate()
+                ->with('details.purchaseRequestDetail')
+                ->firstOrFail();
+
+            if (! $quotationRequest->isDraft()) {
+                return 'Solo se pueden cambiar los productos de una solicitud en borrador; esta ya tiene ofertas de proveedores.';
+            }
+
+            [$fromRequests, $ownProducts] = $quotationRequest->details
+                ->sortBy('id_purchase_quotation_request_detail')
+                ->partition(fn ($detail) => $detail->id_purchase_request_detail !== null);
+
+            // Las líneas de solicitudes de compra se editan por producto y unidad, con su total
+            $byProduct = $fromRequests->groupBy(fn ($detail) => $detail->lineKey());
+
+            if ($byProduct->keys()->every(fn ($key) => ! isset($quantities[$key])) && $products === []) {
+                return 'La solicitud de cotización debe tener al menos un producto.';
+            }
+
+            foreach ($byProduct as $key => $lines) {
+                if (isset($quantities[$key])) {
+                    $this->distributeQuantity($lines, (float) $quantities[$key]['quantity']);
+                } else {
+                    $lines->each->delete();
+                }
+            }
+
+            $ownProducts->each->delete();
+            $quotationRequest->addProducts($products);
+            $quotationRequest->update([
+                'id_branch' => $products ? $validated['id_branch'] : null,
+                'id_warehouse' => $products ? $validated['id_warehouse'] : null,
+            ]);
+
+            // Las solicitudes de compra que se quitaron por completo vuelven a quedar
+            // aprobadas, para cotizarlas en otra solicitud
+            [$kept, $removed] = $fromRequests->partition(fn ($detail) => $detail->exists);
+            $removedRequests = $removed
+                ->pluck('purchaseRequestDetail.id_purchase_request')
+                ->unique()
+                ->diff($kept->pluck('purchaseRequestDetail.id_purchase_request'));
+
+            PurchaseRequest::queryAllBranches()
+                ->whereKey($removedRequests->values()->all())
+                ->where('status', PurchaseRequest::STATUS_QUOTED)
+                ->get()
+                ->each->update(['status' => PurchaseRequest::STATUS_APPROVED]);
+
+            return true;
+        });
+
+        if ($result !== true) {
+            return redirect()
+                ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+                ->with('error', $result);
+        }
+
+        return redirect()
+            ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+            ->with('success', 'Productos de la solicitud de cotización actualizados.');
+    }
+
+    /**
+     * Reparte la nueva cantidad total de un producto entre sus líneas de solicitudes de
+     * compra, en proporción a lo que tenía cada una (las órdenes se generan por sucursal y
+     * bodega de cada solicitud). La última recibe el resto del redondeo; una línea que queda
+     * en cero se quita.
+     */
+    private function distributeQuantity(Collection $lines, float $total): void
+    {
+        $current = $lines->sum(fn ($line) => (float) $line->quantity);
+
+        if (abs($total - $current) < 0.00005) {
+            return;
+        }
+
+        $remaining = $total;
+
+        foreach ($lines->values() as $i => $line) {
+            $quantity = $i === $lines->count() - 1
+                ? round($remaining, 4)
+                : round($total * (float) $line->quantity / $current, 4);
+            $remaining -= $quantity;
+
+            if ($quantity > 0) {
+                $line->update(['quantity' => $quantity]);
+            } else {
+                $line->delete();
+            }
+        }
+    }
+
+    /**
+     * Vista para imprimir o guardar como PDF que se envía a los proveedores para que coticen
+     * los productos elegidos, sin precios.
+     */
+    public function generatePdf(Request $request, PurchaseQuotationRequest $purchaseQuotationRequest)
+    {
+        Gate::authorize('purchase_quotation_requests.pdf');
+
+        $keys = array_map('strval', (array) $request->input('lines', []));
+
+        $quotationRequest = $purchaseQuotationRequest->load([
+            'details.product',
+            'details.unit',
+            'details.purchaseRequestDetail.purchaseRequest.branch',
+            'branch',
+        ]);
+
+        $lines = $quotationRequest->quotationLines()->whereIn('key', $keys)->values();
+
+        if ($lines->isEmpty()) {
+            return redirect()
+                ->route('purchase-quotation-requests.show', $purchaseQuotationRequest->id_purchase_quotation_request)
+                ->with('error', 'Elija al menos un producto para el PDF.');
+        }
+
+        // Empresa que solicita la cotización: la del destino o la de sus solicitudes de compra
+        $branch = $quotationRequest->branch ?? $quotationRequest->purchaseRequests->first()?->branch;
+        $company = $branch ? Company::queryAllBranches()->find($branch->id_company) : null;
+
+        return view('purchase_quotation_requests.pdf', compact('quotationRequest', 'lines', 'company'));
     }
 
     /**
@@ -148,8 +336,10 @@ class PurchaseQuotationRequestController extends Controller
         Gate::authorize('purchase_quotation_requests.ver');
 
         $quotationRequest = PurchaseQuotationRequest::with([
-            'details.purchaseRequestDetail.product',
-            'details.purchaseRequestDetail.unit',
+            'branch',
+            'warehouse',
+            'details.product',
+            'details.unit',
             'details.purchaseRequestDetail.purchaseRequest.branch',
             'details.purchaseRequestDetail.purchaseRequest.warehouse',
             'details.purchaseRequestDetail.purchaseRequest.user',
@@ -179,22 +369,30 @@ class PurchaseQuotationRequestController extends Controller
 
         $purchaseQuotationRequest = $quotationRequest;
 
-        return view('purchase_quotation_requests.show', compact(
-            'quotationRequest',
-            'purchaseQuotationRequest',
-            'lines',
-            'suppliers',
-            'expenseTypes',
-            'supplierQuotations',
-            'generatedOrders'
-        ));
+        // En borrador se pueden cambiar sus productos
+        $editable = $quotationRequest->isDraft() && Gate::allows('purchase_quotation_requests.editar');
+
+        return view('purchase_quotation_requests.show', [
+            ...compact(
+                'quotationRequest',
+                'purchaseQuotationRequest',
+                'lines',
+                'suppliers',
+                'expenseTypes',
+                'supplierQuotations',
+                'generatedOrders',
+                'editable'
+            ),
+            ...($editable ? $this->productFormData() : []),
+        ]);
     }
 
     /**
      * Adjudica cada producto a la oferta de un proveedor: todo a uno solo, o unos
      * productos a uno y otros a otro. Cada línea de la solicitud queda apuntando a la
      * línea ganadora; las ofertas con algún producto ganado quedan aprobadas (de cada una
-     * sale una orden de compra con lo adjudicado) y las demás, rechazadas.
+     * sale una orden de compra con lo adjudicado) y las demás, rechazadas. Los productos
+     * que ningún proveedor cotizó quedan sin adjudicar y no pasan a orden de compra.
      */
     public function award(Request $request, PurchaseQuotationRequest $purchaseQuotationRequest)
     {
@@ -207,8 +405,8 @@ class PurchaseQuotationRequestController extends Controller
             $quotationRequest = PurchaseQuotationRequest::whereKey($purchaseQuotationRequest->getKey())
                 ->lockForUpdate()
                 ->with([
-                    'details.purchaseRequestDetail.product',
-                    'details.purchaseRequestDetail.unit',
+                    'details.product',
+                    'details.unit',
                     'details.purchaseRequestDetail.purchaseRequest',
                 ])
                 ->firstOrFail();
@@ -223,27 +421,35 @@ class PurchaseQuotationRequestController extends Controller
                 ->get()
                 ->keyBy('id_purchase_quotation_detail');
 
-            // Cada producto debe adjudicarse a una línea de oferta del mismo producto y unidad
+            // Cada producto cotizado debe adjudicarse a una línea de oferta del mismo producto y unidad
             $selected = [];
             foreach ($quotationRequest->quotationLines() as $line) {
-                $offerDetail = $offerDetails->get((int) ($awards[$line->key] ?? 0));
-
-                $matches = $offerDetail
-                    && (int) $offerDetail->id_product === (int) $line->product?->id_product
+                $matchesLine = fn ($offerDetail) => (int) $offerDetail->id_product === (int) $line->product?->id_product
                     && ($offerDetail->id_unit === null || (int) $offerDetail->id_unit === (int) $line->unit?->id_unit);
 
-                if (! $matches) {
+                if (! $offerDetails->contains($matchesLine)) {
+                    continue;
+                }
+
+                $offerDetail = $offerDetails->get((int) ($awards[$line->key] ?? 0));
+
+                if (! $offerDetail || ! $matchesLine($offerDetail)) {
                     return 'Elija el proveedor que gana "' . ($line->product?->name ?? 'producto') . '".';
                 }
 
                 $selected[$line->key] = $offerDetail;
             }
 
+            if ($selected === []) {
+                return 'Ningún proveedor ha cotizado los productos de esta solicitud.';
+            }
+
             foreach ($quotationRequest->details as $detail) {
-                $key = $detail->purchaseRequestDetail->id_product . '-' . $detail->purchaseRequestDetail->id_unit;
-                $detail->update([
-                    'id_purchase_quotation_detail' => $selected[$key]->id_purchase_quotation_detail,
-                ]);
+                if (isset($selected[$detail->lineKey()])) {
+                    $detail->update([
+                        'id_purchase_quotation_detail' => $selected[$detail->lineKey()]->id_purchase_quotation_detail,
+                    ]);
+                }
             }
 
             // Ofertas con algún producto ganado: aprobadas; las demás, rechazadas (una por una,
@@ -305,6 +511,12 @@ class PurchaseQuotationRequestController extends Controller
 
             $orders = 0;
 
+            // Destino de cada línea: el de su solicitud de compra o, si no tiene, el que se
+            // eligió en la solicitud de cotización
+            $destination = fn ($line) => $line->purchaseRequestDetail
+                ? [$line->purchaseRequestDetail->purchaseRequest->id_branch, $line->purchaseRequestDetail->purchaseRequest->id_warehouse]
+                : [$quotationRequest->id_branch, $quotationRequest->id_warehouse];
+
             $byQuotation = $quotationRequest->details
                 ->filter(fn ($line) => $line->quotationDetail)
                 ->groupBy(fn ($line) => $line->quotationDetail->id_purchase_quotation);
@@ -312,12 +524,11 @@ class PurchaseQuotationRequestController extends Controller
             foreach ($byQuotation as $lines) {
                 $quotation = $lines->first()->quotationDetail->quotation;
 
-                // Una orden por sucursal y bodega de destino (las de la solicitud de compra)
+                // Una orden por sucursal y bodega de destino
                 $groups = $lines
-                    ->groupBy(fn ($line) => $line->purchaseRequestDetail->purchaseRequest->id_branch
-                        . '|' . $line->purchaseRequestDetail->purchaseRequest->id_warehouse)
+                    ->groupBy(fn ($line) => implode('|', $destination($line)))
                     ->values()
-                    ->map(function ($groupLines) {
+                    ->map(function ($groupLines) use ($destination) {
                         $products = $groupLines
                             ->groupBy('id_purchase_quotation_detail')
                             ->map(function ($sameLine) {
@@ -327,7 +538,7 @@ class PurchaseQuotationRequestController extends Controller
                                 return [
                                     'id_product' => $offerLine->id_product,
                                     'quantity'   => $quantity,
-                                    'id_unit'    => $offerLine->id_unit ?? $sameLine->first()->purchaseRequestDetail->id_unit,
+                                    'id_unit'    => $offerLine->id_unit ?? $sameLine->first()->id_unit,
                                     'unit_price' => (float) $offerLine->unit_price,
                                     // Descuento de la oferta, en proporción a la cantidad de esta orden
                                     'discount'   => (float) $offerLine->quantity > 0
@@ -339,10 +550,18 @@ class PurchaseQuotationRequestController extends Controller
                             ->values()
                             ->all();
 
+                        [$branchId, $warehouseId] = $destination($groupLines->first());
+
                         return [
                             'products' => $products,
                             'subtotal' => collect($products)->sum(fn ($p) => $p['quantity'] * $p['unit_price'] - $p['discount']),
-                            'requests' => $groupLines->map(fn ($line) => $line->purchaseRequestDetail->purchaseRequest)->unique('id_purchase_request')->values(),
+                            'id_branch' => $branchId,
+                            'id_warehouse' => $warehouseId,
+                            'requests' => $groupLines
+                                ->map(fn ($line) => $line->purchaseRequestDetail?->purchaseRequest)
+                                ->filter()
+                                ->unique('id_purchase_request')
+                                ->values(),
                         ];
                     });
 
@@ -368,13 +587,12 @@ class PurchaseQuotationRequestController extends Controller
                 }
 
                 foreach ($groups as $i => $group) {
-                    $destination = $group['requests']->first();
                     $codes = $group['requests']->pluck('purchase_request_code')->join(', ');
 
                     $service->crear([
                         'id_supplier'           => $quotation->id_supplier,
-                        'id_branch'             => $destination->id_branch,
-                        'id_warehouse'          => $destination->id_warehouse,
+                        'id_branch'             => $group['id_branch'],
+                        'id_warehouse'          => $group['id_warehouse'],
                         'id_purchase_quotation' => $quotation->id_purchase_quotation,
                         'order_date'            => now(),
                         'expected_date'         => $quotation->delivery_days
@@ -384,7 +602,7 @@ class PurchaseQuotationRequestController extends Controller
                         'payment_terms'         => $quotation->payment_terms ?: 'Según cotización',
                         'notes'                 => 'Generada de la solicitud de cotización #'
                             . str_pad($quotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT)
-                            . " para {$codes}.",
+                            . ($codes !== '' ? " para {$codes}" : '') . '.',
                         'products'              => $group['products'],
                         'expenses'              => $expensesByGroup[$i],
                     ]);

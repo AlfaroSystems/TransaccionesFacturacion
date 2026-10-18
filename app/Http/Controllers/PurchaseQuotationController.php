@@ -37,7 +37,8 @@ class PurchaseQuotationController extends Controller
             'items.*.id_product'            => 'required|exists:products,id_product',
             'items.*.quantity'             => 'required|numeric|min:0.0001',
             'items.*.id_unit'               => 'nullable|exists:units,id_unit',
-            'items.*.unit_price'            => 'required|numeric|min:0',
+            // Sin precio: el proveedor no cotizó ese producto
+            'items.*.unit_price'            => 'nullable|numeric|min:0',
             'items.*.discount'              => ['nullable', 'numeric', 'min:0', new DiscountWithinLine()],
             'items.*.tax_rate'              => 'nullable|numeric|min:0|max:100',
             'items.*.delivery_days'          => 'nullable|integer|min:0',
@@ -58,7 +59,19 @@ class PurchaseQuotationController extends Controller
                 ->with('error', 'No se pueden registrar nuevas ofertas porque esta solicitud de cotización ya fue adjudicada.');
         }
 
-        DB::transaction(function () use ($validated, $request) {
+        // La oferta lleva solo los productos que el proveedor cotizó
+        $validated['items'] = array_values(array_filter($validated['items'], fn ($item) => isset($item['unit_price'])));
+
+        if ($validated['items'] === []) {
+            return redirect()
+                ->back()
+                ->with('error', 'Indique el precio de al menos un producto que cotizó el proveedor.');
+        }
+
+        DB::transaction(function () use ($validated, $request, $quotationRequest) {
+            // Con ofertas registradas, sus productos ya no cambian
+            $quotationRequest->markAsSent();
+
             $headerSubtotal = 0;
             $headerDiscount = 0;
             $headerTax = 0;

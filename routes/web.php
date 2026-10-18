@@ -168,13 +168,19 @@ Route::middleware('auth')->group(function () {
         'purchase-quotation-requests/{purchaseQuotationRequest}/generate-orders',
         [PurchaseQuotationRequestController::class, 'generateOrders']
     )->name('purchase-quotation-requests.generate-orders');
+    // PDF para los proveedores con los productos elegidos
+    Route::post(
+        'purchase-quotation-requests/{purchaseQuotationRequest}/pdf',
+        [PurchaseQuotationRequestController::class, 'generatePdf']
+    )->name('purchase-quotation-requests.pdf');
     Route::resource(
         'purchase-quotation-requests',
         PurchaseQuotationRequestController::class
     )->only([
         'index',
         'store',
-        'show'
+        'show',
+        'update'
     ]);
 
     // Rutas para Ofertas de Proveedor (PurchaseQuotation)

@@ -12,7 +12,7 @@
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Cotizaciones</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Solicitudes de Cotización</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Gestione las solicitudes de cotización vinculadas a las solicitudes de compra que envían las sucursales.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Gestione las solicitudes de cotización de las solicitudes de compra que envían las sucursales y de los productos que necesita compras.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
             <button type="button" onclick="openQuotationRequestModal()" class="w-full md:w-auto bg-customTeal-800 hover:bg-navy-800 text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
@@ -56,6 +56,16 @@
         </form>
     </div>
 
+    @if(session('success'))
+        <div class="bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-5 py-4 rounded-2xl text-sm font-semibold">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-sm font-semibold">
+            {{ session('error') }}
+        </div>
+    @endif
     @if($errors->any())
         <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl text-sm font-semibold">
             @foreach($errors->all() as $error)
@@ -72,6 +82,7 @@
                     <tr>
                         <th class="py-4 px-6">ID</th>
                         <th class="py-4 px-6">Solicitudes de Compra</th>
+                        <th class="py-4 px-6">Estado</th>
                         <th class="py-4 px-6">Adjudicación</th>
                         <th class="py-4 px-6">Fecha Creación</th>
                         <th class="py-4 px-6 text-right">Acciones</th>
@@ -91,12 +102,19 @@
                                             {{ $originRequest->purchase_request_code }}
                                         </span>
                                     @empty
-                                        <span class="text-xs text-slate-400">N/A</span>
+                                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Sin solicitud de compra</span>
                                     @endforelse
                                 </div>
                                 <span class="text-xs text-slate-400 line-clamp-1 mt-1">
-                                    {{ $originRequests->map(fn ($pr) => $pr->branch?->name)->filter()->unique()->join(' · ') ?: 'Sin sucursal' }}
+                                    {{ $originRequests->map(fn ($pr) => $pr->branch?->name)->push($quotation->branch?->name)->filter()->unique()->join(' · ') ?: 'Sin sucursal' }}
                                 </span>
+                            </td>
+                            <td class="py-4 px-6">
+                                @if($quotation->isDraft())
+                                    <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">Borrador</span>
+                                @else
+                                    <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300">Enviada</span>
+                                @endif
                             </td>
                             <td class="py-4 px-6 font-mono text-xs font-bold text-slate-600 dark:text-slate-300">
                                 @php
@@ -123,14 +141,14 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-16 text-center">
+                            <td colspan="6" class="py-16 text-center">
                                 <div class="max-w-sm mx-auto space-y-3">
                                     <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-3xl">
                                         📋
                                     </div>
                                     <h3 class="font-extrabold text-slate-700 dark:text-slate-200 text-lg">No hay solicitudes de cotización registradas</h3>
                                     <p class="text-sm text-slate-400">
-                                        {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización para una solicitud de compra aprobada.' }}
+                                        {{ $search ? 'No se encontraron resultados para los filtros seleccionados.' : 'Comience registrando una solicitud de cotización con solicitudes de compra aprobadas o con los productos que necesita.' }}
                                     </p>
                                     <div class="pt-2">
                                         <button type="button" onclick="openQuotationRequestModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm shadow-md transition-all">
@@ -156,11 +174,11 @@
 
 {{-- MODAL CREAR SOLICITUD DE COTIZACIÓN --}}
 <div id="quotation-request-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div id="quotation-request-card" class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+    <div id="quotation-request-card" class="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Nueva Solicitud de Cotización</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Reúna una o varias solicitudes de compra aprobadas; se cotizan completas.</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Reúna solicitudes de compra aprobadas y/o agregue los productos que necesita. Sus productos se pueden cambiar hasta registrar la primera oferta.</p>
             </div>
             <button type="button" onclick="closeQuotationRequestModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -173,20 +191,20 @@
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Solicitudes de Compra Aprobadas <span class="text-rose-500">*</span>
+                            Solicitudes de Compra Aprobadas
                         </label>
                         <span id="modal-requests-counter" class="text-xs font-extrabold text-slate-400">0 seleccionadas</span>
                     </div>
                     <div id="modal-requests-list" class="border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-56 overflow-y-auto">
                         <p class="p-4 text-center text-xs text-slate-400">Cargando solicitudes aprobadas...</p>
                     </div>
-                    <p id="modal-requests-error" class="hidden text-xs font-semibold text-rose-500">Seleccione al menos una solicitud de compra.</p>
+                    <p id="modal-requests-error" class="hidden text-xs font-semibold text-rose-500">Seleccione al menos una solicitud de compra o agregue productos.</p>
                 </div>
 
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                            Productos a Cotizar
+                            Productos de las Solicitudes
                         </label>
                         <span id="modal-items-counter" class="text-xs font-extrabold text-slate-400">0 productos</span>
                     </div>
@@ -215,6 +233,12 @@
                         </table>
                     </div>
                 </div>
+
+                @include('purchase_quotation_requests._own_products', [
+                    'ownRows' => array_values(old('products', [])),
+                    'destinationBranch' => old('id_branch', $ownBranchId),
+                    'destinationWarehouse' => old('id_warehouse'),
+                ])
             </div>
 
             <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
@@ -428,13 +452,18 @@ async function refreshQuotationPreview() {
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('quotation-request-form');
     if (form) {
+        // Debe llevar al menos una solicitud de compra o un producto agregado
         form.addEventListener('submit', function(e) {
-            if (selectedRequestIds().length === 0) {
+            if (selectedRequestIds().length === 0 && ownProductRows().length === 0) {
                 e.preventDefault();
                 document.getElementById('modal-requests-error').classList.remove('hidden');
             }
         });
     }
+
+    @if($errors->any())
+        openQuotationRequestModal();
+    @endif
 });
 </script>
 @endsection

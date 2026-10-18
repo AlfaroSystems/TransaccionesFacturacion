@@ -19,11 +19,21 @@
             </div>
         </div>
     @endif
+    @if($errors->any())
+        <div class="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-xl text-sm font-bold shadow-xs space-y-1">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
 
     @php
         // Adjudicada: cada línea apunta a la línea ganadora de alguna oferta
         $awarded = $purchaseQuotationRequest->isAwarded();
         $awardedDetailIds = $purchaseQuotationRequest->details->pluck('id_purchase_quotation_detail')->filter()->unique();
+        // Productos (producto-unidad) que ganó algún proveedor
+        $awardedKeys = $purchaseQuotationRequest->details->whereNotNull('id_purchase_quotation_detail')->map->lineKey()->unique();
+        $isDraft = $purchaseQuotationRequest->isDraft();
     @endphp
 
     <!-- Encabezado con Botones de Acción -->
@@ -37,11 +47,29 @@
             <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">
                 Solicitud de Cotización #{{ str_pad($purchaseQuotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT) }}
             </h1>
-            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                Registrada el {{ $purchaseQuotationRequest->created_at->format('d/m/Y \a \l\a\s h:i A') }}
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 flex flex-wrap items-center gap-2">
+                @if($isDraft)
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold uppercase bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">Borrador</span>
+                @else
+                    <span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold uppercase bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800">Enviada</span>
+                @endif
+                <span>
+                    Registrada el {{ $purchaseQuotationRequest->created_at->format('d/m/Y \a \l\a\s h:i A') }}
+                    @if($purchaseQuotationRequest->sent_at)
+                        · Enviada el {{ $purchaseQuotationRequest->sent_at->format('d/m/Y \a \l\a\s h:i A') }}
+                    @endif
+                </span>
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            @can('purchase_quotation_requests.pdf')
+                @if($lines->isNotEmpty())
+                    <button type="button" onclick="openModal('pdf-modal')" class="flex-1 md:flex-none bg-white dark:bg-slate-800 border border-[#005e66] dark:border-teal-700 text-[#005e66] dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-700 font-bold px-5 py-2.5 rounded-full shadow-xs transition-all flex items-center justify-center gap-2 text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>Generar PDF</span>
+                    </button>
+                @endif
+            @endcan
             @if(! $awarded)
                 <button type="button" onclick="openProviderOfferModal()" class="flex-1 md:flex-none bg-customTeal-800 hover:bg-navy-800 text-white font-bold px-5 py-2.5 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -93,8 +121,17 @@
                         <p class="text-xs text-slate-600 dark:text-slate-300 mt-2">{{ $originRequest->justification ?? 'Sin justificación registrada.' }}</p>
                     </div>
                 @empty
-                    <p class="text-xs text-slate-400">No hay solicitudes de compra vinculadas.</p>
+                    <p class="text-xs text-slate-400">Sin solicitudes de compra: la solicitud reúne productos que agregó el departamento de compras.</p>
                 @endforelse
+                @if($purchaseQuotationRequest->id_branch)
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 text-xs">
+                        <span class="font-extrabold text-slate-700 dark:text-slate-200">Productos sin solicitud de compra</span>
+                        <span class="block mt-1 text-slate-500 dark:text-slate-400">
+                            <span class="font-bold uppercase text-slate-400">Destino:</span>
+                            {{ $purchaseQuotationRequest->branch?->name ?? 'N/A' }} / {{ $purchaseQuotationRequest->warehouse?->name ?? 'N/A' }}
+                        </span>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -167,14 +204,27 @@
 
     <!-- Tabla de Ítems Solicitados a Cotizar -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center gap-4">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-white">Productos a Cotizar</h2>
-                <p class="text-xs text-slate-400">Una línea por producto con la cantidad total de todas las solicitudes de compra.</p>
+                <p class="text-xs text-slate-400">
+                    Una línea por producto con la cantidad total de todas las solicitudes de compra.
+                    @if(! $isDraft && ! $awarded)
+                        Ya tiene ofertas de proveedores: sus productos no cambian.
+                    @endif
+                </p>
             </div>
-            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                {{ $lines->count() }} producto(s)
-            </span>
+            <div class="flex items-center gap-2">
+                @if($editable)
+                    <button type="button" onclick="openModal('edit-products-modal')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white transition-all shadow-xs flex items-center gap-1.5 whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <span>Editar Productos</span>
+                    </button>
+                @endif
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    {{ $lines->count() }} producto(s)
+                </span>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
@@ -194,6 +244,9 @@
                                 @if($line->product?->sku)
                                     <span class="text-xs font-mono text-slate-400">SKU: {{ $line->product->sku }}</span>
                                 @endif
+                                @if($awarded && ! $awardedKeys->contains($line->key))
+                                    <span class="block mt-1 text-[11px] font-bold text-slate-400">Sin adjudicar: ningún proveedor lo cotizó</span>
+                                @endif
                             </td>
                             <td class="py-4 px-6">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
@@ -208,8 +261,13 @@
                             <td class="py-4 px-6 text-xs text-slate-500 dark:text-slate-400">
                                 @foreach($line->sources as $source)
                                     <span class="block">
-                                        <span class="font-mono font-bold text-slate-700 dark:text-slate-300">{{ $source->purchaseRequest?->purchase_request_code }}</span>
-                                        ({{ $source->purchaseRequest?->branch?->name ?? 'Sin sucursal' }}): {{ number_format($source->quantity, 2) }}
+                                        @if($source->purchaseRequest)
+                                            <span class="font-mono font-bold text-slate-700 dark:text-slate-300">{{ $source->purchaseRequest->purchase_request_code }}</span>
+                                            ({{ $source->purchaseRequest->branch?->name ?? 'Sin sucursal' }}): {{ number_format($source->quantity, 2) }}
+                                        @else
+                                            <span class="font-bold text-slate-700 dark:text-slate-300">Sin solicitud de compra</span>
+                                            ({{ $purchaseQuotationRequest->branch?->name ?? 'Sin sucursal' }}): {{ number_format($source->quantity, 2) }}
+                                        @endif
                                     </span>
                                 @endforeach
                             </td>
@@ -345,7 +403,7 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6 space-y-4">
             <div>
                 <h3 class="text-base font-extrabold text-slate-800 dark:text-white">Adjudicación por Producto</h3>
-                <p class="text-xs text-slate-400">Elija qué proveedor gana cada producto: todo a uno solo o repartido entre varios. El menor total de cada producto está resaltado.</p>
+                <p class="text-xs text-slate-400">Elija qué proveedor gana cada producto: todo a uno solo o repartido entre varios. El menor total de cada producto está resaltado. Los productos que ningún proveedor cotizó quedan sin adjudicar.</p>
             </div>
             <form id="award-form" method="POST" action="{{ route('purchase-quotation-requests.award', $purchaseQuotationRequest->id_purchase_quotation_request) }}">
                 @csrf
@@ -378,6 +436,9 @@
                                     <td class="py-3 px-4">
                                         <span class="font-bold text-slate-800 dark:text-white block">{{ $line->product?->name ?? 'Producto' }}</span>
                                         <span class="text-slate-400">{{ $line->unit?->name }}</span>
+                                        @if($lineOffers->filter()->isEmpty())
+                                            <span class="block mt-1 font-bold text-amber-600 dark:text-amber-400">Nadie lo cotizó: queda sin adjudicar</span>
+                                        @endif
                                     </td>
                                     <td class="py-3 px-4 text-center font-mono font-bold">{{ number_format($line->quantity, 2) }}</td>
                                     @foreach($supplierQuotations as $quotation)
@@ -430,6 +491,149 @@
     @endif
 </div>
 
+@can('purchase_quotation_requests.pdf')
+{{-- MODAL GENERAR PDF PARA PROVEEDORES --}}
+<div id="pdf-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
+    <div class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+            <div>
+                <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Generar PDF para Proveedores</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Elija los productos que llevará el PDF. Sale sin precios, para que el proveedor los cotice.</p>
+            </div>
+            <button type="button" onclick="closeModal('pdf-modal')" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <form id="pdf-form" method="POST" action="{{ route('purchase-quotation-requests.pdf', $purchaseQuotationRequest->id_purchase_quotation_request) }}" target="_blank" class="flex flex-col flex-1 overflow-hidden">
+            @csrf
+            <div class="p-6 space-y-3 overflow-y-auto flex-1">
+                <div class="flex items-center justify-between">
+                    <label class="inline-flex items-center gap-2 text-xs font-extrabold text-slate-600 dark:text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="pdf-select-all" checked onchange="toggleAllPdfLines(this.checked)" class="rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                        Todos los productos
+                    </label>
+                    <span id="pdf-counter" class="text-xs font-extrabold text-slate-400">{{ $lines->count() }} de {{ $lines->count() }} productos</span>
+                </div>
+                <div class="border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-80 overflow-y-auto">
+                    @foreach($lines as $line)
+                        <label class="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
+                            <input type="checkbox" name="lines[]" value="{{ $line->key }}" checked onchange="updatePdfCounter()" class="pdf-line rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                            <span class="flex-1 min-w-0">
+                                <span class="block text-sm font-bold text-slate-800 dark:text-white">{{ $line->product?->name ?? 'Producto' }}</span>
+                                @if($line->product?->sku)
+                                    <span class="block text-xs font-mono text-slate-400">SKU: {{ $line->product->sku }}</span>
+                                @endif
+                            </span>
+                            <span class="font-mono text-xs font-extrabold text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                                {{ number_format($line->quantity, 2) }} {{ $line->unit?->abbreviation ?: $line->unit?->name }}
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+                <p id="pdf-error" class="hidden text-xs font-semibold text-rose-500">Elija al menos un producto.</p>
+            </div>
+
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+                <button type="button" onclick="closeModal('pdf-modal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Generar PDF</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endcan
+
+@if($editable)
+@php
+    [$requestLines, $ownDetails] = $purchaseQuotationRequest->details
+        ->sortBy('id_purchase_quotation_request_detail')
+        ->partition(fn ($detail) => $detail->id_purchase_request_detail !== null);
+    // Los productos de solicitudes de compra se editan por producto y unidad, con su total
+    $requestProducts = $requestLines->groupBy(fn ($detail) => $detail->lineKey());
+@endphp
+{{-- MODAL EDITAR PRODUCTOS (SOLO EN BORRADOR) --}}
+<div id="edit-products-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
+    <div class="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+            <div>
+                <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Editar Productos</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cambie cantidades, quite productos o agregue otros mientras la solicitud está en borrador.</p>
+            </div>
+            <button type="button" onclick="closeModal('edit-products-modal')" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <form id="edit-products-form" method="POST" action="{{ route('purchase-quotation-requests.update', $purchaseQuotationRequest->id_purchase_quotation_request) }}" class="flex flex-col flex-1 overflow-hidden">
+            @csrf
+            @method('PUT')
+            <div class="p-6 space-y-5 overflow-y-auto flex-1">
+                @if($requestProducts->isNotEmpty())
+                    <div class="space-y-2">
+                        <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">De Solicitudes de Compra</label>
+                        <p class="text-xs text-slate-400">Si un producto viene de varias solicitudes de compra, la cantidad nueva se reparte en proporción a lo que pidió cada una. Una solicitud de compra que se queda sin productos vuelve a quedar aprobada para cotizarla en otra solicitud.</p>
+                        <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[420px]">
+                                <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Producto</th>
+                                        <th class="py-2.5 px-3 w-32">Cantidad Total</th>
+                                        <th class="py-2.5 px-3 w-28">Unidad</th>
+                                        <th class="py-2.5 px-3 w-12"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="request-lines-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
+                                    @foreach($requestProducts as $key => $productLines)
+                                        @php $detail = $productLines->first(); @endphp
+                                        <tr class="request-line-row">
+                                            <td class="p-2 font-bold text-slate-800 dark:text-white">{{ $detail->product?->name ?? 'Producto' }}</td>
+                                            <td class="p-2">
+                                                <input type="number" name="lines[{{ $key }}][quantity]" value="{{ $productLines->sum(fn ($line) => (float) $line->quantity) }}" step="0.0001" min="0.0001" required class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-xs font-bold text-slate-800 dark:text-white">
+                                            </td>
+                                            <td class="p-2">{{ $detail->unit?->abbreviation ?: $detail->unit?->name }}</td>
+                                            <td class="p-2 text-center">
+                                                <button type="button" onclick="removeRequestLine(this)" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors" title="Quitar producto">✕</button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            <p id="request-lines-empty" class="hidden p-4 text-center text-xs text-slate-400">Se quitaron todos los productos de solicitudes de compra.</p>
+                        </div>
+                    </div>
+                @endif
+
+                @include('purchase_quotation_requests._own_products', [
+                    'ownRows' => array_values(old('products', $ownDetails->map(fn ($detail) => [
+                        'id_product' => $detail->id_product,
+                        'id_unit' => $detail->id_unit,
+                        'quantity' => (float) $detail->quantity,
+                    ])->values()->all())),
+                    'destinationBranch' => old('id_branch', $purchaseQuotationRequest->id_branch ?? $ownBranchId),
+                    'destinationWarehouse' => old('id_warehouse', $purchaseQuotationRequest->id_warehouse),
+                ])
+
+                <p id="edit-products-error" class="hidden text-xs font-semibold text-rose-500">La solicitud debe tener al menos un producto.</p>
+            </div>
+
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+                <button type="button" onclick="closeModal('edit-products-modal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-xs font-bold transition-all shadow-xs">
+                    Guardar Productos
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 {{-- MODAL PARA REGISTRAR OFERTA DE PROVEEDOR --}}
 <div id="provider-offer-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
     <div id="provider-offer-card" class="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
@@ -443,7 +647,7 @@
             </button>
         </div>
 
-        <form method="POST" action="{{ route('purchase-quotations.store') }}" class="flex flex-col flex-1 overflow-hidden">
+        <form id="provider-offer-form" method="POST" action="{{ route('purchase-quotations.store') }}" class="flex flex-col flex-1 overflow-hidden">
             @csrf
             <input type="hidden" name="id_purchase_quotation_request" value="{{ $purchaseQuotationRequest->id_purchase_quotation_request }}">
 
@@ -494,13 +698,15 @@
                 <!-- Sección 2: Precios y Detalles por Producto -->
                 <div class="space-y-2 pt-2">
                     <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Detalle de Ítems Cotizados</label>
+                    <p class="text-xs text-slate-400">Deje el precio en blanco en los productos que el proveedor no cotizó.</p>
+                    <p id="offer-prices-error" class="hidden text-xs font-semibold text-rose-500">Indique el precio de al menos un producto.</p>
                     <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[700px]">
                             <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
                                 <tr>
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-3 text-center">Cant. Solicitada</th>
-                                    <th class="py-2.5 px-3 text-center">Precio Unit. ($) <span class="text-rose-500">*</span></th>
+                                    <th class="py-2.5 px-3 text-center">Precio Unit. ($)</th>
                                     <th class="py-2.5 px-3 text-center">Descuento ($)</th>
                                     <th class="py-2.5 px-3 text-center">Impuesto (%)</th>
                                     <th class="py-2.5 px-3 text-center">Días Entrega</th>
@@ -523,7 +729,7 @@
                                             {{ number_format($line->quantity, 2) }}
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <input type="number" step="0.0001" min="0" name="items[{{ $index }}][unit_price]" required placeholder="0.00" class="w-28 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+                                            <input type="number" step="0.0001" min="0" name="items[{{ $index }}][unit_price]" placeholder="No cotizó" class="offer-price w-28 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
                                             <input type="number" step="0.01" min="0" name="items[{{ $index }}][discount]" value="0.00" class="w-24 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
@@ -694,5 +900,51 @@ function confirmAward() {
 }
 
 document.querySelectorAll('.award-option').forEach(option => option.addEventListener('change', updateAwardTotal));
+
+// La oferta debe traer el precio de al menos un producto (los demás no los cotizó)
+document.getElementById('provider-offer-form')?.addEventListener('submit', function (e) {
+    const priced = Array.from(this.querySelectorAll('.offer-price')).some(input => input.value !== '');
+    document.getElementById('offer-prices-error').classList.toggle('hidden', priced);
+    if (!priced) e.preventDefault();
+});
+
+// PDF: productos elegidos
+function pdfLines() {
+    return document.querySelectorAll('#pdf-form .pdf-line');
+}
+
+function updatePdfCounter() {
+    const checked = Array.from(pdfLines()).filter(input => input.checked).length;
+    document.getElementById('pdf-counter').textContent = checked + ' de ' + pdfLines().length + ' productos';
+    document.getElementById('pdf-select-all').checked = checked === pdfLines().length;
+    if (checked > 0) document.getElementById('pdf-error').classList.add('hidden');
+}
+
+function toggleAllPdfLines(checked) {
+    pdfLines().forEach(input => { input.checked = checked; });
+    updatePdfCounter();
+}
+
+document.getElementById('pdf-form')?.addEventListener('submit', function (e) {
+    if (!Array.from(pdfLines()).some(input => input.checked)) {
+        e.preventDefault();
+        document.getElementById('pdf-error').classList.remove('hidden');
+        return;
+    }
+    closeModal('pdf-modal');
+});
+
+// Edición: debe quedar al menos un producto
+function removeRequestLine(button) {
+    button.closest('.request-line-row').remove();
+    const empty = document.querySelectorAll('#request-lines-tbody .request-line-row').length === 0;
+    document.getElementById('request-lines-empty').classList.toggle('hidden', !empty);
+}
+
+document.getElementById('edit-products-form')?.addEventListener('submit', function (e) {
+    const total = this.querySelectorAll('.request-line-row').length + ownProductRows().length;
+    document.getElementById('edit-products-error').classList.toggle('hidden', total > 0);
+    if (total === 0) e.preventDefault();
+});
 </script>
 @endsection

@@ -63,15 +63,18 @@ test('solicitud de cotizacion se puede crear y relacionar correctamente', functi
         'purchase_requests' => [$purchaseRequest->id_purchase_request],
     ]);
 
-    $response->assertRedirect(route('purchase-quotation-requests.index'));
+    // 5. Se creó en borrador con la línea completa de la solicitud de compra y se abre su detalle
+    $quotation = PurchaseQuotationRequest::sole();
+    $response->assertRedirect(route('purchase-quotation-requests.show', $quotation->id_purchase_quotation_request));
     $response->assertSessionHas('success');
 
-    // 5. Se creó la solicitud de cotización con la línea completa de la solicitud de compra
-    $quotation = PurchaseQuotationRequest::sole();
-    expect($quotation->id_purchase_quotation)->toBeNull();
+    expect($quotation->id_purchase_quotation)->toBeNull()
+        ->and($quotation->status)->toBe('draft');
     $this->assertDatabaseHas('purchase_quotation_request_details', [
         'id_purchase_quotation_request' => $quotation->id_purchase_quotation_request,
         'id_purchase_request_detail' => $detail->id_purchase_request_detail,
+        'id_product' => $product->id_product,
+        'id_unit' => $unit->id_unit,
         'id_purchase_quotation_detail' => null,
         'quantity' => 5.0000,
     ]);

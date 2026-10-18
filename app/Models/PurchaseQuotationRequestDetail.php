@@ -19,12 +19,38 @@ class PurchaseQuotationRequestDetail extends Model
         'id_purchase_quotation_request',
         'id_purchase_quotation_detail',
         'id_purchase_request_detail',
+        'id_product',
+        'id_unit',
         'quantity',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:4',
     ];
+
+    /**
+     * Clave de la línea que se cotiza: las líneas del mismo producto y unidad se cotizan juntas.
+     */
+    public function lineKey(): string
+    {
+        return $this->id_product.'-'.$this->id_unit;
+    }
+
+    /**
+     * Producto que se cotiza.
+     */
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'id_product', 'id_product');
+    }
+
+    /**
+     * Unidad en que se cotiza.
+     */
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class, 'id_unit', 'id_unit');
+    }
 
     /**
      * Solicitud de cotización a la que pertenece la línea.
@@ -51,7 +77,8 @@ class PurchaseQuotationRequestDetail extends Model
     }
 
     /**
-     * Detalle de la solicitud de compra asociada.
+     * Detalle de la solicitud de compra asociada (null en los productos que el
+     * departamento de compras agrega sin solicitud de compra).
      */
     public function purchaseRequestDetail(): BelongsTo
     {

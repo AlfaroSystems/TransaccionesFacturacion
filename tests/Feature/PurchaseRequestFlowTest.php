@@ -404,7 +404,7 @@ test('una solicitud de cotización reúne varias solicitudes de compra y suma lo
     $quotationRequest = PurchaseQuotationRequest::queryAllBranches()->sole();
     expect($quotationRequest->details()->count())->toBe(3);
 
-    $quotationRequest->load('details.purchaseRequestDetail.purchaseRequest', 'details.purchaseRequestDetail.product', 'details.purchaseRequestDetail.unit');
+    $quotationRequest->load('details.purchaseRequestDetail.purchaseRequest', 'details.product', 'details.unit');
     expect($quotationRequest->purchaseRequests->pluck('id_purchase_request')->sort()->values()->all())
         ->toBe(collect([$deA->id_purchase_request, $deB->id_purchase_request])->sort()->values()->all());
 
@@ -618,4 +618,240 @@ test('las órdenes se generan por proveedor y por sucursal que pidió, con su pa
     ])->assertSessionHasNoErrors();
     expect($dosB->fresh()->id_purchase_quotation)->toBe($c->ofertaDos->id_purchase_quotation)
         ->and($dosB->fresh()->payment_terms)->toBe('Contado');
+});
+
+// =============================================================================
+// Solicitud de cotización en borrador: compras arma sus productos (con o sin solicitud
+// de compra), genera el PDF para los proveedores y desde entonces ya no cambian.
+// =============================================================================
+
+const PERMISOS_COMPRAS_COTIZACION = [
+    'purchase_quotation_requests.ver', 'purchase_quotation_requests.crear', 'purchase_quotation_requests.editar',
+    'purchase_quotation_requests.pdf', 'purchase_quotation_requests.seleccionar_cotizacion',
+    'purchase_quotations.crear', 'purchase_orders.crear',
+];
+
+function flujoProducto(string $name): Product
+{
+    return Product::create(['name' => $name.' '.Str::random(4), 'sku' => 'SKU-'.Str::random(6)]);
+}
+
+/** Registra la oferta de un proveedor por el formulario, con precio solo en los productos indicados */
+function flujoRegistrarOferta(PurchaseQuotationRequest $quotationRequest, array $prices): \Illuminate\Testing\TestResponse
+{
+    $supplier = \App\Models\Supplier::create(['name' => 'Proveedor '.Str::random(4), 'email' => Str::random(8).'@example.com', 'country' => 'El Salvador', 'is_active' => true]);
+
+    $items = [];
+    foreach ($quotationRequest->details()->get()->groupBy->lineKey() as $group) {
+        $items[] = [
+            'id_product' => $group->first()->id_product,
+            'id_unit' => $group->first()->id_unit,
+            'quantity' => $group->sum('quantity'),
+            'unit_price' => $prices[$group->first()->id_product] ?? null,
+            'discount' => 0,
+            'tax_rate' => 13,
+        ];
+    }
+
+    return test()->post(route('purchase-quotations.store'), [
+        'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
+        'id_supplier' => $supplier->id_supplier,
+        'quotation_date' => now()->format('Y-m-d'),
+        'currency' => 'USD',
+        'items' => $items,
+    ]);
+}
+
+test('compras cotiza productos sin solicitud de compra y sus órdenes van al destino elegido', function () {
+    $e = flujoEscenario();
+    $compras = flujoUsuario($e->matriz, PERMISOS_COMPRAS_COTIZACION);
+    $this->actingAs($compras);
+
+    // Sin solicitudes ni productos no se crea; con productos, el destino es obligatorio
+    $this->post(route('purchase-quotation-requests.store'), [])->assertSessionHasErrors('purchase_requests');
+    $this->post(route('purchase-quotation-requests.store'), [
+        'products' => [['id_product' => $e->product->id_product, 'id_unit' => $e->unit->id_unit, 'quantity' => 6]],
+    ])->assertSessionHasErrors(['id_branch', 'id_warehouse']);
+
+    // El destino debe ser de su empresa
+    $this->post(route('purchase-quotation-requests.store'), [
+        'products' => [['id_product' => $e->product->id_product, 'id_unit' => $e->unit->id_unit, 'quantity' => 6]],
+        'id_branch' => $e->otraEmpresa->id_branch, 'id_warehouse' => $e->bodegaOtraEmpresa->id_warehouse,
+    ])->assertSessionHasErrors('id_branch');
+    expect(PurchaseQuotationRequest::queryAllBranches()->count())->toBe(0);
+
+    $this->post(route('purchase-quotation-requests.store'), [
+        'products' => [['id_product' => $e->product->id_product, 'id_unit' => $e->unit->id_unit, 'quantity' => 6]],
+        'id_branch' => $e->matriz->id_branch, 'id_warehouse' => $e->bodegaMatriz->id_warehouse,
+    ])->assertSessionHasNoErrors()->assertSessionHas('success');
+
+    $quotationRequest = PurchaseQuotationRequest::queryAllBranches()->sole();
+    expect($quotationRequest->status)->toBe('draft')
+        ->and($quotationRequest->id_branch)->toBe($e->matriz->id_branch)
+        ->and($quotationRequest->details()->sole()->id_purchase_request_detail)->toBeNull();
+
+    $this->get(route('purchase-quotation-requests.show', $quotationRequest->id_purchase_quotation_request))
+        ->assertOk()->assertSee('Sin solicitud de compra')->assertSee('Borrador')->assertSee('Editar Productos');
+
+    // Una sucursal no la ve: no pidió nada y no es su destino
+    $sucursal = flujoUsuario($e->sucursalA, ['purchase_quotation_requests.ver']);
+    $this->actingAs($sucursal)->get(route('purchase-quotation-requests.show', $quotationRequest->id_purchase_quotation_request))->assertNotFound();
+
+    // Oferta, adjudicación y orden de compra a Casa Matriz
+    $this->actingAs($compras);
+    flujoRegistrarOferta($quotationRequest, [$e->product->id_product => 9])->assertSessionHas('success');
+    $oferta = \App\Models\PurchaseQuotation::queryAllBranches()->with('details')->sole();
+
+    $this->post(route('purchase-quotation-requests.award', $quotationRequest->id_purchase_quotation_request), [
+        'awards' => [$e->product->id_product.'-'.$e->unit->id_unit => $oferta->details->first()->id_purchase_quotation_detail],
+    ])->assertSessionHas('success');
+    $this->post(route('purchase-quotation-requests.generate-orders', $quotationRequest->id_purchase_quotation_request))
+        ->assertSessionHas('success');
+
+    $orden = \App\Models\PurchaseOrder::queryAllBranches()->with('details')->sole();
+    expect($orden->id_branch)->toBe($e->matriz->id_branch)
+        ->and($orden->id_warehouse)->toBe($e->bodegaMatriz->id_warehouse)
+        ->and((float) $orden->details->sole()->quantity)->toBe(6.0)
+        ->and($orden->notes)->toBe('Generada de la solicitud de cotización #'.str_pad($quotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT).'.');
+});
+
+test('en borrador se cambia la cantidad total de cada producto y se quitan o agregan productos', function () {
+    $e = flujoEscenario();
+    $compras = flujoUsuario($e->matriz, PERMISOS_COMPRAS_COTIZACION);
+    // A pide 2 del producto; B, 2 del producto y 3 monitores
+    $deA = flujoSolicitud($e, $e->sucursalA, $e->bodegaA, $e->usuarioA, 'approved');
+    $deB = flujoSolicitud($e, $e->sucursalB, $e->bodegaB, $e->usuarioB, 'approved');
+    $monitor = flujoProducto('Monitor');
+    $deB->details()->create(['id_product' => $monitor->id_product, 'quantity' => 3, 'id_unit' => $e->unit->id_unit]);
+    $extra = flujoProducto('Teclado');
+
+    $this->actingAs($compras)->post(route('purchase-quotation-requests.store'), [
+        'purchase_requests' => [$deA->id_purchase_request, $deB->id_purchase_request],
+    ])->assertSessionHasNoErrors();
+
+    $quotationRequest = PurchaseQuotationRequest::queryAllBranches()->sole();
+    $claveProducto = $e->product->id_product.'-'.$e->unit->id_unit;
+    $actualizar = fn (array $data) => $this->put(route('purchase-quotation-requests.update', $quotationRequest->id_purchase_quotation_request), $data);
+    $cantidadDe = fn (PurchaseRequest $request) => (float) $quotationRequest->details()
+        ->where('id_product', $e->product->id_product)
+        ->whereHas('purchaseRequestDetail', fn ($q) => $q->where('id_purchase_request', $request->id_purchase_request))
+        ->value('quantity');
+    $propio = ['id_product' => $extra->id_product, 'id_unit' => $e->unit->id_unit, 'quantity' => 4];
+    $destino = ['id_branch' => $e->matriz->id_branch, 'id_warehouse' => $e->bodegaMatriz->id_warehouse];
+
+    // Debe quedar al menos un producto
+    $actualizar([])->assertSessionHas('error', 'La solicitud de cotización debe tener al menos un producto.');
+
+    // Sin permiso de editar no se cambia
+    $this->actingAs(flujoUsuario($e->matriz, ['purchase_quotation_requests.ver']));
+    $actualizar(['lines' => [$claveProducto => ['quantity' => 1]]])->assertForbidden();
+
+    // El producto pasa de 4 (2 + 2) a 10: se reparte 5 y 5. Se quita el monitor y se
+    // agrega un teclado para Casa Matriz
+    $this->actingAs($compras);
+    $actualizar([
+        'lines' => [$claveProducto => ['quantity' => 10]],
+        'products' => [$propio],
+        ...$destino,
+    ])->assertSessionHasNoErrors()->assertSessionHas('success');
+
+    expect($cantidadDe($deA))->toBe(5.0)
+        ->and($cantidadDe($deB))->toBe(5.0)
+        ->and($quotationRequest->details()->where('id_product', $monitor->id_product)->exists())->toBeFalse()
+        ->and($quotationRequest->details()->where('id_product', $extra->id_product)->value('id_purchase_request_detail'))->toBeNull()
+        ->and($quotationRequest->fresh()->id_warehouse)->toBe($e->bodegaMatriz->id_warehouse)
+        ->and($deA->fresh()->status)->toBe('quoted')
+        ->and($deB->fresh()->status)->toBe('quoted');
+
+    // Un total que no se reparte exacto: la última solicitud recibe el resto
+    $actualizar(['lines' => [$claveProducto => ['quantity' => 7.0003]], 'products' => [$propio], ...$destino])->assertSessionHas('success');
+    expect($cantidadDe($deA))->not->toBe($cantidadDe($deB))
+        ->and(round($cantidadDe($deA) + $cantidadDe($deB), 4))->toBe(7.0003);
+
+    // Se quita el producto: A y B se quedan sin productos y vuelven a quedar aprobadas
+    $actualizar(['products' => [$propio], ...$destino])->assertSessionHas('success');
+    expect($quotationRequest->details()->count())->toBe(1)
+        ->and($deA->fresh()->status)->toBe('approved')
+        ->and($deB->fresh()->status)->toBe('approved');
+});
+
+test('el PDF lleva solo los productos elegidos y no cambia el estado de la solicitud', function () {
+    $e = flujoEscenario();
+    $compras = flujoUsuario($e->matriz, PERMISOS_COMPRAS_COTIZACION);
+    $deA = flujoSolicitud($e, $e->sucursalA, $e->bodegaA, $e->usuarioA, 'approved');
+    $monitor = flujoProducto('Monitor');
+    $deA->details()->create(['id_product' => $monitor->id_product, 'quantity' => 3, 'id_unit' => $e->unit->id_unit]);
+
+    $this->actingAs($compras)->post(route('purchase-quotation-requests.store'), [
+        'purchase_requests' => [$deA->id_purchase_request],
+    ])->assertSessionHasNoErrors();
+    $quotationRequest = PurchaseQuotationRequest::queryAllBranches()->sole();
+    $pdf = fn (array $lines) => $this->post(route('purchase-quotation-requests.pdf', $quotationRequest->id_purchase_quotation_request), ['lines' => $lines]);
+
+    // Sin productos elegidos no se genera
+    $pdf([])->assertSessionHas('error', 'Elija al menos un producto para el PDF.');
+
+    // Sin permiso de PDF no se genera
+    $this->actingAs(flujoUsuario($e->matriz, ['purchase_quotation_requests.ver']));
+    $pdf([$monitor->id_product.'-'.$e->unit->id_unit])->assertForbidden();
+
+    $this->actingAs($compras);
+    $pdf([$monitor->id_product.'-'.$e->unit->id_unit])
+        ->assertOk()->assertSee($monitor->name)->assertDontSee($e->product->name)->assertDontSee('REQ-FLUJO');
+
+    // Sigue en borrador: sus productos se pueden seguir cambiando
+    expect($quotationRequest->fresh()->status)->toBe('draft')
+        ->and($quotationRequest->fresh()->sent_at)->toBeNull();
+    $this->get(route('purchase-quotation-requests.show', $quotationRequest->id_purchase_quotation_request))
+        ->assertOk()->assertSee('Borrador')->assertSee('Editar Productos');
+
+    $pdf([$e->product->id_product.'-'.$e->unit->id_unit])->assertOk()->assertSee($e->product->name);
+});
+
+test('una oferta puede traer solo algunos productos; lo que nadie cotizó queda sin adjudicar', function () {
+    $e = flujoEscenario();
+    $compras = flujoUsuario($e->matriz, PERMISOS_COMPRAS_COTIZACION);
+    $deA = flujoSolicitud($e, $e->sucursalA, $e->bodegaA, $e->usuarioA, 'approved');
+    $monitor = flujoProducto('Monitor');
+    $deA->details()->create(['id_product' => $monitor->id_product, 'quantity' => 3, 'id_unit' => $e->unit->id_unit]);
+
+    $this->actingAs($compras)->post(route('purchase-quotation-requests.store'), [
+        'purchase_requests' => [$deA->id_purchase_request],
+    ])->assertSessionHasNoErrors();
+    $quotationRequest = PurchaseQuotationRequest::queryAllBranches()->sole();
+
+    // Una oferta sin ningún precio no se registra
+    flujoRegistrarOferta($quotationRequest, [])->assertSessionHas('error', 'Indique el precio de al menos un producto que cotizó el proveedor.');
+    expect($quotationRequest->fresh()->status)->toBe('draft');
+
+    // Solo cotizó el producto, no el monitor; con ofertas la solicitud queda enviada
+    flujoRegistrarOferta($quotationRequest, [$e->product->id_product => 7])->assertSessionHas('success');
+    $oferta = \App\Models\PurchaseQuotation::queryAllBranches()->with('details')->sole();
+    expect($oferta->details)->toHaveCount(1)
+        ->and($quotationRequest->fresh()->status)->toBe('sent')
+        ->and($quotationRequest->fresh()->sent_at)->not->toBeNull();
+
+    $this->get(route('purchase-quotation-requests.show', $quotationRequest->id_purchase_quotation_request))
+        ->assertOk()->assertSee('Nadie lo cotizó: queda sin adjudicar')->assertSee('Enviada')->assertDontSee('Editar Productos');
+
+    // Enviada: sus productos ya no cambian
+    $this->put(route('purchase-quotation-requests.update', $quotationRequest->id_purchase_quotation_request), [
+        'lines' => [$e->product->id_product.'-'.$e->unit->id_unit => ['quantity' => 99]],
+    ])->assertSessionHas('error', 'Solo se pueden cambiar los productos de una solicitud en borrador; esta ya tiene ofertas de proveedores.');
+    expect((float) $quotationRequest->details()->where('id_product', $e->product->id_product)->value('quantity'))->toBe(2.0);
+
+    // Se adjudica solo el producto; el monitor queda sin adjudicar y fuera de la orden
+    $this->post(route('purchase-quotation-requests.award', $quotationRequest->id_purchase_quotation_request), [
+        'awards' => [$e->product->id_product.'-'.$e->unit->id_unit => $oferta->details->first()->id_purchase_quotation_detail],
+    ])->assertSessionHas('success');
+
+    $lineaMonitor = $quotationRequest->details()->where('id_product', $monitor->id_product)->sole();
+    expect($lineaMonitor->id_purchase_quotation_detail)->toBeNull()
+        ->and($quotationRequest->fresh()->isAwarded())->toBeTrue();
+
+    $this->post(route('purchase-quotation-requests.generate-orders', $quotationRequest->id_purchase_quotation_request))
+        ->assertSessionHas('success');
+    $orden = \App\Models\PurchaseOrder::queryAllBranches()->with('details')->sole();
+    expect($orden->details->pluck('id_product')->all())->toBe([$e->product->id_product])
+        ->and($orden->id_branch)->toBe($e->sucursalA->id_branch);
 });

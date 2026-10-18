@@ -361,6 +361,18 @@ class RoleAndPermissionSeeder extends Seeder
                 'action' => 'create',
             ],
             [
+                'id_permission' => 'purchase_quotation_requests.editar',
+                'name' => 'Editar Solicitudes de Cotización',
+                'description' => 'Permite agregar, quitar y cambiar la cantidad de los productos de una solicitud en borrador.',
+                'action' => 'edit',
+            ],
+            [
+                'id_permission' => 'purchase_quotation_requests.pdf',
+                'name' => 'Generar PDF de Solicitudes de Cotización',
+                'description' => 'Permite generar el PDF que se envía a los proveedores para que coticen.',
+                'action' => 'pdf',
+            ],
+            [
                 'id_permission' => 'purchase_quotation_requests.seleccionar_cotizacion',
                 'name' => 'Seleccionar Cotización Ganadora',
                 'description' => 'Permite adjudicar o seleccionar la cotización ganadora de un proveedor.',
