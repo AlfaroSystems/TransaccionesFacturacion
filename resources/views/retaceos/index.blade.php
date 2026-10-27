@@ -379,7 +379,7 @@
                     <div class="text-xs font-extrabold text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                         <span>⚓ Gastos Generales de Importación a Prorratear</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Flete Internacional ($) *</label>
                             <input type="number" step="0.0001" min="0" name="total_freight" id="modal_r_total_freight" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
@@ -387,6 +387,10 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Otros Gastos Aduanales / Seguro ($) *</label>
                             <input type="number" step="0.0001" min="0" name="total_expenses" id="modal_r_total_expenses" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total DAI / Aranceles de la Póliza ($)</label>
+                            <input type="number" step="0.0001" min="0" name="total_dai" id="modal_r_total_dai" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
                         </div>
                     </div>
                 </div>
@@ -409,9 +413,9 @@
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-2 text-center w-20">Cantidad</th>
                                     <th class="py-2.5 px-2 w-24">FOB ($) *</th>
-                                    <th class="py-2.5 px-2 text-right w-20">Flete Asig.</th>
-                                    <th class="py-2.5 px-2 text-right w-20">Gastos Asig.</th>
-                                    <th class="py-2.5 px-2 w-20">DAI ($)</th>
+                                    <th class="py-2.5 px-2 text-right w-20">Flete <span id="modalPctFreight">0.00%</span></th>
+                                    <th class="py-2.5 px-2 text-right w-20">Gastos <span id="modalPctExpenses">0.00%</span></th>
+                                    <th class="py-2.5 px-2 text-right w-20">DAI <span id="modalPctDai">0.00%</span></th>
                                     <th class="py-2.5 px-3 text-right w-24">Costo Total</th>
                                     <th class="py-2.5 px-3 text-right w-24 text-teal-600 dark:text-teal-400">Costo Unit.</th>
                                 </tr>
@@ -510,9 +514,11 @@
     const modalRetaceoBody           = document.getElementById('modalRetaceoBody');
     const inputFreight               = document.getElementById('modal_r_total_freight');
     const inputExpenses              = document.getElementById('modal_r_total_expenses');
+    const inputDai                   = document.getElementById('modal_r_total_dai');
 
     if (inputFreight) inputFreight.addEventListener('input', recalcularProrrateoModal);
     if (inputExpenses) inputExpenses.addEventListener('input', recalcularProrrateoModal);
+    if (inputDai) inputDai.addEventListener('input', recalcularProrrateoModal);
 
     // Apertura en modo Creación
     function openCreateRetaceoModal() {
@@ -541,6 +547,7 @@
         document.getElementById('modal_r_import_policy_date').value    = '';
         document.getElementById('modal_r_total_freight').value         = '0.00';
         document.getElementById('modal_r_total_expenses').value        = '0.00';
+        document.getElementById('modal_r_total_dai').value             = '0.00';
         document.getElementById('modal_r_notes').value                 = '';
 
         modalRetaceoBody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-slate-400">Seleccione una compra exterior en la parte superior para cargar los productos.</td></tr>';
@@ -588,6 +595,7 @@
                 document.getElementById('modal_r_import_policy_date').value    = data.import_policy_date || '';
                 document.getElementById('modal_r_total_freight').value         = data.total_freight || 0;
                 document.getElementById('modal_r_total_expenses').value        = data.total_expenses || 0;
+                document.getElementById('modal_r_total_dai').value             = data.total_dai || 0;
                 document.getElementById('modal_r_notes').value                 = data.notes || '';
 
                 renderizarDetallesRetaceoModal(data.details);
@@ -669,9 +677,7 @@
                 </td>
                 <td class="py-2.5 px-2 text-right font-mono text-slate-500 dark:text-slate-400 mr-row-freight">$0.00</td>
                 <td class="py-2.5 px-2 text-right font-mono text-slate-500 dark:text-slate-400 mr-row-expense">$0.00</td>
-                <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0" name="details[${idx}][dai_amount]" value="${d.dai_amount || 0}" class="w-full px-2 py-1 text-right font-mono rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 mr-dai-input focus:ring-1 focus:ring-[#005e66]">
-                </td>
+                <td class="py-2.5 px-2 text-right font-mono text-slate-500 dark:text-slate-400 mr-row-dai">$0.00</td>
                 <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 mr-row-total">$0.00</td>
                 <td class="py-2.5 px-3 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 mr-row-unit">$0.00</td>
             `;
@@ -683,7 +689,7 @@
     }
 
     function vincularEventosRetaceoModal() {
-        document.querySelectorAll('.mr-qty-input, .mr-fob-input, .mr-dai-input').forEach(input => {
+        document.querySelectorAll('.mr-qty-input, .mr-fob-input').forEach(input => {
             input.removeEventListener('input', recalcularProrrateoModal);
             input.addEventListener('input', recalcularProrrateoModal);
         });
@@ -692,6 +698,7 @@
     function recalcularProrrateoModal() {
         const totalFreight  = parseFloat(document.getElementById('modal_r_total_freight')?.value) || 0;
         const totalExpenses = parseFloat(document.getElementById('modal_r_total_expenses')?.value) || 0;
+        const totalDai      = parseFloat(document.getElementById('modal_r_total_dai')?.value) || 0;
 
         const rows = document.querySelectorAll('.modal-retaceo-row');
         let totalFob = 0;
@@ -700,30 +707,35 @@
             totalFob += fob;
         });
 
-        let totalDai = 0;
         const count = rows.length;
+
+        // Porcentaje de cada gasto sobre el FOB, como en la hoja de retaceo
+        const pct = total => ((totalFob > 0 ? total / totalFob : 0) * 100).toFixed(2) + '%';
+        document.getElementById('modalPctFreight').textContent  = pct(totalFreight);
+        document.getElementById('modalPctExpenses').textContent = pct(totalExpenses);
+        document.getElementById('modalPctDai').textContent      = pct(totalDai);
 
         rows.forEach(r => {
             const qty  = Math.max(0.0001, parseFloat(r.querySelector('.mr-qty-input')?.value) || 1);
             const fob  = parseFloat(r.querySelector('.mr-fob-input')?.value) || 0;
-            const dai  = parseFloat(r.querySelector('.mr-dai-input')?.value) || 0;
 
             const ratio = (totalFob > 0) ? (fob / totalFob) : (count > 0 ? (1 / count) : 0);
 
             const freightAmount = totalFreight * ratio;
             const expenseAmount = totalExpenses * ratio;
-            const lineTotalCost = fob + freightAmount + expenseAmount + dai;
+            const daiAmount     = totalDai * ratio;
+            const lineTotalCost = fob + freightAmount + expenseAmount + daiAmount;
             const unitCost      = lineTotalCost / qty;
-
-            totalDai += dai;
 
             const tdFreight = r.querySelector('.mr-row-freight');
             const tdExpense = r.querySelector('.mr-row-expense');
+            const tdDai     = r.querySelector('.mr-row-dai');
             const tdTotal   = r.querySelector('.mr-row-total');
             const tdUnit    = r.querySelector('.mr-row-unit');
 
             if (tdFreight) tdFreight.textContent = '$' + freightAmount.toFixed(2);
             if (tdExpense) tdExpense.textContent = '$' + expenseAmount.toFixed(2);
+            if (tdDai) tdDai.textContent         = '$' + daiAmount.toFixed(2);
             if (tdTotal) tdTotal.textContent     = '$' + lineTotalCost.toFixed(2);
             if (tdUnit) tdUnit.textContent       = '$' + unitCost.toFixed(2);
         });

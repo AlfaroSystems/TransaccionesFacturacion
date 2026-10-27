@@ -67,17 +67,39 @@ test('el flete y los gastos se reparten en proporción al valor FOB de cada lín
     ]);
 });
 
-test('el DAI se suma al costo de su propia línea', function () {
+test('el DAI de la póliza se reparte en proporción al valor FOB, como el flete', function () {
     $resultado = (new RetaceoService)->calcularProrrateo([
-        ['id_product' => 1, 'quantity' => 2, 'cost_fob' => 100, 'dai_amount' => 15],
-        ['id_product' => 2, 'quantity' => 1, 'cost_fob' => 100],
-    ], totalFreight: 0, totalExpenses: 0);
+        ['id_product' => 1, 'quantity' => 2, 'cost_fob' => 300],  // 75 % del FOB
+        ['id_product' => 2, 'quantity' => 1, 'cost_fob' => 100],  // 25 % del FOB
+    ], totalFreight: 0, totalExpenses: 0, totalDai: 40);
 
-    expect($resultado['items'][0]['total_cost'])->toBe(115.0)
-        ->and($resultado['items'][0]['unit_cost'])->toBe(57.5)
-        ->and($resultado['items'][1]['total_cost'])->toBe(100.0)
-        ->and($resultado['totals']['total_dai'])->toBe(15.0)
-        ->and($resultado['totals']['total_cost'])->toBe(215.0);
+    expect(array_column($resultado['items'], 'dai_amount'))->toBe([30.0, 10.0])
+        ->and($resultado['items'][0]['total_cost'])->toBe(330.0)
+        ->and($resultado['items'][0]['unit_cost'])->toBe(165.0)
+        ->and($resultado['items'][1]['total_cost'])->toBe(110.0)
+        ->and($resultado['totals']['total_dai'])->toBe(40.0)
+        ->and($resultado['totals']['total_cost'])->toBe(440.0);
+});
+
+test('el retaceo cuadra con la hoja de referencia RTC-00233', function () {
+    // FOB 55,780; flete 5,125 (9.19 %), gastos 1,500 (2.69 %) y DAI 8,927 (16.00 %).
+    // La hoja da costos unitarios de 63,940.48 y 7,391.52
+    $resultado = (new RetaceoService)->calcularProrrateo([
+        ['id_product' => 1, 'quantity' => 1, 'cost_fob' => 50000],  // Prensadora
+        ['id_product' => 2, 'quantity' => 1, 'cost_fob' => 5780],   // Camión
+    ], totalFreight: 5125, totalExpenses: 1500, totalDai: 8927);
+
+    [$prensadora, $camion] = $resultado['items'];
+
+    expect($prensadora['freight_amount'])->toBe(4593.9405)
+        ->and($prensadora['expense_amount'])->toBe(1344.5679)
+        ->and($prensadora['dai_amount'])->toBe(8001.972)
+        ->and($prensadora['unit_cost'])->toBe(63940.4804)
+        ->and($camion['freight_amount'])->toBe(531.0595)
+        ->and($camion['expense_amount'])->toBe(155.4321)
+        ->and($camion['dai_amount'])->toBe(925.028)
+        ->and($camion['unit_cost'])->toBe(7391.5196)
+        ->and($resultado['totals']['total_cost'])->toBe(71332.0);
 });
 
 test('sin valor FOB el flete se reparte en partes iguales', function () {

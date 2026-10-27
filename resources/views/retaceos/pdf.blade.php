@@ -156,6 +156,8 @@
             $totalDai = (float) $retaceo->total_dai;
             $totalCost = (float) $retaceo->total_cost;
             $factor = $totalFob > 0 ? (($totalCost - $totalFob) / $totalFob) * 100 : 0;
+            // Porcentaje de cada gasto sobre el FOB, como en la hoja de retaceo
+            $pct = fn ($total) => number_format($totalFob > 0 ? $total / $totalFob * 100 : 0, 2).'%';
         @endphp
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-teal-50/50 p-4 rounded-2xl border border-teal-100 text-xs">
             <div class="text-center">
@@ -197,9 +199,9 @@
                             <th class="py-2.5 px-3 text-center">Cant.</th>
                             <th class="py-2.5 px-3 text-center">Unidad</th>
                             <th class="py-2.5 px-3 text-right">Costo FOB ($)</th>
-                            <th class="py-2.5 px-3 text-right">Flete ($)</th>
-                            <th class="py-2.5 px-3 text-right">Gastos ($)</th>
-                            <th class="py-2.5 px-3 text-right">DAI ($)</th>
+                            <th class="py-2.5 px-3 text-right">Flete {{ $pct($totalFreight) }}</th>
+                            <th class="py-2.5 px-3 text-right">Gastos {{ $pct($totalExpenses) }}</th>
+                            <th class="py-2.5 px-3 text-right">DAI {{ $pct($totalDai) }}</th>
                             <th class="py-2.5 px-3 text-right">Costo Total</th>
                             <th class="py-2.5 px-3 text-right bg-teal-50 text-[#005e66]">Costo Unit. Real</th>
                         </tr>

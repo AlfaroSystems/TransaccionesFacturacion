@@ -19,49 +19,55 @@ class RetaceoService
     /**
      * Calcula el prorrateo de flete, gastos y aranceles (DAI) por línea de producto.
      *
+     * Como en la hoja de retaceo, cada total de la póliza se reparte según el valor FOB de la
+     * línea: FOB de la línea × (total / FOB total).
+     *
      * @param  array $items
      * @param  float $totalFreight
      * @param  float $totalExpenses
+     * @param  float $totalDai
      * @return array{items: array, totals: array{total_fob: float, total_freight: float, total_expenses: float, total_dai: float, total_cost: float}}
      */
-    public function calcularProrrateo(array $items, float $totalFreight, float $totalExpenses): array
+    public function calcularProrrateo(array $items, float $totalFreight, float $totalExpenses, float $totalDai = 0): array
     {
         $totalFob = 0.0;
         foreach ($items as $item) {
             $totalFob += (float) ($item['cost_fob'] ?? 0);
         }
 
-        $totalDai = 0.0;
+        // Columna de la línea que recibe cada total
+        $totales = [
+            'freight_amount' => $totalFreight,
+            'expense_amount' => $totalExpenses,
+            'dai_amount'     => $totalDai,
+        ];
         $count = count($items);
         $lines = [];
 
-        // 1. Reparto de flete y gastos según el valor FOB de cada línea
+        // 1. Reparto de flete, gastos y DAI según el valor FOB de cada línea
         foreach (array_values($items) as $item) {
             $costFob = (float) ($item['cost_fob'] ?? 0);
 
             // Factor de distribución según valor FOB
             $ratio = ($totalFob > 0) ? ($costFob / $totalFob) : ($count > 0 ? (1 / $count) : 0);
 
-            $lines[] = [
-                'item'           => $item,
-                'cost_fob'       => $costFob,
-                'freight_amount' => round($totalFreight * $ratio, 4),
-                'expense_amount' => round($totalExpenses * $ratio, 4),
-            ];
+            $line = ['item' => $item, 'cost_fob' => $costFob];
+            foreach ($totales as $campo => $total) {
+                $line[$campo] = round($total * $ratio, 4);
+            }
+            $lines[] = $line;
         }
 
         // 2. El redondeo de cada línea puede dejar una diferencia (100 entre 3 = 99.9999);
         //    se asigna a la última línea para que el reparto sume exactamente el total
         if ($count > 0) {
             $last = $count - 1;
-            $lines[$last]['freight_amount'] = round(
-                $lines[$last]['freight_amount'] + $totalFreight - array_sum(array_column($lines, 'freight_amount')),
-                4
-            );
-            $lines[$last]['expense_amount'] = round(
-                $lines[$last]['expense_amount'] + $totalExpenses - array_sum(array_column($lines, 'expense_amount')),
-                4
-            );
+            foreach ($totales as $campo => $total) {
+                $lines[$last][$campo] = round(
+                    $lines[$last][$campo] + $total - array_sum(array_column($lines, $campo)),
+                    4
+                );
+            }
         }
 
         // 3. Costo total y unitario de cada línea
@@ -69,17 +75,14 @@ class RetaceoService
         foreach ($lines as $line) {
             $item          = $line['item'];
             $qty           = max(0.0001, (float) ($item['quantity'] ?? 1));
-            $daiAmount     = round((float) ($item['dai_amount'] ?? 0), 4);
-            $totalLineCost = round($line['cost_fob'] + $line['freight_amount'] + $line['expense_amount'] + $daiAmount, 4);
-
-            $totalDai += $daiAmount;
+            $totalLineCost = round($line['cost_fob'] + $line['freight_amount'] + $line['expense_amount'] + $line['dai_amount'], 4);
 
             $processedItems[] = array_merge($item, [
                 'quantity'       => $qty,
                 'cost_fob'       => round($line['cost_fob'], 4),
                 'freight_amount' => $line['freight_amount'],
                 'expense_amount' => $line['expense_amount'],
-                'dai_amount'     => $daiAmount,
+                'dai_amount'     => $line['dai_amount'],
                 'unit_cost'      => round($totalLineCost / $qty, 4),
                 'total_cost'     => $totalLineCost,
             ]);
@@ -112,8 +115,9 @@ class RetaceoService
 
             $totalFreight  = (float) ($validated['total_freight'] ?? 0);
             $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
+            $totalDai      = (float) ($validated['total_dai'] ?? 0);
 
-            $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses);
+            $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses, $totalDai);
 
             $retaceo = Retaceo::create([
                 'id_supplier'           => $validated['id_supplier'] ?? $purchase->id_supplier,
@@ -171,8 +175,9 @@ class RetaceoService
         return DB::transaction(function () use ($retaceo, $validated) {
             $totalFreight  = (float) ($validated['total_freight'] ?? 0);
             $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
+            $totalDai      = (float) ($validated['total_dai'] ?? 0);
 
-            $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses);
+            $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses, $totalDai);
 
             $retaceo->update([
                 'id_supplier'           => $validated['id_supplier'] ?? $retaceo->id_supplier,

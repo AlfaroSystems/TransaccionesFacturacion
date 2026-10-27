@@ -18,6 +18,8 @@
 
     $gastosTotales = $retaceo->total_freight + $retaceo->total_expenses + $retaceo->total_dai;
     $factorIncremento = $retaceo->total_fob > 0 ? (($gastosTotales / $retaceo->total_fob) * 100) : 0;
+    // Porcentaje de cada gasto sobre el FOB, como en la hoja de retaceo
+    $pct = fn ($total) => number_format($retaceo->total_fob > 0 ? $total / $retaceo->total_fob * 100 : 0, 2).'%';
 @endphp
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
@@ -193,9 +195,9 @@
                         <th class="py-3 px-4">Producto</th>
                         <th class="py-3 px-4 text-center">Cantidad</th>
                         <th class="py-3 px-4 text-right">Costo FOB</th>
-                        <th class="py-3 px-4 text-right">Flete Asig.</th>
-                        <th class="py-3 px-4 text-right">Gastos Asig.</th>
-                        <th class="py-3 px-4 text-right">DAI / Arancel</th>
+                        <th class="py-3 px-4 text-right">Flete {{ $pct($retaceo->total_freight) }}</th>
+                        <th class="py-3 px-4 text-right">Gastos {{ $pct($retaceo->total_expenses) }}</th>
+                        <th class="py-3 px-4 text-right">DAI {{ $pct($retaceo->total_dai) }}</th>
                         <th class="py-3 px-4 text-right">Costo Total</th>
                         <th class="py-3 px-4 text-right">Costo Unit. Real</th>
                     </tr>

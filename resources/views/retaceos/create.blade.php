@@ -154,7 +154,7 @@
                 <h4 class="font-extrabold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2">
                     <span>⚓ Gastos Generales de Importación a Prorratear</span>
                 </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Flete Internacional ($) *</label>
                         <input type="number" step="0.0001" min="0" name="total_freight" id="total_freight" value="{{ old('total_freight', (float)($retaceo->total_freight ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
@@ -162,6 +162,10 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Otros Gastos Aduanales / Seguro ($) *</label>
                         <input type="number" step="0.0001" min="0" name="total_expenses" id="total_expenses" value="{{ old('total_expenses', (float)($retaceo->total_expenses ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total DAI / Aranceles de la Póliza ($)</label>
+                        <input type="number" step="0.0001" min="0" name="total_dai" id="total_dai" value="{{ old('total_dai', (float)($retaceo->total_dai ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
                     </div>
                 </div>
             </div>
@@ -179,7 +183,7 @@
                     <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                         <span>📦 Productos y Distribución de Costos</span>
                     </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">El flete y los gastos se distribuyen de forma ponderada según el valor FOB de cada producto.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">El flete, los gastos y el DAI se distribuyen de forma ponderada según el valor FOB de cada producto.</p>
                 </div>
             </div>
 
@@ -190,9 +194,9 @@
                             <th class="py-3 px-3 w-1/4">Producto</th>
                             <th class="py-3 px-3 text-center w-24">Cantidad</th>
                             <th class="py-3 px-3 w-28">Total FOB ($) *</th>
-                            <th class="py-3 px-3 w-24">Flete Asig. ($)</th>
-                            <th class="py-3 px-3 w-24">Gastos Asig. ($)</th>
-                            <th class="py-3 px-3 w-24">DAI ($)</th>
+                            <th class="py-3 px-3 w-24 text-right">Flete <span id="pctFreight">0.00%</span></th>
+                            <th class="py-3 px-3 w-24 text-right">Gastos <span id="pctExpenses">0.00%</span></th>
+                            <th class="py-3 px-3 w-24 text-right">DAI <span id="pctDai">0.00%</span></th>
                             <th class="py-3 px-3 text-right">Costo Total</th>
                             <th class="py-3 px-3 text-right">Costo Unit. Real</th>
                         </tr>
@@ -215,9 +219,7 @@
                                     </td>
                                     <td class="py-3 px-3 font-mono text-right row-freight text-slate-600 dark:text-slate-400">$0.00</td>
                                     <td class="py-3 px-3 font-mono text-right row-expense text-slate-600 dark:text-slate-400">$0.00</td>
-                                    <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][dai_amount]" value="{{ old('details.'.$index.'.dai_amount', (float)$detail->dai_amount) }}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 dai-input">
-                                    </td>
+                                    <td class="py-3 px-3 font-mono text-right row-dai text-slate-600 dark:text-slate-400">$0.00</td>
                                     <td class="py-3 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 row-total">$0.00</td>
                                     <td class="py-3 px-3 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 text-sm row-unit">$0.00</td>
                                 </tr>
@@ -278,6 +280,7 @@
         const retaceoBody    = document.getElementById('retaceoBody');
         const freightInput   = document.getElementById('total_freight');
         const expensesInput  = document.getElementById('total_expenses');
+        const daiInput       = document.getElementById('total_dai');
 
         if (purchaseSelect && purchaseSelect.value) {
             cargarCompra(purchaseSelect.value);
@@ -296,6 +299,7 @@
 
         if (freightInput) freightInput.addEventListener('input', calcularProrrateo);
         if (expensesInput) expensesInput.addEventListener('input', calcularProrrateo);
+        if (daiInput) daiInput.addEventListener('input', calcularProrrateo);
 
         function cargarCompra(purchaseId) {
             retaceoBody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-slate-400">Cargando productos de la compra...</td></tr>';
@@ -335,9 +339,7 @@
                             </td>
                             <td class="py-3 px-3 font-mono text-right row-freight text-slate-600 dark:text-slate-400">$0.00</td>
                             <td class="py-3 px-3 font-mono text-right row-expense text-slate-600 dark:text-slate-400">$0.00</td>
-                            <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" name="details[${idx}][dai_amount]" value="0" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 dai-input focus:ring-2 focus:ring-[#005e66]">
-                            </td>
+                            <td class="py-3 px-3 font-mono text-right row-dai text-slate-600 dark:text-slate-400">$0.00</td>
                             <td class="py-3 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 row-total">$0.00</td>
                             <td class="py-3 px-3 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 text-sm row-unit">$0.00</td>
                         `;
@@ -364,7 +366,7 @@
         }
 
         function vincularInputs() {
-            document.querySelectorAll('.qty-input, .fob-input, .dai-input').forEach(input => {
+            document.querySelectorAll('.qty-input, .fob-input').forEach(input => {
                 input.removeEventListener('input', calcularProrrateo);
                 input.addEventListener('input', calcularProrrateo);
             });
@@ -373,6 +375,7 @@
         function calcularProrrateo() {
             const totalFreight  = parseFloat(document.getElementById('total_freight')?.value) || 0;
             const totalExpenses = parseFloat(document.getElementById('total_expenses')?.value) || 0;
+            const totalDai      = parseFloat(document.getElementById('total_dai')?.value) || 0;
 
             const rows = document.querySelectorAll('.item-row');
             let totalFob = 0;
@@ -381,30 +384,35 @@
                 totalFob += fob;
             });
 
-            let totalDai = 0;
             const count = rows.length;
+
+            // Porcentaje de cada gasto sobre el FOB, como en la hoja de retaceo
+            const pct = total => ((totalFob > 0 ? total / totalFob : 0) * 100).toFixed(2) + '%';
+            document.getElementById('pctFreight').textContent  = pct(totalFreight);
+            document.getElementById('pctExpenses').textContent = pct(totalExpenses);
+            document.getElementById('pctDai').textContent      = pct(totalDai);
 
             rows.forEach(r => {
                 const qty  = Math.max(0.0001, parseFloat(r.querySelector('.qty-input')?.value) || 1);
                 const fob  = parseFloat(r.querySelector('.fob-input')?.value) || 0;
-                const dai  = parseFloat(r.querySelector('.dai-input')?.value) || 0;
 
                 const ratio = (totalFob > 0) ? (fob / totalFob) : (count > 0 ? (1 / count) : 0);
 
                 const freightAmount = totalFreight * ratio;
                 const expenseAmount = totalExpenses * ratio;
-                const lineTotalCost = fob + freightAmount + expenseAmount + dai;
+                const daiAmount     = totalDai * ratio;
+                const lineTotalCost = fob + freightAmount + expenseAmount + daiAmount;
                 const unitCost      = lineTotalCost / qty;
-
-                totalDai += dai;
 
                 const tdFreight = r.querySelector('.row-freight');
                 const tdExpense = r.querySelector('.row-expense');
+                const tdDai     = r.querySelector('.row-dai');
                 const tdTotal   = r.querySelector('.row-total');
                 const tdUnit    = r.querySelector('.row-unit');
 
                 if (tdFreight) tdFreight.textContent = '$' + freightAmount.toFixed(2);
                 if (tdExpense) tdExpense.textContent = '$' + expenseAmount.toFixed(2);
+                if (tdDai) tdDai.textContent         = '$' + daiAmount.toFixed(2);
                 if (tdTotal) tdTotal.textContent     = '$' + lineTotalCost.toFixed(2);
                 if (tdUnit) tdUnit.textContent       = '$' + unitCost.toFixed(2);
             });

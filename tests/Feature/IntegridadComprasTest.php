@@ -71,9 +71,10 @@ function datosRetaceo(object $e, array $cambios = []): array
         'status'         => 'calculated',
         'total_freight'  => 100,
         'total_expenses' => 20,
+        'total_dai'      => 25,
         'details'        => [[
             'id_product' => $e->product->id_product, 'id_purchase_detail' => $e->purchaseDetail->id_purchase_detail,
-            'quantity' => 10, 'cost_fob' => 500, 'dai_amount' => 25,
+            'quantity' => 10, 'cost_fob' => 500,
         ]],
     ], $cambios);
 }

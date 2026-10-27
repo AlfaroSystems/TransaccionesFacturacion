@@ -138,7 +138,6 @@ class RetaceoController extends Controller
                     'unit_name'          => $d->unit?->name ?? 'Unidad',
                     'unit_price'         => (float) $d->unit_price,
                     'cost_fob'           => round($fob, 4),
-                    'dai_amount'         => 0,
                 ];
             }),
         ]);
@@ -174,6 +173,7 @@ class RetaceoController extends Controller
             'import_policy_date'          => ['nullable', 'date'],
             'total_freight'               => ['nullable', 'numeric', 'min:0'],
             'total_expenses'              => ['nullable', 'numeric', 'min:0'],
+            'total_dai'                   => ['nullable', 'numeric', 'min:0'],
             'status'                      => ['required', Rule::in(['draft', 'calculated', 'applied'])],
             'notes'                       => ['nullable', 'string'],
             'details'                     => ['required', 'array', 'min:1'],
@@ -181,7 +181,6 @@ class RetaceoController extends Controller
             'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $request->integer('id_purchase'))],
             'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
-            'details.*.dai_amount'        => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $retaceo = $this->service->crear($validated);
@@ -251,6 +250,7 @@ class RetaceoController extends Controller
             'import_policy_date'    => $retaceo->import_policy_date ? $retaceo->import_policy_date->format('Y-m-d') : '',
             'total_freight'         => (float) $retaceo->total_freight,
             'total_expenses'        => (float) $retaceo->total_expenses,
+            'total_dai'             => (float) $retaceo->total_dai,
             'status'                => $retaceo->status,
             'notes'                 => $retaceo->notes ?? '',
             'details'               => $retaceo->details->map(fn ($d) => [
@@ -306,13 +306,13 @@ class RetaceoController extends Controller
             'import_policy_date'          => ['nullable', 'date'],
             'total_freight'               => ['nullable', 'numeric', 'min:0'],
             'total_expenses'              => ['nullable', 'numeric', 'min:0'],
+            'total_dai'                   => ['nullable', 'numeric', 'min:0'],
             'notes'                       => ['nullable', 'string'],
             'details'                     => ['required', 'array', 'min:1'],
             'details.*.id_product'        => ['required', 'exists:products,id_product'],
             'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $retaceo->id_purchase)],
             'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
-            'details.*.dai_amount'        => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $this->service->actualizar($retaceo, $validated);

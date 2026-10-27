@@ -314,10 +314,10 @@ test('el retaceo aplicado reemplaza el costo de la factura', function () {
     // FOB $100 + flete $20 + DAI $10 = $130 entre 10 → $13
     $this->post(route('retaceos.store'), [
         'id_purchase' => $purchase->id_purchase, 'id_supplier' => $e->supplier->id_supplier,
-        'retaceo_date' => now()->toDateString(), 'total_freight' => 20, 'total_expenses' => 0, 'status' => 'calculated',
+        'retaceo_date' => now()->toDateString(), 'total_freight' => 20, 'total_expenses' => 0, 'total_dai' => 10, 'status' => 'calculated',
         'details' => [[
             'id_product' => $e->laptop->id_product, 'id_purchase_detail' => $linea->id_purchase_detail,
-            'quantity' => 10, 'cost_fob' => 100, 'dai_amount' => 10,
+            'quantity' => 10, 'cost_fob' => 100,
         ]],
     ])->assertSessionHasNoErrors();
     $retaceo = \App\Models\Retaceo::latest('id_retaceo')->first();
