@@ -24,7 +24,8 @@ class UserController extends Controller
     {
         Gate::authorize('usuarios.ver');
 
-        $query = User::accessible()->with(['roles', 'branch']);
+        // Con los permisos de cada rol: la lista marca a quién no puede modificar el usuario actual
+        $query = User::accessible()->with(['roles.permissions', 'branch']);
 
         // Búsqueda por nombre o email
         if ($request->filled('search')) {
@@ -238,18 +239,18 @@ class UserController extends Controller
     }
 
     /**
-     * Roles que el usuario autenticado puede asignar: solo un administrador
-     * puede asignar el rol "admin".
+     * Roles que el usuario autenticado puede asignar (ver User::canAssignRole).
      */
     private function assignableRoles(): Collection
     {
-        return Role::query()
-            ->when(! auth()->user()->isAdmin(), fn ($q) => $q->where('name', '!=', 'admin'))
-            ->get();
+        return Role::with('permissions')->get()
+            ->filter(fn (Role $role) => auth()->user()->canAssignRole($role))
+            ->values();
     }
 
     /**
-     * Impide que un usuario que no es administrador asigne el rol "admin".
+     * Impide que un usuario que no es administrador asigne el rol "admin" o un rol
+     * con permisos que él no tiene.
      *
      * @throws ValidationException
      */
@@ -259,11 +260,14 @@ class UserController extends Controller
             return;
         }
 
-        $assignsAdmin = Role::whereKey($roleIds)->where('name', 'admin')->exists();
+        $denied = Role::with('permissions')->whereKey($roleIds)->get()
+            ->reject(fn (Role $role) => auth()->user()->canAssignRole($role));
 
-        if ($assignsAdmin) {
+        if ($denied->isNotEmpty()) {
             throw ValidationException::withMessages([
-                'roles' => 'Solo un administrador puede asignar el rol Administrador.',
+                'roles' => $denied->contains('name', 'admin')
+                    ? 'Solo un administrador puede asignar el rol Administrador.'
+                    : 'No puedes asignar un rol con permisos que tú no tienes.',
             ]);
         }
     }
@@ -294,14 +298,17 @@ class UserController extends Controller
     }
 
     /**
-     * Un usuario que no es administrador no puede modificar a un administrador
-     * (por ejemplo, cambiarle la contraseña para tomar su cuenta).
+     * Un usuario que no es administrador no puede modificar a un administrador ni a quien
+     * tiene permisos que él no tiene (por ejemplo, cambiarle la contraseña para tomar su
+     * cuenta). Ver User::canManage.
      */
     private function denyIfProtected(User $user): ?RedirectResponse
     {
-        if ($user->isAdmin() && ! auth()->user()->isAdmin()) {
+        if (! auth()->user()->canManage($user)) {
             return redirect()->route('users.index')
-                ->with('error', 'Solo un administrador puede modificar a otro administrador.');
+                ->with('error', $user->isAdmin()
+                    ? 'Solo un administrador puede modificar a otro administrador.'
+                    : 'No puedes modificar a un usuario con permisos que tú no tienes.');
         }
 
         return null;

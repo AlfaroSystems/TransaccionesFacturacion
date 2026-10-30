@@ -160,6 +160,74 @@ test('un usuario que no es admin no puede modificar a un administrador', functio
     expect($admin->fresh()->isActive())->toBeTrue();
 });
 
+test('un usuario que no es admin no puede asignar un rol con permisos que él no tiene', function () {
+    $gestor = gestorDeUsuarios();
+    $objetivo = crearUsuarioConRol(crearRol(), ['id_branch' => $gestor->id_branch]);
+    $rolSuperior = crearRol(['usuarios.ver', 'purchase_orders.aprobar']);
+    $rolPermitido = crearRol(['usuarios.ver']);
+
+    $this->actingAs($gestor)
+        ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [$rolSuperior->id_role]]))
+        ->assertSessionHasErrors('roles');
+
+    // Tampoco creándose una cuenta nueva con ese rol
+    $this->actingAs($gestor)
+        ->post(route('users.store'), [
+            'username'              => 'Cuenta Paralela',
+            'email'                 => 'paralela-'.Str::random(6).'@example.com',
+            'password'              => 'password123',
+            'password_confirmation' => 'password123',
+            'is_active'             => 1,
+            'id_branch'             => $gestor->id_branch,
+            'roles'                 => [$rolSuperior->id_role],
+        ])
+        ->assertSessionHasErrors('roles');
+
+    expect($objetivo->fresh()->roles->pluck('id_role'))->not->toContain($rolSuperior->id_role);
+    $this->assertDatabaseMissing('users', ['username' => 'Cuenta Paralela']);
+
+    // La lista solo ofrece los roles cuyos permisos ya tiene
+    $assignable = $this->actingAs($gestor)->get(route('users.index'))->viewData('assignableRoles')->pluck('id_role');
+    expect($assignable)->toContain($rolPermitido->id_role)->not->toContain($rolSuperior->id_role);
+});
+
+test('un usuario que no es admin puede asignar un rol con permisos que ya tiene', function () {
+    $gestor = gestorDeUsuarios();
+    $objetivo = crearUsuarioConRol(crearRol(), ['id_branch' => $gestor->id_branch]);
+    $rolPermitido = crearRol(['usuarios.ver', 'usuarios.editar']);
+
+    $this->actingAs($gestor)
+        ->put(route('users.update', $objetivo), datosUsuario($objetivo, ['roles' => [$rolPermitido->id_role]]))
+        ->assertSessionHasNoErrors();
+
+    expect($objetivo->fresh()->roles->pluck('id_role')->all())->toBe([$rolPermitido->id_role]);
+});
+
+test('un usuario que no es admin no puede modificar a quien tiene permisos que él no tiene', function () {
+    $gestor = gestorDeUsuarios();
+    $superior = crearUsuarioConRol(crearRol(['usuarios.ver', 'purchase_orders.aprobar']), ['id_branch' => $gestor->id_branch]);
+    $passwordOriginal = $superior->password_hash;
+
+    // Cambiarle la contraseña le daría su cuenta, y con ella sus permisos
+    $this->actingAs($gestor)
+        ->put(route('users.update', $superior), datosUsuario($superior, [
+            'password'              => 'tomada12345',
+            'password_confirmation' => 'tomada12345',
+        ]))
+        ->assertRedirect(route('users.index'))
+        ->assertSessionHas('error');
+
+    expect($superior->fresh()->password_hash)->toBe($passwordOriginal);
+
+    $this->actingAs($gestor)
+        ->delete(route('users.destroy', $superior))
+        ->assertSessionHas('error');
+
+    expect($superior->fresh()->isActive())->toBeTrue();
+
+    $this->actingAs($gestor)->get(route('users.index'))->assertSee('Protegido');
+});
+
 test('un usuario no puede cambiar sus propios roles', function () {
     $gestor = gestorDeUsuarios();
     $rolOriginal = $gestor->roles->first()->id_role;

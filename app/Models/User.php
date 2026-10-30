@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 
 class User extends Authenticatable
 {
@@ -142,6 +143,48 @@ class User extends Authenticatable
         $this->loadMissing('roles.permissions');
 
         return $this->roles->flatMap->permissions->contains('id_permission', $permission);
+    }
+
+    /**
+     * Permisos del usuario a través de todos sus roles.
+     */
+    public function permissionIds(): Collection
+    {
+        $this->loadMissing('roles.permissions');
+
+        return $this->roles->flatMap->permissions->pluck('id_permission')->unique()->values();
+    }
+
+    /**
+     * Puede asignar ese rol: el administrador, cualquiera; los demás, solo uno que no sea admin
+     * y cuyos permisos ya tengan todos. Si no, darían a otra cuenta (o a una propia creada para
+     * eso) permisos que ellos no tienen.
+     */
+    public function canAssignRole(Role $role): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $role->loadMissing('permissions');
+
+        return $role->name !== 'admin'
+            && $role->permissions->pluck('id_permission')->diff($this->permissionIds())->isEmpty();
+    }
+
+    /**
+     * Puede modificar o desactivar a ese usuario: el administrador, a cualquiera; los demás, solo
+     * a quien no es admin ni tiene permisos que ellos no tengan. Si no, podrían cambiarle la
+     * contraseña y entrar con su cuenta para usar esos permisos.
+     */
+    public function canManage(User $user): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return ! $user->isAdmin()
+            && $user->permissionIds()->diff($this->permissionIds())->isEmpty();
     }
 
     /**
