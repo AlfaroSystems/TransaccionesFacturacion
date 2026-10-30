@@ -124,21 +124,6 @@
             </div>
         </div>
 
-        <!-- Datos que completa el proveedor -->
-        <div class="print-keep grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200/80 text-xs">
-            <div class="space-y-3">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[11px]">DATOS DEL PROVEEDOR</h3>
-                <p class="text-slate-700"><strong>Proveedor:</strong> <span class="inline-block w-56 border-b border-slate-400">&nbsp;</span></p>
-                <p class="text-slate-700"><strong>Contacto:</strong> <span class="inline-block w-56 border-b border-slate-400">&nbsp;</span></p>
-                <p class="text-slate-700"><strong>Teléfono / Email:</strong> <span class="inline-block w-44 border-b border-slate-400">&nbsp;</span></p>
-            </div>
-            <div class="space-y-3 border-t sm:border-t-0 sm:border-l border-slate-200 pt-4 sm:pt-0 sm:pl-6">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[11px]">CONDICIONES DE LA OFERTA</h3>
-                <p class="text-slate-700"><strong>Vigencia de la oferta:</strong> <span class="inline-block w-36 border-b border-slate-400">&nbsp;</span></p>
-                <p class="text-slate-700"><strong>Condiciones de pago:</strong> <span class="inline-block w-36 border-b border-slate-400">&nbsp;</span></p>
-                <p class="text-slate-700"><strong>Tiempo de entrega:</strong> <span class="inline-block w-36 border-b border-slate-400">&nbsp;</span></p>
-            </div>
-        </div>
 
         <p class="text-xs text-slate-600">
             Le solicitamos su mejor oferta para los productos detallados a continuación. Indique el precio unitario de cada
