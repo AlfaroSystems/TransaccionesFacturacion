@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
@@ -83,19 +84,18 @@ class SubCategoryController extends Controller
          * y además esté activa.
          */
         $category = Category::where(
-                'id_category',
-                $validated['id_category']
-            )
+            'id_category',
+            $validated['id_category']
+        )
             ->where('is_active', true)
             ->first();
 
-        if (!$category) {
+        if (! $category) {
 
             return back()
                 ->withInput()
                 ->withErrors([
-                    'id_category' =>
-                        'La categoría seleccionada no existe o está inactiva.'
+                    'id_category' => 'La categoría seleccionada no existe o está inactiva.',
                 ]);
         }
 
@@ -169,19 +169,18 @@ class SubCategoryController extends Controller
          * exista y esté activa.
          */
         $category = Category::where(
-                'id_category',
-                $validated['id_category']
-            )
+            'id_category',
+            $validated['id_category']
+        )
             ->where('is_active', true)
             ->first();
 
-        if (!$category) {
+        if (! $category) {
 
             return back()
                 ->withInput()
                 ->withErrors([
-                    'id_category' =>
-                        'La categoría seleccionada no existe o está inactiva.'
+                    'id_category' => 'La categoría seleccionada no existe o está inactiva.',
                 ]);
         }
 
@@ -203,7 +202,7 @@ class SubCategoryController extends Controller
     {
         Gate::authorize('subcategories.eliminar');
 
-        $newStatus = !$subCategory->is_active;
+        $newStatus = ! $subCategory->is_active;
 
         $subCategory->update([
             'is_active' => $newStatus,

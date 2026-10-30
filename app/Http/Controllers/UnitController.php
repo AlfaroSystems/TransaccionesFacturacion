@@ -1,9 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Unit;
+
 use App\Http\Requests\StoreUnitRequest;
 use App\Http\Requests\UpdateUnitRequest;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -107,7 +108,7 @@ class UnitController extends Controller
     {
         Gate::authorize('units.desactivar');
 
-        $newStatus = !$unit->is_active;
+        $newStatus = ! $unit->is_active;
 
         $unit->update([
             'is_active' => $newStatus,

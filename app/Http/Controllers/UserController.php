@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Branch;
+use App\Models\Role;
+use App\Models\User;
 use App\Rules\Accessible;
 use App\Support\BranchAccess;
 use Illuminate\Http\RedirectResponse;
@@ -30,7 +30,7 @@ class UserController extends Controller
         // Búsqueda por nombre o email
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('username', 'ilike', "%{$search}%")
                     ->orWhere('email', 'ilike', "%{$search}%");
             });
@@ -38,7 +38,7 @@ class UserController extends Controller
 
         // Filtro por rol
         if ($request->filled('role')) {
-            $query->whereHas('roles', function($q) use ($request) {
+            $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('name', $request->input('role'));
             });
         }
@@ -174,7 +174,7 @@ class UserController extends Controller
             $data['is_active'] = $validated['is_active'];
         }
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $data['password_hash'] = Hash::make($validated['password']);
         }
 

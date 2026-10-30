@@ -16,34 +16,34 @@ class PurchaseOrderService
      * calcula PurchaseService según lo recibido. Completada, Cerrada y Cancelada son finales.
      */
     private const TRANSITIONS = [
-        'draft'            => ['issued', 'cancelled'],
-        'issued'           => ['cancelled'],
+        'draft' => ['issued', 'cancelled'],
+        'issued' => ['cancelled'],
         'partial_received' => ['closed'],
     ];
 
     /**
      * Calcula los totales consolidados (subtotal, descuento, impuestos, gastos) de una OC.
      *
-     * @param  array $products  Lista de líneas de producto validadas.
-     * @param  array $expenses  Lista de gastos adicionales validados.
+     * @param  array  $products  Lista de líneas de producto validadas.
+     * @param  array  $expenses  Lista de gastos adicionales validados.
      * @return array{subtotal: float, discount: float, tax: float, additional_expenses: float, total: float}
      */
     public function calcularTotales(array $products, array $expenses = []): array
     {
         $subtotal = 0.0;
         $discount = 0.0;
-        $tax      = 0.0;
+        $tax = 0.0;
 
         foreach ($products as $product) {
             $lineSubtotal = (float) $product['quantity'] * (float) $product['unit_price'];
             $lineDiscount = (float) ($product['discount'] ?? 0);
-            $base         = max(0, $lineSubtotal - $lineDiscount);
-            $taxRate      = (float) ($product['tax_rate'] ?? 0);
-            $taxAmount    = $base * ($taxRate / 100);
+            $base = max(0, $lineSubtotal - $lineDiscount);
+            $taxRate = (float) ($product['tax_rate'] ?? 0);
+            $taxAmount = $base * ($taxRate / 100);
 
             $subtotal += $lineSubtotal;
             $discount += $lineDiscount;
-            $tax      += $taxAmount;
+            $tax += $taxAmount;
         }
 
         $additionalExpenses = 0.0;
@@ -54,19 +54,18 @@ class PurchaseOrderService
         $total = max(0, $subtotal - $discount) + $tax + $additionalExpenses;
 
         return [
-            'subtotal'             => $subtotal,
-            'discount'             => $discount,
-            'tax'                  => $tax,
-            'additional_expenses'  => $additionalExpenses,
-            'total'                => $total,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'tax' => $tax,
+            'additional_expenses' => $additionalExpenses,
+            'total' => $total,
         ];
     }
 
     /**
      * Crea una nueva Orden de Compra con sus líneas y gastos en una sola transacción.
      *
-     * @param  array $validated Datos validados del Request.
-     * @return PurchaseOrder
+     * @param  array  $validated  Datos validados del Request.
      */
     public function crear(array $validated): PurchaseOrder
     {
@@ -77,22 +76,22 @@ class PurchaseOrderService
             );
 
             $order = PurchaseOrder::create([
-                'id_supplier'           => $validated['id_supplier'],
-                'id_branch'             => $validated['id_branch'],
-                'id_warehouse'          => $validated['id_warehouse'],
+                'id_supplier' => $validated['id_supplier'],
+                'id_branch' => $validated['id_branch'],
+                'id_warehouse' => $validated['id_warehouse'],
                 'id_purchase_quotation' => $validated['id_purchase_quotation'] ?? null,
-                'id_user'               => Auth::id(),
-                'order_date'            => $validated['order_date'],
-                'expected_date'         => $validated['expected_date'],
-                'currency'              => strtoupper($validated['currency']),
-                'payment_terms'         => $validated['payment_terms'],
-                'subtotal'              => $totales['subtotal'],
-                'discount'              => $totales['discount'],
-                'tax'                   => $totales['tax'],
-                'additional_expenses'   => $totales['additional_expenses'],
-                'total'                 => $totales['total'],
-                'status'                => 'draft',
-                'notes'                 => $validated['notes'] ?? null,
+                'id_user' => Auth::id(),
+                'order_date' => $validated['order_date'],
+                'expected_date' => $validated['expected_date'],
+                'currency' => strtoupper($validated['currency']),
+                'payment_terms' => $validated['payment_terms'],
+                'subtotal' => $totales['subtotal'],
+                'discount' => $totales['discount'],
+                'tax' => $totales['tax'],
+                'additional_expenses' => $totales['additional_expenses'],
+                'total' => $totales['total'],
+                'status' => 'draft',
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             $this->guardarDetalles($order, $validated['products']);
@@ -104,10 +103,6 @@ class PurchaseOrderService
 
     /**
      * Actualiza una Orden de Compra existente en borrador con sus líneas y gastos.
-     *
-     * @param  PurchaseOrder $order
-     * @param  array         $validated
-     * @return PurchaseOrder
      */
     public function actualizar(PurchaseOrder $order, array $validated): PurchaseOrder
     {
@@ -124,19 +119,19 @@ class PurchaseOrderService
 
             // id_purchase_quotation no se toca: la orden conserva la cotización de la que salió
             $order->update([
-                'id_supplier'           => $validated['id_supplier'],
-                'id_branch'             => $validated['id_branch'],
-                'id_warehouse'          => $validated['id_warehouse'],
-                'order_date'            => $validated['order_date'],
-                'expected_date'         => $validated['expected_date'],
-                'currency'              => strtoupper($validated['currency']),
-                'payment_terms'         => $validated['payment_terms'],
-                'subtotal'              => $totales['subtotal'],
-                'discount'              => $totales['discount'],
-                'tax'                   => $totales['tax'],
-                'additional_expenses'   => $totales['additional_expenses'],
-                'total'                 => $totales['total'],
-                'notes'                 => $validated['notes'] ?? null,
+                'id_supplier' => $validated['id_supplier'],
+                'id_branch' => $validated['id_branch'],
+                'id_warehouse' => $validated['id_warehouse'],
+                'order_date' => $validated['order_date'],
+                'expected_date' => $validated['expected_date'],
+                'currency' => strtoupper($validated['currency']),
+                'payment_terms' => $validated['payment_terms'],
+                'subtotal' => $totales['subtotal'],
+                'discount' => $totales['discount'],
+                'tax' => $totales['tax'],
+                'additional_expenses' => $totales['additional_expenses'],
+                'total' => $totales['total'],
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             // Reemplazar detalles y gastos (uno por uno, para que cada borrado quede en la bitácora)
@@ -154,9 +149,6 @@ class PurchaseOrderService
      * Cambia el estado de una orden aplicando las reglas de negocio.
      * Lanza una excepción de dominio si la transición no está permitida.
      *
-     * @param  PurchaseOrder $order
-     * @param  string        $nuevoEstado
-     * @return void
      * @throws \InvalidArgumentException
      */
     public function cambiarEstado(PurchaseOrder $order, string $nuevoEstado): void
@@ -219,23 +211,23 @@ class PurchaseOrderService
         foreach ($products as $product) {
             $lineSubtotal = (float) $product['quantity'] * (float) $product['unit_price'];
             $lineDiscount = (float) ($product['discount'] ?? 0);
-            $base         = max(0, $lineSubtotal - $lineDiscount);
-            $taxRate      = (float) ($product['tax_rate'] ?? 0);
-            $taxAmount    = $base * ($taxRate / 100);
-            $lineTotal    = $base + $taxAmount;
+            $base = max(0, $lineSubtotal - $lineDiscount);
+            $taxRate = (float) ($product['tax_rate'] ?? 0);
+            $taxAmount = $base * ($taxRate / 100);
+            $lineTotal = $base + $taxAmount;
 
             PurchaseOrderDetail::create([
                 'id_purchase_order' => $order->id_purchase_order,
-                'id_product'        => $product['id_product'],
-                'quantity'          => $product['quantity'],
-                'id_unit'           => $product['id_unit'],
-                'unit_price'        => $product['unit_price'],
-                'discount'          => $lineDiscount,
-                'subtotal'          => $lineSubtotal,
-                'tax_rate'          => $taxRate,
-                'tax_amount'        => $taxAmount,
-                'total'             => $lineTotal,
-                'notes'             => $product['notes'] ?? null,
+                'id_product' => $product['id_product'],
+                'quantity' => $product['quantity'],
+                'id_unit' => $product['id_unit'],
+                'unit_price' => $product['unit_price'],
+                'discount' => $lineDiscount,
+                'subtotal' => $lineSubtotal,
+                'tax_rate' => $taxRate,
+                'tax_amount' => $taxAmount,
+                'total' => $lineTotal,
+                'notes' => $product['notes'] ?? null,
             ]);
         }
     }
@@ -253,11 +245,11 @@ class PurchaseOrderService
 
             PurchaseOrderExpense::create([
                 'id_purchase_order' => $order->id_purchase_order,
-                'id_expense_type'   => $expense['id_expense_type'],
-                'description'       => $expense['description'] ?? null,
-                'amount'            => $amount,
+                'id_expense_type' => $expense['id_expense_type'],
+                'description' => $expense['description'] ?? null,
+                'amount' => $amount,
                 // Si se reparte en el costo de los productos (ver ProductCostService)
-                'is_costable'       => (bool) ($expense['is_costable'] ?? true),
+                'is_costable' => (bool) ($expense['is_costable'] ?? true),
             ]);
         }
     }

@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Warehouse;
+
 use App\Models\Branch;
+use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
 use App\Rules\Accessible;
 use App\Support\BranchAccess;
@@ -26,7 +27,7 @@ class WarehouseController extends Controller
         $warehouses = $warehouseQuery->with(['branch', 'warehouseCategory'])->get();
         $branches = Branch::where('is_active', true)->get();
         $categories = WarehouseCategory::where('is_active', true)->get();
-        
+
         return view('warehouses.index', compact(
             'warehouses',
             'branches',
@@ -47,19 +48,15 @@ class WarehouseController extends Controller
         Gate::authorize('warehouses.crear');
 
         $validated = $request->validate([
-            'id_branch'=>['required', new Accessible(Branch::class)],
-            'id_warehouse_category'
-            =>'required|exists:warehouse_category,id_warehouse_category',
-            'name'
-            =>'required|string|max:100',
-            'description'
-            =>'nullable|string',
-            'is_active'
-            =>'boolean'
+            'id_branch' => ['required', new Accessible(Branch::class)],
+            'id_warehouse_category' => 'required|exists:warehouse_category,id_warehouse_category',
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
         ]);
 
         Warehouse::create($validated);
-        
+
         return redirect()
             ->route('warehouses.index')
             ->with(
@@ -79,19 +76,14 @@ class WarehouseController extends Controller
     public function update(
         Request $request,
         Warehouse $warehouse
-    )
-    {
+    ) {
         Gate::authorize('warehouses.editar');
-        $validated=$request->validate([
-            'id_branch'=>['required', new Accessible(Branch::class)],
-            'id_warehouse_category'
-            =>'required|exists:warehouse_category,id_warehouse_category',
-            'name'
-            =>'required|string|max:100',
-            'description'
-            =>'nullable|string',
-            'is_active'
-            =>'boolean'
+        $validated = $request->validate([
+            'id_branch' => ['required', new Accessible(Branch::class)],
+            'id_warehouse_category' => 'required|exists:warehouse_category,id_warehouse_category',
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
         ]);
 
         // Una bodega con documentos no puede pasar a otra sucursal: los documentos
@@ -116,7 +108,7 @@ class WarehouseController extends Controller
     {
         Gate::authorize('warehouses.eliminar');
 
-        $newStatus = !$warehouse->is_active;
+        $newStatus = ! $warehouse->is_active;
 
         $warehouse->update([
             'is_active' => $newStatus,

@@ -32,13 +32,13 @@ function escenarioCompras(string $estadoCompra = 'received'): object
     $admin = User::factory()->create();
     $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
-    $company   = Company::create(['name' => 'Distribuidora de Prueba']);
-    $branch    = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Central']);
-    $category  = WarehouseCategory::create(['name' => 'General']);
+    $company = Company::create(['name' => 'Distribuidora de Prueba']);
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Central']);
+    $category = WarehouseCategory::create(['name' => 'General']);
     $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $category->id_warehouse_category, 'name' => 'Bodega Central']);
-    $unit      = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
-    $product   = Product::create(['name' => 'Laptop', 'sku' => 'SKU-'.Str::random(6)]);
-    $supplier  = Supplier::create(['name' => 'Proveedor', 'email' => 'p@example.com', 'country' => 'El Salvador', 'is_active' => true]);
+    $unit = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
+    $product = Product::create(['name' => 'Laptop', 'sku' => 'SKU-'.Str::random(6)]);
+    $supplier = Supplier::create(['name' => 'Proveedor', 'email' => 'p@example.com', 'country' => 'El Salvador', 'is_active' => true]);
 
     $order = PurchaseOrder::create([
         'id_supplier' => $supplier->id_supplier, 'id_branch' => $branch->id_branch, 'id_warehouse' => $warehouse->id_warehouse,
@@ -65,14 +65,14 @@ function escenarioCompras(string $estadoCompra = 'received'): object
 function datosRetaceo(object $e, array $cambios = []): array
 {
     return array_merge([
-        'id_purchase'    => $e->purchase->id_purchase,
-        'id_supplier'    => $e->supplier->id_supplier,
-        'retaceo_date'   => now()->toDateString(),
-        'status'         => 'calculated',
-        'total_freight'  => 100,
+        'id_purchase' => $e->purchase->id_purchase,
+        'id_supplier' => $e->supplier->id_supplier,
+        'retaceo_date' => now()->toDateString(),
+        'status' => 'calculated',
+        'total_freight' => 100,
         'total_expenses' => 20,
-        'total_dai'      => 25,
-        'details'        => [[
+        'total_dai' => 25,
+        'details' => [[
             'id_product' => $e->product->id_product, 'id_purchase_detail' => $e->purchaseDetail->id_purchase_detail,
             'quantity' => 10, 'cost_fob' => 500,
         ]],
@@ -259,9 +259,9 @@ test('la bitácora registra el modelo de cada cambio, incluidas las líneas reem
     $lineaAnterior = $e->purchaseDetail->id_purchase_detail;
 
     $this->actingAs($e->admin)->put(route('purchases.update', $e->purchase), [
-        'id_supplier'   => $e->supplier->id_supplier,
+        'id_supplier' => $e->supplier->id_supplier,
         'purchase_date' => now()->toDateString(),
-        'details'       => [['id_product' => $e->product->id_product, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail, 'quantity_received' => 4, 'unit_price' => 50]],
+        'details' => [['id_product' => $e->product->id_product, 'id_purchase_order_detail' => $e->orderDetail->id_purchase_order_detail, 'quantity_received' => 4, 'unit_price' => 50]],
     ])->assertSessionHasNoErrors();
 
     // La compra editada y la línea borrada quedan registradas con su modelo

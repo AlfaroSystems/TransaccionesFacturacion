@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('name');
 
             $table->text('description')
-                  ->nullable();
+                ->nullable();
 
             $table->boolean('is_active')
-                  ->default(true);
+                ->default(true);
 
             $table->timestamps();
         });

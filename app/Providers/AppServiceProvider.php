@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Providers;
-use Illuminate\Support\ServiceProvider;
+
+use App\Models\AuditLog;
 use App\Models\User;
 use App\Observers\AuditObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,8 +32,8 @@ class AppServiceProvider extends ServiceProvider
         // Registrar el observador de auditoría para todos los modelos de negocio del sistema
         $modelFiles = glob(app_path('Models/*.php'));
         foreach ($modelFiles as $file) {
-            $modelClass = 'App\\Models\\' . basename($file, '.php');
-            if (class_exists($modelClass) && is_subclass_of($modelClass, \Illuminate\Database\Eloquent\Model::class) && $modelClass !== \App\Models\AuditLog::class) {
+            $modelClass = 'App\\Models\\'.basename($file, '.php');
+            if (class_exists($modelClass) && is_subclass_of($modelClass, Model::class) && $modelClass !== AuditLog::class) {
                 $modelClass::observe(AuditObserver::class);
             }
         }

@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Country;
+use App\Models\Department;
+use App\Models\District;
+use App\Models\Municipality;
 use App\Models\Supplier;
 use App\Models\SupplierContact;
-use App\Models\Department;
-use App\Models\Municipality;
-use App\Models\District;
-use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -24,15 +25,15 @@ class SupplierController extends Controller
         $suppliers = Supplier::with(['contacts', 'department', 'municipality', 'district'])
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'ilike', '%' . $search . '%')
-                        ->orWhere('code', 'ilike', '%' . $search . '%')
-                        ->orWhere('country', 'ilike', '%' . $search . '%')
-                        ->orWhere('email', 'ilike', '%' . $search . '%')
+                    $q->where('name', 'ilike', '%'.$search.'%')
+                        ->orWhere('code', 'ilike', '%'.$search.'%')
+                        ->orWhere('country', 'ilike', '%'.$search.'%')
+                        ->orWhere('email', 'ilike', '%'.$search.'%')
                         ->orWhereHas('contacts', function ($contactQuery) use ($search) {
                             $contactQuery
-                                ->where('full_name', 'ilike', '%' . $search . '%')
-                                ->orWhere('email', 'ilike', '%' . $search . '%')
-                                ->orWhere('phone', 'ilike', '%' . $search . '%');
+                                ->where('full_name', 'ilike', '%'.$search.'%')
+                                ->orWhere('email', 'ilike', '%'.$search.'%')
+                                ->orWhere('phone', 'ilike', '%'.$search.'%');
                         });
                 });
             })
@@ -110,7 +111,7 @@ class SupplierController extends Controller
                     'full_name' => $contactData['full_name'],
                     'phone' => $contactData['phone'],
                     'email' => $contactData['email'] ?? null,
-                    'is_active' => isset($contactData['is_active']) ? (bool)$contactData['is_active'] : true,
+                    'is_active' => isset($contactData['is_active']) ? (bool) $contactData['is_active'] : true,
                 ]);
             }
         });
@@ -157,9 +158,9 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.editar');
 
         $validated = $request->validate([
-            'code' => 'required|string|max:20|unique:supliers,code,' . $supplier->id_supplier . ',id_supplier',
+            'code' => 'required|string|max:20|unique:supliers,code,'.$supplier->id_supplier.',id_supplier',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:supliers,email,' . $supplier->id_supplier . ',id_supplier',
+            'email' => 'required|email|max:255|unique:supliers,email,'.$supplier->id_supplier.',id_supplier',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
             'id_department' => 'nullable|exists:departments,id_department',
@@ -199,13 +200,13 @@ class SupplierController extends Controller
             $contactIds = [];
 
             foreach ($validated['contacts'] as $contactData) {
-                if (!empty($contactData['id_suplier_contact'])) {
+                if (! empty($contactData['id_suplier_contact'])) {
                     // Contacto existente
                     $contact = $supplier->contacts()
                         ->where('id_suplier_contact', $contactData['id_suplier_contact'])
                         ->first();
 
-                    if (!$contact) {
+                    if (! $contact) {
                         abort(404, 'El contacto seleccionado no pertenece a este proveedor.');
                     }
 
@@ -213,7 +214,7 @@ class SupplierController extends Controller
                         'full_name' => $contactData['full_name'],
                         'phone' => $contactData['phone'],
                         'email' => $contactData['email'] ?? null,
-                        'is_active' => isset($contactData['is_active']) ? (bool)$contactData['is_active'] : true,
+                        'is_active' => isset($contactData['is_active']) ? (bool) $contactData['is_active'] : true,
                     ]);
 
                     $contactIds[] = $contact->id_suplier_contact;
@@ -224,7 +225,7 @@ class SupplierController extends Controller
                         'full_name' => $contactData['full_name'],
                         'phone' => $contactData['phone'],
                         'email' => $contactData['email'] ?? null,
-                        'is_active' => isset($contactData['is_active']) ? (bool)$contactData['is_active'] : true,
+                        'is_active' => isset($contactData['is_active']) ? (bool) $contactData['is_active'] : true,
                     ]);
 
                     $contactIds[] = $newContact->id_suplier_contact;
@@ -250,7 +251,7 @@ class SupplierController extends Controller
     {
         Gate::authorize('suppliers.eliminar');
 
-        $newStatus = !$supplier->is_active;
+        $newStatus = ! $supplier->is_active;
 
         $supplier->update([
             'is_active' => $newStatus,

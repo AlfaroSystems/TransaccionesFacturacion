@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class Purchase extends Model
 {
-    use HasFactory, BelongsToBranch, RefreshesWithLock;
+    use BelongsToBranch, HasFactory, RefreshesWithLock;
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {
@@ -27,8 +27,8 @@ class Purchase extends Model
     public const RECEIVED_STATUSES = ['received', 'completed'];
 
     public const STATUS_LABELS = [
-        'draft'     => 'Borrador',
-        'received'  => 'Recibida',
+        'draft' => 'Borrador',
+        'received' => 'Recibida',
         'completed' => 'Completada',
         'cancelled' => 'Anulada',
     ];
@@ -43,6 +43,7 @@ class Purchase extends Model
     }
 
     protected $table = 'purchases';
+
     protected $primaryKey = 'id_purchase';
 
     protected $fillable = [
@@ -77,12 +78,12 @@ class Purchase extends Model
     protected static function booted(): void
     {
         static::creating(function ($purchase) {
-            if (!$purchase->uuid) {
+            if (! $purchase->uuid) {
                 $purchase->uuid = (string) Str::uuid();
             }
-            if (!$purchase->purchase_code) {
+            if (! $purchase->purchase_code) {
                 // El correlativo es global: lo comparten las compras de todas las sucursales
-                $purchase->purchase_code = DocumentSequence::next('CMP-' . now()->year . '-', 'purchases', 'purchase_code');
+                $purchase->purchase_code = DocumentSequence::next('CMP-'.now()->year.'-', 'purchases', 'purchase_code');
             }
         });
     }

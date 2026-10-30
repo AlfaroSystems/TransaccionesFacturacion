@@ -17,19 +17,19 @@ return new class extends Migration
             $table->string('commercial_name')->nullable();
             $table->string('nit')->nullable();
             $table->string('nrc')->nullable();
-            
+
             // Giros comerciales
             $table->string('commercial_line_1')->nullable();
             $table->string('commercial_line_2')->nullable();
             $table->string('commercial_line_3')->nullable();
-            
+
             $table->string('address')->nullable();
-            
+
             // Relaciones geográficas (El Salvador)
             $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('municipality_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('district_id')->nullable()->constrained()->nullOnDelete();
-            
+
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('web_site')->nullable();

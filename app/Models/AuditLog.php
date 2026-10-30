@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AuditLog extends Model
 {
     protected $table = 'logs';
+
     protected $primaryKey = 'id_log';
 
     // Desactivamos timestamps estándar ya que la tabla solo maneja created_at
@@ -19,7 +21,7 @@ class AuditLog extends Model
         'controller',
         'action',
         'original_data',
-        'modified_data'
+        'modified_data',
     ];
 
     protected $casts = [

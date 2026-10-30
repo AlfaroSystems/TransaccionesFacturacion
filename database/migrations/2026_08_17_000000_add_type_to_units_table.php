@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('units', function (Blueprint $table) {
-            if (!Schema::hasColumn('units', 'type')) {
+            if (! Schema::hasColumn('units', 'type')) {
                 $table->string('type')->nullable()->after('abbreviation');
             }
         });

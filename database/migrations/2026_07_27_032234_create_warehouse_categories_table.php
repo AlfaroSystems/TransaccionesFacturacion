@@ -6,39 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     public function up(): void
     {
 
         Schema::create('warehouse_categories', function (Blueprint $table) {
 
-
             $table->id();
-
 
             $table->string('name');
 
-
             $table->text('description')
-                  ->nullable();
-
+                ->nullable();
 
             $table->boolean('is_active')
-                  ->default(true);
-
+                ->default(true);
 
             $table->timestamps();
-
 
         });
 
     }
 
-
-
     public function down(): void
     {
         Schema::dropIfExists('warehouse_categories');
     }
-
 };

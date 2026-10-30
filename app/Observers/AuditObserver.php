@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Observers;
+
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +22,7 @@ class AuditObserver
     {
         // Obtener solo las columnas que cambiaron
         $changes = $model->getChanges();
-        
+
         // Si no hay cambios reales en base de datos, no registramos nada
         if (empty($changes)) {
             return;
@@ -49,7 +50,7 @@ class AuditObserver
     protected function logActivity(Model $model, string $event, ?array $originalData, ?array $modifiedData): void
     {
         // Evitar bucle infinito si se audita el propio modelo de logs
-        if ($model instanceof \App\Models\AuditLog) {
+        if ($model instanceof AuditLog) {
             return;
         }
 
@@ -69,7 +70,7 @@ class AuditObserver
         if (request()->route()) {
             $actionName = request()->route()->getActionName(); // Ej: "App\Http\Controllers\UserController@store"
             if (strpos($actionName, '@') !== false) {
-                list($ctrl, $act) = explode('@', $actionName);
+                [$ctrl, $act] = explode('@', $actionName);
                 $controller = class_basename($ctrl);
                 $action = $act;
             } else {
@@ -101,6 +102,7 @@ class AuditObserver
                 $data[$field] = '[PROTEGIDO]';
             }
         }
+
         return $data;
     }
 }

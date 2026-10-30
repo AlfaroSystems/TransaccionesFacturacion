@@ -11,7 +11,6 @@ use App\Rules\DiscountWithinLine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class PurchaseQuotationController extends Controller
 {
@@ -24,32 +23,32 @@ class PurchaseQuotationController extends Controller
 
         $validated = $request->validate([
             'id_purchase_quotation_request' => ['required', new Accessible(PurchaseQuotationRequest::class)],
-            'id_supplier'                   => 'required|exists:supliers,id_supplier',
-            'quotation_date'                => 'required|date',
-            'valid_until'                   => 'nullable|date',
-            'currency'                      => 'nullable|string|max:3',
-            'payment_terms'                 => 'nullable|string|max:255',
-            'delivery_days'                 => 'nullable|integer|min:0',
-            'notes'                         => 'nullable|string',
+            'id_supplier' => 'required|exists:supliers,id_supplier',
+            'quotation_date' => 'required|date',
+            'valid_until' => 'nullable|date',
+            'currency' => 'nullable|string|max:3',
+            'payment_terms' => 'nullable|string|max:255',
+            'delivery_days' => 'nullable|integer|min:0',
+            'notes' => 'nullable|string',
 
             // Detalle de Ítems
-            'items'                         => 'required|array|min:1',
-            'items.*.id_product'            => 'required|exists:products,id_product',
-            'items.*.quantity'             => 'required|numeric|min:0.0001',
-            'items.*.id_unit'               => 'nullable|exists:units,id_unit',
+            'items' => 'required|array|min:1',
+            'items.*.id_product' => 'required|exists:products,id_product',
+            'items.*.quantity' => 'required|numeric|min:0.0001',
+            'items.*.id_unit' => 'nullable|exists:units,id_unit',
             // Sin precio: el proveedor no cotizó ese producto
-            'items.*.unit_price'            => 'nullable|numeric|min:0',
-            'items.*.discount'              => ['nullable', 'numeric', 'min:0', new DiscountWithinLine()],
-            'items.*.tax_rate'              => 'nullable|numeric|min:0|max:100',
-            'items.*.delivery_days'          => 'nullable|integer|min:0',
-            'items.*.available_quantity'    => 'nullable|numeric|min:0',
-            'items.*.notes'                 => 'nullable|string',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
+            'items.*.discount' => ['nullable', 'numeric', 'min:0', new DiscountWithinLine],
+            'items.*.tax_rate' => 'nullable|numeric|min:0|max:100',
+            'items.*.delivery_days' => 'nullable|integer|min:0',
+            'items.*.available_quantity' => 'nullable|numeric|min:0',
+            'items.*.notes' => 'nullable|string',
 
             // Gastos Adicionales
-            'expenses'                      => 'nullable|array',
-            'expenses.*.id_expense_type'    => 'required_with:expenses|exists:expense_types,id_expense_type',
-            'expenses.*.description'        => 'nullable|string|max:255',
-            'expenses.*.amount'             => 'required_with:expenses|numeric|min:0',
+            'expenses' => 'nullable|array',
+            'expenses.*.id_expense_type' => 'required_with:expenses|exists:expense_types,id_expense_type',
+            'expenses.*.description' => 'nullable|string|max:255',
+            'expenses.*.amount' => 'required_with:expenses|numeric|min:0',
         ]);
 
         $quotationRequest = PurchaseQuotationRequest::findOrFail($validated['id_purchase_quotation_request']);
@@ -68,7 +67,7 @@ class PurchaseQuotationController extends Controller
                 ->with('error', 'Indique el precio de al menos un producto que cotizó el proveedor.');
         }
 
-        DB::transaction(function () use ($validated, $request, $quotationRequest) {
+        DB::transaction(function () use ($validated, $quotationRequest) {
             // Con ofertas registradas, sus productos ya no cambian
             $quotationRequest->markAsSent();
 
@@ -95,33 +94,35 @@ class PurchaseQuotationController extends Controller
                 $headerTax += $taxAmount;
 
                 $preparedDetails[] = [
-                    'id_product'         => $item['id_product'],
-                    'quantity'           => $qty,
-                    'id_unit'            => $item['id_unit'] ?? null,
-                    'unit_price'         => $price,
-                    'discount'           => $discount,
-                    'subtotal'           => $subtotal,
-                    'tax_rate'           => $taxRate,
-                    'tax_amount'         => $taxAmount,
-                    'total'              => $itemTotal,
-                    'delivery_days'      => isset($item['delivery_days']) && $item['delivery_days'] !== '' ? (int) $item['delivery_days'] : null,
+                    'id_product' => $item['id_product'],
+                    'quantity' => $qty,
+                    'id_unit' => $item['id_unit'] ?? null,
+                    'unit_price' => $price,
+                    'discount' => $discount,
+                    'subtotal' => $subtotal,
+                    'tax_rate' => $taxRate,
+                    'tax_amount' => $taxAmount,
+                    'total' => $itemTotal,
+                    'delivery_days' => isset($item['delivery_days']) && $item['delivery_days'] !== '' ? (int) $item['delivery_days'] : null,
                     'available_quantity' => isset($item['available_quantity']) && $item['available_quantity'] !== '' ? (float) $item['available_quantity'] : $qty,
-                    'notes'              => $item['notes'] ?? null,
+                    'notes' => $item['notes'] ?? null,
                 ];
             }
 
             // 2. Calcular gastos adicionales
             $preparedExpenses = [];
-            if (!empty($validated['expenses'])) {
+            if (! empty($validated['expenses'])) {
                 foreach ($validated['expenses'] as $exp) {
                     $amount = (float) ($exp['amount'] ?? 0);
-                    if ($amount <= 0) continue;
+                    if ($amount <= 0) {
+                        continue;
+                    }
 
                     $headerExpensesTotal += $amount;
                     $preparedExpenses[] = [
                         'id_expense_type' => $exp['id_expense_type'],
-                        'description'     => $exp['description'] ?? null,
-                        'amount'          => $amount,
+                        'description' => $exp['description'] ?? null,
+                        'amount' => $amount,
                     ];
                 }
             }
@@ -131,19 +132,19 @@ class PurchaseQuotationController extends Controller
             // 3. Crear Encabezado de Cotización
             $quotation = PurchaseQuotation::create([
                 'id_purchase_quotation_request' => $validated['id_purchase_quotation_request'],
-                'id_supplier'                   => $validated['id_supplier'],
-                'quotation_date'                => $validated['quotation_date'],
-                'valid_until'                   => $validated['valid_until'] ?? null,
-                'currency'                      => $validated['currency'] ?? 'USD',
-                'payment_terms'                 => $validated['payment_terms'] ?? null,
-                'delivery_days'                 => isset($validated['delivery_days']) && $validated['delivery_days'] !== '' ? (int) $validated['delivery_days'] : null,
-                'subtotal'                      => $headerSubtotal,
-                'discount'                      => $headerDiscount,
-                'tax'                           => $headerTax,
-                'total'                         => $grandTotal,
-                'status'                        => 'submitted',
-                'notes'                         => $validated['notes'] ?? null,
-                'id_user'                       => auth()->id(),
+                'id_supplier' => $validated['id_supplier'],
+                'quotation_date' => $validated['quotation_date'],
+                'valid_until' => $validated['valid_until'] ?? null,
+                'currency' => $validated['currency'] ?? 'USD',
+                'payment_terms' => $validated['payment_terms'] ?? null,
+                'delivery_days' => isset($validated['delivery_days']) && $validated['delivery_days'] !== '' ? (int) $validated['delivery_days'] : null,
+                'subtotal' => $headerSubtotal,
+                'discount' => $headerDiscount,
+                'tax' => $headerTax,
+                'total' => $grandTotal,
+                'status' => 'submitted',
+                'notes' => $validated['notes'] ?? null,
+                'id_user' => auth()->id(),
             ]);
 
             // 4. Guardar Detalles de Ítems

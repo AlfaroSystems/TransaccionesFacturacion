@@ -87,8 +87,8 @@ return new class extends Migration
         $sql = match ($type) {
             // Al renombrar una restricción, PostgreSQL renombra también su índice
             'FK', 'PK', 'UNIQUE' => "ALTER TABLE \"{$table}\" RENAME CONSTRAINT \"{$from}\" TO \"{$to}\"",
-            'INDEX'              => "ALTER INDEX \"{$from}\" RENAME TO \"{$to}\"",
-            'SEQ'                => "ALTER SEQUENCE \"{$from}\" RENAME TO \"{$to}\"",
+            'INDEX' => "ALTER INDEX \"{$from}\" RENAME TO \"{$to}\"",
+            'SEQ' => "ALTER SEQUENCE \"{$from}\" RENAME TO \"{$to}\"",
         };
 
         DB::statement($sql);

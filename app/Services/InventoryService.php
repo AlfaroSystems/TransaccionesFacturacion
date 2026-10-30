@@ -29,7 +29,7 @@ use InvalidArgumentException;
  */
 class InventoryService
 {
-    public function __construct(private readonly ProductCostService $costos = new ProductCostService()) {}
+    public function __construct(private readonly ProductCostService $costos = new ProductCostService) {}
 
     /**
      * Lleva el inventario al estado de la compra. Se llama después de cada cambio de la
@@ -88,7 +88,7 @@ class InventoryService
             $total = round($cantidad * $costo, 4);
 
             $lot = InventoryLot::create([
-                'lot_code' => DocumentSequence::next('LOT-' . now()->year . '-', 'inventory_lots', 'lot_code', 5),
+                'lot_code' => DocumentSequence::next('LOT-'.now()->year.'-', 'inventory_lots', 'lot_code', 5),
                 'id_product' => $detail->id_product,
                 'id_purchase_detail' => $detail->id_purchase_detail,
                 'received_at' => $fecha,

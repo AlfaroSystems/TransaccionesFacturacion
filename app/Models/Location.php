@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -43,19 +44,19 @@ class Location extends Model
         $parts = [];
 
         if ($id_warehouse) {
-            $parts[] = 'B0D' . $id_warehouse;
+            $parts[] = 'B0D'.$id_warehouse;
         }
         if ($aisle !== null && $aisle !== '') {
-            $parts[] = 'PAS' . $aisle;
+            $parts[] = 'PAS'.$aisle;
         }
         if ($rack !== null && $rack !== '') {
-            $parts[] = 'EST' . $rack;
+            $parts[] = 'EST'.$rack;
         }
         if ($level !== null && $level !== '') {
-            $parts[] = 'NIV' . $level;
+            $parts[] = 'NIV'.$level;
         }
         if ($position !== null && $position !== '') {
-            $parts[] = 'P0S' . $position;
+            $parts[] = 'P0S'.$position;
         }
 
         return implode(' - ', $parts);

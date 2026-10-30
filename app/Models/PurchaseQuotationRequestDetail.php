@@ -13,6 +13,7 @@ class PurchaseQuotationRequestDetail extends Model
     const UPDATED_AT = null;
 
     protected $table = 'purchase_quotation_request_details';
+
     protected $primaryKey = 'id_purchase_quotation_request_detail';
 
     protected $fillable = [

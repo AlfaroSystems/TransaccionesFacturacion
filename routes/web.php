@@ -1,28 +1,29 @@
 <?php
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\BranchController;
-use App\Http\Controllers\WarehouseController;
-use App\Http\Controllers\WarehouseCategoryController;
-use App\Http\Controllers\LocationController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\UnitController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\SubCategoryController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ExpenseTypeController;
-use App\Http\Controllers\PurchaseRequestController;
-use App\Http\Controllers\PurchaseQuotationRequestController;
-use App\Http\Controllers\PurchaseQuotationController;
-use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\RetaceoController;
 
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseTypeController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\PurchaseQuotationController;
+use App\Http\Controllers\PurchaseQuotationRequestController;
+use App\Http\Controllers\PurchaseRequestController;
+use App\Http\Controllers\RetaceoController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UnitController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WarehouseCategoryController;
+use App\Http\Controllers\WarehouseController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -59,7 +60,7 @@ Route::middleware('auth')->group(function () {
     )->name('product-images.destroy');
     Route::get(
         '/audit-logs',
-        [App\Http\Controllers\AuditLogController::class, 'index']
+        [AuditLogController::class, 'index']
     )
         ->middleware('can:bitacora.ver')
         ->name('audit-logs.index');
@@ -79,7 +80,7 @@ Route::middleware('auth')->group(function () {
         'index',
         'store',
         'update',
-        'destroy'
+        'destroy',
     ]);
     // Solicitudes de Compra
     Route::resource(
@@ -184,7 +185,7 @@ Route::middleware('auth')->group(function () {
         'index',
         'store',
         'show',
-        'update'
+        'update',
     ]);
 
     // Rutas para Ofertas de Proveedor (PurchaseQuotation)

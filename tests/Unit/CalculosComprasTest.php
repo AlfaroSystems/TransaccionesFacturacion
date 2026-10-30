@@ -18,8 +18,8 @@ test('los totales de una compra suman subtotal, descuento e IVA de cada línea',
     expect($totales)->toBe([
         'subtotal' => 246.5,
         'discount' => 20.0,
-        'tax'      => 23.4,
-        'total'    => 249.9,
+        'tax' => 23.4,
+        'total' => 249.9,
     ]);
 });
 
@@ -59,11 +59,11 @@ test('el flete y los gastos se reparten en proporción al valor FOB de cada lín
         ->and($b['unit_cost'])->toBe(57.0);
 
     expect($resultado['totals'])->toBe([
-        'total_fob'      => 1000.0,
-        'total_freight'  => 100.0,
+        'total_fob' => 1000.0,
+        'total_freight' => 100.0,
         'total_expenses' => 40.0,
-        'total_dai'      => 0.0,
-        'total_cost'     => 1140.0,
+        'total_dai' => 0.0,
+        'total_cost' => 1140.0,
     ]);
 });
 

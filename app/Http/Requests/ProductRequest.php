@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Requests;
+
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +19,7 @@ class ProductRequest extends FormRequest
     /**
      * Obtener las reglas de validación que se aplican a la solicitud.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

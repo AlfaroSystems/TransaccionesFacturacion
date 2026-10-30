@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class Retaceo extends Model
 {
-    use HasFactory, BelongsToBranch, RefreshesWithLock;
+    use BelongsToBranch, HasFactory, RefreshesWithLock;
 
     // Pertenece a la sucursal de su compra
     public function restrictToBranch(Builder $query, int $branchId): void
@@ -23,13 +23,14 @@ class Retaceo extends Model
     }
 
     public const STATUS_LABELS = [
-        'draft'      => 'Borrador',
+        'draft' => 'Borrador',
         'calculated' => 'Liquidado',
-        'applied'    => 'Aplicado',
-        'cancelled'  => 'Cancelado',
+        'applied' => 'Aplicado',
+        'cancelled' => 'Cancelado',
     ];
 
     protected $table = 'retaceos';
+
     protected $primaryKey = 'id_retaceo';
 
     protected $fillable = [
@@ -54,25 +55,25 @@ class Retaceo extends Model
     ];
 
     protected $casts = [
-        'retaceo_date'        => 'datetime',
+        'retaceo_date' => 'datetime',
         'import_invoice_date' => 'date',
-        'import_policy_date'  => 'date',
-        'total_fob'           => 'decimal:4',
-        'total_freight'       => 'decimal:4',
-        'total_expenses'      => 'decimal:4',
-        'total_dai'           => 'decimal:4',
-        'total_cost'          => 'decimal:4',
+        'import_policy_date' => 'date',
+        'total_fob' => 'decimal:4',
+        'total_freight' => 'decimal:4',
+        'total_expenses' => 'decimal:4',
+        'total_dai' => 'decimal:4',
+        'total_cost' => 'decimal:4',
     ];
 
     protected static function booted(): void
     {
         static::creating(function ($retaceo) {
-            if (!$retaceo->uuid) {
+            if (! $retaceo->uuid) {
                 $retaceo->uuid = (string) Str::uuid();
             }
-            if (!$retaceo->retaceo_code) {
+            if (! $retaceo->retaceo_code) {
                 // El correlativo es global: lo comparten los retaceos de todas las sucursales
-                $retaceo->retaceo_code = DocumentSequence::next('RET-' . now()->year . '-', 'retaceos', 'retaceo_code');
+                $retaceo->retaceo_code = DocumentSequence::next('RET-'.now()->year.'-', 'retaceos', 'retaceo_code');
             }
         });
     }

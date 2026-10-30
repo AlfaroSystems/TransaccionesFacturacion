@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            
+
             // UUID único autogenerado y SKU controlado único
             $table->uuid('uuid')->unique();
             $table->string('sku', 50)->unique();
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('dimensions', 100)->nullable();
             $table->string('presentation', 100)->nullable();
             $table->text('description')->nullable();
-            
+
             // Claves foráneas solicitadas
             $table->foreignId('id_category')->nullable()->constrained('categories')->nullOnDelete();
             $table->foreignId('id_sub_category')->nullable()->constrained('sub_categories')->nullOnDelete();

@@ -1,9 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Company;
+use App\Models\Department;
+use App\Models\District;
+use App\Models\Municipality;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
@@ -37,9 +42,9 @@ class CompanyController extends Controller
             ->withQueryString();
 
         // Cargar datos geográficos para los dropdowns de El Salvador.
-        $departments = \App\Models\Department::orderBy('name')->get();
-        $municipalities = \App\Models\Municipality::orderBy('name')->get();
-        $districts = \App\Models\District::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get();
+        $municipalities = Municipality::orderBy('name')->get();
+        $districts = District::orderBy('name')->get();
 
         return view('companies.index', compact('companies', 'departments', 'municipalities', 'districts'));
     }
@@ -146,7 +151,7 @@ class CompanyController extends Controller
         if ($request->hasFile('logo')) {
             // Eliminar logo anterior si existe
             if ($company->logo) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo);
+                Storage::disk('public')->delete($company->logo);
             }
             $updateData['logo'] = $request->file('logo')->store('logos', 'public');
         }
@@ -165,9 +170,9 @@ class CompanyController extends Controller
     {
         Gate::authorize('admin');
 
-        $newStatus = !$company->is_active;
+        $newStatus = ! $company->is_active;
 
-        if (!$newStatus && $company->branches()->count() > 0) {
+        if (! $newStatus && $company->branches()->count() > 0) {
             return redirect()
                 ->route('companies.index')
                 ->with('error', 'No se puede inactivar la empresa porque tiene sucursales asociadas.');

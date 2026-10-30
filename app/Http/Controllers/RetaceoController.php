@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Country;
+use App\Models\Company;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\Retaceo;
@@ -19,7 +19,7 @@ class RetaceoController extends Controller
     /** Mensajes de las reglas de líneas (todas las de la compra, una vez cada una) */
     private const MENSAJES_LINEAS = [
         'details.*.id_purchase_detail.required' => 'Cada línea del retaceo debe ser una línea de la compra.',
-        'details.*.id_purchase_detail.in'       => 'Cada línea del retaceo debe ser una línea de la compra.',
+        'details.*.id_purchase_detail.in' => 'Cada línea del retaceo debe ser una línea de la compra.',
         'details.*.id_purchase_detail.distinct' => 'Una línea de la compra aparece más de una vez en el retaceo.',
     ];
 
@@ -82,10 +82,10 @@ class RetaceoController extends Controller
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('retaceo_code', 'ilike', "%{$search}%")
-                  ->orWhere('import_policy_number', 'ilike', "%{$search}%")
-                  ->orWhere('import_invoice_number', 'ilike', "%{$search}%")
-                  ->orWhereHas('supplier', fn ($sq) => $sq->where('name', 'ilike', "%{$search}%"))
-                  ->orWhereHas('purchase', fn ($pq) => $pq->where('purchase_code', 'ilike', "%{$search}%"));
+                    ->orWhere('import_policy_number', 'ilike', "%{$search}%")
+                    ->orWhere('import_invoice_number', 'ilike', "%{$search}%")
+                    ->orWhereHas('supplier', fn ($sq) => $sq->where('name', 'ilike', "%{$search}%"))
+                    ->orWhereHas('purchase', fn ($pq) => $pq->where('purchase_code', 'ilike', "%{$search}%"));
             });
         }
 
@@ -108,8 +108,8 @@ class RetaceoController extends Controller
         $retaceos = $query->paginate(10)->withQueryString();
 
         // Métricas
-        $totalCount      = Retaceo::count();
-        $draftCount      = Retaceo::where('status', 'draft')->count();
+        $totalCount = Retaceo::count();
+        $draftCount = Retaceo::where('status', 'draft')->count();
         $calculatedCount = Retaceo::whereIn('status', ['calculated', 'applied'])->count();
         $totalCostAmount = Retaceo::where('status', '!=', 'cancelled')->sum('total_cost');
 
@@ -161,17 +161,17 @@ class RetaceoController extends Controller
         ])->findOrFail($id);
 
         return response()->json([
-            'id_purchase'             => $purchase->id_purchase,
-            'purchase_code'           => $purchase->purchase_code,
-            'id_supplier'             => $purchase->id_supplier,
-            'supplier_name'           => $purchase->supplier?->name,
-            'origin_country'          => $purchase->supplier?->country ?? 'El Salvador',
+            'id_purchase' => $purchase->id_purchase,
+            'purchase_code' => $purchase->purchase_code,
+            'id_supplier' => $purchase->id_supplier,
+            'supplier_name' => $purchase->supplier?->name,
+            'origin_country' => $purchase->supplier?->country ?? 'El Salvador',
             'supplier_invoice_number' => $purchase->supplier_invoice_number,
-            'supplier_invoice_date'   => $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('Y-m-d') : null,
-            'currency'                => $purchase->currency,
+            'supplier_invoice_date' => $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('Y-m-d') : null,
+            'currency' => $purchase->currency,
             // Gastos de la orden marcados como costo que le tocan a esta compra, como sugerencia
-            'suggested_expenses'      => app(ProductCostService::class)->gastosDeLaCompra($purchase),
-            'details'                 => $purchase->details->map(function ($d) {
+            'suggested_expenses' => app(ProductCostService::class)->gastosDeLaCompra($purchase),
+            'details' => $purchase->details->map(function ($d) {
                 $qty = (float) $d->quantity_received;
                 if ($qty <= 0) {
                     $qty = (float) $d->quantity_ordered;
@@ -180,13 +180,13 @@ class RetaceoController extends Controller
 
                 return [
                     'id_purchase_detail' => $d->id_purchase_detail,
-                    'id_product'         => $d->id_product,
-                    'product_name'       => $d->product?->name ?? 'Producto #'.$d->id_product,
-                    'product_code'       => $d->product?->code ?? '',
-                    'quantity'           => $qty,
-                    'unit_name'          => $d->unit?->name ?? 'Unidad',
-                    'unit_price'         => (float) $d->unit_price,
-                    'cost_fob'           => round($fob, 4),
+                    'id_product' => $d->id_product,
+                    'product_name' => $d->product?->name ?? 'Producto #'.$d->id_product,
+                    'product_code' => $d->product?->code ?? '',
+                    'quantity' => $qty,
+                    'unit_name' => $d->unit?->name ?? 'Unidad',
+                    'unit_price' => (float) $d->unit_price,
+                    'cost_fob' => round($fob, 4),
                 ];
             }),
         ]);
@@ -199,19 +199,19 @@ class RetaceoController extends Controller
         $validated = $request->validate([
             // Que esté recibida y sin otro retaceo activo lo revisa RetaceoService::crear con la
             // compra bloqueada: aquí dos retaceos creados a la vez pasarían ambos
-            'id_purchase'                 => ['required', new Accessible(Purchase::class)],
-            'id_supplier'                 => ['required', 'exists:supliers,id_supplier'],
-            'retaceo_date'                => ['required', 'date'],
-            'origin_country'              => ['nullable', 'string', 'max:100'],
-            'import_invoice_number'       => ['nullable', 'string', 'max:100'],
-            'import_invoice_date'         => ['nullable', 'date'],
-            'import_policy_number'        => ['nullable', 'string', 'max:100'],
-            'import_policy_date'          => ['nullable', 'date'],
-            'total_freight'               => ['nullable', 'numeric', 'min:0'],
-            'total_expenses'              => ['nullable', 'numeric', 'min:0'],
-            'total_dai'                   => ['nullable', 'numeric', 'min:0'],
-            'status'                      => ['required', Rule::in(['draft', 'calculated', 'applied'])],
-            'notes'                       => ['nullable', 'string'],
+            'id_purchase' => ['required', new Accessible(Purchase::class)],
+            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'retaceo_date' => ['required', 'date'],
+            'origin_country' => ['nullable', 'string', 'max:100'],
+            'import_invoice_number' => ['nullable', 'string', 'max:100'],
+            'import_invoice_date' => ['nullable', 'date'],
+            'import_policy_number' => ['nullable', 'string', 'max:100'],
+            'import_policy_date' => ['nullable', 'date'],
+            'total_freight' => ['nullable', 'numeric', 'min:0'],
+            'total_expenses' => ['nullable', 'numeric', 'min:0'],
+            'total_dai' => ['nullable', 'numeric', 'min:0'],
+            'status' => ['required', Rule::in(['draft', 'calculated', 'applied'])],
+            'notes' => ['nullable', 'string'],
             ...$this->reglasDeLineas($request, $request->integer('id_purchase')),
         ], self::MENSAJES_LINEAS);
 
@@ -252,7 +252,7 @@ class RetaceoController extends Controller
             'details.purchaseDetail.unit',
         ]);
 
-        $company = $retaceo->purchase?->branch?->company ?? \App\Models\Company::where('is_active', true)->first();
+        $company = $retaceo->purchase?->branch?->company ?? Company::where('is_active', true)->first();
 
         return view('retaceos.pdf', compact('retaceo', 'company'));
     }
@@ -269,37 +269,37 @@ class RetaceoController extends Controller
         ]);
 
         return response()->json([
-            'id_retaceo'            => $retaceo->id_retaceo,
-            'retaceo_code'          => $retaceo->retaceo_code,
-            'id_purchase'           => $retaceo->id_purchase,
-            'purchase_code'         => $retaceo->purchase?->purchase_code,
-            'id_supplier'           => $retaceo->id_supplier,
-            'supplier_name'         => $retaceo->supplier?->name,
-            'origin_country'        => $retaceo->origin_country ?? '',
-            'retaceo_date'          => $retaceo->retaceo_date ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : '',
+            'id_retaceo' => $retaceo->id_retaceo,
+            'retaceo_code' => $retaceo->retaceo_code,
+            'id_purchase' => $retaceo->id_purchase,
+            'purchase_code' => $retaceo->purchase?->purchase_code,
+            'id_supplier' => $retaceo->id_supplier,
+            'supplier_name' => $retaceo->supplier?->name,
+            'origin_country' => $retaceo->origin_country ?? '',
+            'retaceo_date' => $retaceo->retaceo_date ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : '',
             'import_invoice_number' => $retaceo->import_invoice_number ?? '',
-            'import_invoice_date'   => $retaceo->import_invoice_date ? $retaceo->import_invoice_date->format('Y-m-d') : '',
-            'import_policy_number'  => $retaceo->import_policy_number ?? '',
-            'import_policy_date'    => $retaceo->import_policy_date ? $retaceo->import_policy_date->format('Y-m-d') : '',
-            'total_freight'         => (float) $retaceo->total_freight,
-            'total_expenses'        => (float) $retaceo->total_expenses,
-            'total_dai'             => (float) $retaceo->total_dai,
-            'status'                => $retaceo->status,
-            'notes'                 => $retaceo->notes ?? '',
-            'details'               => $retaceo->details->map(fn ($d) => [
-                'id_retaceo_detail'  => $d->id_retaceo_detail,
+            'import_invoice_date' => $retaceo->import_invoice_date ? $retaceo->import_invoice_date->format('Y-m-d') : '',
+            'import_policy_number' => $retaceo->import_policy_number ?? '',
+            'import_policy_date' => $retaceo->import_policy_date ? $retaceo->import_policy_date->format('Y-m-d') : '',
+            'total_freight' => (float) $retaceo->total_freight,
+            'total_expenses' => (float) $retaceo->total_expenses,
+            'total_dai' => (float) $retaceo->total_dai,
+            'status' => $retaceo->status,
+            'notes' => $retaceo->notes ?? '',
+            'details' => $retaceo->details->map(fn ($d) => [
+                'id_retaceo_detail' => $d->id_retaceo_detail,
                 'id_purchase_detail' => $d->id_purchase_detail,
-                'id_product'         => $d->id_product,
-                'product_name'       => $d->product?->name ?? 'Producto #'.$d->id_product,
-                'product_code'       => $d->product?->code ?? '',
+                'id_product' => $d->id_product,
+                'product_name' => $d->product?->name ?? 'Producto #'.$d->id_product,
+                'product_code' => $d->product?->code ?? '',
                 // La recibida en la compra, que es la que el retaceo debe llevar (ver reglasDeLineas)
-                'quantity'           => (float) ($d->purchaseDetail?->quantity_received ?? $d->quantity),
-                'cost_fob'           => (float) $d->cost_fob,
-                'freight_amount'     => (float) $d->freight_amount,
-                'expense_amount'     => (float) $d->expense_amount,
-                'dai_amount'         => (float) $d->dai_amount,
-                'unit_cost'          => (float) $d->unit_cost,
-                'total_cost'         => (float) $d->total_cost,
+                'quantity' => (float) ($d->purchaseDetail?->quantity_received ?? $d->quantity),
+                'cost_fob' => (float) $d->cost_fob,
+                'freight_amount' => (float) $d->freight_amount,
+                'expense_amount' => (float) $d->expense_amount,
+                'dai_amount' => (float) $d->dai_amount,
+                'unit_cost' => (float) $d->unit_cost,
+                'total_cost' => (float) $d->total_cost,
             ]),
         ]);
     }
@@ -332,17 +332,17 @@ class RetaceoController extends Controller
         }
 
         $validated = $request->validate([
-            'id_supplier'                 => ['required', 'exists:supliers,id_supplier'],
-            'retaceo_date'                => ['required', 'date'],
-            'origin_country'              => ['nullable', 'string', 'max:100'],
-            'import_invoice_number'       => ['nullable', 'string', 'max:100'],
-            'import_invoice_date'         => ['nullable', 'date'],
-            'import_policy_number'        => ['nullable', 'string', 'max:100'],
-            'import_policy_date'          => ['nullable', 'date'],
-            'total_freight'               => ['nullable', 'numeric', 'min:0'],
-            'total_expenses'              => ['nullable', 'numeric', 'min:0'],
-            'total_dai'                   => ['nullable', 'numeric', 'min:0'],
-            'notes'                       => ['nullable', 'string'],
+            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'retaceo_date' => ['required', 'date'],
+            'origin_country' => ['nullable', 'string', 'max:100'],
+            'import_invoice_number' => ['nullable', 'string', 'max:100'],
+            'import_invoice_date' => ['nullable', 'date'],
+            'import_policy_number' => ['nullable', 'string', 'max:100'],
+            'import_policy_date' => ['nullable', 'date'],
+            'total_freight' => ['nullable', 'numeric', 'min:0'],
+            'total_expenses' => ['nullable', 'numeric', 'min:0'],
+            'total_dai' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string'],
             ...$this->reglasDeLineas($request, $retaceo->id_purchase),
         ], self::MENSAJES_LINEAS);
 

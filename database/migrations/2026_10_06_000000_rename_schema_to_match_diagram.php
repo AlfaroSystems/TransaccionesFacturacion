@@ -17,45 +17,45 @@ return new class extends Migration
      * Tablas: nombre actual => nombre del diagrama.
      */
     private array $tables = [
-        'audit_logs'           => 'logs',
-        'role_user'            => 'users_roles',
-        'permission_role'      => 'roles_permissions',
+        'audit_logs' => 'logs',
+        'role_user' => 'users_roles',
+        'permission_role' => 'roles_permissions',
         'warehouse_categories' => 'warehouse_category',
-        'suppliers'            => 'supliers',
-        'supplier_contacts'    => 'supliers_contacts',
+        'suppliers' => 'supliers',
+        'supplier_contacts' => 'supliers_contacts',
     ];
 
     /**
      * Columnas por tabla (con el nombre nuevo de la tabla): nombre actual => nombre del diagrama.
      */
     private array $columns = [
-        'logs'              => ['id' => 'id_log', 'user_id' => 'id_user'],
-        'users'             => ['id' => 'id_user', 'name' => 'username', 'password' => 'password_hash'],
-        'users_roles'       => ['user_id' => 'id_user', 'role_id' => 'id_role'],
-        'roles'             => ['id' => 'id_role'],
-        'permissions'       => ['id' => 'id_permission'],
+        'logs' => ['id' => 'id_log', 'user_id' => 'id_user'],
+        'users' => ['id' => 'id_user', 'name' => 'username', 'password' => 'password_hash'],
+        'users_roles' => ['user_id' => 'id_user', 'role_id' => 'id_role'],
+        'roles' => ['id' => 'id_role'],
+        'permissions' => ['id' => 'id_permission'],
         'roles_permissions' => ['role_id' => 'id_role', 'permission_id' => 'id_permission'],
-        'companies'         => [
+        'companies' => [
             'id' => 'id_company', 'address' => 'addres', 'department_id' => 'id_department',
             'municipality_id' => 'id_municipality', 'district_id' => 'id_district',
         ],
-        'branches'          => [
+        'branches' => [
             'id' => 'id_branch', 'company_id' => 'id_company', 'address' => 'addres',
             'department_id' => 'id_department', 'municipality_id' => 'id_municipality', 'district_id' => 'id_district',
         ],
-        'warehouses'         => ['id' => 'id_warehouse', 'branch_id' => 'id_branch', 'warehouse_category_id' => 'id_warehouse_category'],
-        'locations'          => ['id' => 'id_location', 'warehouse_id' => 'id_warehouse', 'pasillo' => 'aisle'],
+        'warehouses' => ['id' => 'id_warehouse', 'branch_id' => 'id_branch', 'warehouse_category_id' => 'id_warehouse_category'],
+        'locations' => ['id' => 'id_location', 'warehouse_id' => 'id_warehouse', 'pasillo' => 'aisle'],
         'warehouse_category' => ['id' => 'id_warehouse_category'],
-        'departments'        => ['id' => 'id_department'],
-        'municipalities'     => ['id' => 'id_municipality', 'department_id' => 'id_department'],
-        'districts'          => ['id' => 'id_district', 'municipality_id' => 'id_municipality'],
-        'products'           => ['id' => 'id_product'],
-        'sub_categories'     => ['id' => 'id_sub_category'],
-        'categories'         => ['id' => 'id_category'],
-        'units'              => ['id' => 'id_unit'],
+        'departments' => ['id' => 'id_department'],
+        'municipalities' => ['id' => 'id_municipality', 'department_id' => 'id_department'],
+        'districts' => ['id' => 'id_district', 'municipality_id' => 'id_municipality'],
+        'products' => ['id' => 'id_product'],
+        'sub_categories' => ['id' => 'id_sub_category'],
+        'categories' => ['id' => 'id_category'],
+        'units' => ['id' => 'id_unit'],
         // No están en el diagrama; se renombran por consistencia con el resto
-        'supliers'           => ['department_id' => 'id_department', 'municipality_id' => 'id_municipality', 'district_id' => 'id_district'],
-        'supliers_contacts'  => ['id_contact' => 'id_suplier_contact'],
+        'supliers' => ['department_id' => 'id_department', 'municipality_id' => 'id_municipality', 'district_id' => 'id_district'],
+        'supliers_contacts' => ['id_contact' => 'id_suplier_contact'],
     ];
 
     public function up(): void

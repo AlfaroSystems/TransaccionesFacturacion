@@ -20,6 +20,7 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -31,30 +32,30 @@ use Illuminate\Support\Str;
 function registrosParaPantallas(User $admin): array
 {
     // Ubicación geográfica completa, para que las pantallas carguen esas relaciones
-    $department   = Department::create(['code' => 'DP', 'name' => 'Departamento', 'short_name' => 'DP']);
+    $department = Department::create(['code' => 'DP', 'name' => 'Departamento', 'short_name' => 'DP']);
     $municipality = Municipality::create(['id_department' => $department->id_department, 'code' => 'MU', 'name' => 'Municipio']);
-    $district     = District::create(['id_municipality' => $municipality->id_municipality, 'code' => 'DI', 'name' => 'Distrito']);
+    $district = District::create(['id_municipality' => $municipality->id_municipality, 'code' => 'DI', 'name' => 'Distrito']);
     $geo = [
         'id_department' => $department->id_department,
         'id_municipality' => $municipality->id_municipality,
         'id_district' => $district->id_district,
     ];
 
-    $company   = Company::create(['name' => 'Empresa Pantallas', 'addres' => 'Dirección', ...$geo]);
-    $branch    = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Pantallas', 'addres' => 'Dirección', ...$geo]);
-    $whCat     = WarehouseCategory::create(['name' => 'General']);
+    $company = Company::create(['name' => 'Empresa Pantallas', 'addres' => 'Dirección', ...$geo]);
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Pantallas', 'addres' => 'Dirección', ...$geo]);
+    $whCat = WarehouseCategory::create(['name' => 'General']);
     $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $whCat->id_warehouse_category, 'name' => 'Bodega']);
-    $location  = Location::create(['id_warehouse' => $warehouse->id_warehouse, 'code' => 'LOC-'.Str::random(6), 'aisle' => 'A', 'capacity' => 1]);
-    $category  = Category::create(['name' => 'Categoría']);
-    $sub       = SubCategory::create(['id_category' => $category->id_category, 'name' => 'Subcategoría']);
-    $unit      = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
-    $product   = Product::create([
+    $location = Location::create(['id_warehouse' => $warehouse->id_warehouse, 'code' => 'LOC-'.Str::random(6), 'aisle' => 'A', 'capacity' => 1]);
+    $category = Category::create(['name' => 'Categoría']);
+    $sub = SubCategory::create(['id_category' => $category->id_category, 'name' => 'Subcategoría']);
+    $unit = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
+    $product = Product::create([
         'name' => 'Producto', 'sku' => 'SKU-'.Str::random(6), 'id_category' => $category->id_category,
         'id_sub_category' => $sub->id_sub_category, 'purchase_unit' => $unit->id_unit, 'sale_unit' => $unit->id_unit,
     ]);
-    $supplier  = Supplier::create(['name' => 'Proveedor', 'email' => 'p@example.com', 'country' => 'El Salvador', 'is_active' => true, ...$geo]);
+    $supplier = Supplier::create(['name' => 'Proveedor', 'email' => 'p@example.com', 'country' => 'El Salvador', 'is_active' => true, ...$geo]);
     $supplier->contacts()->create(['full_name' => 'Contacto', 'phone' => '2222-2222', 'email' => 'c@example.com', 'is_active' => true]);
-    $role      = Role::create(['name' => 'rol-pantallas']);
+    $role = Role::create(['name' => 'rol-pantallas']);
 
     $request = PurchaseRequest::create([
         'uuid' => (string) Str::uuid(), 'purchase_request_code' => 'REQ-PANTALLAS', 'id_branch' => $branch->id_branch,
@@ -94,7 +95,7 @@ test('las búsquedas no distinguen mayúsculas de minúsculas', function () {
 
     $this->actingAs($admin);
 
-    $ids = fn ($items) => collect($items instanceof \Illuminate\Contracts\Pagination\Paginator ? $items->items() : $items)->map->getKey();
+    $ids = fn ($items) => collect($items instanceof Paginator ? $items->items() : $items)->map->getKey();
 
     expect($ids($this->get(route('products.index', ['search' => 'LAPTOP dell']))->viewData('products')))->toContain($product->id_product)
         ->and($ids($this->get(route('suppliers.index', ['search' => 'acme']))->viewData('suppliers')))->toContain($supplier->id_supplier)
@@ -168,4 +169,17 @@ test('editar una empresa sin enviar los campos opcionales no falla', function ()
 
     expect($company->fresh()->name)->toBe('Empresa Renombrada')
         ->and($company->fresh()->nit)->toBeNull();
+});
+
+test('las pantallas cargan sus librerías desde el build de Vite y no desde un CDN', function () {
+    $admin = User::factory()->create();
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
+    $this->actingAs($admin);
+
+    // Sin versión fija ni verificación de integridad, el CDN podía servir cualquier script
+    $this->get(route('dashboard'))->assertOk()
+        ->assertDontSee('cdn.jsdelivr.net', false)
+        ->assertSee('/build/assets/dashboard-', false);
+
+    $this->get(route('purchases.index'))->assertOk()->assertDontSee('cdn.jsdelivr.net', false);
 });

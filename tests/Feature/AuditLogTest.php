@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
-use App\Models\Company;
-use App\Models\Category;
 use App\Models\AuditLog;
+use App\Models\Category;
+use App\Models\Company;
+use App\Models\User;
 
 it('logs creation, update, and deletion of different models', function () {
     // 1. Crear un usuario y verificar que se guarda en la bitácora

@@ -17,6 +17,7 @@ class InventoryLot extends Model
     use BelongsToBranch;
 
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const STATUS_LABELS = [

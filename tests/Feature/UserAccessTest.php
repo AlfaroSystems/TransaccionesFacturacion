@@ -6,7 +6,9 @@ use App\Models\Company;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 // =============================================================================
@@ -62,11 +64,11 @@ function gestorDeUsuarios(): User
 function datosUsuario(User $user, array $cambios = []): array
 {
     return array_merge([
-        'username'  => $user->username,
-        'email'     => $user->email,
+        'username' => $user->username,
+        'email' => $user->email,
         'id_branch' => $user->id_branch,
         'is_active' => $user->is_active ? 1 : 0,
-        'roles'     => $user->roles->pluck('id_role')->all(),
+        'roles' => $user->roles->pluck('id_role')->all(),
     ], $cambios);
 }
 
@@ -125,13 +127,13 @@ test('un usuario que no es admin no puede crear un usuario con rol admin', funct
 
     $this->actingAs($gestor)
         ->post(route('users.store'), [
-            'username'              => 'Intruso',
-            'email'                 => 'intruso-'.Str::random(6).'@example.com',
-            'password'              => 'password123',
+            'username' => 'Intruso',
+            'email' => 'intruso-'.Str::random(6).'@example.com',
+            'password' => 'password123',
             'password_confirmation' => 'password123',
-            'is_active'             => 1,
-            'id_branch'             => $gestor->id_branch,
-            'roles'                 => [rolAdmin()->id_role],
+            'is_active' => 1,
+            'id_branch' => $gestor->id_branch,
+            'roles' => [rolAdmin()->id_role],
         ])
         ->assertSessionHasErrors('roles');
 
@@ -145,7 +147,7 @@ test('un usuario que no es admin no puede modificar a un administrador', functio
 
     $this->actingAs($gestor)
         ->put(route('users.update', $admin), datosUsuario($admin, [
-            'password'              => 'tomada12345',
+            'password' => 'tomada12345',
             'password_confirmation' => 'tomada12345',
         ]))
         ->assertRedirect(route('users.index'))
@@ -173,13 +175,13 @@ test('un usuario que no es admin no puede asignar un rol con permisos que él no
     // Tampoco creándose una cuenta nueva con ese rol
     $this->actingAs($gestor)
         ->post(route('users.store'), [
-            'username'              => 'Cuenta Paralela',
-            'email'                 => 'paralela-'.Str::random(6).'@example.com',
-            'password'              => 'password123',
+            'username' => 'Cuenta Paralela',
+            'email' => 'paralela-'.Str::random(6).'@example.com',
+            'password' => 'password123',
             'password_confirmation' => 'password123',
-            'is_active'             => 1,
-            'id_branch'             => $gestor->id_branch,
-            'roles'                 => [$rolSuperior->id_role],
+            'is_active' => 1,
+            'id_branch' => $gestor->id_branch,
+            'roles' => [$rolSuperior->id_role],
         ])
         ->assertSessionHasErrors('roles');
 
@@ -211,7 +213,7 @@ test('un usuario que no es admin no puede modificar a quien tiene permisos que �
     // Cambiarle la contraseña le daría su cuenta, y con ella sus permisos
     $this->actingAs($gestor)
         ->put(route('users.update', $superior), datosUsuario($superior, [
-            'password'              => 'tomada12345',
+            'password' => 'tomada12345',
             'password_confirmation' => 'tomada12345',
         ]))
         ->assertRedirect(route('users.index'))
@@ -262,8 +264,8 @@ test('un usuario puede editar sus propios datos sin enviar roles ni estado', fun
 
     $this->actingAs($gestor)
         ->put(route('users.update', $gestor), [
-            'username'  => 'Nombre Actualizado',
-            'email'     => $gestor->email,
+            'username' => 'Nombre Actualizado',
+            'email' => $gestor->email,
             'id_branch' => $gestor->id_branch,
         ])
         ->assertSessionHasNoErrors()
@@ -350,19 +352,19 @@ test('borrar un usuario conserva sus registros en la bitácora', function () {
 // =============================================================================
 
 test('el seeder crea el administrador inicial con una contraseña aleatoria', function () {
-    $this->seed(\Database\Seeders\DatabaseSeeder::class);
+    $this->seed(DatabaseSeeder::class);
 
     $admin = User::where('email', 'jon.virgi@gmail.com')->sole();
 
     expect($admin->isAdmin())->toBeTrue()
-        ->and(\Illuminate\Support\Facades\Hash::check('password', $admin->password_hash))->toBeFalse();
+        ->and(Hash::check('password', $admin->password_hash))->toBeFalse();
 });
 
 test('el seeder no da el rol admin por correo ni crea otro administrador si ya hay uno', function () {
     crearUsuarioConRol(rolAdmin());
     $gracia = User::factory()->create(['email' => 'gracia@login.com']);
 
-    $this->seed(\Database\Seeders\DatabaseSeeder::class);
+    $this->seed(DatabaseSeeder::class);
 
     expect($gracia->fresh()->isAdmin())->toBeFalse()
         ->and(User::where('email', 'jon.virgi@gmail.com')->exists())->toBeFalse();

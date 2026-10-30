@@ -19,7 +19,9 @@ class InventoryMovement extends Model
     use BelongsToBranch;
 
     public const TYPE_PURCHASE_RECEIPT = 'purchase_receipt';
+
     public const TYPE_PURCHASE_CANCEL = 'purchase_cancel';
+
     public const TYPE_COST_ADJUSTMENT = 'cost_adjustment';
 
     public const TYPE_LABELS = [

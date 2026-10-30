@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Concerns\BelongsToBranch;
 use App\Support\DocumentSequence;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 class PurchaseQuotation extends Model
 {
-    use HasFactory, BelongsToBranch;
+    use BelongsToBranch, HasFactory;
 
     // Pertenece a la sucursal de su solicitud de cotización
     public function restrictToBranch(Builder $query, int $branchId): void
@@ -21,6 +22,7 @@ class PurchaseQuotation extends Model
     }
 
     protected $table = 'purchase_quotations';
+
     protected $primaryKey = 'id_purchase_quotation';
 
     protected $fillable = [
@@ -68,7 +70,7 @@ class PurchaseQuotation extends Model
     public static function generateUniqueCode(): string
     {
         // El correlativo es global: lo comparten las cotizaciones de todas las sucursales
-        return DocumentSequence::next('COT-' . now()->year . '-', 'purchase_quotations', 'purchase_quotation_code');
+        return DocumentSequence::next('COT-'.now()->year.'-', 'purchase_quotations', 'purchase_quotation_code');
     }
 
     public function supplier(): BelongsTo

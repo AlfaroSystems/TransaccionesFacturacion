@@ -1,24 +1,23 @@
 <?php
 
-use App\Models\User;
-use App\Models\Company;
 use App\Models\Branch;
-use App\Models\WarehouseCategory;
-use App\Models\Warehouse;
-use App\Models\Product;
-use App\Models\Unit;
-use App\Models\Supplier;
+use App\Models\Company;
 use App\Models\ExpenseType;
-use App\Models\PurchaseRequest;
+use App\Models\Product;
 use App\Models\PurchaseQuotationRequest;
-use App\Models\PurchaseQuotationRequestDetail;
-use App\Models\PurchaseQuotation;
+use App\Models\PurchaseRequest;
+use App\Models\Role;
+use App\Models\Supplier;
+use App\Models\Unit;
+use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\WarehouseCategory;
 use Illuminate\Support\Str;
 
 test('se puede registrar una oferta de proveedor completa con items y gastos adicionales', function () {
     // 1. Simular usuario autenticado
     $user = User::factory()->create();
-    $user->roles()->attach(\App\Models\Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
+    $user->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     // 2. Crear datos maestros
     $company = Company::first() ?? Company::create(['name' => 'Empresa Test']);
@@ -27,7 +26,7 @@ test('se puede registrar una oferta de proveedor completa con items y gastos adi
     $warehouse = Warehouse::first() ?? Warehouse::create([
         'name' => 'Bodega Central',
         'id_branch' => $branch->id_branch,
-        'id_warehouse_category' => $warehouseCategory->id_warehouse_category
+        'id_warehouse_category' => $warehouseCategory->id_warehouse_category,
     ]);
     $unit = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product = Product::first() ?? Product::create([

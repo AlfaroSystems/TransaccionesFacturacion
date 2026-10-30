@@ -1,13 +1,20 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class PurchaseRequestDetail extends Model
 {
     use HasFactory;
+
     protected $table = 'purchase_request_details';
+
     protected $primaryKey = 'id_purchase_request_detail';
+
     protected $fillable = [
         'id_purchase_request',
         'id_product',
@@ -16,9 +23,11 @@ class PurchaseRequestDetail extends Model
         'description',
         'notes',
     ];
+
     protected $casts = [
         'quantity' => 'decimal:4',
     ];
+
     /**
      * Solicitud de compra a la que pertenece.
      */
@@ -30,6 +39,7 @@ class PurchaseRequestDetail extends Model
             'id_purchase_request'
         );
     }
+
     /**
      * Producto solicitado.
      */
@@ -40,6 +50,7 @@ class PurchaseRequestDetail extends Model
             'id_product'
         );
     }
+
     /**
      * Unidad de medida.
      */
@@ -54,7 +65,7 @@ class PurchaseRequestDetail extends Model
     /**
      * Detalles de solicitudes de cotización vinculados a este ítem.
      */
-    public function quotationRequestDetails(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function quotationRequestDetails(): HasMany
     {
         return $this->hasMany(
             PurchaseQuotationRequestDetail::class,

@@ -13,8 +13,8 @@ use InvalidArgumentException;
 class RetaceoService
 {
     public function __construct(
-        private readonly ProductCostService $costos = new ProductCostService(),
-        private readonly InventoryService $inventario = new InventoryService(),
+        private readonly ProductCostService $costos = new ProductCostService,
+        private readonly InventoryService $inventario = new InventoryService,
     ) {}
 
     /**
@@ -23,10 +23,6 @@ class RetaceoService
      * Como en la hoja de retaceo, cada total de la póliza se reparte según el valor FOB de la
      * línea: FOB de la línea × (total / FOB total).
      *
-     * @param  array $items
-     * @param  float $totalFreight
-     * @param  float $totalExpenses
-     * @param  float $totalDai
      * @return array{items: array, totals: array{total_fob: float, total_freight: float, total_expenses: float, total_dai: float, total_cost: float}}
      */
     public function calcularProrrateo(array $items, float $totalFreight, float $totalExpenses, float $totalDai = 0): array
@@ -40,7 +36,7 @@ class RetaceoService
         $totales = [
             'freight_amount' => $totalFreight,
             'expense_amount' => $totalExpenses,
-            'dai_amount'     => $totalDai,
+            'dai_amount' => $totalDai,
         ];
         $count = count($items);
         $lines = [];
@@ -74,40 +70,37 @@ class RetaceoService
         // 3. Costo total y unitario de cada línea
         $processedItems = [];
         foreach ($lines as $line) {
-            $item          = $line['item'];
-            $qty           = max(0.0001, (float) ($item['quantity'] ?? 1));
+            $item = $line['item'];
+            $qty = max(0.0001, (float) ($item['quantity'] ?? 1));
             $totalLineCost = round($line['cost_fob'] + $line['freight_amount'] + $line['expense_amount'] + $line['dai_amount'], 4);
 
             $processedItems[] = array_merge($item, [
-                'quantity'       => $qty,
-                'cost_fob'       => round($line['cost_fob'], 4),
+                'quantity' => $qty,
+                'cost_fob' => round($line['cost_fob'], 4),
                 'freight_amount' => $line['freight_amount'],
                 'expense_amount' => $line['expense_amount'],
-                'dai_amount'     => $line['dai_amount'],
-                'unit_cost'      => round($totalLineCost / $qty, 4),
-                'total_cost'     => $totalLineCost,
+                'dai_amount' => $line['dai_amount'],
+                'unit_cost' => round($totalLineCost / $qty, 4),
+                'total_cost' => $totalLineCost,
             ]);
         }
 
         $totalCost = round($totalFob + $totalFreight + $totalExpenses + $totalDai, 4);
 
         return [
-            'items'  => $processedItems,
+            'items' => $processedItems,
             'totals' => [
-                'total_fob'      => round($totalFob, 4),
-                'total_freight'  => round($totalFreight, 4),
+                'total_fob' => round($totalFob, 4),
+                'total_freight' => round($totalFreight, 4),
                 'total_expenses' => round($totalExpenses, 4),
-                'total_dai'      => round($totalDai, 4),
-                'total_cost'     => $totalCost,
+                'total_dai' => round($totalDai, 4),
+                'total_cost' => $totalCost,
             ],
         ];
     }
 
     /**
      * Registra un nuevo cálculo de retaceo y sus líneas liquidadas.
-     *
-     * @param  array $validated
-     * @return Retaceo
      */
     public function crear(array $validated): Retaceo
     {
@@ -128,43 +121,43 @@ class RetaceoService
                 ]);
             }
 
-            $totalFreight  = (float) ($validated['total_freight'] ?? 0);
+            $totalFreight = (float) ($validated['total_freight'] ?? 0);
             $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
-            $totalDai      = (float) ($validated['total_dai'] ?? 0);
+            $totalDai = (float) ($validated['total_dai'] ?? 0);
 
             $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses, $totalDai);
 
             $retaceo = Retaceo::create([
-                'id_supplier'           => $validated['id_supplier'] ?? $purchase->id_supplier,
-                'id_purchase'           => $purchase->id_purchase,
-                'retaceo_date'          => $validated['retaceo_date'] ?? now(),
-                'origin_country'        => $validated['origin_country'] ?? null,
+                'id_supplier' => $validated['id_supplier'] ?? $purchase->id_supplier,
+                'id_purchase' => $purchase->id_purchase,
+                'retaceo_date' => $validated['retaceo_date'] ?? now(),
+                'origin_country' => $validated['origin_country'] ?? null,
                 'import_invoice_number' => $validated['import_invoice_number'] ?? $purchase->supplier_invoice_number,
-                'import_invoice_date'   => $validated['import_invoice_date'] ?? $purchase->supplier_invoice_date,
-                'import_policy_number'  => $validated['import_policy_number'] ?? null,
-                'import_policy_date'    => $validated['import_policy_date'] ?? null,
-                'total_fob'             => $prorrateo['totals']['total_fob'],
-                'total_freight'         => $prorrateo['totals']['total_freight'],
-                'total_expenses'        => $prorrateo['totals']['total_expenses'],
-                'total_dai'             => $prorrateo['totals']['total_dai'],
-                'total_cost'            => $prorrateo['totals']['total_cost'],
-                'status'                => $validated['status'] ?? 'calculated',
-                'notes'                 => $validated['notes'] ?? null,
-                'id_user'               => Auth::id(),
+                'import_invoice_date' => $validated['import_invoice_date'] ?? $purchase->supplier_invoice_date,
+                'import_policy_number' => $validated['import_policy_number'] ?? null,
+                'import_policy_date' => $validated['import_policy_date'] ?? null,
+                'total_fob' => $prorrateo['totals']['total_fob'],
+                'total_freight' => $prorrateo['totals']['total_freight'],
+                'total_expenses' => $prorrateo['totals']['total_expenses'],
+                'total_dai' => $prorrateo['totals']['total_dai'],
+                'total_cost' => $prorrateo['totals']['total_cost'],
+                'status' => $validated['status'] ?? 'calculated',
+                'notes' => $validated['notes'] ?? null,
+                'id_user' => Auth::id(),
             ]);
 
             foreach ($prorrateo['items'] as $line) {
                 RetaceoDetail::create([
-                    'id_retaceo'         => $retaceo->id_retaceo,
+                    'id_retaceo' => $retaceo->id_retaceo,
                     'id_purchase_detail' => $line['id_purchase_detail'] ?? null,
-                    'id_product'         => $line['id_product'],
-                    'quantity'           => $line['quantity'],
-                    'cost_fob'           => $line['cost_fob'],
-                    'freight_amount'     => $line['freight_amount'],
-                    'expense_amount'     => $line['expense_amount'],
-                    'dai_amount'         => $line['dai_amount'],
-                    'unit_cost'          => $line['unit_cost'],
-                    'total_cost'         => $line['total_cost'],
+                    'id_product' => $line['id_product'],
+                    'quantity' => $line['quantity'],
+                    'cost_fob' => $line['cost_fob'],
+                    'freight_amount' => $line['freight_amount'],
+                    'expense_amount' => $line['expense_amount'],
+                    'dai_amount' => $line['dai_amount'],
+                    'unit_cost' => $line['unit_cost'],
+                    'total_cost' => $line['total_cost'],
                 ]);
             }
 
@@ -189,42 +182,42 @@ class RetaceoService
                 throw new InvalidArgumentException('Solo se pueden editar retaceos en estado borrador.');
             }
 
-            $totalFreight  = (float) ($validated['total_freight'] ?? 0);
+            $totalFreight = (float) ($validated['total_freight'] ?? 0);
             $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
-            $totalDai      = (float) ($validated['total_dai'] ?? 0);
+            $totalDai = (float) ($validated['total_dai'] ?? 0);
 
             $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses, $totalDai);
 
             $retaceo->update([
-                'id_supplier'           => $validated['id_supplier'] ?? $retaceo->id_supplier,
-                'retaceo_date'          => $validated['retaceo_date'] ?? $retaceo->retaceo_date,
-                'origin_country'        => $validated['origin_country'] ?? $retaceo->origin_country,
+                'id_supplier' => $validated['id_supplier'] ?? $retaceo->id_supplier,
+                'retaceo_date' => $validated['retaceo_date'] ?? $retaceo->retaceo_date,
+                'origin_country' => $validated['origin_country'] ?? $retaceo->origin_country,
                 'import_invoice_number' => $validated['import_invoice_number'] ?? $retaceo->import_invoice_number,
-                'import_invoice_date'   => $validated['import_invoice_date'] ?? $retaceo->import_invoice_date,
-                'import_policy_number'  => $validated['import_policy_number'] ?? $retaceo->import_policy_number,
-                'import_policy_date'    => $validated['import_policy_date'] ?? $retaceo->import_policy_date,
-                'total_fob'             => $prorrateo['totals']['total_fob'],
-                'total_freight'         => $prorrateo['totals']['total_freight'],
-                'total_expenses'        => $prorrateo['totals']['total_expenses'],
-                'total_dai'             => $prorrateo['totals']['total_dai'],
-                'total_cost'            => $prorrateo['totals']['total_cost'],
-                'notes'                 => $validated['notes'] ?? $retaceo->notes,
+                'import_invoice_date' => $validated['import_invoice_date'] ?? $retaceo->import_invoice_date,
+                'import_policy_number' => $validated['import_policy_number'] ?? $retaceo->import_policy_number,
+                'import_policy_date' => $validated['import_policy_date'] ?? $retaceo->import_policy_date,
+                'total_fob' => $prorrateo['totals']['total_fob'],
+                'total_freight' => $prorrateo['totals']['total_freight'],
+                'total_expenses' => $prorrateo['totals']['total_expenses'],
+                'total_dai' => $prorrateo['totals']['total_dai'],
+                'total_cost' => $prorrateo['totals']['total_cost'],
+                'notes' => $validated['notes'] ?? $retaceo->notes,
             ]);
 
             // Reemplazar detalles (uno por uno, para que cada borrado quede en la bitácora)
             $retaceo->details()->get()->each->delete();
             foreach ($prorrateo['items'] as $line) {
                 RetaceoDetail::create([
-                    'id_retaceo'         => $retaceo->id_retaceo,
+                    'id_retaceo' => $retaceo->id_retaceo,
                     'id_purchase_detail' => $line['id_purchase_detail'] ?? null,
-                    'id_product'         => $line['id_product'],
-                    'quantity'           => $line['quantity'],
-                    'cost_fob'           => $line['cost_fob'],
-                    'freight_amount'     => $line['freight_amount'],
-                    'expense_amount'     => $line['expense_amount'],
-                    'dai_amount'         => $line['dai_amount'],
-                    'unit_cost'          => $line['unit_cost'],
-                    'total_cost'         => $line['total_cost'],
+                    'id_product' => $line['id_product'],
+                    'quantity' => $line['quantity'],
+                    'cost_fob' => $line['cost_fob'],
+                    'freight_amount' => $line['freight_amount'],
+                    'expense_amount' => $line['expense_amount'],
+                    'dai_amount' => $line['dai_amount'],
+                    'unit_cost' => $line['unit_cost'],
+                    'total_cost' => $line['total_cost'],
                 ]);
             }
 
@@ -240,7 +233,7 @@ class RetaceoService
         // Borrador → Liquidado → Aplicado; se cancela antes de aplicarlo. Aplicado es final:
         // los costos ya se liquidaron y no deben cambiar
         $transitions = [
-            'draft'      => ['calculated', 'cancelled'],
+            'draft' => ['calculated', 'cancelled'],
             'calculated' => ['applied', 'cancelled'],
         ];
 

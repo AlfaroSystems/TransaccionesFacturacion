@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Concerns\BelongsToBranch;
 use App\Models\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Warehouse extends Model
 {
-    use HasFactory, BelongsToBranch;
+    use BelongsToBranch, HasFactory;
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {
@@ -23,7 +24,7 @@ class Warehouse extends Model
         'id_warehouse_category',
         'name',
         'description',
-        'is_active'
+        'is_active',
     ];
 
     public function branch()

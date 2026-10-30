@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Company;
 use App\Models\InventoryMovement;
 use App\Models\Location;
 use App\Models\Product;
@@ -15,8 +16,8 @@ use App\Models\Warehouse;
 use App\Rules\Accessible;
 use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -25,9 +26,9 @@ class PurchaseController extends Controller
     /** Mensajes de las reglas de líneas (solo productos de la orden, una vez cada uno) */
     private const MENSAJES_LINEAS = [
         'details.*.id_purchase_order_detail.required' => 'Solo se pueden recibir productos de la orden de compra.',
-        'details.*.id_purchase_order_detail.exists'   => 'Solo se pueden recibir productos de la orden de compra.',
+        'details.*.id_purchase_order_detail.exists' => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.distinct' => 'Un producto de la orden aparece en más de una línea.',
-        'details.*.id_location.exists'                => 'La ubicación de cada producto debe ser de la bodega destino de la compra.',
+        'details.*.id_location.exists' => 'La ubicación de cada producto debe ser de la bodega destino de la compra.',
     ];
 
     public function __construct(private readonly PurchaseService $service) {}
@@ -36,7 +37,7 @@ class PurchaseController extends Controller
      * Ubicaciones activas de las bodegas visibles, para elegir dónde se guarda cada línea, y
      * la última ubicación donde entró cada producto en cada bodega, para prellenarla.
      *
-     * @return array{purchaseLocations: \Illuminate\Support\Collection, purchaseLastLocations: \Illuminate\Support\Collection}
+     * @return array{purchaseLocations: Collection, purchaseLastLocations: Collection}
      */
     private function datosUbicaciones(): array
     {
@@ -97,9 +98,9 @@ class PurchaseController extends Controller
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('purchase_code', 'ilike', "%{$search}%")
-                  ->orWhere('supplier_invoice_number', 'ilike', "%{$search}%")
-                  ->orWhereHas('supplier', fn ($sq) => $sq->where('name', 'ilike', "%{$search}%"))
-                  ->orWhereHas('purchaseOrder', fn ($oq) => $oq->where('purchase_order_code', 'ilike', "%{$search}%"));
+                    ->orWhere('supplier_invoice_number', 'ilike', "%{$search}%")
+                    ->orWhereHas('supplier', fn ($sq) => $sq->where('name', 'ilike', "%{$search}%"))
+                    ->orWhereHas('purchaseOrder', fn ($oq) => $oq->where('purchase_order_code', 'ilike', "%{$search}%"));
             });
         }
 
@@ -122,16 +123,16 @@ class PurchaseController extends Controller
         $purchases = $query->paginate(10)->withQueryString();
 
         // Métricas
-        $totalCount     = Purchase::count();
-        $draftCount     = Purchase::where('status', 'draft')->count();
+        $totalCount = Purchase::count();
+        $draftCount = Purchase::where('status', 'draft')->count();
         $completedCount = Purchase::whereIn('status', ['received', 'completed'])->count();
-        $totalAmount    = Purchase::where('status', '!=', 'cancelled')->sum('total');
+        $totalAmount = Purchase::where('status', '!=', 'cancelled')->sum('total');
 
         $suppliers = Supplier::orderBy('name')->get();
-        $branches   = Branch::orderBy('name')->get();
+        $branches = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
         // Solo para el selector: el detalle de la orden elegida lo trae getOrderData
-        $orders     = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
+        $orders = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
             ->with('supplier')
             ->orderByDesc('id_purchase_order')
             ->get();
@@ -163,11 +164,11 @@ class PurchaseController extends Controller
             ->orderByDesc('id_purchase_order')
             ->get();
 
-        $suppliers  = Supplier::orderBy('name')->get();
-        $branches   = Branch::orderBy('name')->get();
+        $suppliers = Supplier::orderBy('name')->get();
+        $branches = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
-        $products   = Product::orderBy('name')->get();
-        $units      = Unit::orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+        $units = Unit::orderBy('name')->get();
 
         return view('purchases.create', [
             ...compact(
@@ -198,17 +199,17 @@ class PurchaseController extends Controller
         $receivedSums = $this->service->recibidoPorLinea($order->details->pluck('id_purchase_order_detail'));
 
         return response()->json([
-            'id_purchase_order'   => $order->id_purchase_order,
+            'id_purchase_order' => $order->id_purchase_order,
             'purchase_order_code' => $order->purchase_order_code,
-            'id_supplier'         => $order->id_supplier,
-            'supplier_name'       => $order->supplier?->name,
-            'id_branch'           => $order->id_branch,
-            'branch_name'         => $order->branch?->name,
-            'id_warehouse'        => $order->id_warehouse,
-            'warehouse_name'      => $order->warehouse?->name,
-            'currency'            => $order->currency,
+            'id_supplier' => $order->id_supplier,
+            'supplier_name' => $order->supplier?->name,
+            'id_branch' => $order->id_branch,
+            'branch_name' => $order->branch?->name,
+            'id_warehouse' => $order->id_warehouse,
+            'warehouse_name' => $order->warehouse?->name,
+            'currency' => $order->currency,
             // Solo las líneas a las que aún les falta recibir algo
-            'details'             => $order->details->filter(
+            'details' => $order->details->filter(
                 fn ($d) => (float) $d->quantity - (float) ($receivedSums[$d->id_purchase_order_detail] ?? 0) > 0
             )->values()->map(function ($d) use ($receivedSums) {
                 $ordered = (float) $d->quantity;
@@ -217,19 +218,19 @@ class PurchaseController extends Controller
 
                 return [
                     'id_purchase_order_detail' => $d->id_purchase_order_detail,
-                    'id_product'               => $d->id_product,
-                    'product_name'             => $d->product?->name ?? 'Producto #'.$d->id_product,
-                    'product_code'             => $d->product?->code ?? '',
-                    'quantity_ordered'         => $ordered,
-                    'already_received'         => $alreadyReceived,
-                    'pending_quantity'         => $pending,
-                    'quantity_received'        => $pending,
-                    'id_unit'                  => $d->id_unit,
-                    'unit_name'                => $d->unit?->name ?? 'Unidad',
-                    'unit_price'               => (float) $d->unit_price,
-                    'discount'                 => (float) $d->discount,
-                    'tax_rate'                 => (float) $d->tax_rate,
-                    'notes'                    => $d->notes ?? '',
+                    'id_product' => $d->id_product,
+                    'product_name' => $d->product?->name ?? 'Producto #'.$d->id_product,
+                    'product_code' => $d->product?->code ?? '',
+                    'quantity_ordered' => $ordered,
+                    'already_received' => $alreadyReceived,
+                    'pending_quantity' => $pending,
+                    'quantity_received' => $pending,
+                    'id_unit' => $d->id_unit,
+                    'unit_name' => $d->unit?->name ?? 'Unidad',
+                    'unit_price' => (float) $d->unit_price,
+                    'discount' => (float) $d->discount,
+                    'tax_rate' => (float) $d->tax_rate,
+                    'notes' => $d->notes ?? '',
                 ];
             }),
         ]);
@@ -247,26 +248,26 @@ class PurchaseController extends Controller
             ?: PurchaseOrder::whereKey($request->integer('id_purchase_order'))->value('id_warehouse');
 
         $validated = $request->validate([
-            'id_purchase_order'          => ['required', new Accessible(PurchaseOrder::class)],
-            'id_supplier'                => ['required', 'exists:supliers,id_supplier'],
-            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $orderBranchId()))],
-            'purchase_date'              => ['required', 'date'],
-            'supplier_invoice_number'    => ['nullable', 'string', 'max:100'],
-            'supplier_invoice_date'      => ['nullable', 'date'],
-            'currency'                   => ['nullable', 'string', 'max:3'],
-            'status'                     => ['required', Rule::in(['draft', 'received', 'completed'])],
-            'notes'                      => ['nullable', 'string'],
-            'details'                    => ['required', 'array', 'min:1'],
-            'details.*.id_product'       => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
+            'id_purchase_order' => ['required', new Accessible(PurchaseOrder::class)],
+            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_warehouse' => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $orderBranchId()))],
+            'purchase_date' => ['required', 'date'],
+            'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
+            'supplier_invoice_date' => ['nullable', 'date'],
+            'currency' => ['nullable', 'string', 'max:3'],
+            'status' => ['required', Rule::in(['draft', 'received', 'completed'])],
+            'notes' => ['nullable', 'string'],
+            'details' => ['required', 'array', 'min:1'],
+            'details.*.id_product' => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
-            'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
-            'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
-            'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
-            'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
+            'details.*.quantity_received' => ['required', 'numeric', 'min:0.0001'],
+            'details.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'details.*.discount' => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
+            'details.*.tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
-            'details.*.notes'            => ['nullable', 'string'],
-            'details.*.id_location'      => $this->ubicacionDeLaBodega($destino),
+            'details.*.notes' => ['nullable', 'string'],
+            'details.*.id_location' => $this->ubicacionDeLaBodega($destino),
         ], self::MENSAJES_LINEAS);
 
         try {
@@ -315,7 +316,7 @@ class PurchaseController extends Controller
             'details.purchaseOrderDetail',
         ]);
 
-        $company = $purchase->branch?->company ?? \App\Models\Company::where('is_active', true)->first();
+        $company = $purchase->branch?->company ?? Company::where('is_active', true)->first();
 
         return view('purchases.pdf', compact('purchase', 'company'));
     }
@@ -332,34 +333,34 @@ class PurchaseController extends Controller
         ]);
 
         return response()->json([
-            'id_purchase'             => $purchase->id_purchase,
-            'purchase_code'           => $purchase->purchase_code,
-            'id_purchase_order'       => $purchase->id_purchase_order,
-            'purchase_order_code'     => $purchase->purchaseOrder?->purchase_order_code,
-            'id_supplier'             => $purchase->id_supplier,
-            'id_branch'               => $purchase->id_branch,
-            'id_warehouse'            => $purchase->id_warehouse,
-            'purchase_date'           => $purchase->purchase_date ? $purchase->purchase_date->format('Y-m-d\TH:i') : '',
+            'id_purchase' => $purchase->id_purchase,
+            'purchase_code' => $purchase->purchase_code,
+            'id_purchase_order' => $purchase->id_purchase_order,
+            'purchase_order_code' => $purchase->purchaseOrder?->purchase_order_code,
+            'id_supplier' => $purchase->id_supplier,
+            'id_branch' => $purchase->id_branch,
+            'id_warehouse' => $purchase->id_warehouse,
+            'purchase_date' => $purchase->purchase_date ? $purchase->purchase_date->format('Y-m-d\TH:i') : '',
             'supplier_invoice_number' => $purchase->supplier_invoice_number ?? '',
-            'supplier_invoice_date'   => $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('Y-m-d') : '',
-            'currency'                => $purchase->currency,
-            'status'                  => $purchase->status,
-            'notes'                   => $purchase->notes ?? '',
-            'details'                 => $purchase->details->map(fn ($d) => [
-                'id_purchase_detail'       => $d->id_purchase_detail,
+            'supplier_invoice_date' => $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('Y-m-d') : '',
+            'currency' => $purchase->currency,
+            'status' => $purchase->status,
+            'notes' => $purchase->notes ?? '',
+            'details' => $purchase->details->map(fn ($d) => [
+                'id_purchase_detail' => $d->id_purchase_detail,
                 'id_purchase_order_detail' => $d->id_purchase_order_detail,
-                'id_product'               => $d->id_product,
-                'product_name'             => $d->product?->name ?? 'Producto #'.$d->id_product,
-                'product_code'             => $d->product?->code ?? '',
-                'quantity_ordered'         => (float) $d->quantity_ordered,
-                'quantity_received'        => (float) $d->quantity_received,
-                'id_unit'                  => $d->id_unit,
-                'unit_name'                => $d->unit?->name ?? 'Unidad',
-                'unit_price'               => (float) $d->unit_price,
-                'discount'                 => (float) $d->discount,
-                'tax_rate'                 => (float) $d->tax_rate,
-                'notes'                    => $d->notes ?? '',
-                'id_location'              => $d->id_location,
+                'id_product' => $d->id_product,
+                'product_name' => $d->product?->name ?? 'Producto #'.$d->id_product,
+                'product_code' => $d->product?->code ?? '',
+                'quantity_ordered' => (float) $d->quantity_ordered,
+                'quantity_received' => (float) $d->quantity_received,
+                'id_unit' => $d->id_unit,
+                'unit_name' => $d->unit?->name ?? 'Unidad',
+                'unit_price' => (float) $d->unit_price,
+                'discount' => (float) $d->discount,
+                'tax_rate' => (float) $d->tax_rate,
+                'notes' => $d->notes ?? '',
+                'id_location' => $d->id_location,
             ]),
         ]);
     }
@@ -376,11 +377,11 @@ class PurchaseController extends Controller
 
         $purchase->load(['details.product', 'details.unit', 'purchaseOrder']);
 
-        $suppliers  = Supplier::orderBy('name')->get();
-        $branches   = Branch::orderBy('name')->get();
+        $suppliers = Supplier::orderBy('name')->get();
+        $branches = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
-        $products   = Product::orderBy('name')->get();
-        $units      = Unit::orderBy('name')->get();
+        $products = Product::orderBy('name')->get();
+        $units = Unit::orderBy('name')->get();
 
         return view('purchases.create', [
             ...compact(
@@ -407,24 +408,24 @@ class PurchaseController extends Controller
 
         // La sucursal y la orden de la compra no cambian: la bodega y las líneas deben pertenecer a ellas
         $validated = $request->validate([
-            'id_supplier'                => ['required', 'exists:supliers,id_supplier'],
-            'id_warehouse'               => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $purchase->id_branch))],
-            'purchase_date'              => ['required', 'date'],
-            'supplier_invoice_number'    => ['nullable', 'string', 'max:100'],
-            'supplier_invoice_date'      => ['nullable', 'date'],
-            'currency'                   => ['nullable', 'string', 'max:3'],
-            'notes'                      => ['nullable', 'string'],
-            'details'                    => ['required', 'array', 'min:1'],
-            'details.*.id_product'       => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
+            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_warehouse' => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $purchase->id_branch))],
+            'purchase_date' => ['required', 'date'],
+            'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
+            'supplier_invoice_date' => ['nullable', 'date'],
+            'currency' => ['nullable', 'string', 'max:3'],
+            'notes' => ['nullable', 'string'],
+            'details' => ['required', 'array', 'min:1'],
+            'details.*.id_product' => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
             'details.*.quantity_ordered' => ['nullable', 'numeric', 'min:0'],
-            'details.*.quantity_received'=> ['required', 'numeric', 'min:0.0001'],
-            'details.*.unit_price'       => ['required', 'numeric', 'min:0'],
-            'details.*.discount'         => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
-            'details.*.tax_rate'         => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'details.*.id_unit'          => ['nullable', 'exists:units,id_unit'],
+            'details.*.quantity_received' => ['required', 'numeric', 'min:0.0001'],
+            'details.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'details.*.discount' => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
+            'details.*.tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
-            'details.*.notes'            => ['nullable', 'string'],
-            'details.*.id_location'      => $this->ubicacionDeLaBodega(
+            'details.*.notes' => ['nullable', 'string'],
+            'details.*.id_location' => $this->ubicacionDeLaBodega(
                 $request->integer('id_warehouse') ?: ($purchase->id_warehouse
                     ?? PurchaseOrder::queryAllBranches()->whereKey($purchase->id_purchase_order)->value('id_warehouse'))
             ),

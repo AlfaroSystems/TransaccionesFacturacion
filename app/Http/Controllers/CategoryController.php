@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class CategoryController extends Controller
 
         $categories = Category::query()
             ->when($request->search, function ($query) use ($request) {
-                $query->where('name', 'ilike', '%' . $request->search . '%');
+                $query->where('name', 'ilike', '%'.$request->search.'%');
             })
             ->get();
 
@@ -98,7 +99,7 @@ class CategoryController extends Controller
     {
         Gate::authorize('categories.eliminar');
 
-        $newStatus = !$category->is_active;
+        $newStatus = ! $category->is_active;
 
         $category->update([
             'is_active' => $newStatus,

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Http\Requests\StorePurchaseRequest;
 use App\Models\Branch;
 use App\Models\Product;
@@ -52,11 +54,11 @@ class PurchaseRequestController extends Controller
                     'ilike',
                     "%{$search}%"
                 )
-                ->orWhere(
-                    'justification',
-                    'ilike',
-                    "%{$search}%"
-                );
+                    ->orWhere(
+                        'justification',
+                        'ilike',
+                        "%{$search}%"
+                    );
             });
         }
 
@@ -145,8 +147,7 @@ class PurchaseRequestController extends Controller
             $purchaseRequest = PurchaseRequest::create([
                 'uuid' => (string) Str::uuid(),
 
-                'purchase_request_code' =>
-                    $this->generatePurchaseRequestCode(),
+                'purchase_request_code' => $this->generatePurchaseRequestCode(),
 
                 'id_branch' => $validated['id_branch'],
                 'id_warehouse' => $validated['id_warehouse'],
@@ -173,11 +174,9 @@ class PurchaseRequestController extends Controller
                     'quantity' => $detail['quantity'],
                     'id_unit' => $detail['id_unit'],
 
-                    'description' =>
-                        $detail['description'] ?? null,
+                    'description' => $detail['description'] ?? null,
 
-                    'notes' =>
-                        $detail['notes'] ?? null,
+                    'notes' => $detail['notes'] ?? null,
                 ]);
             }
         });
@@ -201,8 +200,7 @@ class PurchaseRequestController extends Controller
 
         return redirect()
             ->route('purchase-requests.index', [
-                'show' =>
-                    $purchaseRequest->id_purchase_request,
+                'show' => $purchaseRequest->id_purchase_request,
             ]);
     }
 
@@ -224,8 +222,7 @@ class PurchaseRequestController extends Controller
 
         return redirect()
             ->route('purchase-requests.index', [
-                'edit' =>
-                    $purchaseRequest->id_purchase_request,
+                'edit' => $purchaseRequest->id_purchase_request,
             ]);
     }
 
@@ -257,17 +254,13 @@ class PurchaseRequestController extends Controller
                 'id_branch' => $validated['id_branch'],
                 'id_warehouse' => $validated['id_warehouse'],
 
-                'request_date' =>
-                    $validated['request_date'],
+                'request_date' => $validated['request_date'],
 
-                'required_date' =>
-                    $validated['required_date'],
+                'required_date' => $validated['required_date'],
 
-                'justification' =>
-                    $validated['justification'],
+                'justification' => $validated['justification'],
 
-                'notes' =>
-                    $validated['notes'] ?? null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
             // Eliminamos los detalles anteriores
@@ -277,20 +270,15 @@ class PurchaseRequestController extends Controller
 
             foreach ($validated['details'] as $detail) {
                 $purchaseRequest->details()->create([
-                    'id_product' =>
-                        $detail['id_product'],
+                    'id_product' => $detail['id_product'],
 
-                    'quantity' =>
-                        $detail['quantity'],
+                    'quantity' => $detail['quantity'],
 
-                    'id_unit' =>
-                        $detail['id_unit'],
+                    'id_unit' => $detail['id_unit'],
 
-                    'description' =>
-                        $detail['description'] ?? null,
+                    'description' => $detail['description'] ?? null,
 
-                    'notes' =>
-                        $detail['notes'] ?? null,
+                    'notes' => $detail['notes'] ?? null,
                 ]);
             }
         });
@@ -465,6 +453,6 @@ class PurchaseRequestController extends Controller
     private function generatePurchaseRequestCode(): string
     {
         // El correlativo es global: lo comparten las solicitudes de todas las sucursales
-        return DocumentSequence::next('REQ-' . now()->year . '-', 'purchase_requests', 'purchase_request_code');
+        return DocumentSequence::next('REQ-'.now()->year.'-', 'purchase_requests', 'purchase_request_code');
     }
 }

@@ -1,28 +1,29 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Http\Requests\StorePurchaseQuotationRequest;
 use App\Http\Requests\UpdatePurchaseQuotationRequest;
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\ExpenseType;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseQuotation;
+use App\Models\PurchaseQuotationDetail;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestDetail;
+use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Warehouse;
+use App\Services\PurchaseOrderService;
 use App\Support\BranchAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use App\Models\ExpenseType;
-use App\Models\PurchaseQuotation;
-use App\Models\PurchaseQuotationDetail;
-use App\Models\PurchaseOrder;
-use App\Models\Supplier;
-use App\Services\PurchaseOrderService;
 
 class PurchaseQuotationRequestController extends Controller
 {
@@ -434,7 +435,7 @@ class PurchaseQuotationRequestController extends Controller
                 $offerDetail = $offerDetails->get((int) ($awards[$line->key] ?? 0));
 
                 if (! $offerDetail || ! $matchesLine($offerDetail)) {
-                    return 'Elija el proveedor que gana "' . ($line->product?->name ?? 'producto') . '".';
+                    return 'Elija el proveedor que gana "'.($line->product?->name ?? 'producto').'".';
                 }
 
                 $selected[$line->key] = $offerDetail;
@@ -537,14 +538,14 @@ class PurchaseQuotationRequestController extends Controller
 
                                 return [
                                     'id_product' => $offerLine->id_product,
-                                    'quantity'   => $quantity,
-                                    'id_unit'    => $offerLine->id_unit ?? $sameLine->first()->id_unit,
+                                    'quantity' => $quantity,
+                                    'id_unit' => $offerLine->id_unit ?? $sameLine->first()->id_unit,
                                     'unit_price' => (float) $offerLine->unit_price,
                                     // Descuento de la oferta, en proporción a la cantidad de esta orden
-                                    'discount'   => (float) $offerLine->quantity > 0
+                                    'discount' => (float) $offerLine->quantity > 0
                                         ? round((float) $offerLine->discount * $quantity / (float) $offerLine->quantity, 2)
                                         : 0,
-                                    'tax_rate'   => (float) $offerLine->tax_rate,
+                                    'tax_rate' => (float) $offerLine->tax_rate,
                                 ];
                             })
                             ->values()
@@ -579,8 +580,8 @@ class PurchaseQuotationRequestController extends Controller
                         if ($amount > 0) {
                             $expensesByGroup[$i][] = [
                                 'id_expense_type' => $expense->id_expense_type,
-                                'description'     => $expense->description,
-                                'amount'          => $amount,
+                                'description' => $expense->description,
+                                'amount' => $amount,
                             ];
                         }
                     }
@@ -590,21 +591,21 @@ class PurchaseQuotationRequestController extends Controller
                     $codes = $group['requests']->pluck('purchase_request_code')->join(', ');
 
                     $service->crear([
-                        'id_supplier'           => $quotation->id_supplier,
-                        'id_branch'             => $group['id_branch'],
-                        'id_warehouse'          => $group['id_warehouse'],
+                        'id_supplier' => $quotation->id_supplier,
+                        'id_branch' => $group['id_branch'],
+                        'id_warehouse' => $group['id_warehouse'],
                         'id_purchase_quotation' => $quotation->id_purchase_quotation,
-                        'order_date'            => now(),
-                        'expected_date'         => $quotation->delivery_days
+                        'order_date' => now(),
+                        'expected_date' => $quotation->delivery_days
                             ? now()->addDays((int) $quotation->delivery_days)
                             : ($group['requests']->pluck('required_date')->filter()->min() ?? now()->addDays(7)),
-                        'currency'              => $quotation->currency ?: 'USD',
-                        'payment_terms'         => $quotation->payment_terms ?: 'Según cotización',
-                        'notes'                 => 'Generada de la solicitud de cotización #'
-                            . str_pad($quotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT)
-                            . ($codes !== '' ? " para {$codes}" : '') . '.',
-                        'products'              => $group['products'],
-                        'expenses'              => $expensesByGroup[$i],
+                        'currency' => $quotation->currency ?: 'USD',
+                        'payment_terms' => $quotation->payment_terms ?: 'Según cotización',
+                        'notes' => 'Generada de la solicitud de cotización #'
+                            .str_pad($quotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT)
+                            .($codes !== '' ? " para {$codes}" : '').'.',
+                        'products' => $group['products'],
+                        'expenses' => $expensesByGroup[$i],
                     ]);
                     $orders++;
                 }

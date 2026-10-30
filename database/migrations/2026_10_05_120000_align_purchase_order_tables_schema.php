@@ -21,8 +21,8 @@ return new class extends Migration
      * Columnas obligatorias en el esquema de creación.
      */
     private array $requiredColumns = [
-        'purchase_orders'         => ['uuid', 'purchase_order_code', 'id_supplier', 'order_date'],
-        'purchase_order_details'  => ['id_purchase_order', 'id_product'],
+        'purchase_orders' => ['uuid', 'purchase_order_code', 'id_supplier', 'order_date'],
+        'purchase_order_details' => ['id_purchase_order', 'id_product'],
         'purchase_order_expenses' => ['id_purchase_order', 'id_expense_type'],
     ];
 
@@ -30,8 +30,8 @@ return new class extends Migration
      * Secuencias de ID con el nombre que tenían antes de renombrar la columna "id".
      */
     private array $sequences = [
-        'purchase_orders_id_seq'         => 'purchase_orders_id_purchase_order_seq',
-        'purchase_order_details_id_seq'  => 'purchase_order_details_id_purchase_order_detail_seq',
+        'purchase_orders_id_seq' => 'purchase_orders_id_purchase_order_seq',
+        'purchase_order_details_id_seq' => 'purchase_order_details_id_purchase_order_detail_seq',
         'purchase_order_expenses_id_seq' => 'purchase_order_expenses_id_purchase_order_expense_seq',
     ];
 

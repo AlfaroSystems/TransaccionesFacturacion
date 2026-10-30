@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
+
+use App\Http\Requests\BranchRequest;
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Department;
-use App\Models\Municipality;
 use App\Models\District;
-use App\Http\Requests\BranchRequest;
+use App\Models\Municipality;
 use App\Support\BranchAccess;
 use Illuminate\Support\Facades\Gate;
 
@@ -52,6 +52,7 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.crear');
         Branch::create($request->validated());
+
         return redirect()
             ->route('branches.index')
             ->with('success', 'Sucursal creada correctamente.');
@@ -63,6 +64,7 @@ class BranchController extends Controller
     public function show(Branch $branch)
     {
         Gate::authorize('branches.ver');
+
         return view('branches.show', compact('branch'));
     }
 
@@ -84,6 +86,7 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.editar');
         $branch->update($request->validated());
+
         return redirect()
             ->route('branches.index')
             ->with('success', 'Sucursal actualizada correctamente.');
@@ -96,7 +99,7 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.eliminar');
 
-        $newStatus = !$branch->is_active;
+        $newStatus = ! $branch->is_active;
 
         $branch->update([
             'is_active' => $newStatus,

@@ -20,14 +20,14 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('purchase_quotation_request_id')
-                  ->references('id_purchase_quotation_request')
-                  ->on('purchase_quotation_requests')
-                  ->onDelete('cascade');
+                ->references('id_purchase_quotation_request')
+                ->on('purchase_quotation_requests')
+                ->onDelete('cascade');
 
             $table->foreign('supplier_id')
-                  ->references('id_supplier')
-                  ->on('suppliers')
-                  ->onDelete('cascade');
+                ->references('id_supplier')
+                ->on('suppliers')
+                ->onDelete('cascade');
         });
     }
 

@@ -7,8 +7,8 @@ use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Retaceo;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -29,7 +29,7 @@ class PurchaseService
      * exige que no tenga un retaceo activo.
      */
     private const TRANSITIONS = [
-        'draft'    => ['received', 'completed', 'cancelled'],
+        'draft' => ['received', 'completed', 'cancelled'],
         'received' => ['completed', 'cancelled'],
     ];
 
@@ -37,34 +37,33 @@ class PurchaseService
     public const RECEIVABLE_ORDER_STATUSES = ['issued', 'partial_received'];
 
     public function __construct(
-        private readonly ProductCostService $costos = new ProductCostService(),
-        private readonly InventoryService $inventario = new InventoryService(),
+        private readonly ProductCostService $costos = new ProductCostService,
+        private readonly InventoryService $inventario = new InventoryService,
     ) {}
 
     /**
      * Calcula los totales consolidados (subtotal, descuento, impuestos, total) a partir de los detalles.
      *
-     * @param  array $details
      * @return array{subtotal: float, discount: float, tax: float, total: float}
      */
     public function calcularTotales(array $details): array
     {
         $subtotal = 0.0;
         $discount = 0.0;
-        $tax      = 0.0;
+        $tax = 0.0;
 
         foreach ($details as $item) {
-            $qty          = (float) ($item['quantity_received'] ?? 0);
-            $price        = (float) ($item['unit_price'] ?? 0);
+            $qty = (float) ($item['quantity_received'] ?? 0);
+            $price = (float) ($item['unit_price'] ?? 0);
             $lineSubtotal = $qty * $price;
             $lineDiscount = (float) ($item['discount'] ?? 0);
-            $base         = max(0, $lineSubtotal - $lineDiscount);
-            $taxRate      = (float) ($item['tax_rate'] ?? 0);
-            $taxAmount    = $base * ($taxRate / 100);
+            $base = max(0, $lineSubtotal - $lineDiscount);
+            $taxRate = (float) ($item['tax_rate'] ?? 0);
+            $taxAmount = $base * ($taxRate / 100);
 
             $subtotal += $lineSubtotal;
             $discount += $lineDiscount;
-            $tax      += $taxAmount;
+            $tax += $taxAmount;
         }
 
         $total = max(0, $subtotal - $discount) + $tax;
@@ -72,16 +71,13 @@ class PurchaseService
         return [
             'subtotal' => round($subtotal, 4),
             'discount' => round($discount, 4),
-            'tax'      => round($tax, 4),
-            'total'    => round($total, 4),
+            'tax' => round($tax, 4),
+            'total' => round($total, 4),
         ];
     }
 
     /**
      * Registra una nueva compra/recepción vinculada a una Orden de Compra.
-     *
-     * @param  array $validated
-     * @return Purchase
      */
     public function crear(array $validated): Purchase
     {
@@ -100,21 +96,21 @@ class PurchaseService
             $totales = $this->calcularTotales($validated['details']);
 
             $purchase = Purchase::create([
-                'id_purchase_order'       => $order->id_purchase_order,
-                'id_supplier'             => $validated['id_supplier'] ?? $order->id_supplier,
-                'id_branch'               => $order->id_branch,
-                'id_warehouse'            => $validated['id_warehouse'] ?? $order->id_warehouse,
-                'purchase_date'           => $validated['purchase_date'] ?? now(),
+                'id_purchase_order' => $order->id_purchase_order,
+                'id_supplier' => $validated['id_supplier'] ?? $order->id_supplier,
+                'id_branch' => $order->id_branch,
+                'id_warehouse' => $validated['id_warehouse'] ?? $order->id_warehouse,
+                'purchase_date' => $validated['purchase_date'] ?? now(),
                 'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? null,
-                'supplier_invoice_date'   => $validated['supplier_invoice_date'] ?? null,
-                'currency'                => strtoupper($validated['currency'] ?? $order->currency ?? 'USD'),
-                'subtotal'                => $totales['subtotal'],
-                'discount'                => $totales['discount'],
-                'tax'                     => $totales['tax'],
-                'total'                   => $totales['total'],
-                'status'                  => $validated['status'] ?? 'completed',
-                'notes'                   => $validated['notes'] ?? null,
-                'id_user'                 => Auth::id(),
+                'supplier_invoice_date' => $validated['supplier_invoice_date'] ?? null,
+                'currency' => strtoupper($validated['currency'] ?? $order->currency ?? 'USD'),
+                'subtotal' => $totales['subtotal'],
+                'discount' => $totales['discount'],
+                'tax' => $totales['tax'],
+                'total' => $totales['total'],
+                'status' => $validated['status'] ?? 'completed',
+                'notes' => $validated['notes'] ?? null,
+                'id_user' => Auth::id(),
             ]);
 
             $this->guardarDetalles($purchase, $validated['details']);
@@ -134,10 +130,6 @@ class PurchaseService
 
     /**
      * Actualiza una compra existente si se encuentra en estado borrador.
-     *
-     * @param  Purchase $purchase
-     * @param  array    $validated
-     * @return Purchase
      */
     public function actualizar(Purchase $purchase, array $validated): Purchase
     {
@@ -156,17 +148,17 @@ class PurchaseService
             $totales = $this->calcularTotales($validated['details']);
 
             $purchase->update([
-                'id_supplier'             => $validated['id_supplier'] ?? $purchase->id_supplier,
-                'id_warehouse'            => $validated['id_warehouse'] ?? $purchase->id_warehouse,
-                'purchase_date'           => $validated['purchase_date'] ?? $purchase->purchase_date,
+                'id_supplier' => $validated['id_supplier'] ?? $purchase->id_supplier,
+                'id_warehouse' => $validated['id_warehouse'] ?? $purchase->id_warehouse,
+                'purchase_date' => $validated['purchase_date'] ?? $purchase->purchase_date,
                 'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? $purchase->supplier_invoice_number,
-                'supplier_invoice_date'   => $validated['supplier_invoice_date'] ?? $purchase->supplier_invoice_date,
-                'currency'                => strtoupper($validated['currency'] ?? $purchase->currency),
-                'subtotal'                => $totales['subtotal'],
-                'discount'                => $totales['discount'],
-                'tax'                     => $totales['tax'],
-                'total'                   => $totales['total'],
-                'notes'                   => $validated['notes'] ?? $purchase->notes,
+                'supplier_invoice_date' => $validated['supplier_invoice_date'] ?? $purchase->supplier_invoice_date,
+                'currency' => strtoupper($validated['currency'] ?? $purchase->currency),
+                'subtotal' => $totales['subtotal'],
+                'discount' => $totales['discount'],
+                'tax' => $totales['tax'],
+                'total' => $totales['total'],
+                'notes' => $validated['notes'] ?? $purchase->notes,
             ]);
 
             // Reemplazar detalles (uno por uno, para que cada borrado quede en la bitácora)
@@ -183,10 +175,6 @@ class PurchaseService
 
     /**
      * Cambia el estado de una compra.
-     *
-     * @param  Purchase $purchase
-     * @param  string   $nuevoEstado
-     * @return void
      */
     public function cambiarEstado(Purchase $purchase, string $nuevoEstado): void
     {
@@ -220,18 +208,18 @@ class PurchaseService
             if ($order && $confirma) {
                 if (! in_array($order->status, self::RECEIVABLE_ORDER_STATUSES, true)) {
                     throw new InvalidArgumentException('No se puede confirmar la recepción: la orden de compra ya no admite recepciones ('
-                        . mb_strtolower(PurchaseOrder::STATUS_LABELS[$order->status] ?? $order->status) . ').');
+                        .mb_strtolower(PurchaseOrder::STATUS_LABELS[$order->status] ?? $order->status).').');
                 }
 
                 $lineas = $purchase->details()->get()->map(fn ($d) => [
                     'id_purchase_order_detail' => $d->id_purchase_order_detail,
-                    'id_product'               => $d->id_product,
-                    'quantity_received'        => $d->quantity_received,
+                    'id_product' => $d->id_product,
+                    'quantity_received' => $d->quantity_received,
                 ])->all();
 
                 $excedentes = $this->excedentes($order, $lineas, $purchase->id_purchase);
                 if ($excedentes) {
-                    throw new InvalidArgumentException('No se puede confirmar la recepción. ' . reset($excedentes));
+                    throw new InvalidArgumentException('No se puede confirmar la recepción. '.reset($excedentes));
                 }
             }
 
@@ -284,32 +272,32 @@ class PurchaseService
             ->pluck('id_unit', 'id_purchase_order_detail');
 
         foreach ($details as $item) {
-            $qtyReceived  = (float) ($item['quantity_received'] ?? 0);
-            $qtyOrdered   = (float) ($item['quantity_ordered'] ?? $qtyReceived);
-            $unitPrice    = (float) ($item['unit_price'] ?? 0);
+            $qtyReceived = (float) ($item['quantity_received'] ?? 0);
+            $qtyOrdered = (float) ($item['quantity_ordered'] ?? $qtyReceived);
+            $unitPrice = (float) ($item['unit_price'] ?? 0);
             $lineDiscount = (float) ($item['discount'] ?? 0);
-            $subtotal     = $qtyReceived * $unitPrice;
-            $base         = max(0, $subtotal - $lineDiscount);
-            $taxRate      = (float) ($item['tax_rate'] ?? 0);
-            $taxAmount    = $base * ($taxRate / 100);
-            $total        = $base + $taxAmount;
+            $subtotal = $qtyReceived * $unitPrice;
+            $base = max(0, $subtotal - $lineDiscount);
+            $taxRate = (float) ($item['tax_rate'] ?? 0);
+            $taxAmount = $base * ($taxRate / 100);
+            $total = $base + $taxAmount;
 
             PurchaseDetail::create([
-                'id_purchase'              => $purchase->id_purchase,
+                'id_purchase' => $purchase->id_purchase,
                 'id_purchase_order_detail' => $item['id_purchase_order_detail'] ?? null,
-                'id_product'               => $item['id_product'],
-                'quantity_ordered'         => $qtyOrdered,
-                'quantity_received'        => $qtyReceived,
-                'id_unit'                  => $unidades->get($item['id_purchase_order_detail'] ?? 0, $item['id_unit'] ?? null),
-                'unit_price'               => $unitPrice,
-                'discount'                 => $lineDiscount,
-                'subtotal'                 => $subtotal,
-                'tax_rate'                 => $taxRate,
-                'tax_amount'               => $taxAmount,
-                'total'                    => $total,
-                'notes'                    => $item['notes'] ?? null,
+                'id_product' => $item['id_product'],
+                'quantity_ordered' => $qtyOrdered,
+                'quantity_received' => $qtyReceived,
+                'id_unit' => $unidades->get($item['id_purchase_order_detail'] ?? 0, $item['id_unit'] ?? null),
+                'unit_price' => $unitPrice,
+                'discount' => $lineDiscount,
+                'subtotal' => $subtotal,
+                'tax_rate' => $taxRate,
+                'tax_amount' => $taxAmount,
+                'total' => $total,
+                'notes' => $item['notes'] ?? null,
                 // Ubicación de la bodega donde se guarda lo recibido (entra ahí al inventario)
-                'id_location'              => $item['id_location'] ?? null,
+                'id_location' => $item['id_location'] ?? null,
             ]);
         }
     }
@@ -390,6 +378,7 @@ class PurchaseService
 
             if (! $line) {
                 $errors["details.{$key}.id_purchase_order_detail"] = 'Solo se pueden recibir productos de la orden de compra.';
+
                 continue;
             }
 
@@ -398,7 +387,7 @@ class PurchaseService
             if ((float) $item['quantity_received'] > $pending + 0.00001) {
                 $name = $line->product?->name ?? 'el producto';
                 $errors["details.{$key}.quantity_received"] = "De {$name} solo faltan "
-                    . rtrim(rtrim(number_format($pending, 4, '.', ''), '0'), '.') . ' por recibir.';
+                    .rtrim(rtrim(number_format($pending, 4, '.', ''), '0'), '.').' por recibir.';
             }
         }
 

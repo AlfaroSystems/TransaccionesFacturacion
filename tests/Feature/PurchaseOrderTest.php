@@ -26,31 +26,31 @@ function setupDatosMaestros(): array
     $user->roles()->syncWithoutDetaching([$adminRole->id_role => ['assigned_at' => now()]]);
     // Recargar relaciones para que hasRole() funcione correctamente
     $user->load('roles.permissions');
-    $company           = Company::first() ?? Company::create(['name' => 'Empresa Test']);
-    $branch            = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'id_company' => $company->id_company]);
+    $company = Company::first() ?? Company::create(['name' => 'Empresa Test']);
+    $branch = Branch::first() ?? Branch::create(['name' => 'Sucursal Central', 'id_company' => $company->id_company]);
     $warehouseCategory = WarehouseCategory::first() ?? WarehouseCategory::create(['name' => 'General', 'description' => 'General']);
     // La bodega debe pertenecer a la sucursal de la orden
-    $warehouse         = Warehouse::where('id_branch', $branch->id_branch)->first() ?? Warehouse::create([
-        'name'                 => 'Bodega Central',
-        'id_branch'            => $branch->id_branch,
+    $warehouse = Warehouse::where('id_branch', $branch->id_branch)->first() ?? Warehouse::create([
+        'name' => 'Bodega Central',
+        'id_branch' => $branch->id_branch,
         'id_warehouse_category' => $warehouseCategory->id_warehouse_category,
     ]);
-    $unit     = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
-    $product  = Product::first() ?? Product::create([
-        'name'    => 'Laptop 15"',
-        'sku'     => 'LAP-15-TEST',
+    $unit = Unit::first() ?? Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
+    $product = Product::first() ?? Product::create([
+        'name' => 'Laptop 15"',
+        'sku' => 'LAP-15-TEST',
         'id_unit' => $unit->id_unit,
     ]);
     $supplier = Supplier::first() ?? Supplier::create([
-        'name'      => 'TechDistrib S.A.',
-        'email'     => 'ventas@techdistrib.com',
-        'country'   => 'Nicaragua',
+        'name' => 'TechDistrib S.A.',
+        'email' => 'ventas@techdistrib.com',
+        'country' => 'Nicaragua',
         'is_active' => true,
     ]);
     $expenseType = ExpenseType::first() ?? ExpenseType::create([
-        'name'        => 'Flete Terrestre',
+        'name' => 'Flete Terrestre',
         'description' => 'Costo de envío y transporte',
-        'is_active'   => true,
+        'is_active' => true,
     ]);
 
     return compact('user', 'branch', 'warehouse', 'unit', 'product', 'supplier', 'expenseType');
@@ -59,24 +59,24 @@ function setupDatosMaestros(): array
 function postDataBase(array $data): array
 {
     return [
-        'id_supplier'           => $data['supplier']->id_supplier,
-        'id_branch'             => $data['branch']->id_branch,
-        'id_warehouse'          => $data['warehouse']->id_warehouse,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
         'id_purchase_quotation' => null,
-        'order_date'            => now()->format('Y-m-d'),
-        'expected_date'         => now()->addDays(7)->format('Y-m-d'),
-        'currency'              => 'USD',
-        'payment_terms'         => 'Contado',
-        'notes'                 => null,
-        'products'              => [
+        'order_date' => now()->format('Y-m-d'),
+        'expected_date' => now()->addDays(7)->format('Y-m-d'),
+        'currency' => 'USD',
+        'payment_terms' => 'Contado',
+        'notes' => null,
+        'products' => [
             [
                 'id_product' => $data['product']->id_product,
-                'quantity'   => 5,
-                'id_unit'    => $data['unit']->id_unit,
+                'quantity' => 5,
+                'id_unit' => $data['unit']->id_unit,
                 'unit_price' => 500.00,
-                'discount'   => 0,
-                'tax_rate'   => 15,
-                'notes'      => null,
+                'discount' => 0,
+                'tax_rate' => 15,
+                'notes' => null,
             ],
         ],
         'expenses' => [],
@@ -88,7 +88,7 @@ function postDataBase(array $data): array
 // =============================================================================
 
 test('PurchaseOrderService calcula totales correctamente', function () {
-    $service = new PurchaseOrderService();
+    $service = new PurchaseOrderService;
 
     // 5 unidades x $500 = $2500 subtotal
     // descuento $0
@@ -110,7 +110,7 @@ test('PurchaseOrderService calcula totales correctamente', function () {
 });
 
 test('PurchaseOrderService calcula totales con descuento e IVA y gastos', function () {
-    $service = new PurchaseOrderService();
+    $service = new PurchaseOrderService;
 
     // 10 unidades x $200 = $2000 subtotal
     // descuento $100 -> base $1900, IVA 15% = $285
@@ -133,53 +133,53 @@ test('PurchaseOrderService calcula totales con descuento e IVA y gastos', functi
 });
 
 test('PurchaseOrderService lanza excepción al cambiar estado de orden cancelada', function () {
-    $data  = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $order = PurchaseOrder::create([
-        'id_supplier'  => $data['supplier']->id_supplier,
-        'id_branch'    => $data['branch']->id_branch,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
         'id_warehouse' => $data['warehouse']->id_warehouse,
-        'id_user'      => $data['user']->id_user,
-        'order_date'   => now(),
+        'id_user' => $data['user']->id_user,
+        'order_date' => now(),
         'expected_date' => now()->addDays(5),
-        'currency'     => 'USD',
+        'currency' => 'USD',
         'payment_terms' => 'Contado',
-        'subtotal'     => 0,
-        'discount'     => 0,
-        'tax'          => 0,
+        'subtotal' => 0,
+        'discount' => 0,
+        'tax' => 0,
         'additional_expenses' => 0,
-        'total'        => 0,
-        'status'       => 'cancelled',
+        'total' => 0,
+        'status' => 'cancelled',
     ]);
 
-    $service = new PurchaseOrderService();
+    $service = new PurchaseOrderService;
 
     expect(fn () => $service->cambiarEstado($order, 'issued'))
-        ->toThrow(\InvalidArgumentException::class, 'Una orden cancelada no puede pasar a emitida.');
+        ->toThrow(InvalidArgumentException::class, 'Una orden cancelada no puede pasar a emitida.');
 });
 
 test('PurchaseOrderService lanza excepción al intentar regresar issued a draft', function () {
-    $data  = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $order = PurchaseOrder::create([
-        'id_supplier'  => $data['supplier']->id_supplier,
-        'id_branch'    => $data['branch']->id_branch,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
         'id_warehouse' => $data['warehouse']->id_warehouse,
-        'id_user'      => $data['user']->id_user,
-        'order_date'   => now(),
+        'id_user' => $data['user']->id_user,
+        'order_date' => now(),
         'expected_date' => now()->addDays(5),
-        'currency'     => 'USD',
+        'currency' => 'USD',
         'payment_terms' => 'Contado',
-        'subtotal'     => 0,
-        'discount'     => 0,
-        'tax'          => 0,
+        'subtotal' => 0,
+        'discount' => 0,
+        'tax' => 0,
         'additional_expenses' => 0,
-        'total'        => 0,
-        'status'       => 'issued',
+        'total' => 0,
+        'status' => 'issued',
     ]);
 
-    $service = new PurchaseOrderService();
+    $service = new PurchaseOrderService;
 
     expect(fn () => $service->cambiarEstado($order, 'draft'))
-        ->toThrow(\InvalidArgumentException::class, 'Una orden emitida no puede pasar a borrador.');
+        ->toThrow(InvalidArgumentException::class, 'Una orden emitida no puede pasar a borrador.');
 });
 
 // =============================================================================
@@ -193,8 +193,8 @@ test('usuario autenticado puede crear una orden de compra con productos y gastos
         'expenses' => [
             [
                 'id_expense_type' => $data['expenseType']->id_expense_type,
-                'description'     => 'Flete exprés',
-                'amount'          => 75.00,
+                'description' => 'Flete exprés',
+                'amount' => 75.00,
             ],
         ],
     ]);
@@ -206,15 +206,15 @@ test('usuario autenticado puede crear una orden de compra con productos y gastos
     $response->assertSessionHas('success');
 
     $this->assertDatabaseHas('purchase_orders', [
-        'id_supplier'        => $data['supplier']->id_supplier,
-        'id_branch'          => $data['branch']->id_branch,
-        'subtotal'           => 2500.0000,
-        'discount'           => 0.0000,
-        'tax'                => 375.0000,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
+        'subtotal' => 2500.0000,
+        'discount' => 0.0000,
+        'tax' => 375.0000,
         'additional_expenses' => 75.0000,
-        'total'              => 2950.0000,
-        'currency'           => 'USD',
-        'status'             => 'draft',
+        'total' => 2950.0000,
+        'currency' => 'USD',
+        'status' => 'draft',
     ]);
 
     $order = PurchaseOrder::where('id_supplier', $data['supplier']->id_supplier)
@@ -223,27 +223,27 @@ test('usuario autenticado puede crear una orden de compra con productos y gastos
 
     $this->assertDatabaseHas('purchase_order_details', [
         'id_purchase_order' => $order->id_purchase_order,
-        'id_product'        => $data['product']->id_product,
-        'quantity'          => 5.0000,
-        'unit_price'        => 500.0000,
-        'subtotal'          => 2500.0000,
-        'tax_rate'          => 15.0000,
-        'tax_amount'        => 375.0000,
-        'total'             => 2875.0000,
+        'id_product' => $data['product']->id_product,
+        'quantity' => 5.0000,
+        'unit_price' => 500.0000,
+        'subtotal' => 2500.0000,
+        'tax_rate' => 15.0000,
+        'tax_amount' => 375.0000,
+        'total' => 2875.0000,
     ]);
 
     $this->assertDatabaseHas('purchase_order_expenses', [
         'id_purchase_order' => $order->id_purchase_order,
-        'id_expense_type'   => $data['expenseType']->id_expense_type,
-        'amount'            => 75.0000,
-        'description'       => 'Flete exprés',
+        'id_expense_type' => $data['expenseType']->id_expense_type,
+        'amount' => 75.0000,
+        'description' => 'Flete exprés',
     ]);
 });
 
 test('no se puede crear una orden de compra sin productos', function () {
     $data = setupDatosMaestros();
 
-    $postData           = postDataBase($data);
+    $postData = postDataBase($data);
     $postData['products'] = [];
 
     $response = $this->actingAs($data['user'])->post(route('purchase_orders.store'), $postData);
@@ -252,7 +252,7 @@ test('no se puede crear una orden de compra sin productos', function () {
 });
 
 test('no se puede crear una orden sin proveedor', function () {
-    $data     = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $postData = postDataBase($data);
     unset($postData['id_supplier']);
 
@@ -268,22 +268,22 @@ test('usuario no autenticado no puede acceder al índice de órdenes de compra',
 });
 
 test('usuario autenticado puede cambiar estado de una orden a issued', function () {
-    $data  = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $order = PurchaseOrder::create([
-        'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id_branch,
-        'id_warehouse'        => $data['warehouse']->id_warehouse,
-        'id_user'             => $data['user']->id_user,
-        'order_date'          => now(),
-        'expected_date'       => now()->addDays(5),
-        'currency'            => 'USD',
-        'payment_terms'       => 'Contado',
-        'subtotal'            => 2500.00,
-        'discount'            => 0,
-        'tax'                 => 375.00,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
+        'id_user' => $data['user']->id_user,
+        'order_date' => now(),
+        'expected_date' => now()->addDays(5),
+        'currency' => 'USD',
+        'payment_terms' => 'Contado',
+        'subtotal' => 2500.00,
+        'discount' => 0,
+        'tax' => 375.00,
         'additional_expenses' => 0,
-        'total'               => 2875.00,
-        'status'              => 'draft',
+        'total' => 2875.00,
+        'status' => 'draft',
     ]);
 
     $response = $this->actingAs($data['user'])->patch(
@@ -296,27 +296,27 @@ test('usuario autenticado puede cambiar estado de una orden a issued', function 
 
     $this->assertDatabaseHas('purchase_orders', [
         'id_purchase_order' => $order->id_purchase_order,
-        'status'            => 'issued',
+        'status' => 'issued',
     ]);
 });
 
 test('no se puede cambiar estado de una orden cancelada', function () {
-    $data  = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $order = PurchaseOrder::create([
-        'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id_branch,
-        'id_warehouse'        => $data['warehouse']->id_warehouse,
-        'id_user'             => $data['user']->id_user,
-        'order_date'          => now(),
-        'expected_date'       => now()->addDays(5),
-        'currency'            => 'USD',
-        'payment_terms'       => 'Contado',
-        'subtotal'            => 0,
-        'discount'            => 0,
-        'tax'                 => 0,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
+        'id_user' => $data['user']->id_user,
+        'order_date' => now(),
+        'expected_date' => now()->addDays(5),
+        'currency' => 'USD',
+        'payment_terms' => 'Contado',
+        'subtotal' => 0,
+        'discount' => 0,
+        'tax' => 0,
         'additional_expenses' => 0,
-        'total'               => 0,
-        'status'              => 'cancelled',
+        'total' => 0,
+        'status' => 'cancelled',
     ]);
 
     $response = $this->actingAs($data['user'])->patch(
@@ -329,27 +329,27 @@ test('no se puede cambiar estado de una orden cancelada', function () {
     // El estado no debe haber cambiado
     $this->assertDatabaseHas('purchase_orders', [
         'id_purchase_order' => $order->id_purchase_order,
-        'status'            => 'cancelled',
+        'status' => 'cancelled',
     ]);
 });
 
 test('se puede eliminar una orden en borrador', function () {
-    $data  = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $order = PurchaseOrder::create([
-        'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id_branch,
-        'id_warehouse'        => $data['warehouse']->id_warehouse,
-        'id_user'             => $data['user']->id_user,
-        'order_date'          => now(),
-        'expected_date'       => now()->addDays(5),
-        'currency'            => 'USD',
-        'payment_terms'       => 'Contado',
-        'subtotal'            => 0,
-        'discount'            => 0,
-        'tax'                 => 0,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
+        'id_user' => $data['user']->id_user,
+        'order_date' => now(),
+        'expected_date' => now()->addDays(5),
+        'currency' => 'USD',
+        'payment_terms' => 'Contado',
+        'subtotal' => 0,
+        'discount' => 0,
+        'tax' => 0,
         'additional_expenses' => 0,
-        'total'               => 0,
-        'status'              => 'draft',
+        'total' => 0,
+        'status' => 'draft',
     ]);
 
     $response = $this->actingAs($data['user'])
@@ -364,22 +364,22 @@ test('se puede eliminar una orden en borrador', function () {
 });
 
 test('no se puede eliminar una orden que ya fue emitida', function () {
-    $data  = setupDatosMaestros();
+    $data = setupDatosMaestros();
     $order = PurchaseOrder::create([
-        'id_supplier'         => $data['supplier']->id_supplier,
-        'id_branch'           => $data['branch']->id_branch,
-        'id_warehouse'        => $data['warehouse']->id_warehouse,
-        'id_user'             => $data['user']->id_user,
-        'order_date'          => now(),
-        'expected_date'       => now()->addDays(5),
-        'currency'            => 'USD',
-        'payment_terms'       => 'Contado',
-        'subtotal'            => 0,
-        'discount'            => 0,
-        'tax'                 => 0,
+        'id_supplier' => $data['supplier']->id_supplier,
+        'id_branch' => $data['branch']->id_branch,
+        'id_warehouse' => $data['warehouse']->id_warehouse,
+        'id_user' => $data['user']->id_user,
+        'order_date' => now(),
+        'expected_date' => now()->addDays(5),
+        'currency' => 'USD',
+        'payment_terms' => 'Contado',
+        'subtotal' => 0,
+        'discount' => 0,
+        'tax' => 0,
         'additional_expenses' => 0,
-        'total'               => 0,
-        'status'              => 'issued',
+        'total' => 0,
+        'status' => 'issued',
     ]);
 
     $response = $this->actingAs($data['user'])

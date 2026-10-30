@@ -32,7 +32,7 @@ class ProductCostService
         }
 
         $costos = $retaceo ? $this->costosDelRetaceo($purchase, $retaceo) : $this->costosDeLaFactura($purchase);
-        $fecha  = $purchase->purchase_date ?? $purchase->created_at;
+        $fecha = $purchase->purchase_date ?? $purchase->created_at;
 
         foreach ($purchase->details as $detail) {
             if (! isset($costos[$detail->id_purchase_detail])) {
@@ -47,8 +47,8 @@ class ProductCostService
             Product::whereKey($detail->id_product)
                 ->where(fn ($q) => $q->whereNull('last_cost_date')->orWhere('last_cost_date', '<=', $fecha))
                 ->update([
-                    'last_cost'                    => $costo,
-                    'last_cost_date'               => $fecha,
+                    'last_cost' => $costo,
+                    'last_cost_date' => $fecha,
                     'id_last_cost_purchase_detail' => $detail->id_purchase_detail,
                 ]);
         }
@@ -137,7 +137,7 @@ class ProductCostService
             return [];
         }
 
-        $gastos    = (float) $order->expenses()->where('is_costable', true)->sum('amount');
+        $gastos = (float) $order->expenses()->where('is_costable', true)->sum('amount');
         $baseOrden = max(0, (float) $order->subtotal - (float) $order->discount);
 
         if ($gastos <= 0 || $baseOrden <= 0) {

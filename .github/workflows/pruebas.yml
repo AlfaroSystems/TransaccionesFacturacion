@@ -1,0 +1,69 @@
+# Formato (Pint) y pruebas (Pest) en cada push a main y en cada pull request.
+name: Pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+
+    # La misma base que en desarrollo; las pruebas usan la base *_testing (ver phpunit.xml)
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: transacciones_facturacion_testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, pgsql, bcmath, gd, zip
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      # phpunit.xml apunta a DB_HOST=db, el nombre del servicio en docker-compose
+      - name: Resolver el host db
+        run: echo "127.0.0.1 db" | sudo tee -a /etc/hosts
+
+      - name: Dependencias
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci
+
+      # Las vistas cargan los assets con @vite: sin el manifest no se pueden renderizar
+      - name: Compilar assets
+        run: npm run build
+
+      - name: Preparar .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Formato
+        run: vendor/bin/pint --test
+
+      - name: Pruebas
+        run: php artisan test

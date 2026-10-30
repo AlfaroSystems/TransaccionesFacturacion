@@ -36,9 +36,9 @@ final class DocumentSequence
              WHERE {$column} LIKE ?
              ON CONFLICT (prefix) DO UPDATE SET last_number = document_sequences.last_number + 1
              RETURNING last_number",
-            [$prefix, '^' . preg_quote($prefix) . '([0-9]+)$', $prefix . '%']
+            [$prefix, '^'.preg_quote($prefix).'([0-9]+)$', $prefix.'%']
         );
 
-        return $prefix . str_pad((string) $row->last_number, $digits, '0', STR_PAD_LEFT);
+        return $prefix.str_pad((string) $row->last_number, $digits, '0', STR_PAD_LEFT);
     }
 }

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use App\Models\Concerns\BelongsToBranch;
 use App\Models\Scopes\BranchScope;
 use App\Support\BranchAccess;
@@ -8,9 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class PurchaseRequest extends Model
 {
-    use HasFactory, BelongsToBranch;
+    use BelongsToBranch, HasFactory;
 
     /**
      * Flujo: la sucursal crea el borrador y lo envía al departamento de compras, que la
@@ -19,10 +22,15 @@ class PurchaseRequest extends Model
      * editarla ni eliminarla.
      */
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_RETURNED = 'returned';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_QUOTED = 'quoted';
 
     public const STATUS_LABELS = [
@@ -68,7 +76,9 @@ class PurchaseRequest extends Model
     }
 
     protected $table = 'purchase_requests';
+
     protected $primaryKey = 'id_purchase_request';
+
     protected $fillable = [
         'uuid',
         'purchase_request_code',
@@ -83,11 +93,13 @@ class PurchaseRequest extends Model
         'sent_at',
         'notes',
     ];
+
     protected $casts = [
         'request_date' => 'datetime',
         'required_date' => 'datetime',
         'sent_at' => 'datetime',
     ];
+
     /**
      * Usuario que creó la solicitud.
      */
@@ -95,6 +107,7 @@ class PurchaseRequest extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
     /**
      * Sucursal de la solicitud.
      */
@@ -104,6 +117,7 @@ class PurchaseRequest extends Model
         // compras, de otra sucursal) debe ver también su sucursal y su bodega
         return $this->belongsTo(Branch::class, 'id_branch')->withoutGlobalScope(BranchScope::class);
     }
+
     /**
      * Bodega de la solicitud.
      */
@@ -111,6 +125,7 @@ class PurchaseRequest extends Model
     {
         return $this->belongsTo(Warehouse::class, 'id_warehouse')->withoutGlobalScope(BranchScope::class);
     }
+
     /**
      * Productos/detalles de la solicitud.
      */

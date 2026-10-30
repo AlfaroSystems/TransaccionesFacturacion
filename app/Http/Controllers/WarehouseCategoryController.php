@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\WarehouseCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -31,22 +32,22 @@ class WarehouseCategoryController extends Controller
         Gate::authorize('warehouse_categories.crear');
 
         $validated = $request->validate([
-            'name'=>'required|string|max:255',
-            'description'=>'nullable|string',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         WarehouseCategory::create([
-            'name'=>$validated['name'],
-            'description'=>$validated['description'] ?? null,
-            'is_active'=>$request->has('is_active') ? $request->boolean('is_active') : true
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
         ]);
 
         return redirect()
-        ->route('warehouse_categories.index')
-        ->with(
-            'success',
-            'Categoría creada correctamente'
-        );
+            ->route('warehouse_categories.index')
+            ->with(
+                'success',
+                'Categoría creada correctamente'
+            );
     }
 
     public function edit(WarehouseCategory $warehouseCategory)
@@ -60,32 +61,32 @@ class WarehouseCategoryController extends Controller
     {
         Gate::authorize('warehouse_categories.editar');
 
-        $validated=$request->validate([
-            'name'=>'required|string|max:255',
-            'description'=>'nullable|string'
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         $warehouseCategory->update([
-            'name'=>$validated['name'],
-            'description'=>$validated['description'] ?? null,
-            'is_active'=>$request->has('is_active')
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'is_active' => $request->has('is_active'),
         ]);
 
         return redirect()
-        ->route('warehouse_categories.index')
-        ->with(
-            'success',
-            'Categoría actualizada'
-        );
+            ->route('warehouse_categories.index')
+            ->with(
+                'success',
+                'Categoría actualizada'
+            );
     }
 
     public function destroy(WarehouseCategory $warehouseCategory)
     {
         Gate::authorize('warehouse_categories.eliminar');
 
-        $newStatus = !$warehouseCategory->is_active;
+        $newStatus = ! $warehouseCategory->is_active;
 
-        if (!$newStatus && $warehouseCategory->warehouses()->where('is_active', true)->exists()) {
+        if (! $newStatus && $warehouseCategory->warehouses()->where('is_active', true)->exists()) {
             return redirect()
                 ->route('warehouse_categories.index')
                 ->with('error', 'No se puede inactivar la categoría porque tiene almacenes activos asociados.');

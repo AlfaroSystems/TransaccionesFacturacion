@@ -20,6 +20,7 @@ use App\Models\Unit;
 use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
@@ -75,74 +76,74 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
 {
     $tag = Str::upper(Str::random(6));
 
-    $company   = Company::create(['name' => "Empresa {$tag}"]);
-    $branch    = Branch::create(['id_company' => $company->id_company, 'name' => "Sucursal {$tag}"]);
+    $company = Company::create(['name' => "Empresa {$tag}"]);
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => "Sucursal {$tag}"]);
     $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $category->id_warehouse_category, 'name' => "Bodega {$tag}"]);
-    $location  = Location::create(['id_warehouse' => $warehouse->id_warehouse, 'code' => "LOC-{$tag}", 'capacity' => 10]);
-    $user      = usuarioDeSucursal($branch->id_branch);
+    $location = Location::create(['id_warehouse' => $warehouse->id_warehouse, 'code' => "LOC-{$tag}", 'capacity' => 10]);
+    $user = usuarioDeSucursal($branch->id_branch);
 
     $request = PurchaseRequest::create([
-        'uuid'                  => (string) Str::uuid(),
+        'uuid' => (string) Str::uuid(),
         'purchase_request_code' => "REQ-TEST-{$tag}",
-        'id_branch'             => $branch->id_branch,
-        'id_warehouse'          => $warehouse->id_warehouse,
-        'id_user'               => $user->id_user,
-        'request_date'          => now(),
-        'required_date'         => now()->addWeek(),
-        'justification'         => "Justificación {$tag}",
-        'status'                => 'quoted',
+        'id_branch' => $branch->id_branch,
+        'id_warehouse' => $warehouse->id_warehouse,
+        'id_user' => $user->id_user,
+        'request_date' => now(),
+        'required_date' => now()->addWeek(),
+        'justification' => "Justificación {$tag}",
+        'status' => 'quoted',
     ]);
     $requestDetail = $request->details()->create(['id_product' => $product->id_product, 'quantity' => 5, 'id_unit' => $unit->id_unit]);
 
     $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$request]));
     $quotation = PurchaseQuotation::create([
         'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
-        'id_supplier'                   => $supplier->id_supplier,
-        'quotation_date'                => now(),
-        'status'                        => 'approved',
+        'id_supplier' => $supplier->id_supplier,
+        'quotation_date' => now(),
+        'status' => 'approved',
     ]);
 
     $order = PurchaseOrder::create([
-        'id_supplier'           => $supplier->id_supplier,
-        'id_branch'             => $branch->id_branch,
-        'id_warehouse'          => $warehouse->id_warehouse,
+        'id_supplier' => $supplier->id_supplier,
+        'id_branch' => $branch->id_branch,
+        'id_warehouse' => $warehouse->id_warehouse,
         'id_purchase_quotation' => $quotation->id_purchase_quotation,
-        'id_user'               => $user->id_user,
-        'order_date'            => now(),
-        'expected_date'         => now()->addWeek(),
-        'currency'              => 'USD',
-        'payment_terms'         => 'Contado',
-        'status'                => 'issued',
+        'id_user' => $user->id_user,
+        'order_date' => now(),
+        'expected_date' => now()->addWeek(),
+        'currency' => 'USD',
+        'payment_terms' => 'Contado',
+        'status' => 'issued',
     ]);
     $orderDetail = PurchaseOrderDetail::create([
         'id_purchase_order' => $order->id_purchase_order,
-        'id_product'        => $product->id_product,
-        'quantity'          => 5,
-        'id_unit'           => $unit->id_unit,
-        'unit_price'        => 10,
+        'id_product' => $product->id_product,
+        'quantity' => 5,
+        'id_unit' => $unit->id_unit,
+        'unit_price' => 10,
     ]);
 
     $purchase = Purchase::create([
         'id_purchase_order' => $order->id_purchase_order,
-        'id_supplier'       => $supplier->id_supplier,
-        'id_branch'         => $branch->id_branch,
-        'id_warehouse'      => $warehouse->id_warehouse,
-        'purchase_date'     => now(),
-        'status'            => 'draft',
+        'id_supplier' => $supplier->id_supplier,
+        'id_branch' => $branch->id_branch,
+        'id_warehouse' => $warehouse->id_warehouse,
+        'purchase_date' => now(),
+        'status' => 'draft',
     ]);
     $purchaseDetail = PurchaseDetail::create([
-        'id_purchase'              => $purchase->id_purchase,
+        'id_purchase' => $purchase->id_purchase,
         'id_purchase_order_detail' => $orderDetail->id_purchase_order_detail,
-        'id_product'               => $product->id_product,
-        'quantity_received'        => 1,
-        'unit_price'               => 10,
+        'id_product' => $product->id_product,
+        'quantity_received' => 1,
+        'unit_price' => 10,
     ]);
 
     $retaceo = Retaceo::create([
-        'id_supplier'  => $supplier->id_supplier,
-        'id_purchase'  => $purchase->id_purchase,
+        'id_supplier' => $supplier->id_supplier,
+        'id_purchase' => $purchase->id_purchase,
         'retaceo_date' => now(),
-        'status'       => 'draft',
+        'status' => 'draft',
     ]);
 
     return (object) compact(
@@ -154,10 +155,10 @@ function documentosDeSucursal(WarehouseCategory $category, Unit $unit, Product $
 
 function escenarioDosSucursales(): array
 {
-    $tag      = Str::upper(Str::random(6));
+    $tag = Str::upper(Str::random(6));
     $category = WarehouseCategory::create(['name' => "Categoría {$tag}"]);
-    $unit     = Unit::create(['name' => "Unidad {$tag}", 'abbreviation' => 'UND']);
-    $product  = Product::create(['name' => "Producto {$tag}", 'sku' => "SKU-{$tag}"]);
+    $unit = Unit::create(['name' => "Unidad {$tag}", 'abbreviation' => 'UND']);
+    $product = Product::create(['name' => "Producto {$tag}", 'sku' => "SKU-{$tag}"]);
     $supplier = Supplier::create(['name' => "Proveedor {$tag}", 'email' => "p{$tag}@example.com", 'country' => 'El Salvador', 'is_active' => true]);
 
     return [
@@ -174,11 +175,11 @@ function compraRecibidaSinRetaceo(object $sucursal): Purchase
 {
     return Purchase::queryAllBranches()->create([
         'id_purchase_order' => $sucursal->order->id_purchase_order,
-        'id_supplier'       => $sucursal->order->id_supplier,
-        'id_branch'         => $sucursal->branch->id_branch,
-        'id_warehouse'      => $sucursal->warehouse->id_warehouse,
-        'purchase_date'     => now(),
-        'status'            => 'received',
+        'id_supplier' => $sucursal->order->id_supplier,
+        'id_branch' => $sucursal->branch->id_branch,
+        'id_warehouse' => $sucursal->warehouse->id_warehouse,
+        'purchase_date' => now(),
+        'status' => 'received',
     ]);
 }
 
@@ -187,7 +188,7 @@ function compraRecibidaSinRetaceo(object $sucursal): Purchase
  */
 function expectSoloPropio($items, $propio, $ajeno): void
 {
-    $ids = collect($items instanceof \Illuminate\Contracts\Pagination\Paginator ? $items->items() : $items)
+    $ids = collect($items instanceof Paginator ? $items->items() : $items)
         ->map(fn ($item) => $item->getKey());
 
     expect($ids)->toContain($propio->getKey())
@@ -261,7 +262,7 @@ test('los listados y desplegables solo muestran datos de la sucursal del usuario
 test('la bitácora solo muestra la actividad de usuarios de la misma sucursal', function () {
     [$a, $b] = escenarioDosSucursales();
     $propio = AuditLog::create(['id_user' => $a->user->id_user, 'controller' => 'Prueba', 'action' => 'propio']);
-    $ajeno  = AuditLog::create(['id_user' => $b->user->id_user, 'controller' => 'Prueba', 'action' => 'ajeno']);
+    $ajeno = AuditLog::create(['id_user' => $b->user->id_user, 'controller' => 'Prueba', 'action' => 'ajeno']);
 
     $r = $this->actingAs($a->user)->get(route('audit-logs.index', ['controller' => 'Prueba']))->assertOk();
 
@@ -532,11 +533,11 @@ test('una compra siempre queda en la sucursal de su orden', function () {
 
     $this->actingAs(administradorGlobal())->post(route('purchases.store'), [
         'id_purchase_order' => $a->order->id_purchase_order,
-        'id_supplier'       => $catalogos['supplier']->id_supplier,
-        'id_branch'         => $b->branch->id_branch,
-        'purchase_date'     => now()->toDateString(),
-        'status'            => 'draft',
-        'details'           => [['id_product' => $catalogos['product']->id_product, 'id_purchase_order_detail' => $a->orderDetail->id_purchase_order_detail, 'quantity_received' => 1, 'unit_price' => 1]],
+        'id_supplier' => $catalogos['supplier']->id_supplier,
+        'id_branch' => $b->branch->id_branch,
+        'purchase_date' => now()->toDateString(),
+        'status' => 'draft',
+        'details' => [['id_product' => $catalogos['product']->id_product, 'id_purchase_order_detail' => $a->orderDetail->id_purchase_order_detail, 'quantity_received' => 1, 'unit_price' => 1]],
     ])->assertSessionHasNoErrors();
 
     $compra = Purchase::where('id_purchase_order', $a->order->id_purchase_order)->latest('id_purchase')->first();

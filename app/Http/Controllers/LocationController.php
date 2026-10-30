@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Location;
 use App\Models\Warehouse;
 use App\Rules\Accessible;
@@ -135,7 +136,7 @@ class LocationController extends Controller
         if ($total > self::BATCH_LIMIT) {
             return redirect()
                 ->route('locations.index')
-                ->with('error', "La generación produciría {$total} ubicaciones; el máximo por vez es " . self::BATCH_LIMIT . '.');
+                ->with('error', "La generación produciría {$total} ubicaciones; el máximo por vez es ".self::BATCH_LIMIT.'.');
         }
 
         $createdCount = 0;
@@ -194,6 +195,7 @@ class LocationController extends Controller
         Gate::authorize('locations.ver');
 
         $location->load('warehouse');
+
         return view('locations.show', compact('location'));
     }
 
@@ -251,7 +253,7 @@ class LocationController extends Controller
     {
         Gate::authorize('locations.eliminar');
 
-        $newStatus = !$location->is_active;
+        $newStatus = ! $location->is_active;
 
         $location->update([
             'is_active' => $newStatus,

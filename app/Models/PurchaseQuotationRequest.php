@@ -22,9 +22,10 @@ use Illuminate\Support\Collection;
  */
 class PurchaseQuotationRequest extends Model
 {
-    use HasFactory, BelongsToBranch;
+    use BelongsToBranch, HasFactory;
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SENT = 'sent';
 
     public const STATUS_LABELS = [

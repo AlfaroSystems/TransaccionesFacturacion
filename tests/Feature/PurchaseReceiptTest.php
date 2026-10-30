@@ -2,6 +2,7 @@
 
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\ExpenseType;
 use App\Models\InventoryLot;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -241,7 +242,7 @@ test('una compra completada es definitiva y una con retaceo activo no se anula',
 
     $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
     $recibida = Purchase::latest('id_purchase')->first();
-    \App\Models\Retaceo::create(['id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $recibida->id_purchase, 'retaceo_date' => now(), 'status' => 'draft']);
+    Retaceo::create(['id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $recibida->id_purchase, 'retaceo_date' => now(), 'status' => 'draft']);
 
     $cambiar($recibida, 'cancelled')
         ->assertSessionHas('error', 'No se puede anular una compra con un retaceo activo: cancele primero el retaceo.');
@@ -254,7 +255,7 @@ test('el retaceo va de borrador a liquidado y aplicado, y se cancela antes de ap
 
     $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
     $purchase = Purchase::latest('id_purchase')->first();
-    $retaceo = \App\Models\Retaceo::create(['id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $purchase->id_purchase, 'retaceo_date' => now(), 'status' => 'draft']);
+    $retaceo = Retaceo::create(['id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $purchase->id_purchase, 'retaceo_date' => now(), 'status' => 'draft']);
     $cambiar = fn (string $status) => $this->patch(route('retaceos.updateStatus', $retaceo), ['status' => $status]);
 
     $cambiar('applied')->assertSessionHas('error', 'Un retaceo borrador no puede pasar a aplicado.');
@@ -273,7 +274,7 @@ test('el retaceo va de borrador a liquidado y aplicado, y se cancela antes de ap
 function costoConGastos(object $e): void
 {
     $e->order->update(['subtotal' => 150, 'discount' => 0]);
-    $tipo = \App\Models\ExpenseType::create(['name' => 'Flete '.Str::random(5)]);
+    $tipo = ExpenseType::create(['name' => 'Flete '.Str::random(5)]);
     $e->order->expenses()->createMany([
         ['id_expense_type' => $tipo->id_expense_type, 'amount' => 30, 'is_costable' => true],
         ['id_expense_type' => $tipo->id_expense_type, 'amount' => 20, 'is_costable' => false],
@@ -328,7 +329,7 @@ test('el retaceo aplicado reemplaza el costo de la factura', function () {
             'quantity' => 10, 'cost_fob' => 100,
         ]],
     ])->assertSessionHasNoErrors();
-    $retaceo = \App\Models\Retaceo::latest('id_retaceo')->first();
+    $retaceo = Retaceo::latest('id_retaceo')->first();
 
     // Liquidado todavía no cambia el costo
     expect((float) $e->laptop->fresh()->last_cost)->toBe(10.0);
@@ -357,7 +358,7 @@ test('solo la compra más reciente fija el último costo', function () {
 test('cada gasto de la orden indica si forma parte del costo', function () {
     $e = recepcionEscenario();
     $this->actingAs($e->admin);
-    $tipo = \App\Models\ExpenseType::create(['name' => 'Flete '.Str::random(5)]);
+    $tipo = ExpenseType::create(['name' => 'Flete '.Str::random(5)]);
 
     $this->post(route('purchase_orders.store'), [
         'id_supplier' => $e->supplier->id_supplier, 'id_branch' => $e->order->id_branch, 'id_warehouse' => $e->order->id_warehouse,

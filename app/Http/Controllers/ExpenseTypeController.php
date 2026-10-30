@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Http\Requests\StoreExpenseTypeRequest;
 use App\Http\Requests\UpdateExpenseTypeRequest;
 use App\Models\ExpenseType;
@@ -55,7 +56,7 @@ class ExpenseTypeController extends Controller
         Gate::authorize('expense_types.eliminar');
 
         $expenseType->update([
-            'is_active' => !$expenseType->is_active,
+            'is_active' => ! $expenseType->is_active,
         ]);
 
         $message = $expenseType->is_active

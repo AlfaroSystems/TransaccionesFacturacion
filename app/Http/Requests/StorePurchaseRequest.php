@@ -133,8 +133,7 @@ class StorePurchaseRequest extends FormRequest
 
             'required_date.required' => 'La fecha requerida es obligatoria.',
             'required_date.date' => 'La fecha requerida no es válida.',
-            'required_date.after_or_equal' =>
-                'La fecha requerida no puede ser anterior a la fecha de solicitud.',
+            'required_date.after_or_equal' => 'La fecha requerida no puede ser anterior a la fecha de solicitud.',
 
             'justification.required' => 'La justificación es obligatoria.',
 
@@ -142,24 +141,16 @@ class StorePurchaseRequest extends FormRequest
             'details.array' => 'Los productos de la solicitud no son válidos.',
             'details.min' => 'Debe agregar al menos un producto.',
 
-            'details.*.id_product.required' =>
-                'Debe seleccionar un producto en cada fila.',
-            'details.*.id_product.exists' =>
-                'Uno de los productos seleccionados no existe.',
-            'details.*.id_product.distinct' =>
-                'Un producto aparece en más de una fila; indique la cantidad total en una sola.',
+            'details.*.id_product.required' => 'Debe seleccionar un producto en cada fila.',
+            'details.*.id_product.exists' => 'Uno de los productos seleccionados no existe.',
+            'details.*.id_product.distinct' => 'Un producto aparece en más de una fila; indique la cantidad total en una sola.',
 
-            'details.*.quantity.required' =>
-                'Debe indicar la cantidad de cada producto.',
-            'details.*.quantity.numeric' =>
-                'La cantidad debe ser un valor numérico.',
-            'details.*.quantity.gt' =>
-                'La cantidad debe ser mayor que cero.',
+            'details.*.quantity.required' => 'Debe indicar la cantidad de cada producto.',
+            'details.*.quantity.numeric' => 'La cantidad debe ser un valor numérico.',
+            'details.*.quantity.gt' => 'La cantidad debe ser mayor que cero.',
 
-            'details.*.id_unit.required' =>
-                'Debe seleccionar una unidad de medida.',
-            'details.*.id_unit.exists' =>
-                'Una de las unidades seleccionadas no existe.',
+            'details.*.id_unit.required' => 'Debe seleccionar una unidad de medida.',
+            'details.*.id_unit.exists' => 'Una de las unidades seleccionadas no existe.',
         ];
     }
 

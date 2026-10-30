@@ -2,16 +2,21 @@
 
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\ExpenseType;
 use App\Models\Permission;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseQuotation;
 use App\Models\PurchaseQuotationRequest;
 use App\Models\PurchaseRequest;
 use App\Models\Role;
+use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 
 // =============================================================================
 // Flujo: la sucursal crea y envía; el departamento de compras (Casa Matriz) la aprueba,
@@ -446,8 +451,8 @@ function flujoCotizacionConOfertas(object $e): object
     $quotationRequest = PurchaseQuotationRequest::createFromPurchaseRequests(collect([$deA->load('details'), $deB->load('details')]));
 
     $oferta = function (string $name, float $precioProducto, float $precioMonitor) use ($e, $quotationRequest, $monitor) {
-        $supplier = \App\Models\Supplier::create(['name' => $name.' '.Str::random(4), 'email' => Str::random(8).'@example.com', 'country' => 'El Salvador', 'is_active' => true]);
-        $quotation = \App\Models\PurchaseQuotation::create([
+        $supplier = Supplier::create(['name' => $name.' '.Str::random(4), 'email' => Str::random(8).'@example.com', 'country' => 'El Salvador', 'is_active' => true]);
+        $quotation = PurchaseQuotation::create([
             'id_purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
             'id_supplier' => $supplier->id_supplier, 'quotation_date' => now(), 'status' => 'submitted',
         ]);
@@ -551,7 +556,7 @@ test('las órdenes se generan por proveedor y por sucursal que pidió, con su pa
     $e = flujoEscenario();
     $c = flujoCotizacionConOfertas($e);
     $linea = fn ($oferta, $producto) => $oferta->details->firstWhere('id_product', $producto)->id_purchase_quotation_detail;
-    $flete = \App\Models\ExpenseType::create(['name' => 'Flete '.Str::random(4)]);
+    $flete = ExpenseType::create(['name' => 'Flete '.Str::random(4)]);
     $c->ofertaDos->expenses()->create(['id_expense_type' => $flete->id_expense_type, 'description' => 'Envío', 'amount' => 25]);
 
     $this->actingAs($c->admin);
@@ -571,7 +576,7 @@ test('las órdenes se generan por proveedor y por sucursal que pidió, con su pa
     $this->post(route('purchase-quotation-requests.generate-orders', $c->quotationRequest->id_purchase_quotation_request))
         ->assertSessionHas('success');
 
-    $orders = \App\Models\PurchaseOrder::queryAllBranches()->with('details', 'expenses')->get();
+    $orders = PurchaseOrder::queryAllBranches()->with('details', 'expenses')->get();
     expect($orders)->toHaveCount(3)
         ->and($orders->pluck('status')->unique()->all())->toBe(['draft']);
 
@@ -595,7 +600,7 @@ test('las órdenes se generan por proveedor y por sucursal que pidió, con su pa
     // No se generan dos veces
     $this->post(route('purchase-quotation-requests.generate-orders', $c->quotationRequest->id_purchase_quotation_request))
         ->assertSessionHas('error', 'Las órdenes de compra de esta solicitud ya se generaron.');
-    expect(\App\Models\PurchaseOrder::queryAllBranches()->count())->toBe(3);
+    expect(PurchaseOrder::queryAllBranches()->count())->toBe(3);
 
     // El detalle de la solicitud de cotización lista las órdenes generadas
     $this->get(route('purchase-quotation-requests.show', $c->quotationRequest->id_purchase_quotation_request))
@@ -637,9 +642,9 @@ function flujoProducto(string $name): Product
 }
 
 /** Registra la oferta de un proveedor por el formulario, con precio solo en los productos indicados */
-function flujoRegistrarOferta(PurchaseQuotationRequest $quotationRequest, array $prices): \Illuminate\Testing\TestResponse
+function flujoRegistrarOferta(PurchaseQuotationRequest $quotationRequest, array $prices): TestResponse
 {
-    $supplier = \App\Models\Supplier::create(['name' => 'Proveedor '.Str::random(4), 'email' => Str::random(8).'@example.com', 'country' => 'El Salvador', 'is_active' => true]);
+    $supplier = Supplier::create(['name' => 'Proveedor '.Str::random(4), 'email' => Str::random(8).'@example.com', 'country' => 'El Salvador', 'is_active' => true]);
 
     $items = [];
     foreach ($quotationRequest->details()->get()->groupBy->lineKey() as $group) {
@@ -700,7 +705,7 @@ test('compras cotiza productos sin solicitud de compra y sus órdenes van al des
     // Oferta, adjudicación y orden de compra a Casa Matriz
     $this->actingAs($compras);
     flujoRegistrarOferta($quotationRequest, [$e->product->id_product => 9])->assertSessionHas('success');
-    $oferta = \App\Models\PurchaseQuotation::queryAllBranches()->with('details')->sole();
+    $oferta = PurchaseQuotation::queryAllBranches()->with('details')->sole();
 
     $this->post(route('purchase-quotation-requests.award', $quotationRequest->id_purchase_quotation_request), [
         'awards' => [$e->product->id_product.'-'.$e->unit->id_unit => $oferta->details->first()->id_purchase_quotation_detail],
@@ -708,7 +713,7 @@ test('compras cotiza productos sin solicitud de compra y sus órdenes van al des
     $this->post(route('purchase-quotation-requests.generate-orders', $quotationRequest->id_purchase_quotation_request))
         ->assertSessionHas('success');
 
-    $orden = \App\Models\PurchaseOrder::queryAllBranches()->with('details')->sole();
+    $orden = PurchaseOrder::queryAllBranches()->with('details')->sole();
     expect($orden->id_branch)->toBe($e->matriz->id_branch)
         ->and($orden->id_warehouse)->toBe($e->bodegaMatriz->id_warehouse)
         ->and((float) $orden->details->sole()->quantity)->toBe(6.0)
@@ -826,7 +831,7 @@ test('una oferta puede traer solo algunos productos; lo que nadie cotizó queda 
 
     // Solo cotizó el producto, no el monitor; con ofertas la solicitud queda enviada
     flujoRegistrarOferta($quotationRequest, [$e->product->id_product => 7])->assertSessionHas('success');
-    $oferta = \App\Models\PurchaseQuotation::queryAllBranches()->with('details')->sole();
+    $oferta = PurchaseQuotation::queryAllBranches()->with('details')->sole();
     expect($oferta->details)->toHaveCount(1)
         ->and($quotationRequest->fresh()->status)->toBe('sent')
         ->and($quotationRequest->fresh()->sent_at)->not->toBeNull();
@@ -851,7 +856,7 @@ test('una oferta puede traer solo algunos productos; lo que nadie cotizó queda 
 
     $this->post(route('purchase-quotation-requests.generate-orders', $quotationRequest->id_purchase_quotation_request))
         ->assertSessionHas('success');
-    $orden = \App\Models\PurchaseOrder::queryAllBranches()->with('details')->sole();
+    $orden = PurchaseOrder::queryAllBranches()->with('details')->sole();
     expect($orden->details->pluck('id_product')->all())->toBe([$e->product->id_product])
         ->and($orden->id_branch)->toBe($e->sucursalA->id_branch);
 });

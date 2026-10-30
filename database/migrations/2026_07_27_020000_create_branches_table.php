@@ -13,21 +13,21 @@ return new class extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            
+
             // Relación con la empresa
             $table->foreignId('company_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
+                ->constrained()
+                ->cascadeOnDelete();
 
             // Datos de la sucursal
             $table->string('name');
             $table->string('address')->nullable();
-            
+
             // Relaciones geográficas (El Salvador)
             $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('municipality_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('district_id')->nullable()->constrained()->nullOnDelete();
-            
+
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->text('description')->nullable();

@@ -1,11 +1,15 @@
 <?php
 
 namespace App\Models;
+
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
 use App\Support\BranchAccess;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -71,7 +75,7 @@ class User extends Authenticatable
     /**
      * Relación con la sucursal asignada al usuario.
      */
-    public function branch(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'id_branch');
     }
@@ -79,7 +83,7 @@ class User extends Authenticatable
     /**
      * Relación con los roles asignados al usuario.
      */
-    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'users_roles', 'id_user', 'id_role')->withPivot('assigned_at');
     }
@@ -191,10 +195,9 @@ class User extends Authenticatable
      * Envía la notificación de restablecimiento de contraseña en español con diseño premium.
      *
      * @param  string  $token
-     * @return void
      */
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

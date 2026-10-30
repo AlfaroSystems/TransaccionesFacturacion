@@ -1,14 +1,15 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Branch extends Model
 {
-    use HasFactory, BelongsToBranch;
+    use BelongsToBranch, HasFactory;
 
     // Un usuario sin restricción ve todas las sucursales; los demás, solo la suya
     public function restrictToBranch(Builder $query, int $branchId): void

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Country;
+use Illuminate\Database\Seeder;
 
 class CountrySeeder extends Seeder
 {
@@ -34,7 +34,7 @@ class CountrySeeder extends Seeder
             'Ucrania', 'Uganda', 'Uruguay', 'Uzbekistán',
             'Vanuatu', 'Venezuela', 'Vietnam',
             'Yemen', 'Yibuti',
-            'Zambia', 'Zimbabue'
+            'Zambia', 'Zimbabue',
         ]);
 
         foreach ($countries as $countryName) {

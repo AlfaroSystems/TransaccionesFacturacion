@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Concerns\BelongsToBranch;
 use App\Models\Concerns\RefreshesWithLock;
 use App\Models\Scopes\BranchScope;
@@ -21,12 +22,12 @@ class PurchaseOrder extends Model
      * que se dio por terminada a mano porque el proveedor no entregará el resto.
      */
     public const STATUS_LABELS = [
-        'draft'            => 'Borrador',
-        'issued'           => 'Emitida',
+        'draft' => 'Borrador',
+        'issued' => 'Emitida',
         'partial_received' => 'Recibida parcial',
-        'completed'        => 'Completada',
-        'closed'           => 'Cerrada',
-        'cancelled'        => 'Cancelada',
+        'completed' => 'Completada',
+        'closed' => 'Cerrada',
+        'cancelled' => 'Cancelada',
     ];
 
     public function restrictToBranch(Builder $query, int $branchId): void
@@ -43,7 +44,9 @@ class PurchaseOrder extends Model
     }
 
     protected $table = 'purchase_orders';
+
     protected $primaryKey = 'id_purchase_order';
+
     protected $fillable = [
         'uuid',
         'purchase_order_code',
@@ -78,12 +81,12 @@ class PurchaseOrder extends Model
     protected static function booted(): void
     {
         static::creating(function ($order) {
-            if (!$order->uuid) {
+            if (! $order->uuid) {
                 $order->uuid = (string) Str::uuid();
             }
-            if (!$order->purchase_order_code) {
+            if (! $order->purchase_order_code) {
                 // El correlativo es global: lo comparten las órdenes de todas las sucursales
-                $order->purchase_order_code = DocumentSequence::next('OC-' . now()->year . '-', 'purchase_orders', 'purchase_order_code');
+                $order->purchase_order_code = DocumentSequence::next('OC-'.now()->year.'-', 'purchase_orders', 'purchase_order_code');
             }
         });
     }
@@ -135,6 +138,7 @@ class PurchaseOrder extends Model
             'id_purchase_order'
         );
     }
+
     public function purchases(): HasMany
     {
         return $this->hasMany(

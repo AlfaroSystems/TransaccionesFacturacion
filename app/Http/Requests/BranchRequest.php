@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Requests;
+
 use App\Models\Company;
 use App\Rules\Accessible;
 use App\Support\BranchAccess;

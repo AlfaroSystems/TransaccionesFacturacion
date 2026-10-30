@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -8,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PurchaseOrderDetail extends Model
 {
     protected $table = 'purchase_order_details';
+
     protected $primaryKey = 'id_purchase_order_detail';
+
     protected $fillable = [
         'id_purchase_order',
         'id_product',

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -8,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PurchaseOrderExpense extends Model
 {
     protected $table = 'purchase_order_expenses';
+
     protected $primaryKey = 'id_purchase_order_expense';
+
     protected $fillable = [
         'id_purchase_order',
         'id_expense_type',
@@ -31,7 +34,7 @@ class PurchaseOrderExpense extends Model
             'id_purchase_order'
         );
     }
-    
+
     public function expenseType(): BelongsTo
     {
         return $this->belongsTo(

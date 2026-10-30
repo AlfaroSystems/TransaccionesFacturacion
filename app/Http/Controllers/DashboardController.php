@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Product;
-use App\Models\Supplier;
+use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
-use App\Models\Purchase;
 use App\Models\Retaceo;
-use App\Models\AuditLog;
+use App\Models\Role;
+use App\Models\Supplier;
+use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller

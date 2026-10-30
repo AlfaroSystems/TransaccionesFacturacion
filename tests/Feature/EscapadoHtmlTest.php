@@ -52,7 +52,7 @@ test('las plantillas de JavaScript escapan los textos que insertan como HTML', f
     $sinEscapar = collect(File::allFiles(resource_path('views')))
         ->flatMap(fn ($archivo) => collect(file($archivo->getPathname()))
             ->filter(fn ($linea) => preg_match($patron, $linea))
-            ->map(fn ($linea, $i) => $archivo->getRelativePathname() . ':' . ($i + 1) . ' ' . trim($linea)))
+            ->map(fn ($linea, $i) => $archivo->getRelativePathname().':'.($i + 1).' '.trim($linea)))
         ->values()
         ->all();
 

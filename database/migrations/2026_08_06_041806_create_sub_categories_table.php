@@ -24,10 +24,10 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
 
             $table->foreign('id_category')
-                  ->references('id')
-                  ->on('categories')
-                  ->cascadeOnUpdate()
-                  ->restrictOnDelete();
+                ->references('id')
+                ->on('categories')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
 
             $table->timestamps();
         });

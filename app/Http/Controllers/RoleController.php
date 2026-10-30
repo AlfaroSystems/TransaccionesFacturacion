@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Permission;
 use App\Models\Role;
 use App\Support\PermissionGroups;
@@ -54,7 +55,7 @@ class RoleController extends Controller
             'description' => $validated['description'],
         ]);
 
-        if (!empty($validated['permissions'])) {
+        if (! empty($validated['permissions'])) {
             $role->permissions()->sync($validated['permissions']);
         }
 

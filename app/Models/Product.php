@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,7 @@ class Product extends Model
     use HasFactory;
 
     protected $table = 'products';
+
     protected $primaryKey = 'id_product';
 
     /**
@@ -99,7 +101,7 @@ class Product extends Model
     public static function generateUniqueSku(string $prefix = 'PRD'): string
     {
         do {
-            $sku = strtoupper($prefix . '-' . date('Y') . '-' . Str::random(5));
+            $sku = strtoupper($prefix.'-'.date('Y').'-'.Str::random(5));
         } while (static::where('sku', $sku)->exists());
 
         return $sku;
@@ -179,8 +181,8 @@ class Product extends Model
     public function locations(): BelongsToMany
     {
         return $this->belongsToMany(Location::class, 'product_location', 'product_id', 'location_id')
-                    ->withPivot('quantity')
-                    ->withTimestamps();
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     /* =========================================================================

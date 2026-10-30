@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PurchaseOrderExpenseDocument extends Model
 {
     protected $table = 'purchase_order_expense_documents';
+
     protected $primaryKey = 'id_purchase_order_expense_document';
 
     protected $fillable = [

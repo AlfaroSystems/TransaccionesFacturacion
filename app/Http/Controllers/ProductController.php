@@ -1,17 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\Scopes\BranchScope;
 use App\Models\SubCategory;
 use App\Models\Unit;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Exception;
 
 class ProductController extends Controller
 {
@@ -45,10 +47,10 @@ class ProductController extends Controller
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        $products       = $query->orderBy('id_product', 'desc')->paginate(15)->withQueryString();
-        $categories     = Category::where('is_active', true)->get();
-        $subCategories  = SubCategory::where('is_active', true)->get();
-        $units          = Unit::where('is_active', true)->get();
+        $products = $query->orderBy('id_product', 'desc')->paginate(15)->withQueryString();
+        $categories = Category::where('is_active', true)->get();
+        $subCategories = SubCategory::where('is_active', true)->get();
+        $units = Unit::where('is_active', true)->get();
 
         return view('products.index', compact('products', 'categories', 'subCategories', 'units'));
     }
@@ -73,7 +75,7 @@ class ProductController extends Controller
 
         try {
             $data = $request->validated();
-            
+
             // Si no se envía checkbox de is_active, por defecto es true
             $data['is_active'] = $request->has('is_active') ? $request->boolean('is_active') : true;
 
@@ -101,8 +103,9 @@ class ProductController extends Controller
         } catch (Exception $e) {
             Log::error('Error al registrar producto.', [
                 'exception' => $e->getMessage(),
-                'trace'     => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Ocurrió un error al registrar el producto. Por favor intente nuevamente o contacte al administrador.']);
@@ -120,7 +123,7 @@ class ProductController extends Controller
             'category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images', 'locations',
             'lastCostPurchaseDetail.unit',
             // El código de la compra que fijó el costo, aunque sea de otra sucursal
-            'lastCostPurchaseDetail.purchase' => fn ($q) => $q->withoutGlobalScope(\App\Models\Scopes\BranchScope::class),
+            'lastCostPurchaseDetail.purchase' => fn ($q) => $q->withoutGlobalScope(BranchScope::class),
         ]);
 
         return view('products.show', compact('product'));
@@ -170,9 +173,10 @@ class ProductController extends Controller
         } catch (Exception $e) {
             Log::error('Error al actualizar producto.', [
                 'product_id' => $product->id_product,
-                'exception'  => $e->getMessage(),
-                'trace'      => $e->getTraceAsString(),
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Ocurrió un error al actualizar el producto. Por favor intente nuevamente o contacte al administrador.']);
@@ -187,7 +191,7 @@ class ProductController extends Controller
         Gate::authorize('products.eliminar');
 
         $productName = $product->name;
-        $newStatus = !$product->is_active;
+        $newStatus = ! $product->is_active;
 
         $product->update([
             'is_active' => $newStatus,
@@ -217,10 +221,11 @@ class ProductController extends Controller
             return back()->with('success', 'Imagen eliminada correctamente.');
         } catch (Exception $e) {
             Log::error('Error al eliminar imagen de producto.', [
-                'image_id'  => $image->id_product_image ?? null,
+                'image_id' => $image->id_product_image ?? null,
                 'exception' => $e->getMessage(),
-                'trace'     => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return back()->withErrors(['error' => 'Error al eliminar la imagen. Por favor intente nuevamente o contacte al administrador.']);
         }
     }

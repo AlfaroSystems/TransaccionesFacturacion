@@ -5,6 +5,7 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Como "exists", pero consulta mediante Eloquent para que se apliquen los scopes
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 class Accessible implements ValidationRule
 {
     /**
-     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $model
+     * @param  class-string<Model>  $model
      * @param  (Closure(Builder): void)|null  $constraint  condición adicional opcional
      */
     public function __construct(

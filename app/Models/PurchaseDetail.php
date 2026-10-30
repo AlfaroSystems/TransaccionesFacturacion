@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ class PurchaseDetail extends Model
     use HasFactory;
 
     protected $table = 'purchase_details';
+
     protected $primaryKey = 'id_purchase_detail';
 
     protected $fillable = [
@@ -79,7 +81,7 @@ class PurchaseDetail extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'id_location', 'id_location')
-            ->withoutGlobalScope(\App\Models\Scopes\BranchScope::class);
+            ->withoutGlobalScope(BranchScope::class);
     }
 
     /**
@@ -88,7 +90,7 @@ class PurchaseDetail extends Model
     public function inventoryLots(): HasMany
     {
         return $this->hasMany(InventoryLot::class, 'id_purchase_detail', 'id_purchase_detail')
-            ->withoutGlobalScope(\App\Models\Scopes\BranchScope::class);
+            ->withoutGlobalScope(BranchScope::class);
     }
 
     public function retaceoDetails(): HasMany

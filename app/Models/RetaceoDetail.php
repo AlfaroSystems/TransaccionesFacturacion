@@ -11,6 +11,7 @@ class RetaceoDetail extends Model
     use HasFactory;
 
     protected $table = 'retaceo_details';
+
     protected $primaryKey = 'id_retaceo_detail';
 
     protected $fillable = [
@@ -27,13 +28,13 @@ class RetaceoDetail extends Model
     ];
 
     protected $casts = [
-        'quantity'       => 'decimal:4',
-        'cost_fob'       => 'decimal:4',
+        'quantity' => 'decimal:4',
+        'cost_fob' => 'decimal:4',
         'freight_amount' => 'decimal:4',
         'expense_amount' => 'decimal:4',
-        'dai_amount'     => 'decimal:4',
-        'unit_cost'      => 'decimal:4',
-        'total_cost'     => 'decimal:4',
+        'dai_amount' => 'decimal:4',
+        'unit_cost' => 'decimal:4',
+        'total_cost' => 'decimal:4',
     ];
 
     public function retaceo(): BelongsTo

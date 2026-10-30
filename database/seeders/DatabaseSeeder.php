@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,7 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([ExpenseTypeSeeder::class,]);
+        $this->call([ExpenseTypeSeeder::class]);
 
         // Cargar Catálogo Geográfico Primero
         $this->call(GeographicSeeder::class);
