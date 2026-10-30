@@ -117,6 +117,57 @@ test('el retaceo guarda el prorrateo calculado en el servidor', function () {
         ->and((float) $retaceo->details[0]->unit_cost)->toBe(64.5);
 });
 
+test('cada línea del retaceo es una línea de su compra, con su producto y la cantidad recibida', function () {
+    $e = escenarioCompras();
+    $this->actingAs($e->admin);
+    $conLinea = fn (array $cambios) => datosRetaceo($e, ['details' => [array_merge(datosRetaceo($e)['details'][0], $cambios)]]);
+    $monitor = Product::create(['name' => 'Monitor', 'sku' => 'SKU-'.Str::random(6)]);
+
+    // Se recibieron 10: con otra cantidad el costo unitario del lote saldría mal
+    $this->post(route('retaceos.store'), $conLinea(['quantity' => 12]))
+        ->assertSessionHasErrors(['details.0.quantity' => 'La cantidad de Laptop debe ser la recibida en la compra: 10.']);
+    $this->post(route('retaceos.store'), $conLinea(['id_product' => $monitor->id_product]))
+        ->assertSessionHasErrors(['details.0.id_product' => 'El producto no corresponde a su línea de la compra.']);
+    $this->post(route('retaceos.store'), $conLinea(['id_purchase_detail' => null]))
+        ->assertSessionHasErrors(['details.0.id_purchase_detail' => 'Cada línea del retaceo debe ser una línea de la compra.']);
+
+    expect(Retaceo::count())->toBe(0);
+});
+
+test('el retaceo incluye cada línea de su compra una sola vez', function () {
+    $e = escenarioCompras();
+    $this->actingAs($e->admin);
+    $monitor = Product::create(['name' => 'Monitor', 'sku' => 'SKU-'.Str::random(6)]);
+    $lineaOrden = PurchaseOrderDetail::create([
+        'id_purchase_order' => $e->order->id_purchase_order, 'id_product' => $monitor->id_product,
+        'quantity' => 4, 'id_unit' => $e->unit->id_unit, 'unit_price' => 25,
+    ]);
+    $segunda = PurchaseDetail::create([
+        'id_purchase' => $e->purchase->id_purchase, 'id_purchase_order_detail' => $lineaOrden->id_purchase_order_detail,
+        'id_product' => $monitor->id_product, 'quantity_received' => 4, 'unit_price' => 25,
+    ]);
+    $laptop = datosRetaceo($e)['details'][0];
+    $lineaMonitor = ['id_product' => $monitor->id_product, 'id_purchase_detail' => $segunda->id_purchase_detail, 'quantity' => 4, 'cost_fob' => 100];
+
+    // Sin el monitor, el flete y el DAI se repartirían solo entre las laptops
+    $this->post(route('retaceos.store'), datosRetaceo($e))
+        ->assertSessionHasErrors(['details' => 'El retaceo debe incluir todas las líneas de la compra.']);
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['details' => [$laptop, $laptop, $lineaMonitor]]))
+        ->assertSessionHasErrors(['details.1.id_purchase_detail' => 'Una línea de la compra aparece más de una vez en el retaceo.']);
+    expect(Retaceo::count())->toBe(0);
+
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['status' => 'draft', 'details' => [$laptop, $lineaMonitor]]))
+        ->assertSessionHasNoErrors();
+    $retaceo = Retaceo::sole();
+    expect($retaceo->details()->count())->toBe(2);
+
+    // Al editarlo, la cantidad sale de la compra aunque el retaceo guardara otra
+    $retaceo->details()->where('id_purchase_detail', $segunda->id_purchase_detail)->update(['quantity' => 3]);
+    $cantidades = collect($this->getJson(route('retaceos.edit-data', $retaceo))->assertOk()->json('details'))
+        ->pluck('quantity', 'id_purchase_detail');
+    expect((float) $cantidades[$segunda->id_purchase_detail])->toBe(4.0);
+});
+
 test('un retaceo aplicado es definitivo', function () {
     $e = escenarioCompras();
     $retaceo = Retaceo::create([

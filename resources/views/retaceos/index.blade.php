@@ -670,7 +670,7 @@
                     <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 mr-qty-input focus:ring-1 focus:ring-[#005e66]">
+                    <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed mr-qty-input">
                 </td>
                 <td class="py-2.5 px-2">
                     <input type="number" step="0.0001" min="0" name="details[${idx}][cost_fob]" value="${d.cost_fob}" required class="w-full px-2 py-1 text-right font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 mr-fob-input focus:ring-1 focus:ring-[#005e66]">

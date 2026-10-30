@@ -212,7 +212,7 @@
                                         <div class="text-[11px] text-slate-400 font-mono">{{ $detail->product->code ?? '' }}</div>
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ old('details.'.$index.'.quantity', (float)$detail->quantity) }}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input">
+                                        <input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ (float) ($detail->purchaseDetail?->quantity_received ?? $detail->quantity) }}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed qty-input">
                                     </td>
                                     <td class="py-3 px-3">
                                         <input type="number" step="0.0001" min="0" name="details[{{ $index }}][cost_fob]" value="{{ old('details.'.$index.'.cost_fob', (float)$detail->cost_fob) }}" required class="w-full px-2 py-1.5 text-right font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 fob-input">
@@ -332,7 +332,7 @@
                                 <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed qty-input">
                             </td>
                             <td class="py-3 px-3">
                                 <input type="number" step="0.0001" min="0" name="details[${idx}][cost_fob]" value="${d.cost_fob}" required class="w-full px-2 py-1.5 text-right font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 fob-input focus:ring-2 focus:ring-[#005e66]">

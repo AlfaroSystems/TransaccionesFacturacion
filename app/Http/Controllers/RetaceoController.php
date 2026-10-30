@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use App\Models\Purchase;
+use App\Models\PurchaseDetail;
 use App\Models\Retaceo;
 use App\Models\Supplier;
 use App\Rules\Accessible;
@@ -15,7 +16,59 @@ use Illuminate\Validation\Rule;
 
 class RetaceoController extends Controller
 {
+    /** Mensajes de las reglas de líneas (todas las de la compra, una vez cada una) */
+    private const MENSAJES_LINEAS = [
+        'details.*.id_purchase_detail.required' => 'Cada línea del retaceo debe ser una línea de la compra.',
+        'details.*.id_purchase_detail.in'       => 'Cada línea del retaceo debe ser una línea de la compra.',
+        'details.*.id_purchase_detail.distinct' => 'Una línea de la compra aparece más de una vez en el retaceo.',
+    ];
+
     public function __construct(private readonly RetaceoService $service) {}
+
+    /**
+     * Reglas de las líneas: cada una es una línea distinta de la compra, con su producto y la
+     * cantidad recibida (la que entró al inventario y cuyo costo fija el retaceo), y están todas,
+     * porque el flete, los gastos y el DAI de la póliza se reparten entre toda la mercadería.
+     */
+    private function reglasDeLineas(Request $request, int $purchaseId): array
+    {
+        $lineas = PurchaseDetail::with('product')->where('id_purchase', $purchaseId)->get()->keyBy('id_purchase_detail');
+
+        // Línea de la compra a la que apunta la línea N del retaceo (details.N.campo)
+        $lineaDe = fn (string $attribute) => $lineas->get(
+            (int) $request->input('details.'.explode('.', $attribute)[1].'.id_purchase_detail')
+        );
+
+        return [
+            'details' => ['required', 'array', 'min:1', function (string $attribute, mixed $value, \Closure $fail) use ($lineas) {
+                $enviadas = collect($value)->pluck('id_purchase_detail')->map(fn ($id) => (int) $id);
+
+                if ($lineas->keys()->diff($enviadas)->isNotEmpty()) {
+                    $fail('El retaceo debe incluir todas las líneas de la compra.');
+                }
+            }],
+            'details.*.id_purchase_detail' => ['required', 'integer', 'distinct', Rule::in($lineas->keys()->all())],
+            'details.*.id_product' => ['required', function (string $attribute, mixed $value, \Closure $fail) use ($lineaDe) {
+                $linea = $lineaDe($attribute);
+
+                if ($linea && (int) $value !== (int) $linea->id_product) {
+                    $fail('El producto no corresponde a su línea de la compra.');
+                }
+            }],
+            'details.*.quantity' => ['required', 'numeric', 'min:0.0001', function (string $attribute, mixed $value, \Closure $fail) use ($lineaDe) {
+                $linea = $lineaDe($attribute);
+
+                if ($linea && is_numeric($value) && abs((float) $value - (float) $linea->quantity_received) > 0.00005) {
+                    $fail(sprintf(
+                        'La cantidad de %s debe ser la recibida en la compra: %s.',
+                        $linea->product?->name ?? 'el producto',
+                        rtrim(rtrim(number_format((float) $linea->quantity_received, 4, '.', ''), '0'), '.')
+                    ));
+                }
+            }],
+            'details.*.cost_fob' => ['required', 'numeric', 'min:0'],
+        ];
+    }
 
     public function index(Request $request)
     {
@@ -163,12 +216,8 @@ class RetaceoController extends Controller
             'total_dai'                   => ['nullable', 'numeric', 'min:0'],
             'status'                      => ['required', Rule::in(['draft', 'calculated', 'applied'])],
             'notes'                       => ['nullable', 'string'],
-            'details'                     => ['required', 'array', 'min:1'],
-            'details.*.id_product'        => ['required', 'exists:products,id_product'],
-            'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $request->integer('id_purchase'))],
-            'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
-            'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
-        ]);
+            ...$this->reglasDeLineas($request, $request->integer('id_purchase')),
+        ], self::MENSAJES_LINEAS);
 
         $retaceo = $this->service->crear($validated);
 
@@ -220,6 +269,7 @@ class RetaceoController extends Controller
             'purchase',
             'supplier',
             'details.product',
+            'details.purchaseDetail',
         ]);
 
         return response()->json([
@@ -246,7 +296,8 @@ class RetaceoController extends Controller
                 'id_product'         => $d->id_product,
                 'product_name'       => $d->product?->name ?? 'Producto #'.$d->id_product,
                 'product_code'       => $d->product?->code ?? '',
-                'quantity'           => (float) $d->quantity,
+                // La recibida en la compra, que es la que el retaceo debe llevar (ver reglasDeLineas)
+                'quantity'           => (float) ($d->purchaseDetail?->quantity_received ?? $d->quantity),
                 'cost_fob'           => (float) $d->cost_fob,
                 'freight_amount'     => (float) $d->freight_amount,
                 'expense_amount'     => (float) $d->expense_amount,
@@ -267,7 +318,8 @@ class RetaceoController extends Controller
                 ->with('error', 'Solo los retaceos en estado borrador pueden ser modificados.');
         }
 
-        $retaceo->load(['details.product', 'purchase']);
+        // La cantidad de cada línea es la recibida en la compra (ver reglasDeLineas)
+        $retaceo->load(['details.product', 'details.purchaseDetail', 'purchase']);
         $suppliers = Supplier::orderBy('name')->get();
 
         return view('retaceos.create', compact('retaceo', 'suppliers'));
@@ -295,12 +347,8 @@ class RetaceoController extends Controller
             'total_expenses'              => ['nullable', 'numeric', 'min:0'],
             'total_dai'                   => ['nullable', 'numeric', 'min:0'],
             'notes'                       => ['nullable', 'string'],
-            'details'                     => ['required', 'array', 'min:1'],
-            'details.*.id_product'        => ['required', 'exists:products,id_product'],
-            'details.*.id_purchase_detail'=> ['nullable', Rule::exists('purchase_details', 'id_purchase_detail')->where('id_purchase', $retaceo->id_purchase)],
-            'details.*.quantity'          => ['required', 'numeric', 'min:0.0001'],
-            'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
-        ]);
+            ...$this->reglasDeLineas($request, $retaceo->id_purchase),
+        ], self::MENSAJES_LINEAS);
 
         try {
             $this->service->actualizar($retaceo, $validated);
