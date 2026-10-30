@@ -814,8 +814,8 @@ function addExpenseRow() {
 
     let selectOptions = '<option value="">-- Tipo de Gasto --</option>';
     expenseTypes.forEach(t => {
-        const descAttr = (t.description || t.name || '').replace(/"/g, '&quot;');
-        selectOptions += `<option value="${t.id_expense_type}" data-description="${descAttr}">${t.name}</option>`;
+        const descAttr = escapeHtml(t.description || t.name);
+        selectOptions += `<option value="${t.id_expense_type}" data-description="${descAttr}">${escapeHtml(t.name)}</option>`;
     });
 
     const currentIndex = expenseIndex;

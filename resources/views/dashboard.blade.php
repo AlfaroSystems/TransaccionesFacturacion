@@ -202,10 +202,10 @@
         new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
-                labels: {!! json_encode($chartLabels) !!},
+                labels: @json($chartLabels),
                 datasets: [{
                     label: 'Transacciones',
-                    data: {!! json_encode($chartData) !!},
+                    data: @json($chartData),
                     borderColor: '#1e3a8a', // Azul marino idéntico al diseño de referencia
                     borderWidth: 3,
                     backgroundColor: 'rgba(30, 58, 138, 0.04)',

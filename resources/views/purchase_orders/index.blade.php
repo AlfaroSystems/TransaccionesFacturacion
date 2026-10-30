@@ -823,7 +823,32 @@
             @endif
         </div>
 </div>
+{{-- Opciones de los selects de cada línea. Se renderizan aquí y no dentro de las plantillas de
+     JS: Blade escapa los nombres para HTML, pero en una plantilla de JS un "${...}" se ejecutaría --}}
+<template id="poProductOptions">
+    <option value="">Seleccione producto</option>
+    @foreach($products ?? [] as $product)
+        <option value="{{ $product->id_product }}">{{ $product->name }}</option>
+    @endforeach
+</template>
+<template id="poUnitOptions">
+    <option value="">Seleccione</option>
+    @foreach($units ?? [] as $unit)
+        <option value="{{ $unit->id_unit }}">{{ $unit->name }}</option>
+    @endforeach
+</template>
+<template id="poExpenseTypeOptions">
+    <option value="">-- Tipo de Gasto --</option>
+    @foreach($expenseTypes ?? [] as $expenseType)
+        <option value="{{ $expenseType->id_expense_type }}" data-description="{{ $expenseType->description ?? $expenseType->name }}">{{ $expenseType->name }}</option>
+    @endforeach
+</template>
 <script>
+    // HTML de las opciones de un <template> de arriba, ya escapado por Blade
+    function opcionesDe(templateId) {
+        return document.getElementById(templateId).innerHTML;
+    }
+
     function mostrarListado() {
         document.getElementById('ordersIndex').classList.remove('hidden');
         document.getElementById('orderCreate').classList.add('hidden');
@@ -869,16 +894,7 @@
                     name="details[${index}][id_product]"
                     required
                     class="product-select w-full rounded-lg border-gray-300 text-sm">
-                    <option value="">
-                        Seleccione producto
-                    </option>
-                    @foreach($products ?? [] as $product)
-                        <option
-                            value="{{ $product->id_product }}"
-                            ${String(data.id_product ?? '') === String({{ $product->id_product }}) ? 'selected' : ''}>
-                            {{ $product->name }}
-                        </option>
-                    @endforeach
+                    ${opcionesDe('poProductOptions')}
                 </select>
             </td>
             <td class="px-3 py-3 min-w-[120px]">
@@ -897,16 +913,7 @@
                     name="details[${index}][id_unit]"
                     required
                     class="w-full rounded-lg border-gray-300 text-sm">
-                    <option value="">
-                        Seleccione
-                    </option>
-                    @foreach($units ?? [] as $unit)
-                        <option
-                            value="{{ $unit->id_unit }}"
-                            ${String(data.id_unit ?? '') === String({{ $unit->id_unit }}) ? 'selected' : ''}>
-                            {{ $unit->name }}
-                        </option>
-                    @endforeach
+                    ${opcionesDe('poUnitOptions')}
                 </select>
             </td>
             <td class="px-3 py-3 min-w-[130px]">
@@ -971,6 +978,8 @@
                 </button>
             </td>
         `;
+        row.querySelector('.product-select').value = data.id_product ?? '';
+        row.querySelector(`select[name="details[${index}][id_unit]"]`).value = data.id_unit ?? '';
         tbody.appendChild(row);
         calcularTotales();
     }
@@ -1015,24 +1024,14 @@
                     required
                     onchange="actualizarDescripcionGasto(this)"
                     class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
-                    <option value="">
-                        -- Tipo de Gasto --
-                    </option>
-                    @foreach($expenseTypes ?? [] as $expenseType)
-                        <option
-                            value="{{ $expenseType->id_expense_type }}"
-                            data-description="{{ e($expenseType->description ?? $expenseType->name) }}"
-                            ${String(data.id_expense_type ?? '') === String({{ $expenseType->id_expense_type }}) ? 'selected' : ''}>
-                            {{ $expenseType->name }}
-                        </option>
-                    @endforeach
+                    ${opcionesDe('poExpenseTypeOptions')}
                 </select>
             </div>
             <div style="flex: 1 1 40%; min-width: 0;">
                 <input
                     type="text"
                     name="expenses[${index}][description]"
-                    value="${data.description ?? ''}"
+                    value="${escapeHtml(data.description)}"
                     required
                     placeholder="Descripción del gasto (ej. flete)"
                     class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
@@ -1061,6 +1060,7 @@
                 </button>
             </div>
         `;
+        row.querySelector(`select[name="expenses[${index}][id_expense_type]"]`).value = data.id_expense_type ?? '';
         container.appendChild(row);
         calcularTotales();
     }

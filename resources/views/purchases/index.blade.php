@@ -630,8 +630,8 @@
                     <input type="hidden" name="details[${idx}][id_product]" value="${d.id_product}">
                     <input type="hidden" name="details[${idx}][id_unit]" value="${d.id_unit || ''}">
                     <input type="hidden" name="details[${idx}][quantity_ordered]" value="${d.quantity_ordered}">
-                    <div class="font-bold text-slate-800 dark:text-slate-200">${d.product_name || 'Producto'}</div>
-                    <div class="text-[11px] text-slate-400 font-mono">${d.unit_name || ''} ${d.product_code ? '• ' + d.product_code : ''}</div>
+                    <div class="font-bold text-slate-800 dark:text-slate-200">${escapeHtml(d.product_name || 'Producto')}</div>
+                    <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
                     ${!isEditing && d.already_received > 0 ? `<div class="text-[10px] text-amber-600 font-semibold">Ya recibido: ${d.already_received}</div>` : ''}
                 </td>
                 <td class="py-2.5 px-2 text-center font-mono font-bold text-slate-600 dark:text-slate-400">

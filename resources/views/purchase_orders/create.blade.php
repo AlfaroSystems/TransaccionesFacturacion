@@ -280,13 +280,13 @@
         let pOptions = '<option value="">-- Seleccionar --</option>';
         productsData.forEach(p => {
             const selected = (data && data.id_product == p.id_product) ? 'selected' : '';
-            pOptions += `<option value="${p.id_product}" ${selected}>${p.name}</option>`;
+            pOptions += `<option value="${p.id_product}" ${selected}>${escapeHtml(p.name)}</option>`;
         });
 
         let uOptions = '<option value="">-- Unidad --</option>';
         unitsData.forEach(u => {
             const selected = (data && data.id_unit == u.id_unit) ? 'selected' : '';
-            uOptions += `<option value="${u.id_unit}" ${selected}>${u.name}</option>`;
+            uOptions += `<option value="${u.id_unit}" ${selected}>${escapeHtml(u.name)}</option>`;
         });
 
         const qty = data ? data.quantity : 1;
@@ -362,8 +362,8 @@
         let eOptions = '<option value="">-- Tipo Gasto --</option>';
         expenseTypesData.forEach(et => {
             const selected = (data && data.id_expense_type == et.id_expense_type) ? 'selected' : '';
-            const descAttr = (et.description || et.name).replace(/"/g, '&quot;');
-            eOptions += `<option value="${et.id_expense_type}" data-description="${descAttr}" ${selected}>${et.name}</option>`;
+            const descAttr = escapeHtml(et.description || et.name);
+            eOptions += `<option value="${et.id_expense_type}" data-description="${descAttr}" ${selected}>${escapeHtml(et.name)}</option>`;
         });
 
         const desc = data ? data.description : '';
@@ -378,7 +378,7 @@
                 </select>
             </td>
             <td class="py-2.5 px-3">
-                <input type="text" name="expenses[${index}][description]" id="expenseDesc_${index}" value="${desc}" required placeholder="Descripción del gasto..." class="w-full rounded-xl border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#005e66]">
+                <input type="text" name="expenses[${index}][description]" id="expenseDesc_${index}" value="${escapeHtml(desc)}" required placeholder="Descripción del gasto..." class="w-full rounded-xl border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#005e66]">
             </td>
             <td class="py-2.5 px-3">
                 <input type="number" step="0.0001" min="0" name="expenses[${index}][amount]" value="${amt}" required oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-right font-semibold text-amber-600 focus:border-[#005e66]">

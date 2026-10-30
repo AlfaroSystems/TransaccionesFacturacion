@@ -653,7 +653,7 @@
 
                         <!-- Nombre de la imagen -->
                         <div class="absolute inset-x-0 bottom-0 bg-slate-900/85 py-1 px-1 text-center pointer-events-none z-10">
-                            <span class="text-white text-[9px] font-bold block truncate font-mono">${file.name}</span>
+                            <span class="text-white text-[9px] font-bold block truncate font-mono">${escapeHtml(file.name)}</span>
                         </div>
                     `;
                 };

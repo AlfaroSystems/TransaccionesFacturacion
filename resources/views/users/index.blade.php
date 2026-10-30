@@ -635,7 +635,7 @@
                     id_branch: "{{ old('id_branch') }}",
                     is_active: {{ old('is_active') === '1' ? 'true' : 'false' }}
                 };
-                const oldRoles = {!! json_encode(old('roles', [])) !!}.map(Number);
+                const oldRoles = @json(old('roles') ?? []).map(Number);
                 openEditUserModal(editRoute, oldUser, oldRoles);
             @else
                 openModal('create-user-modal');

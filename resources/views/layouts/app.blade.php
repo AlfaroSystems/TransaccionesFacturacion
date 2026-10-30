@@ -17,6 +17,18 @@
     <!-- Tailwind CSS y Alpine (el contenedor compila los assets al arrancar) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
+        // Escapa un texto (nombre de producto, unidad, gasto...) antes de insertarlo en el HTML
+        // que arman las plantillas con innerHTML: sin esto, una etiqueta en el nombre se ejecuta
+        window.escapeHtml = function (value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        };
+    </script>
+    <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {

@@ -329,7 +329,7 @@
                     name: "{{ old('name') }}",
                     description: "{{ old('description') }}"
                 };
-                const oldPermissions = {!! json_encode(old('permissions', [])) !!};
+                const oldPermissions = @json(old('permissions') ?? []);
                 openEditRoleModal(editRoute, oldRole, oldPermissions);
             @else
                 openModal('create-role-modal');

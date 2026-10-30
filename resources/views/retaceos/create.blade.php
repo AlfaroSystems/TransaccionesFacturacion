@@ -328,8 +328,8 @@
                             <td class="py-3 px-3">
                                 <input type="hidden" name="details[${idx}][id_purchase_detail]" value="${d.id_purchase_detail}">
                                 <input type="hidden" name="details[${idx}][id_product]" value="${d.id_product}">
-                                <div class="font-bold text-slate-800 dark:text-slate-200">${d.product_name}</div>
-                                <div class="text-[11px] text-slate-400 font-mono">${d.unit_name} ${d.product_code ? '• ' + d.product_code : ''}</div>
+                                <div class="font-bold text-slate-800 dark:text-slate-200">${escapeHtml(d.product_name)}</div>
+                                <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
                             </td>
                             <td class="py-3 px-3">
                                 <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
