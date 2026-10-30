@@ -148,22 +148,9 @@ class RetaceoController extends Controller
         Gate::authorize('retaceos.crear');
 
         $validated = $request->validate([
-            'id_purchase'                 => [
-                'required',
-                new Accessible(Purchase::class),
-                // Solo compras ya recibidas y sin otro retaceo activo
-                function ($attribute, $value, $fail) {
-                    $purchase = Purchase::find($value);
-                    if (! $purchase) {
-                        return;
-                    }
-                    if (! in_array($purchase->status, Purchase::RECEIVED_STATUSES, true)) {
-                        $fail('La compra debe estar recibida o completada para calcular su retaceo.');
-                    } elseif ($purchase->retaceos()->where('status', '!=', 'cancelled')->exists()) {
-                        $fail('Esta compra ya tiene un retaceo activo. Edítalo o cancélalo antes de crear otro.');
-                    }
-                },
-            ],
+            // Que esté recibida y sin otro retaceo activo lo revisa RetaceoService::crear con la
+            // compra bloqueada: aquí dos retaceos creados a la vez pasarían ambos
+            'id_purchase'                 => ['required', new Accessible(Purchase::class)],
             'id_supplier'                 => ['required', 'exists:supliers,id_supplier'],
             'retaceo_date'                => ['required', 'date'],
             'origin_country'              => ['nullable', 'string', 'max:100'],
@@ -315,7 +302,13 @@ class RetaceoController extends Controller
             'details.*.cost_fob'          => ['required', 'numeric', 'min:0'],
         ]);
 
-        $this->service->actualizar($retaceo, $validated);
+        try {
+            $this->service->actualizar($retaceo, $validated);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()
+                ->route('retaceos.show', $retaceo->id_retaceo)
+                ->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('retaceos.show', $retaceo->id_retaceo)
@@ -343,11 +336,11 @@ class RetaceoController extends Controller
     {
         Gate::authorize('retaceos.eliminar');
 
-        if ($retaceo->status !== 'draft') {
-            return back()->with('error', 'Solo se pueden eliminar retaceos en borrador.');
+        try {
+            $this->service->eliminar($retaceo);
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $retaceo->delete();
 
         return redirect()
             ->route('retaceos.index')

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Concerns\RefreshesWithLock;
 use App\Support\DocumentSequence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 class Purchase extends Model
 {
-    use HasFactory, BelongsToBranch;
+    use HasFactory, BelongsToBranch, RefreshesWithLock;
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {

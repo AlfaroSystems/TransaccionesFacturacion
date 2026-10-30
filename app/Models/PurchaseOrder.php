@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Concerns\RefreshesWithLock;
 use App\Models\Scopes\BranchScope;
 use App\Support\BranchAccess;
 use App\Support\DocumentSequence;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 class PurchaseOrder extends Model
 {
-    use BelongsToBranch;
+    use BelongsToBranch, RefreshesWithLock;
 
     /**
      * Recibida parcial y Completada se calculan según lo recibido; Cerrada es una orden

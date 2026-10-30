@@ -2,17 +2,25 @@
 
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\InventoryLot;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use App\Models\Retaceo;
 use App\Models\Role;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
+use App\Services\PurchaseOrderService;
+use App\Services\PurchaseService;
+use App\Services\RetaceoService;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 // =============================================================================
 // Recepción de compras (puntos 5 y 6 de la auditoría): no se recibe más de lo
@@ -377,4 +385,118 @@ test('el retaceo sugiere los gastos de la orden que son costo', function () {
 
     // Lo recibido vale $100 de los $150 de la orden: le tocan $20 de los $30
     $this->getJson(route('retaceos.purchase-data', $purchase->id_purchase))->assertJsonPath('suggested_expenses', fn ($v) => (float) $v === 20.0);
+});
+
+// =============================================================================
+// Cambios simultáneos: cada cambio vuelve a leer el estado, con la fila bloqueada, dentro de
+// su transacción. Las pruebas cargan el documento como lo haría la página y, antes de usarlo,
+// otro usuario lo cambia; el cambio con el estado viejo debe rechazarse.
+// =============================================================================
+
+test('una compra anulada por otro usuario no se completa con el estado que se leyó antes', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
+    $abierta = Purchase::latest('id_purchase')->first();
+
+    // Mientras tanto otro usuario la anula y su mercadería sale del inventario
+    app(PurchaseService::class)->cambiarEstado(Purchase::find($abierta->id_purchase), 'cancelled');
+
+    expect(fn () => app(PurchaseService::class)->cambiarEstado($abierta, 'completed'))
+        ->toThrow(InvalidArgumentException::class, 'Una compra anulada no puede pasar a completada.');
+    expect($abierta->fresh()->status)->toBe('cancelled')
+        ->and(InventoryLot::queryAllBranches()->where('status', InventoryLot::STATUS_ACTIVE)->count())->toBe(0);
+});
+
+test('no se edita ni se elimina una compra que otro usuario ya confirmó', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]], 'draft'))->assertSessionHasNoErrors();
+    $id = Purchase::latest('id_purchase')->value('id_purchase');
+    [$paraEditar, $paraEliminar] = [Purchase::find($id), Purchase::find($id)];
+
+    app(PurchaseService::class)->cambiarEstado(Purchase::find($id), 'received');
+
+    expect(fn () => app(PurchaseService::class)->actualizar($paraEditar, recepcionDatos($e, [[$e->lineaLaptop, 5]])))
+        ->toThrow(InvalidArgumentException::class, 'Solo se pueden editar compras en estado borrador.')
+        ->and(fn () => app(PurchaseService::class)->eliminar($paraEliminar))
+        ->toThrow(InvalidArgumentException::class, 'Solo se pueden eliminar compras en borrador.');
+
+    $compra = Purchase::find($id);
+    expect($compra->status)->toBe('received')
+        ->and((float) $compra->details()->sole()->quantity_received)->toBe(2.0);
+});
+
+test('un retaceo cancelado o liquidado por otro usuario no se aplica ni se elimina con el estado viejo', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+    $nuevo = fn (string $status) => Retaceo::create([
+        'id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $purchase->id_purchase,
+        'retaceo_date' => now(), 'status' => $status,
+    ]);
+
+    $liquidado = $nuevo('calculated');
+    app(RetaceoService::class)->cambiarEstado(Retaceo::find($liquidado->id_retaceo), 'cancelled');
+    expect(fn () => app(RetaceoService::class)->cambiarEstado($liquidado, 'applied'))
+        ->toThrow(InvalidArgumentException::class, 'Un retaceo cancelado no puede pasar a aplicado.');
+    expect($liquidado->fresh()->status)->toBe('cancelled');
+
+    $borrador = $nuevo('draft');
+    app(RetaceoService::class)->cambiarEstado(Retaceo::find($borrador->id_retaceo), 'calculated');
+    expect(fn () => app(RetaceoService::class)->eliminar($borrador))
+        ->toThrow(InvalidArgumentException::class, 'Solo se pueden eliminar retaceos en borrador.');
+    expect($borrador->fresh())->not->toBeNull();
+});
+
+test('una compra no tiene dos retaceos activos aunque la validación del formulario ya haya pasado', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 2]]))->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+    $datos = [
+        'id_purchase' => $purchase->id_purchase, 'id_supplier' => $e->supplier->id_supplier,
+        'retaceo_date' => now()->toDateString(), 'status' => 'draft', 'total_freight' => 10,
+        'details' => [[
+            'id_product' => $e->laptop->id_product, 'id_purchase_detail' => $purchase->details()->value('id_purchase_detail'),
+            'quantity' => 2, 'cost_fob' => 20,
+        ]],
+    ];
+    $activos = fn () => Retaceo::where('id_purchase', $purchase->id_purchase)->where('status', '!=', 'cancelled')->count();
+
+    // Dos envíos que pasaron la validación a la vez: el segundo lo rechaza el servicio
+    app(RetaceoService::class)->crear($datos);
+    expect(fn () => app(RetaceoService::class)->crear($datos))->toThrow(ValidationException::class);
+
+    // Y la base lo impide por cualquier otro camino; con el anterior cancelado, sí se crea
+    $insertar = fn () => DB::transaction(fn () => Retaceo::create([
+        'id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $purchase->id_purchase, 'retaceo_date' => now(), 'status' => 'draft',
+    ]));
+    expect($insertar)->toThrow(QueryException::class);
+
+    Retaceo::where('id_purchase', $purchase->id_purchase)->update(['status' => 'cancelled']);
+    $insertar();
+    expect($activos())->toBe(1);
+});
+
+test('una orden cancelada por otro usuario no se emite, edita ni elimina con el estado viejo', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+    $e->order->update(['status' => 'draft']);
+    $id = $e->order->id_purchase_order;
+    [$paraEmitir, $paraEditar, $paraEliminar] = [PurchaseOrder::find($id), PurchaseOrder::find($id), PurchaseOrder::find($id)];
+
+    app(PurchaseOrderService::class)->cambiarEstado(PurchaseOrder::find($id), 'cancelled');
+
+    $servicio = app(PurchaseOrderService::class);
+    expect(fn () => $servicio->cambiarEstado($paraEmitir, 'issued'))
+        ->toThrow(InvalidArgumentException::class, 'Una orden cancelada no puede pasar a emitida.')
+        // Se rechaza antes de usar los datos del formulario
+        ->and(fn () => $servicio->actualizar($paraEditar, []))
+        ->toThrow(InvalidArgumentException::class, 'Solo se pueden editar órdenes en borrador.')
+        ->and(fn () => $servicio->eliminar($paraEliminar))
+        ->toThrow(InvalidArgumentException::class, 'Solo se pueden eliminar órdenes en borrador.');
+
+    expect(PurchaseOrder::find($id)->status)->toBe('cancelled');
 });

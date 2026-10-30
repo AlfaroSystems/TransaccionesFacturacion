@@ -17,7 +17,6 @@ use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -436,7 +435,13 @@ class PurchaseController extends Controller
             ),
         ], self::MENSAJES_LINEAS);
 
-        $this->service->actualizar($purchase, $validated);
+        try {
+            $this->service->actualizar($purchase, $validated);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()
+                ->route('purchases.show', $purchase->id_purchase)
+                ->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('purchases.show', $purchase->id_purchase)
@@ -464,15 +469,11 @@ class PurchaseController extends Controller
     {
         Gate::authorize('purchases.eliminar');
 
-        if ($purchase->status !== 'draft') {
-            return back()->with('error', 'Solo se pueden eliminar compras en borrador.');
+        try {
+            $this->service->eliminar($purchase);
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        if (DB::table('retaceos')->where('id_purchase', $purchase->id_purchase)->exists()) {
-            return back()->with('error', 'No se puede eliminar una compra que ya tiene retaceos registrados.');
-        }
-
-        $this->service->eliminar($purchase);
 
         return redirect()
             ->route('purchases.index')

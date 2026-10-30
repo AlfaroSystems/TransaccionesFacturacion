@@ -15,7 +15,6 @@ use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseOrderService;
 use App\Support\BranchAccess;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -142,7 +141,13 @@ class PurchaseOrderController extends Controller
 
         $validated = $this->validateOrderRequest($request, mode: 'update');
 
-        $this->service->actualizar($purchase_order, $validated);
+        try {
+            $this->service->actualizar($purchase_order, $validated);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()
+                ->route('purchase_orders.show', $purchase_order)
+                ->with('error', $e->getMessage());
+        }
 
         return redirect()
             ->route('purchase_orders.show', $purchase_order)
@@ -170,15 +175,11 @@ class PurchaseOrderController extends Controller
     {
         Gate::authorize('purchase_orders.eliminar');
 
-        if (!$purchase_order->isEditable()) {
-            return back()->with('error', 'Solo se pueden eliminar órdenes en borrador.');
+        try {
+            $this->service->eliminar($purchase_order);
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        if (DB::table('purchases')->where('id_purchase_order', $purchase_order->id_purchase_order)->exists()) {
-            return back()->with('error', 'No se puede eliminar una orden que ya tiene compras registradas.');
-        }
-
-        $purchase_order->delete();
 
         return redirect()
             ->route('purchase_orders.index')

@@ -7,6 +7,7 @@ use App\Models\Retaceo;
 use App\Models\RetaceoDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 class RetaceoService
@@ -111,7 +112,21 @@ class RetaceoService
     public function crear(array $validated): Retaceo
     {
         return DB::transaction(function () use ($validated) {
-            $purchase = Purchase::findOrFail($validated['id_purchase']);
+            // Se bloquea la compra: dos retaceos creados a la vez no pasan ambos la revisión, y
+            // la compra no se anula mientras tanto (anularla también la bloquea)
+            $purchase = Purchase::whereKey($validated['id_purchase'])->lockForUpdate()->firstOrFail();
+
+            if (! in_array($purchase->status, Purchase::RECEIVED_STATUSES, true)) {
+                throw ValidationException::withMessages([
+                    'id_purchase' => 'La compra debe estar recibida o completada para calcular su retaceo.',
+                ]);
+            }
+
+            if (Retaceo::queryAllBranches()->where('id_purchase', $purchase->id_purchase)->where('status', '!=', 'cancelled')->exists()) {
+                throw ValidationException::withMessages([
+                    'id_purchase' => 'Esta compra ya tiene un retaceo activo. Edítalo o cancélalo antes de crear otro.',
+                ]);
+            }
 
             $totalFreight  = (float) ($validated['total_freight'] ?? 0);
             $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
@@ -168,11 +183,12 @@ class RetaceoService
      */
     public function actualizar(Retaceo $retaceo, array $validated): Retaceo
     {
-        if ($retaceo->status !== 'draft') {
-            throw new InvalidArgumentException('Solo se pueden editar retaceos en estado borrador.');
-        }
-
         return DB::transaction(function () use ($retaceo, $validated) {
+            // Otro usuario pudo liquidarlo después de que se abrió el formulario
+            if ($retaceo->refreshWithLock()->status !== 'draft') {
+                throw new InvalidArgumentException('Solo se pueden editar retaceos en estado borrador.');
+            }
+
             $totalFreight  = (float) ($validated['total_freight'] ?? 0);
             $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
             $totalDai      = (float) ($validated['total_dai'] ?? 0);
@@ -228,24 +244,44 @@ class RetaceoService
             'calculated' => ['applied', 'cancelled'],
         ];
 
-        if (! in_array($nuevoEstado, $transitions[$retaceo->status] ?? [], true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Un retaceo %s no puede pasar a %s.',
-                mb_strtolower(Retaceo::STATUS_LABELS[$retaceo->status] ?? $retaceo->status),
-                mb_strtolower(Retaceo::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
-            ));
-        }
+        DB::transaction(function () use ($retaceo, $nuevoEstado, $transitions) {
+            // Primero la compra y luego el retaceo, en el mismo orden que al crearlo. Con la compra
+            // bloqueada, aplicar el costo no se cruza con completarla, que también fija el costo
+            $purchase = Purchase::queryAllBranches()->whereKey($retaceo->id_purchase)->lockForUpdate()->firstOrFail();
 
-        DB::transaction(function () use ($retaceo, $nuevoEstado) {
+            // Con el estado actual: si otro usuario lo canceló, ya no se aplica
+            $retaceo->refreshWithLock();
+
+            if (! in_array($nuevoEstado, $transitions[$retaceo->status] ?? [], true)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Un retaceo %s no puede pasar a %s.',
+                    mb_strtolower(Retaceo::STATUS_LABELS[$retaceo->status] ?? $retaceo->status),
+                    mb_strtolower(Retaceo::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
+                ));
+            }
+
             $retaceo->update(['status' => $nuevoEstado]);
 
             // Al aplicarlo, su costo puesto en bodega pasa a ser el costo de los productos y
             // de los lotes que ya entraron al inventario
             if ($nuevoEstado === 'applied') {
-                $purchase = Purchase::queryAllBranches()->findOrFail($retaceo->id_purchase);
                 $this->costos->actualizarDesdeCompra($purchase);
                 $this->inventario->sincronizarCompra($purchase);
             }
+        });
+    }
+
+    /**
+     * Elimina un retaceo en borrador.
+     */
+    public function eliminar(Retaceo $retaceo): void
+    {
+        DB::transaction(function () use ($retaceo) {
+            if ($retaceo->refreshWithLock()->status !== 'draft') {
+                throw new InvalidArgumentException('Solo se pueden eliminar retaceos en borrador.');
+            }
+
+            $retaceo->delete();
         });
     }
 }

@@ -112,6 +112,11 @@ class PurchaseOrderService
     public function actualizar(PurchaseOrder $order, array $validated): PurchaseOrder
     {
         return DB::transaction(function () use ($order, $validated) {
+            // Otro usuario pudo emitirla después de que se abrió el formulario
+            if (! $order->refreshWithLock()->isEditable()) {
+                throw new \InvalidArgumentException('Solo se pueden editar órdenes en borrador.');
+            }
+
             $totales = $this->calcularTotales(
                 $validated['products'],
                 $validated['expenses'] ?? []
@@ -156,24 +161,50 @@ class PurchaseOrderService
      */
     public function cambiarEstado(PurchaseOrder $order, string $nuevoEstado): void
     {
-        if (! in_array($nuevoEstado, self::TRANSITIONS[$order->status] ?? [], true)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Una orden %s no puede pasar a %s.',
-                mb_strtolower(PurchaseOrder::STATUS_LABELS[$order->status] ?? $order->status),
-                mb_strtolower(PurchaseOrder::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
-            ));
-        }
+        DB::transaction(function () use ($order, $nuevoEstado) {
+            // Registrar, editar o anular una compra bloquea su orden y recalcula su estado: con
+            // la orden bloqueada y su estado actual, cancelarla no se cruza con una recepción
+            $order->refreshWithLock();
 
-        // Con compras registradas (aunque sean borradores) no se cancela: si ya llegó algo
-        // se cierra; los borradores se eliminan o anulan antes
-        if ($nuevoEstado === 'cancelled' && Purchase::queryAllBranches()
-            ->where('id_purchase_order', $order->id_purchase_order)
-            ->where('status', '!=', 'cancelled')
-            ->exists()) {
-            throw new \InvalidArgumentException('No se puede cancelar una orden con compras registradas: elimine o anule sus borradores.');
-        }
+            if (! in_array($nuevoEstado, self::TRANSITIONS[$order->status] ?? [], true)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Una orden %s no puede pasar a %s.',
+                    mb_strtolower(PurchaseOrder::STATUS_LABELS[$order->status] ?? $order->status),
+                    mb_strtolower(PurchaseOrder::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
+                ));
+            }
 
-        $order->update(['status' => $nuevoEstado]);
+            // Con compras registradas (aunque sean borradores) no se cancela: si ya llegó algo
+            // se cierra; los borradores se eliminan o anulan antes
+            if ($nuevoEstado === 'cancelled' && Purchase::queryAllBranches()
+                ->where('id_purchase_order', $order->id_purchase_order)
+                ->where('status', '!=', 'cancelled')
+                ->exists()) {
+                throw new \InvalidArgumentException('No se puede cancelar una orden con compras registradas: elimine o anule sus borradores.');
+            }
+
+            $order->update(['status' => $nuevoEstado]);
+        });
+    }
+
+    /**
+     * Elimina una orden en borrador y sin compras.
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function eliminar(PurchaseOrder $order): void
+    {
+        DB::transaction(function () use ($order) {
+            if (! $order->refreshWithLock()->isEditable()) {
+                throw new \InvalidArgumentException('Solo se pueden eliminar órdenes en borrador.');
+            }
+
+            if (Purchase::queryAllBranches()->where('id_purchase_order', $order->id_purchase_order)->exists()) {
+                throw new \InvalidArgumentException('No se puede eliminar una orden que ya tiene compras registradas.');
+            }
+
+            $order->delete();
+        });
     }
 
     // -------------------------------------------------------------------------

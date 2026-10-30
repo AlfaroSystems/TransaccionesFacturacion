@@ -141,12 +141,13 @@ class PurchaseService
      */
     public function actualizar(Purchase $purchase, array $validated): Purchase
     {
-        if ($purchase->status !== 'draft') {
-            throw new InvalidArgumentException('Solo se pueden editar compras en estado borrador.');
-        }
-
         return DB::transaction(function () use ($purchase, $validated) {
             $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
+
+            // Otro usuario pudo confirmarla después de que se abrió el formulario
+            if ($purchase->refreshWithLock()->status !== 'draft') {
+                throw new InvalidArgumentException('Solo se pueden editar compras en estado borrador.');
+            }
 
             if ($order) {
                 $this->validarExcedentes($order, $validated['details'], $purchase->id_purchase);
@@ -189,23 +190,28 @@ class PurchaseService
      */
     public function cambiarEstado(Purchase $purchase, string $nuevoEstado): void
     {
-        if (! in_array($nuevoEstado, self::TRANSITIONS[$purchase->status] ?? [], true)) {
-            throw new InvalidArgumentException(sprintf(
-                'Una compra %s no puede pasar a %s.',
-                mb_strtolower(Purchase::STATUS_LABELS[$purchase->status] ?? $purchase->status),
-                mb_strtolower(Purchase::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
-            ));
-        }
-
-        if ($nuevoEstado === 'cancelled' && Retaceo::queryAllBranches()
-            ->where('id_purchase', $purchase->id_purchase)
-            ->where('status', '!=', 'cancelled')
-            ->exists()) {
-            throw new InvalidArgumentException('No se puede anular una compra con un retaceo activo: cancele primero el retaceo.');
-        }
-
         DB::transaction(function () use ($purchase, $nuevoEstado) {
             $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
+
+            // Las reglas se revisan con el estado actual, no con el que se leyó al abrir la
+            // página: si otro usuario la anuló, ya no se puede completar
+            $purchase->refreshWithLock();
+
+            if (! in_array($nuevoEstado, self::TRANSITIONS[$purchase->status] ?? [], true)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Una compra %s no puede pasar a %s.',
+                    mb_strtolower(Purchase::STATUS_LABELS[$purchase->status] ?? $purchase->status),
+                    mb_strtolower(Purchase::STATUS_LABELS[$nuevoEstado] ?? $nuevoEstado)
+                ));
+            }
+
+            // Crear un retaceo bloquea la compra, así que no aparece uno entre esta revisión y la anulación
+            if ($nuevoEstado === 'cancelled' && Retaceo::queryAllBranches()
+                ->where('id_purchase', $purchase->id_purchase)
+                ->where('status', '!=', 'cancelled')
+                ->exists()) {
+                throw new InvalidArgumentException('No se puede anular una compra con un retaceo activo: cancele primero el retaceo.');
+            }
 
             // Al confirmar un borrador, otras compras pudieron recibirse después de crearlo
             $confirma = in_array($nuevoEstado, Purchase::RECEIVED_STATUSES, true)
@@ -245,12 +251,20 @@ class PurchaseService
     }
 
     /**
-     * Elimina una compra (solo borradores, ver el controlador) y recalcula su orden.
+     * Elimina una compra en borrador y sin retaceos, y recalcula su orden.
      */
     public function eliminar(Purchase $purchase): void
     {
         DB::transaction(function () use ($purchase) {
             $order = $purchase->id_purchase_order ? $this->ordenBloqueada($purchase->id_purchase_order) : null;
+
+            if ($purchase->refreshWithLock()->status !== 'draft') {
+                throw new InvalidArgumentException('Solo se pueden eliminar compras en borrador.');
+            }
+
+            if (Retaceo::queryAllBranches()->where('id_purchase', $purchase->id_purchase)->exists()) {
+                throw new InvalidArgumentException('No se puede eliminar una compra que ya tiene retaceos registrados.');
+            }
 
             $purchase->delete();
 

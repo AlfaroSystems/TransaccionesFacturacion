@@ -586,8 +586,9 @@ test('los correlativos siguen siendo únicos aunque el usuario solo vea su sucur
         'id_purchase_order' => $a->order->id_purchase_order, 'id_supplier' => $catalogos['supplier']->id_supplier,
         'id_branch' => $a->branch->id_branch, 'purchase_date' => now(), 'status' => 'draft',
     ]);
+    // Sobre la compra nueva: la del escenario ya tiene su retaceo activo
     $retaceo = Retaceo::create([
-        'id_supplier' => $catalogos['supplier']->id_supplier, 'id_purchase' => $a->purchase->id_purchase,
+        'id_supplier' => $catalogos['supplier']->id_supplier, 'id_purchase' => $compra->id_purchase,
         'retaceo_date' => now(), 'status' => 'draft',
     ]);
     $cotizacion = PurchaseQuotation::create([
