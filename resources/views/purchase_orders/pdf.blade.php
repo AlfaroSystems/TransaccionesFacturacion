@@ -81,38 +81,11 @@
                 <div class="text-xs text-slate-500 font-semibold mt-2 space-y-1">
                     <p>Fecha Emisión: <strong class="text-slate-800">{{ $purchase_order->order_date ? $purchase_order->order_date->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}</strong></p>
                     <p>Fecha Esperada: <strong class="text-slate-800">{{ $purchase_order->expected_date ? $purchase_order->expected_date->format('d/m/Y') : 'N/A' }}</strong></p>
-                    <p>Estado: <strong class="uppercase text-[#005e66]">{{ $purchase_order->status }}</strong></p>
+                    <p>Estado: <strong class="uppercase text-[#005e66]">{{ \App\Models\PurchaseOrder::STATUS_LABELS[$purchase_order->status] ?? $purchase_order->status }}</strong></p>
                 </div>
             </div>
         </div>
 
-        <!-- Información del Proveedor y Condiciones -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200/80 text-xs">
-            <div class="space-y-1.5">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[11px] mb-2">DATOS DEL PROVEEDOR</h3>
-                <p class="text-sm font-extrabold text-slate-900">{{ $purchase_order->supplier->name ?? 'N/A' }}</p>
-                @if($purchase_order->supplier?->nit || $purchase_order->supplier?->nrc)
-                    <p class="text-slate-600"><strong>NIT/NRC:</strong> {{ $purchase_order->supplier->nit ?? '' }} / {{ $purchase_order->supplier->nrc ?? '' }}</p>
-                @endif
-                <p class="text-slate-600"><strong>Teléfono:</strong> {{ $purchase_order->supplier->phone ?? 'N/A' }}</p>
-                <p class="text-slate-600"><strong>Email:</strong> {{ $purchase_order->supplier->email ?? 'N/A' }}</p>
-                @if($purchase_order->supplier?->address)
-                    <p class="text-slate-600"><strong>Dirección:</strong> {{ $purchase_order->supplier->address }}</p>
-                @endif
-            </div>
-
-            <div class="space-y-1.5 border-t sm:border-t-0 sm:border-l border-slate-200 pt-4 sm:pt-0 sm:pl-6">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[11px] mb-2">CONDICIONES DE LA ORDEN</h3>
-                <p class="text-slate-700"><strong>Condiciones de Pago:</strong> {{ $purchase_order->payment_terms ?? 'Contrapago' }}</p>
-                <p class="text-slate-700"><strong>Moneda de Transacción:</strong> {{ $purchase_order->currency ?? 'USD' }} ($)</p>
-                @if($purchase_order->quotation)
-                    <p class="text-slate-700"><strong>Cotización de Origen:</strong> {{ $purchase_order->quotation->purchase_quotation_code }}</p>
-                @endif
-                @if($purchase_order->notes)
-                    <p class="text-slate-700"><strong>Observaciones:</strong> {{ $purchase_order->notes }}</p>
-                @endif
-            </div>
-        </div>
 
         <!-- Tabla de Productos Cotizados/Ordenados -->
         <div class="space-y-3">

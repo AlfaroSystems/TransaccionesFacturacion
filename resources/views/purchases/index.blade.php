@@ -43,19 +43,7 @@
         @endcan
     </div>
 
-    @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-xs flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
 
-    @if(session('error'))
-        <div class="bg-rose-50 border border-rose-200 text-rose-800 px-5 py-4 rounded-2xl font-semibold text-sm shadow-xs flex items-center gap-2">
-            <svg class="w-5 h-5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>{{ session('error') }}</span>
-        </div>
-    @endif
 
     @if($errors->any())
         <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
@@ -298,7 +286,7 @@
                         <option value="">-- Seleccione una orden de compra aprobada --</option>
                         @foreach($orders as $ord)
                             <option value="{{ $ord->id_purchase_order }}">
-                                {{ $ord->purchase_order_code }} - {{ $ord->supplier->name ?? 'Sin Proveedor' }} (${{ number_format($ord->total, 2) }}) [{{ ucfirst($ord->status) }}]
+                                {{ $ord->purchase_order_code }} - {{ $ord->supplier->name ?? 'Sin Proveedor' }} (${{ number_format($ord->total, 2) }}) [{{ \App\Models\PurchaseOrder::STATUS_LABELS[$ord->status] ?? $ord->status }}]
                             </option>
                         @endforeach
                     </select>

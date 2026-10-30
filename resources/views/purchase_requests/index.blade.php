@@ -21,9 +21,6 @@
         </div>
     </div>
 
-    @if(session('error'))
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl font-semibold text-sm">{{ session('error') }}</div>
-    @endif
     @if($errors->any())
         <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl">
             <p class="font-extrabold text-sm mb-2">No se pudo guardar la solicitud:</p>

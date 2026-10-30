@@ -68,7 +68,7 @@
                         <option value="">-- Seleccione una orden de compra --</option>
                         @foreach($orders as $ord)
                             <option value="{{ $ord->id_purchase_order }}" {{ (string)$selectedOrderId === (string)$ord->id_purchase_order ? 'selected' : '' }}>
-                                {{ $ord->purchase_order_code }} - {{ $ord->supplier->name ?? 'Sin Proveedor' }} (${{ number_format($ord->total, 2) }}) [Estado: {{ ucfirst($ord->status) }}]
+                                {{ $ord->purchase_order_code }} - {{ $ord->supplier->name ?? 'Sin Proveedor' }} (${{ number_format($ord->total, 2) }}) [Estado: {{ \App\Models\PurchaseOrder::STATUS_LABELS[$ord->status] ?? $ord->status }}]
                             </option>
                         @endforeach
                     </select>
