@@ -4,7 +4,7 @@
 @section('content')
 {{-- Chart.js para el gráfico de órdenes de compra; solo se carga con permiso sobre el módulo --}}
 @can('purchase_orders.ver')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@vite('resources/js/dashboard.js')
 @endcan
 
 <!-- Encabezado de Página -->

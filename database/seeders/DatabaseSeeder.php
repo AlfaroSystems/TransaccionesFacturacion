@@ -1,10 +1,12 @@
 <?php
 
 namespace Database\Seeders;
+use App\Models\Role;
 use App\Models\User;
-use App\Models\Company;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,19 +22,46 @@ class DatabaseSeeder extends Seeder
         // Cargar Catálogo Geográfico Primero
         $this->call(GeographicSeeder::class);
 
-        // Registrar también el usuario del cliente
-        if (!User::where('email', 'jon.virgi@gmail.com')->exists()) {
-            User::factory()->create([
+        // Cargar Roles y Permisos
+        $this->call(RoleAndPermissionSeeder::class);
+
+        $this->crearAdministradorInicial();
+
+        // Cargar Catálogo de Países
+        $this->call(CountrySeeder::class);
+    }
+
+    /**
+     * Administrador del cliente, solo si todavía no hay ninguno (una instalación nueva). Su
+     * contraseña es aleatoria y se muestra una sola vez: con una fija, cualquiera que leyera
+     * el seeder podría entrar como administrador.
+     */
+    private function crearAdministradorInicial(): void
+    {
+        $adminRole = Role::where('name', 'admin')->firstOrFail();
+
+        if ($adminRole->users()->exists()) {
+            return;
+        }
+
+        $email = 'jon.virgi@gmail.com';
+        $user = User::where('email', $email)->first();
+        $password = null;
+
+        if (! $user) {
+            $password = Str::password(16);
+            $user = User::create([
                 'username' => 'Admin Sistema (Jon)',
-                'email' => 'jon.virgi@gmail.com',
+                'email' => $email,
+                'password_hash' => Hash::make($password),
                 'is_active' => true,
             ]);
         }
 
-        // Cargar Roles y Permisos
-        $this->call(RoleAndPermissionSeeder::class);
+        $user->roles()->syncWithoutDetaching([$adminRole->id_role => ['assigned_at' => now()]]);
 
-        // Cargar Catálogo de Países
-        $this->call(CountrySeeder::class);
+        $this->command?->warn($password
+            ? "Administrador inicial: {$email} con la contraseña {$password} (cámbiala al entrar)."
+            : "Se asignó el rol de administrador a {$email}; conserva su contraseña.");
     }
 }

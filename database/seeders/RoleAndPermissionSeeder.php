@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class RoleAndPermissionSeeder extends Seeder
@@ -526,14 +525,7 @@ class RoleAndPermissionSeeder extends Seeder
 
         $adminRole->permissions()->sync($allPermissionIds);
 
-        // 4. Asignar rol administrador a usuarios
-        $adminUsers = User::whereIn('email', [
-            'gracia@login.com',
-            'jon.virgi@gmail.com',
-        ])->get();
-
-        foreach ($adminUsers as $user) {
-            $user->roles()->sync([$adminRole->id_role]);
-        }
+        // El administrador inicial lo crea DatabaseSeeder. Aquí no se da el rol por correo: al
+        // volver a ejecutar el seeder, cualquier cuenta creada con ese correo quedaría como admin
     }
 }

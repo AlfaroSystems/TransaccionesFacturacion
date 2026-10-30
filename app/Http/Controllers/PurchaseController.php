@@ -104,19 +104,19 @@ class PurchaseController extends Controller
         }
 
         if ($request->filled('id_supplier')) {
-            $query->where('id_supplier', $request->id_supplier);
+            $query->where('id_supplier', $request->integer('id_supplier'));
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('purchase_date', '>=', $request->date_from);
+        if ($desde = $this->fechaDelFiltro($request, 'date_from')) {
+            $query->whereDate('purchase_date', '>=', $desde);
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('purchase_date', '<=', $request->date_to);
+        if ($hasta = $this->fechaDelFiltro($request, 'date_to')) {
+            $query->whereDate('purchase_date', '<=', $hasta);
         }
 
         $purchases = $query->paginate(10)->withQueryString();
@@ -130,8 +130,9 @@ class PurchaseController extends Controller
         $suppliers = Supplier::orderBy('name')->get();
         $branches   = Branch::orderBy('name')->get();
         $warehouses = Warehouse::orderBy('name')->get();
+        // Solo para el selector: el detalle de la orden elegida lo trae getOrderData
         $orders     = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
-            ->with(['supplier', 'branch', 'warehouse', 'details.product', 'details.unit'])
+            ->with('supplier')
             ->orderByDesc('id_purchase_order')
             ->get();
 
@@ -155,17 +156,12 @@ class PurchaseController extends Controller
     {
         Gate::authorize('purchases.crear');
 
+        // Solo para el selector (la vista preselecciona ?id_purchase_order): el detalle de la
+        // orden elegida lo trae getOrderData
         $orders = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
-            ->with(['supplier', 'branch', 'warehouse', 'details.product', 'details.unit'])
+            ->with('supplier')
             ->orderByDesc('id_purchase_order')
             ->get();
-
-        $selectedOrderId = $request->query('id_purchase_order');
-        $preselectedOrder = null;
-        if ($selectedOrderId) {
-            $preselectedOrder = PurchaseOrder::with(['supplier', 'branch', 'warehouse', 'details.product', 'details.unit'])
-                ->find($selectedOrderId);
-        }
 
         $suppliers  = Supplier::orderBy('name')->get();
         $branches   = Branch::orderBy('name')->get();
@@ -176,7 +172,6 @@ class PurchaseController extends Controller
         return view('purchases.create', [
             ...compact(
                 'orders',
-                'preselectedOrder',
                 'suppliers',
                 'branches',
                 'warehouses',

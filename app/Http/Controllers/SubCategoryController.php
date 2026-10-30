@@ -20,7 +20,7 @@ class SubCategoryController extends Controller
 
         // Filtro por categoría
         if ($request->filled('id_category')) {
-            $query->where('id_category', $request->id_category);
+            $query->where('id_category', $request->integer('id_category'));
         }
 
         $subCategories = $query

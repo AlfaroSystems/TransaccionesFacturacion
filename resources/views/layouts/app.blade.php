@@ -9,12 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Flatpickr Datepicker (Formato DD/MM/YYYY) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
-    <!-- Tailwind CSS y Alpine (el contenedor compila los assets al arrancar) -->
+    <!-- Tailwind CSS, Alpine y Flatpickr (el contenedor compila los assets al arrancar) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         // Escapa un texto (nombre de producto, unidad, gasto...) antes de insertarlo en el HTML

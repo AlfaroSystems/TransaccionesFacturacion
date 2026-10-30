@@ -1,6 +1,6 @@
 # Sistema de Transacciones y Facturación ERP 🚀
 
-Sistema integral de gestión empresarial, compras, inventario y facturación construido con **Laravel 11**, **PHP 8.3**, **Tailwind CSS** y **PostgreSQL**, desplegable nativamente mediante **Docker Compose**.
+Sistema integral de gestión empresarial, compras, inventario y facturación construido con **Laravel 12**, **PHP 8.3**, **Tailwind CSS** y **PostgreSQL**, desplegable nativamente mediante **Docker Compose**.
 
 ---
 
@@ -81,6 +81,12 @@ docker compose up -d --build
 
 Accede a la aplicación en tu navegador: **`http://localhost:8005`**
 
+### 4. Crear el administrador inicial (solo en una instalación nueva)
+```bash
+docker exec -u www-data transaccionesfacturacion-app-1 php artisan db:seed
+```
+Carga los catálogos, los roles y permisos y, si todavía no hay ningún administrador, crea uno con una contraseña aleatoria que se muestra **una sola vez** en la consola. Cámbiala al entrar.
+
 ---
 
 ## 💻 Instalación Local Sin Docker
@@ -131,6 +137,8 @@ npm run dev
 | **Ejecutar migraciones incrementales** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan migrate` |
 | **Ver estado de migraciones** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan migrate:status` |
 | **Ejecutar los tests** | `docker exec -u www-data transaccionesfacturacion-app-1 php artisan test` |
+| **Revisar el formato (Pint)** | `docker exec -u www-data transaccionesfacturacion-app-1 vendor/bin/pint --test` |
+| **Corregir el formato (Pint)** | `docker exec -u www-data transaccionesfacturacion-app-1 vendor/bin/pint` |
 | **Estado de contenedores** | `docker compose ps` |
 
 > [!NOTE]

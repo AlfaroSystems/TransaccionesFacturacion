@@ -20,16 +20,16 @@ class DashboardController extends Controller
     public function index()
     {
         // Los documentos se filtran por la sucursal del usuario (BranchScope); los usuarios, con accessible()
-        $userCount = class_exists(User::class) ? User::accessible()->count() : 0;
+        $userCount = User::accessible()->count();
 
-        $roleCount = class_exists(Role::class) ? Role::count() : 0;
-        $productCount = class_exists(Product::class) ? Product::count() : 0;
-        $supplierCount = class_exists(Supplier::class) ? Supplier::count() : 0;
+        $roleCount = Role::count();
+        $productCount = Product::count();
+        $supplierCount = Supplier::count();
 
-        $purchaseOrderCount = class_exists(PurchaseOrder::class) ? PurchaseOrder::count() : 0;
-        $purchaseRequestCount = class_exists(PurchaseRequest::class) ? PurchaseRequest::count() : 0;
-        $purchaseCount = class_exists(Purchase::class) ? Purchase::count() : 0;
-        $retaceoCount = class_exists(Retaceo::class) ? Retaceo::count() : 0;
+        $purchaseOrderCount = PurchaseOrder::count();
+        $purchaseRequestCount = PurchaseRequest::count();
+        $purchaseCount = Purchase::count();
+        $retaceoCount = Retaceo::count();
 
         // Datos para el gráfico de Rendimiento Mensual (últimos 6 meses); son datos de
         // órdenes de compra, así que solo se calculan para quien puede ver ese módulo
@@ -41,13 +41,9 @@ class DashboardController extends Controller
                 $date = Carbon::now()->subMonths($i);
                 $chartLabels[] = strtolower($date->locale('es')->isoFormat('MMMM'));
 
-                $count = class_exists(PurchaseOrder::class)
-                    ? PurchaseOrder::whereYear('created_at', $date->year)
-                        ->whereMonth('created_at', $date->month)
-                        ->count()
-                    : 0;
-
-                $chartData[] = $count;
+                $chartData[] = PurchaseOrder::whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->count();
             }
         }
 

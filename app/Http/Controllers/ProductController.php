@@ -37,7 +37,7 @@ class ProductController extends Controller
 
         // Filtro por categoría
         if ($request->filled('id_category')) {
-            $query->where('id_category', $request->id_category);
+            $query->where('id_category', $request->integer('id_category'));
         }
 
         // Filtro por estado activo
@@ -116,18 +116,12 @@ class ProductController extends Controller
     {
         Gate::authorize('products.ver');
 
-        $relations = [
-            'category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images',
+        $product->load([
+            'category', 'subCategory', 'purchaseUnit', 'saleUnit', 'images', 'locations',
             'lastCostPurchaseDetail.unit',
             // El código de la compra que fijó el costo, aunque sea de otra sucursal
             'lastCostPurchaseDetail.purchase' => fn ($q) => $q->withoutGlobalScope(\App\Models\Scopes\BranchScope::class),
-        ];
-
-        if (\Illuminate\Support\Facades\Schema::hasTable('product_location')) {
-            $relations[] = 'locations';
-        }
-
-        $product->load($relations);
+        ]);
 
         return view('products.show', compact('product'));
     }

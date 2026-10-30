@@ -90,19 +90,19 @@ class RetaceoController extends Controller
         }
 
         if ($request->filled('id_supplier')) {
-            $query->where('id_supplier', $request->id_supplier);
+            $query->where('id_supplier', $request->integer('id_supplier'));
         }
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('retaceo_date', '>=', $request->date_from);
+        if ($desde = $this->fechaDelFiltro($request, 'date_from')) {
+            $query->whereDate('retaceo_date', '>=', $desde);
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('retaceo_date', '<=', $request->date_to);
+        if ($hasta = $this->fechaDelFiltro($request, 'date_to')) {
+            $query->whereDate('retaceo_date', '<=', $hasta);
         }
 
         $retaceos = $query->paginate(10)->withQueryString();
@@ -114,8 +114,9 @@ class RetaceoController extends Controller
         $totalCostAmount = Retaceo::where('status', '!=', 'cancelled')->sum('total_cost');
 
         $suppliers = Supplier::orderBy('name')->get();
+        // Solo para el selector del modal: las líneas las trae getPurchaseData
         $purchasesForModal = Purchase::availableForRetaceo()
-            ->with(['supplier', 'details.product', 'details.unit'])
+            ->with('supplier')
             ->orderByDesc('id_purchase')
             ->get();
 
@@ -134,22 +135,17 @@ class RetaceoController extends Controller
     {
         Gate::authorize('retaceos.crear');
 
+        // Solo para el selector (la vista preselecciona ?id_purchase): las líneas de la compra
+        // elegida las trae getPurchaseData
         $purchases = Purchase::availableForRetaceo()
-            ->with(['supplier', 'details.product', 'details.unit'])
+            ->with('supplier')
             ->orderByDesc('id_purchase')
             ->get();
-
-        $selectedPurchaseId = $request->query('id_purchase');
-        $preselectedPurchase = null;
-        if ($selectedPurchaseId) {
-            $preselectedPurchase = Purchase::with(['supplier', 'details.product', 'details.unit'])->find($selectedPurchaseId);
-        }
 
         $suppliers = Supplier::orderBy('name')->get();
 
         return view('retaceos.create', compact(
             'purchases',
-            'preselectedPurchase',
             'suppliers'
         ));
     }

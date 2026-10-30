@@ -135,3 +135,37 @@ test('ninguna pantalla de listado, crear, editar o ver responde con error', func
 
     expect($errores)->toBe([]);
 });
+
+test('los filtros y las URL con valores inválidos no responden con error', function () {
+    $admin = User::factory()->create();
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
+    config(['app.debug' => false]);
+    $this->actingAs($admin);
+
+    // Fechas y ids escritos a mano en la URL: antes llegaban a PostgreSQL y respondía con un 500
+    $filtros = [
+        'date_from' => 'ayer', 'date_to' => '2026-13-45', 'id_user' => 'abc', 'id_supplier' => 'abc',
+        'id_category' => 'x', 'id_branch' => 'x', 'id_warehouse' => 'x', 'id_purchase_order' => 'x', 'id_purchase' => 'x',
+    ];
+    foreach (['audit-logs.index', 'purchases.index', 'purchases.create', 'retaceos.index', 'retaceos.create',
+        'inventory.movements', 'products.index', 'subcategories.index', 'users.index'] as $ruta) {
+        $this->get(route($ruta, $filtros))->assertOk();
+    }
+
+    foreach (['/purchases/abc', '/purchase_orders/abc/pdf', '/purchases/order-data/abc', '/retaceos/purchase-data/abc', '/users/abc/edit'] as $url) {
+        $this->get($url)->assertNotFound();
+    }
+});
+
+test('editar una empresa sin enviar los campos opcionales no falla', function () {
+    $admin = User::factory()->create();
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
+    $company = Company::create(['name' => 'Empresa', 'nit' => '0614-010101-101-1']);
+
+    $this->actingAs($admin)
+        ->put(route('companies.update', $company), ['name' => 'Empresa Renombrada'])
+        ->assertRedirect(route('companies.index'));
+
+    expect($company->fresh()->name)->toBe('Empresa Renombrada')
+        ->and($company->fresh()->nit)->toBeNull();
+});

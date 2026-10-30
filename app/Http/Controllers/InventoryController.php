@@ -92,8 +92,8 @@ class InventoryController extends Controller
             ->with(['product', 'lot', 'warehouse', 'location', 'user'])
             ->when($warehouseId, fn ($q) => $q->where('id_warehouse', $warehouseId))
             ->when($type, fn ($q) => $q->where('movement_type', $type))
-            ->when($request->filled('date_from'), fn ($q) => $q->whereDate('movement_date', '>=', $request->date_from))
-            ->when($request->filled('date_to'), fn ($q) => $q->whereDate('movement_date', '<=', $request->date_to))
+            ->when($this->fechaDelFiltro($request, 'date_from'), fn ($q, $desde) => $q->whereDate('movement_date', '>=', $desde))
+            ->when($this->fechaDelFiltro($request, 'date_to'), fn ($q, $hasta) => $q->whereDate('movement_date', '<=', $hasta))
             ->when($search !== '', fn ($q) => $q->where(fn ($w) => $w
                 ->whereHas('product', fn ($p) => $p->where('name', 'ilike', "%{$search}%")->orWhere('sku', 'ilike', "%{$search}%"))
                 ->orWhereHas('lot', fn ($l) => $l->where('lot_code', 'ilike', "%{$search}%"))))

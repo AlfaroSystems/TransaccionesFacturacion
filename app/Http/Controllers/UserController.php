@@ -45,7 +45,7 @@ class UserController extends Controller
 
         // Filtro por sucursal
         if ($request->filled('id_branch')) {
-            $query->where('id_branch', $request->input('id_branch'));
+            $query->where('id_branch', $request->integer('id_branch'));
         }
 
         // Filtro por estado

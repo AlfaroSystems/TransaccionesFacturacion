@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Observers\AuditObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,5 +46,15 @@ class AppServiceProvider extends ServiceProvider
         // Crear y editar empresas y administrar roles: solo el administrador. No es un permiso
         // asignable porque un rol con él podría darse a sí mismo cualquier otro permiso
         Gate::define('admin', fn (User $user) => $user->isAdmin());
+
+        // Los parámetros de ruta que son el id de un registro solo aceptan números: con un texto
+        // (/purchases/abc) la consulta llegaría a PostgreSQL y respondería con un error 500 en
+        // lugar de un 404. Las rutas se registran después de este boot, así que ya los toman
+        Route::patterns(array_fill_keys([
+            'id', 'branch', 'category', 'company', 'expense_type', 'image', 'location', 'product',
+            'purchase', 'purchase_order', 'purchase_quotation', 'purchase_quotation_request',
+            'purchaseQuotationRequest', 'purchase_request', 'purchaseRequest', 'retaceo', 'role',
+            'subcategory', 'supplier', 'unit', 'user', 'warehouse', 'warehouse_category',
+        ], '[0-9]+'));
     }
 }

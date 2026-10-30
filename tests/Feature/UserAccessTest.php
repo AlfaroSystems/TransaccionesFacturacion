@@ -141,7 +141,7 @@ test('un usuario que no es admin no puede crear un usuario con rol admin', funct
 test('un usuario que no es admin no puede modificar a un administrador', function () {
     $gestor = gestorDeUsuarios();
     $admin = crearUsuarioConRol(rolAdmin(), ['id_branch' => $gestor->id_branch]);
-    $passwordOriginal = $admin->password;
+    $passwordOriginal = $admin->password_hash;
 
     $this->actingAs($gestor)
         ->put(route('users.update', $admin), datosUsuario($admin, [
@@ -151,7 +151,7 @@ test('un usuario que no es admin no puede modificar a un administrador', functio
         ->assertRedirect(route('users.index'))
         ->assertSessionHas('error');
 
-    expect($admin->fresh()->password)->toBe($passwordOriginal);
+    expect($admin->fresh()->password_hash)->toBe($passwordOriginal);
 
     $this->actingAs($gestor)
         ->delete(route('users.destroy', $admin))
@@ -343,4 +343,27 @@ test('borrar un usuario conserva sus registros en la bitácora', function () {
     $log = AuditLog::find($logId);
     expect($log)->not->toBeNull()
         ->and($log->id_user)->toBeNull();
+});
+
+// =============================================================================
+// Administrador inicial del seeder
+// =============================================================================
+
+test('el seeder crea el administrador inicial con una contraseña aleatoria', function () {
+    $this->seed(\Database\Seeders\DatabaseSeeder::class);
+
+    $admin = User::where('email', 'jon.virgi@gmail.com')->sole();
+
+    expect($admin->isAdmin())->toBeTrue()
+        ->and(\Illuminate\Support\Facades\Hash::check('password', $admin->password_hash))->toBeFalse();
+});
+
+test('el seeder no da el rol admin por correo ni crea otro administrador si ya hay uno', function () {
+    crearUsuarioConRol(rolAdmin());
+    $gracia = User::factory()->create(['email' => 'gracia@login.com']);
+
+    $this->seed(\Database\Seeders\DatabaseSeeder::class);
+
+    expect($gracia->fresh()->isAdmin())->toBeFalse()
+        ->and(User::where('email', 'jon.virgi@gmail.com')->exists())->toBeFalse();
 });

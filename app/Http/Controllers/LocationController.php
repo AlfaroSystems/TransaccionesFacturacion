@@ -22,7 +22,7 @@ class LocationController extends Controller
         Gate::authorize('locations.ver');
 
         $locations = Location::with('warehouse')->orderBy('id_location', 'desc')->get();
-        $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
+        $warehouses = Warehouse::all();
 
         return view('locations.index', compact('locations', 'warehouses'));
     }
@@ -35,7 +35,7 @@ class LocationController extends Controller
         Gate::authorize('locations.ver');
 
         $locations = Location::with('warehouse')->where('is_active', true)->get();
-        $warehouses = class_exists(Warehouse::class) ? Warehouse::all() : collect();
+        $warehouses = Warehouse::all();
 
         return view('locations.map', compact('locations', 'warehouses'));
     }

@@ -55,3 +55,26 @@ test('password can be reset with valid token', function () {
         return true;
     });
 });
+test('pedir el enlace responde igual exista o no la cuenta', function () {
+    Notification::fake();
+    $user = User::factory()->create();
+
+    $existe = $this->post('/forgot-password', ['email' => $user->email]);
+    $noExiste = $this->post('/forgot-password', ['email' => 'nadie-'.uniqid().'@example.com']);
+
+    foreach ([$existe, $noExiste] as $response) {
+        $response->assertSessionHasNoErrors()->assertSessionHas('status', __('passwords.sent'));
+    }
+
+    Notification::assertSentTimes(ResetPasswordNotification::class, 1);
+});
+
+test('pedir el enlace tiene un límite de intentos por minuto', function () {
+    Notification::fake();
+
+    foreach (range(1, 6) as $intento) {
+        $this->post('/forgot-password', ['email' => "intento{$intento}@example.com"])->assertRedirect();
+    }
+
+    $this->post('/forgot-password', ['email' => 'otro@example.com'])->assertTooManyRequests();
+});

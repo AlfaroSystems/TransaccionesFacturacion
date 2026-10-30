@@ -29,7 +29,7 @@ class AuditLogController extends Controller
 
         // Filtrar por usuario
         if ($request->filled('id_user')) {
-            $query->where('id_user', $request->input('id_user'));
+            $query->where('id_user', $request->integer('id_user'));
         }
 
         // Filtrar por controlador
@@ -43,13 +43,13 @@ class AuditLogController extends Controller
         }
 
         // Filtrar por fecha de inicio
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->input('date_from'));
+        if ($desde = $this->fechaDelFiltro($request, 'date_from')) {
+            $query->whereDate('created_at', '>=', $desde);
         }
 
         // Filtrar por fecha de fin
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->input('date_to'));
+        if ($hasta = $this->fechaDelFiltro($request, 'date_to')) {
+            $query->whereDate('created_at', '<=', $hasta);
         }
 
         // Obtener logs paginados con query string
