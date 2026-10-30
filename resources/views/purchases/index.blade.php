@@ -358,7 +358,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Bodega Destino</label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Bodega Destino (Casa Matriz)</label>
                         <select name="id_warehouse" id="modal_id_warehouse" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Bodega --</option>
                             @foreach($warehouses as $wh)
@@ -497,6 +497,8 @@
     const modalOrderInfoBox        = document.getElementById('modalOrderInfoBox');
     const modalOrderSelect         = document.getElementById('modalOrderSelect');
     const modalHiddenOrderId       = document.getElementById('modalHiddenOrderId');
+    // Lo comprado entra a Casa Matriz, que luego lo reparte; con una sola bodega, viene elegida
+    const bodegaPorDefecto         = @json($warehouses->count() === 1 ? $warehouses->first()->id_warehouse : null) ?? '';
     const modalItemsBody           = document.getElementById('modalItemsBody');
 
     // Apertura en modo Creación
@@ -522,7 +524,7 @@
         document.getElementById('modal_status').value                  = 'completed';
         document.getElementById('modal_id_supplier').value             = '';
         document.getElementById('modal_id_branch').value               = '';
-        document.getElementById('modal_id_warehouse').value            = '';
+        document.getElementById('modal_id_warehouse').value            = bodegaPorDefecto;
         document.getElementById('modal_currency').value                = 'USD';
         document.getElementById('modal_notes').value                   = '';
 
@@ -602,7 +604,7 @@
                 .then(data => {
                     if (data.id_supplier) document.getElementById('modal_id_supplier').value = data.id_supplier;
                     if (data.id_branch) document.getElementById('modal_id_branch').value = data.id_branch;
-                    if (data.id_warehouse) document.getElementById('modal_id_warehouse').value = data.id_warehouse;
+                    // La bodega no se toma de la orden: lo comprado entra a Casa Matriz
                     if (data.currency) document.getElementById('modal_currency').value = data.currency;
 
                     renderizarDetallesModal(data.details, false);

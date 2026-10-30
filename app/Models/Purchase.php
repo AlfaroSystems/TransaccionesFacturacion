@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
 use App\Models\Concerns\RefreshesWithLock;
+use App\Support\BranchAccess;
 use App\Support\DocumentSequence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,14 @@ class Purchase extends Model
 
     public function restrictToBranch(Builder $query, int $branchId): void
     {
+        // Como las órdenes: la compra es de la sucursal que pidió los productos, pero la registra
+        // el departamento de compras, que recibe la mercadería de toda su empresa en Casa Matriz
+        if (BranchAccess::isPurchasingDepartment()) {
+            $query->whereIn($this->qualifyColumn('id_branch'), BranchAccess::companyBranchIds());
+
+            return;
+        }
+
         $query->where($this->qualifyColumn('id_branch'), $branchId);
     }
 

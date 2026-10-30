@@ -237,32 +237,59 @@ test('anular una compra recibida saca sus lotes, salvo que ya se hayan movido', 
     $this->get(route('inventory.index', ['search' => $e->laptop->sku]))->assertOk()->assertDontSee($lote->lot_code);
 });
 
-test('cada sucursal ve las existencias de sus bodegas; compras, las de toda su empresa', function () {
+/** Usuario de la sucursal con los permisos indicados */
+function inventarioUsuario(Branch $branch, array $permisos): User
+{
+    $role = Role::create(['name' => 'rol-'.Str::lower(Str::random(8))]);
+    foreach ($permisos as $permiso) {
+        Permission::firstOrCreate(['id_permission' => $permiso], ['name' => $permiso]);
+    }
+    $role->permissions()->sync($permisos);
+    $user = User::factory()->create(['id_branch' => $branch->id_branch]);
+    $user->roles()->attach($role->id_role, ['assigned_at' => now()]);
+
+    return $user;
+}
+
+test('lo comprado entra a Casa Matriz: la sucursal no ve existencias hasta que se las repartan', function () {
     $e = inventarioEscenario();
     $this->actingAs($e->admin);
 
+    // La orden de la sucursal también entra a la bodega de Casa Matriz (sin elegirla, es la única)
     $ordenMatriz = inventarioOrden($e, $e->bodegaMatriz, [[$e->laptop, 3, 10]]);
     $ordenSucursal = inventarioOrden($e, $e->bodegaSucursal, [[$e->monitor, 2, 20]]);
     $this->post(route('purchases.store'), inventarioCompra($e, $ordenMatriz, [[$ordenMatriz->lineas[0], 3, 10, $e->a1]]))->assertSessionHasNoErrors();
-    $this->post(route('purchases.store'), inventarioCompra($e, $ordenSucursal, [[$ordenSucursal->lineas[0], 2, 20, $e->s1]]))->assertSessionHasNoErrors();
+    $this->post(route('purchases.store'), inventarioCompra($e, $ordenSucursal, [[$ordenSucursal->lineas[0], 2, 20, $e->a2]]))->assertSessionHasNoErrors();
 
-    $usuario = function (Branch $branch, array $permisos) {
-        $role = Role::create(['name' => 'rol-'.Str::lower(Str::random(8))]);
-        foreach ($permisos as $permiso) {
-            Permission::firstOrCreate(['id_permission' => $permiso], ['name' => $permiso]);
-        }
-        $role->permissions()->sync($permisos);
-        $user = User::factory()->create(['id_branch' => $branch->id_branch]);
-        $user->roles()->attach($role->id_role, ['assigned_at' => now()]);
-
-        return $user;
-    };
     $productos = fn (User $user) => $this->actingAs($user)->get(route('inventory.index'))->assertOk()
         ->viewData('stock')->pluck('id_product')->sort()->values()->all();
 
-    expect($productos($usuario($e->sucursal, ['inventory.ver'])))->toBe([$e->monitor->id_product])
-        ->and($productos($usuario($e->matriz, ['inventory.ver'])))->toBe(collect([$e->laptop->id_product, $e->monitor->id_product])->sort()->values()->all());
+    expect($productos(inventarioUsuario($e->sucursal, ['inventory.ver'])))->toBe([])
+        ->and($productos(inventarioUsuario($e->matriz, ['inventory.ver'])))->toBe(collect([$e->laptop->id_product, $e->monitor->id_product])->sort()->values()->all());
 
     // Sin permiso no se ve
-    $this->actingAs($usuario($e->sucursal, ['purchases.ver']))->get(route('inventory.index'))->assertForbidden();
+    $this->actingAs(inventarioUsuario($e->sucursal, ['purchases.ver']))->get(route('inventory.index'))->assertForbidden();
+});
+
+test('Casa Matriz registra la recepción de la orden de una sucursal y ambas ven la compra', function () {
+    $e = inventarioEscenario();
+    $orden = inventarioOrden($e, $e->bodegaSucursal, [[$e->monitor, 2, 20]]);
+    $compras = inventarioUsuario($e->matriz, ['purchases.ver', 'purchases.crear']);
+    $this->actingAs($compras);
+
+    // A una bodega de la sucursal no puede entrar
+    $this->post(route('purchases.store'), [...inventarioCompra($e, $orden, [[$orden->lineas[0], 2, 20, $e->s1]]), 'id_warehouse' => $e->bodegaSucursal->id_warehouse])
+        ->assertSessionHasErrors(['id_warehouse' => 'La mercadería entra a una bodega de Casa Matriz (el departamento de compras), que luego la reparte a las sucursales.']);
+
+    $this->post(route('purchases.store'), [...inventarioCompra($e, $orden, [[$orden->lineas[0], 2, 20, $e->a1]]), 'id_warehouse' => $e->bodegaMatriz->id_warehouse])
+        ->assertSessionHasNoErrors();
+
+    $compra = Purchase::queryAllBranches()->sole();
+    expect($compra->id_branch)->toBe($e->sucursal->id_branch)
+        ->and($compra->id_warehouse)->toBe($e->bodegaMatriz->id_warehouse)
+        ->and(InventoryMovement::queryAllBranches()->sole()->id_location)->toBe($e->a1->id_location);
+
+    // La compra es de la sucursal que pidió, pero la ve también el departamento de compras
+    $this->get(route('purchases.show', $compra))->assertOk();
+    $this->actingAs(inventarioUsuario($e->sucursal, ['purchases.ver']))->get(route('purchases.show', $compra))->assertOk();
 });

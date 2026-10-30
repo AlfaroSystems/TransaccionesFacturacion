@@ -147,11 +147,12 @@
 
                 {{-- BODEGA --}}
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bodega Destino</label>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bodega Destino (Casa Matriz)</label>
+                    {{-- La mercadería entra a Casa Matriz, que luego la reparte; con una sola bodega, viene elegida --}}
                     <select name="id_warehouse" id="id_warehouse" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
                         <option value="">-- Bodega --</option>
                         @foreach($warehouses as $wh)
-                            <option value="{{ $wh->id_warehouse }}" {{ (string)old('id_warehouse', $purchase->id_warehouse ?? '') === (string)$wh->id_warehouse ? 'selected' : '' }}>
+                            <option value="{{ $wh->id_warehouse }}" {{ (string)old('id_warehouse', $purchase->id_warehouse ?? ($warehouses->count() === 1 ? $wh->id_warehouse : '')) === (string)$wh->id_warehouse ? 'selected' : '' }}>
                                 {{ $wh->name }}
                             </option>
                         @endforeach
@@ -322,7 +323,7 @@
                     // Completar datos de cabecera
                     if (data.id_supplier) document.getElementById('id_supplier').value = data.id_supplier;
                     if (data.id_branch) document.getElementById('id_branch').value = data.id_branch;
-                    if (data.id_warehouse) document.getElementById('id_warehouse').value = data.id_warehouse;
+                    // La bodega no se toma de la orden: lo comprado entra a Casa Matriz
                     if (data.currency) document.getElementById('currency').value = data.currency;
 
                     itemsBody.innerHTML = '';

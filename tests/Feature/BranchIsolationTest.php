@@ -530,6 +530,8 @@ test('una bodega con documentos no puede pasar a otra sucursal', function () {
 
 test('una compra siempre queda en la sucursal de su orden', function () {
     [$a, $b, $catalogos] = escenarioDosSucursales();
+    // Su mercadería entra a Casa Matriz: la sucursal A hace de departamento de compras
+    $a->branch->update(['is_purchasing_department' => true]);
 
     $this->actingAs(administradorGlobal())->post(route('purchases.store'), [
         'id_purchase_order' => $a->order->id_purchase_order,

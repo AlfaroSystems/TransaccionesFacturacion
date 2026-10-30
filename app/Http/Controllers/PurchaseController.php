@@ -16,7 +16,9 @@ use App\Models\Warehouse;
 use App\Rules\Accessible;
 use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseService;
+use App\Support\BranchAccess;
 use App\Support\Moneda;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -66,6 +68,67 @@ class PurchaseController extends Controller
     /**
      * Regla de la ubicación de cada línea: de la bodega destino de la compra.
      */
+    /** Mensajes de la bodega destino: la mercadería entra a Casa Matriz */
+    private const MENSAJES_BODEGA = [
+        'id_warehouse.required' => 'Elija la bodega de Casa Matriz donde entra la mercadería.',
+        'id_warehouse.in' => 'La mercadería entra a una bodega de Casa Matriz (el departamento de compras), que luego la reparte a las sucursales.',
+    ];
+
+    /**
+     * Bodegas activas del departamento de compras (Casa Matriz). Sin el filtro por sucursal:
+     * quien registra la compra puede no ser de Casa Matriz, como el administrador.
+     */
+    private function bodegasDeCompras(): Builder
+    {
+        return Warehouse::queryAllBranches()
+            ->where('is_active', true)
+            ->whereIn('id_branch', Branch::queryAllBranches()->where('is_purchasing_department', true)->select('id_branch'));
+    }
+
+    /**
+     * Bodegas donde puede entrar la mercadería de una orden: las de Casa Matriz de la empresa de
+     * la orden. La orden va a la sucursal que pidió los productos, pero lo comprado llega a
+     * Casa Matriz, que luego lo reparte a las sucursales.
+     *
+     * @return Collection<int, int> id_warehouse
+     */
+    private function bodegasDeCasaMatriz(?int $orderBranchId): Collection
+    {
+        $companyId = Branch::queryAllBranches()->whereKey($orderBranchId)->value('id_company');
+
+        return $this->bodegasDeCompras()
+            ->whereIn('id_branch', Branch::queryAllBranches()->where('id_company', $companyId)->select('id_branch'))
+            ->pluck('id_warehouse');
+    }
+
+    /**
+     * Sin bodega elegida, la compra entra a la preferida (la que ya tenía) si es de Casa Matriz,
+     * o a la de Casa Matriz si tiene una sola.
+     */
+    private function elegirBodegaPorDefecto(Request $request, Collection $bodegas, ?int $preferida): void
+    {
+        if ($request->filled('id_warehouse')) {
+            return;
+        }
+
+        $bodega = $bodegas->contains($preferida) ? $preferida : ($bodegas->count() === 1 ? $bodegas->first() : null);
+
+        if ($bodega) {
+            $request->merge(['id_warehouse' => $bodega]);
+        }
+    }
+
+    /**
+     * Bodegas del selector de los formularios: las de Casa Matriz que el usuario puede usar.
+     */
+    private function bodegasDelFormulario(): Collection
+    {
+        return $this->bodegasDeCompras()
+            ->when(! BranchAccess::isUnrestricted(), fn ($q) => $q->whereIn('id_branch', BranchAccess::companyBranchIds()))
+            ->orderBy('name')
+            ->get();
+    }
+
     private function ubicacionDeLaBodega(?int $warehouseId): array
     {
         return ['nullable', 'integer', Rule::exists('locations', 'id_location')->where('id_warehouse', $warehouseId ?? 0)];
@@ -131,7 +194,7 @@ class PurchaseController extends Controller
 
         $suppliers = Supplier::orderBy('name')->get();
         $branches = Branch::orderBy('name')->get();
-        $warehouses = Warehouse::orderBy('name')->get();
+        $warehouses = $this->bodegasDelFormulario();
         // Solo para el selector: el detalle de la orden elegida lo trae getOrderData
         $orders = PurchaseOrder::whereIn('status', ['issued', 'partial_received'])
             ->with('supplier')
@@ -167,7 +230,7 @@ class PurchaseController extends Controller
 
         $suppliers = Supplier::orderBy('name')->get();
         $branches = Branch::orderBy('name')->get();
-        $warehouses = Warehouse::orderBy('name')->get();
+        $warehouses = $this->bodegasDelFormulario();
         $products = Product::orderBy('name')->get();
         $units = Unit::orderBy('name')->get();
 
@@ -241,17 +304,17 @@ class PurchaseController extends Controller
     {
         Gate::authorize('purchases.crear');
 
-        // La compra hereda la sucursal de su orden: la orden debe ser visible para el usuario,
-        // y la bodega y las líneas deben pertenecer a esa orden y su sucursal
-        $orderBranchId = fn () => PurchaseOrder::whereKey($request->integer('id_purchase_order'))->value('id_branch');
-        // Sin bodega elegida, la compra va a la bodega de su orden
-        $destino = $request->integer('id_warehouse')
-            ?: PurchaseOrder::whereKey($request->integer('id_purchase_order'))->value('id_warehouse');
+        // La compra hereda la sucursal de su orden (la orden debe ser visible para el usuario), y
+        // su mercadería entra a una bodega de Casa Matriz de esa empresa
+        $order = PurchaseOrder::whereKey($request->integer('id_purchase_order'))->first();
+        $bodegas = $this->bodegasDeCasaMatriz($order?->id_branch);
+        $this->elegirBodegaPorDefecto($request, $bodegas, $order?->id_warehouse);
+        $destino = $request->integer('id_warehouse') ?: null;
 
         $validated = $request->validate([
             'id_purchase_order' => ['required', new Accessible(PurchaseOrder::class)],
             'id_supplier' => ['required', 'exists:supliers,id_supplier'],
-            'id_warehouse' => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $orderBranchId()))],
+            'id_warehouse' => ['required', Rule::in($bodegas->all())],
             'purchase_date' => ['required', 'date'],
             'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date' => ['nullable', 'date'],
@@ -269,7 +332,7 @@ class PurchaseController extends Controller
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes' => ['nullable', 'string'],
             'details.*.id_location' => $this->ubicacionDeLaBodega($destino),
-        ], [...self::MENSAJES_LINEAS, 'currency.in' => Moneda::MENSAJE]);
+        ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_BODEGA, 'currency.in' => Moneda::MENSAJE]);
 
         try {
             $purchase = $this->service->crear($validated);
@@ -380,7 +443,7 @@ class PurchaseController extends Controller
 
         $suppliers = Supplier::orderBy('name')->get();
         $branches = Branch::orderBy('name')->get();
-        $warehouses = Warehouse::orderBy('name')->get();
+        $warehouses = $this->bodegasDelFormulario();
         $products = Product::orderBy('name')->get();
         $units = Unit::orderBy('name')->get();
 
@@ -407,10 +470,14 @@ class PurchaseController extends Controller
                 ->with('error', 'Solo las compras en estado borrador pueden ser modificadas.');
         }
 
-        // La sucursal y la orden de la compra no cambian: la bodega y las líneas deben pertenecer a ellas
+        // La sucursal y la orden de la compra no cambian: las líneas deben ser de esa orden y la
+        // bodega, de Casa Matriz de esa empresa
+        $bodegas = $this->bodegasDeCasaMatriz($purchase->id_branch);
+        $this->elegirBodegaPorDefecto($request, $bodegas, $purchase->id_warehouse);
+
         $validated = $request->validate([
             'id_supplier' => ['required', 'exists:supliers,id_supplier'],
-            'id_warehouse' => ['nullable', new Accessible(Warehouse::class, constraint: fn ($q) => $q->where('id_branch', $purchase->id_branch))],
+            'id_warehouse' => ['required', Rule::in($bodegas->all())],
             'purchase_date' => ['required', 'date'],
             'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date' => ['nullable', 'date'],
@@ -426,11 +493,8 @@ class PurchaseController extends Controller
             'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes' => ['nullable', 'string'],
-            'details.*.id_location' => $this->ubicacionDeLaBodega(
-                $request->integer('id_warehouse') ?: ($purchase->id_warehouse
-                    ?? PurchaseOrder::queryAllBranches()->whereKey($purchase->id_purchase_order)->value('id_warehouse'))
-            ),
-        ], [...self::MENSAJES_LINEAS, 'currency.in' => Moneda::MENSAJE]);
+            'details.*.id_location' => $this->ubicacionDeLaBodega($request->integer('id_warehouse') ?: null),
+        ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_BODEGA, 'currency.in' => Moneda::MENSAJE]);
 
         try {
             $this->service->actualizar($purchase, $validated);

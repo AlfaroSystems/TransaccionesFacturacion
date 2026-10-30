@@ -33,7 +33,8 @@ function escenarioCompras(string $estadoCompra = 'received'): object
     $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     $company = Company::create(['name' => 'Distribuidora de Prueba']);
-    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Central']);
+    // Casa Matriz: lo comprado entra a sus bodegas
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Central', 'is_purchasing_department' => true]);
     $category = WarehouseCategory::create(['name' => 'General']);
     $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $category->id_warehouse_category, 'name' => 'Bodega Central']);
     $unit = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);

@@ -37,7 +37,8 @@ function recepcionEscenario(): object
     $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
 
     $company = Company::create(['name' => "Empresa {$tag}"]);
-    $branch = Branch::create(['id_company' => $company->id_company, 'name' => "Sucursal {$tag}"]);
+    // Casa Matriz: lo comprado entra a sus bodegas
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => "Sucursal {$tag}", 'is_purchasing_department' => true]);
     $category = WarehouseCategory::create(['name' => "Categoría {$tag}"]);
     $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $category->id_warehouse_category, 'name' => "Bodega {$tag}"]);
     $unit = Unit::create(['name' => "Unidad {$tag}", 'abbreviation' => 'UND']);
