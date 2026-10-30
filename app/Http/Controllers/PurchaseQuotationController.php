@@ -8,6 +8,7 @@ use App\Models\PurchaseQuotationExpense;
 use App\Models\PurchaseQuotationRequest;
 use App\Rules\Accessible;
 use App\Rules\DiscountWithinLine;
+use App\Support\Moneda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -26,7 +27,7 @@ class PurchaseQuotationController extends Controller
             'id_supplier' => 'required|exists:supliers,id_supplier',
             'quotation_date' => 'required|date',
             'valid_until' => 'nullable|date',
-            'currency' => 'nullable|string|max:3',
+            'currency' => Moneda::regla(),
             'payment_terms' => 'nullable|string|max:255',
             'delivery_days' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
@@ -49,7 +50,7 @@ class PurchaseQuotationController extends Controller
             'expenses.*.id_expense_type' => 'required_with:expenses|exists:expense_types,id_expense_type',
             'expenses.*.description' => 'nullable|string|max:255',
             'expenses.*.amount' => 'required_with:expenses|numeric|min:0',
-        ]);
+        ], ['currency.in' => Moneda::MENSAJE]);
 
         $quotationRequest = PurchaseQuotationRequest::findOrFail($validated['id_purchase_quotation_request']);
         if ($quotationRequest->isAwarded()) {
@@ -135,7 +136,7 @@ class PurchaseQuotationController extends Controller
                 'id_supplier' => $validated['id_supplier'],
                 'quotation_date' => $validated['quotation_date'],
                 'valid_until' => $validated['valid_until'] ?? null,
-                'currency' => $validated['currency'] ?? 'USD',
+                'currency' => $validated['currency'] ?? Moneda::PREDETERMINADA,
                 'payment_terms' => $validated['payment_terms'] ?? null,
                 'delivery_days' => isset($validated['delivery_days']) && $validated['delivery_days'] !== '' ? (int) $validated['delivery_days'] : null,
                 'subtotal' => $headerSubtotal,

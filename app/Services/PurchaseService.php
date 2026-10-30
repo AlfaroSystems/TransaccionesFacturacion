@@ -7,6 +7,7 @@ use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Retaceo;
+use App\Support\Moneda;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -103,7 +104,7 @@ class PurchaseService
                 'purchase_date' => $validated['purchase_date'] ?? now(),
                 'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? null,
                 'supplier_invoice_date' => $validated['supplier_invoice_date'] ?? null,
-                'currency' => strtoupper($validated['currency'] ?? $order->currency ?? 'USD'),
+                'currency' => $validated['currency'] ?? $order->currency ?? Moneda::PREDETERMINADA,
                 'subtotal' => $totales['subtotal'],
                 'discount' => $totales['discount'],
                 'tax' => $totales['tax'],
@@ -153,7 +154,7 @@ class PurchaseService
                 'purchase_date' => $validated['purchase_date'] ?? $purchase->purchase_date,
                 'supplier_invoice_number' => $validated['supplier_invoice_number'] ?? $purchase->supplier_invoice_number,
                 'supplier_invoice_date' => $validated['supplier_invoice_date'] ?? $purchase->supplier_invoice_date,
-                'currency' => strtoupper($validated['currency'] ?? $purchase->currency),
+                'currency' => $validated['currency'] ?? $purchase->currency,
                 'subtotal' => $totales['subtotal'],
                 'discount' => $totales['discount'],
                 'tax' => $totales['tax'],

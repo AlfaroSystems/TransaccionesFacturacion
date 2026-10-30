@@ -368,9 +368,11 @@
                                     name="currency"
                                     id="currency"
                                     class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="USD" selected>
-                                        USD - Dólares
-                                    </option>
+                                    @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
+                                        <option value="{{ $codigo }}" @selected(old('currency', \App\Support\Moneda::PREDETERMINADA) === $codigo)>
+                                            {{ $etiqueta }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             {{-- CONDICIONES DE PAGO --}}

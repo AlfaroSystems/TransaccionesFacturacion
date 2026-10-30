@@ -19,6 +19,7 @@ use App\Models\Unit;
 use App\Models\Warehouse;
 use App\Services\PurchaseOrderService;
 use App\Support\BranchAccess;
+use App\Support\Moneda;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -599,7 +600,7 @@ class PurchaseQuotationRequestController extends Controller
                         'expected_date' => $quotation->delivery_days
                             ? now()->addDays((int) $quotation->delivery_days)
                             : ($group['requests']->pluck('required_date')->filter()->min() ?? now()->addDays(7)),
-                        'currency' => $quotation->currency ?: 'USD',
+                        'currency' => $quotation->currency ?: Moneda::PREDETERMINADA,
                         'payment_terms' => $quotation->payment_terms ?: 'Según cotización',
                         'notes' => 'Generada de la solicitud de cotización #'
                             .str_pad($quotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT)

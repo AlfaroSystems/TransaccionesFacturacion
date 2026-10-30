@@ -667,10 +667,9 @@
                     <div class="space-y-1">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Moneda <span class="text-rose-500">*</span></label>
                         <select name="currency" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
-                            <option value="USD">USD ($)</option>
-                            <option value="NIO">NIO (C$)</option>
-                            <option value="EUR">EUR (€)</option>
-                            <option value="CRC">CRC (₡)</option>
+                            @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
+                                <option value="{{ $codigo }}" @selected($codigo === \App\Support\Moneda::PREDETERMINADA)>{{ $etiqueta }}</option>
+                            @endforeach
                         </select>
                     </div>
 

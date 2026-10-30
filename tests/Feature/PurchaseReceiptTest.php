@@ -18,6 +18,7 @@ use App\Models\WarehouseCategory;
 use App\Services\PurchaseOrderService;
 use App\Services\PurchaseService;
 use App\Services\RetaceoService;
+use App\Support\Moneda;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -500,4 +501,33 @@ test('una orden cancelada por otro usuario no se emite, edita ni elimina con el 
         ->toThrow(InvalidArgumentException::class, 'Solo se pueden eliminar órdenes en borrador.');
 
     expect(PurchaseOrder::find($id)->status)->toBe('cancelled');
+});
+
+test('la moneda es USD por defecto y se puede elegir otra de las disponibles', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    foreach (['purchase_orders.store', 'purchases.store', 'purchase-quotations.store'] as $ruta) {
+        $this->post(route($ruta), ['currency' => 'XYZ'])
+            ->assertSessionHasErrors(['currency' => Moneda::MENSAJE]);
+    }
+
+    $orden = fn (array $cambios = []) => [
+        'id_supplier' => $e->supplier->id_supplier, 'id_branch' => $e->order->id_branch, 'id_warehouse' => $e->order->id_warehouse,
+        'order_date' => now()->toDateString(), 'expected_date' => now()->addWeek()->toDateString(), 'payment_terms' => 'Contado',
+        'products' => [['id_product' => $e->laptop->id_product, 'quantity' => 1, 'id_unit' => $e->lineaLaptop->id_unit, 'unit_price' => 10]],
+        ...$cambios,
+    ];
+
+    // Sin indicarla queda USD; también se puede elegir otra
+    $this->post(route('purchase_orders.store'), $orden())->assertSessionHasNoErrors();
+    expect(PurchaseOrder::latest('id_purchase_order')->value('currency'))->toBe('USD');
+
+    $this->post(route('purchase_orders.store'), $orden(['currency' => 'EUR']))->assertSessionHasNoErrors();
+    expect(PurchaseOrder::latest('id_purchase_order')->value('currency'))->toBe('EUR');
+
+    // La compra sin moneda toma la de su orden
+    $e->order->update(['currency' => 'NIO']);
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 1]]))->assertSessionHasNoErrors();
+    expect(Purchase::latest('id_purchase')->value('currency'))->toBe('NIO');
 });

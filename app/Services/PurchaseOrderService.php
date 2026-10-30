@@ -6,6 +6,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\PurchaseOrderExpense;
+use App\Support\Moneda;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -83,7 +84,7 @@ class PurchaseOrderService
                 'id_user' => Auth::id(),
                 'order_date' => $validated['order_date'],
                 'expected_date' => $validated['expected_date'],
-                'currency' => strtoupper($validated['currency']),
+                'currency' => $validated['currency'] ?? Moneda::PREDETERMINADA,
                 'payment_terms' => $validated['payment_terms'],
                 'subtotal' => $totales['subtotal'],
                 'discount' => $totales['discount'],
@@ -124,7 +125,7 @@ class PurchaseOrderService
                 'id_warehouse' => $validated['id_warehouse'],
                 'order_date' => $validated['order_date'],
                 'expected_date' => $validated['expected_date'],
-                'currency' => strtoupper($validated['currency']),
+                'currency' => $validated['currency'] ?? Moneda::PREDETERMINADA,
                 'payment_terms' => $validated['payment_terms'],
                 'subtotal' => $totales['subtotal'],
                 'discount' => $totales['discount'],

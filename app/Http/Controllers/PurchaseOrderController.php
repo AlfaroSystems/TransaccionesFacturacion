@@ -14,6 +14,7 @@ use App\Rules\Accessible;
 use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseOrderService;
 use App\Support\BranchAccess;
+use App\Support\Moneda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -227,7 +228,7 @@ class PurchaseOrderController extends Controller
             'id_purchase_quotation' => ['nullable', new Accessible(PurchaseQuotation::class)],
             'order_date' => ['required', 'date'],
             'expected_date' => ['required', 'date', 'after_or_equal:order_date'],
-            'currency' => ['required', 'string', 'max:3'],
+            'currency' => Moneda::regla(),
             'payment_terms' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
             'products' => ['required', 'array', 'min:1'],
@@ -248,6 +249,7 @@ class PurchaseOrderController extends Controller
             'min' => 'El campo :attribute no cumple el valor mínimo requerido.',
             'exists' => 'El valor seleccionado para :attribute no es válido.',
             'after_or_equal' => 'La :attribute debe ser igual o posterior a la Fecha de Orden.',
+            'currency.in' => Moneda::MENSAJE,
         ], [
             'id_supplier' => 'Proveedor',
             'id_branch' => 'Sucursal',

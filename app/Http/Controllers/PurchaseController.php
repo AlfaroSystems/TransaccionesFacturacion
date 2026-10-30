@@ -16,6 +16,7 @@ use App\Models\Warehouse;
 use App\Rules\Accessible;
 use App\Rules\DiscountWithinLine;
 use App\Services\PurchaseService;
+use App\Support\Moneda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -254,7 +255,7 @@ class PurchaseController extends Controller
             'purchase_date' => ['required', 'date'],
             'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date' => ['nullable', 'date'],
-            'currency' => ['nullable', 'string', 'max:3'],
+            'currency' => Moneda::regla(),
             'status' => ['required', Rule::in(['draft', 'received', 'completed'])],
             'notes' => ['nullable', 'string'],
             'details' => ['required', 'array', 'min:1'],
@@ -268,7 +269,7 @@ class PurchaseController extends Controller
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes' => ['nullable', 'string'],
             'details.*.id_location' => $this->ubicacionDeLaBodega($destino),
-        ], self::MENSAJES_LINEAS);
+        ], [...self::MENSAJES_LINEAS, 'currency.in' => Moneda::MENSAJE]);
 
         try {
             $purchase = $this->service->crear($validated);
@@ -413,7 +414,7 @@ class PurchaseController extends Controller
             'purchase_date' => ['required', 'date'],
             'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
             'supplier_invoice_date' => ['nullable', 'date'],
-            'currency' => ['nullable', 'string', 'max:3'],
+            'currency' => Moneda::regla(),
             'notes' => ['nullable', 'string'],
             'details' => ['required', 'array', 'min:1'],
             'details.*.id_product' => ['required', 'exists:products,id_product', $this->productoDeSuLinea($request)],
@@ -429,7 +430,7 @@ class PurchaseController extends Controller
                 $request->integer('id_warehouse') ?: ($purchase->id_warehouse
                     ?? PurchaseOrder::queryAllBranches()->whereKey($purchase->id_purchase_order)->value('id_warehouse'))
             ),
-        ], self::MENSAJES_LINEAS);
+        ], [...self::MENSAJES_LINEAS, 'currency.in' => Moneda::MENSAJE]);
 
         try {
             $this->service->actualizar($purchase, $validated);

@@ -111,7 +111,9 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Moneda *</label>
                     <select name="currency" id="currency" class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
-                        <option value="USD" selected>USD - Dólares</option>
+                        @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
+                            <option value="{{ $codigo }}" @selected(old('currency', $purchase_order->currency ?? \App\Support\Moneda::PREDETERMINADA) === $codigo)>{{ $etiqueta }}</option>
+                        @endforeach
                     </select>
                 </div>
 

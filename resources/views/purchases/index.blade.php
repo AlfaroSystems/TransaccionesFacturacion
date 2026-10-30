@@ -368,7 +368,12 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Moneda</label>
-                        <input type="text" name="currency" id="modal_currency" value="USD" maxlength="3" class="w-full uppercase px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        {{-- Al elegir la orden toma su moneda --}}
+                        <select name="currency" id="modal_currency" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                            @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
+                                <option value="{{ $codigo }}" @selected($codigo === \App\Support\Moneda::PREDETERMINADA)>{{ $etiqueta }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
