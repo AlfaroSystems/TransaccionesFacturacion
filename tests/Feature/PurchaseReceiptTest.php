@@ -387,7 +387,27 @@ test('el retaceo sugiere los gastos de la orden que son costo', function () {
     $purchase = Purchase::latest('id_purchase')->first();
 
     // Lo recibido vale $100 de los $150 de la orden: le tocan $20 de los $30
-    $this->getJson(route('retaceos.purchase-data', $purchase->id_purchase))->assertJsonPath('suggested_expenses', fn ($v) => (float) $v === 20.0);
+    $this->getJson(route('retaceos.purchase-data', $purchase->id_purchase))
+        ->assertJsonPath('suggested_expenses', fn ($v) => (float) $v === 20.0)
+        // Y como línea de gasto del retaceo, con su tipo
+        ->assertJsonCount(1, 'suggested_expense_lines')
+        ->assertJsonPath('suggested_expense_lines.0.amount', fn ($v) => (float) $v === 20.0)
+        ->assertJsonPath('suggested_expense_lines.0.id_expense_type', $e->order->expenses()->where('is_costable', true)->value('id_expense_type'));
+});
+
+test('el retaceo propone como FOB el valor de cada línea menos su descuento', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    // 10 a $10 con $3 de descuento: la factura vale $97, no $100
+    $datos = recepcionDatos($e, [[$e->lineaLaptop, 10]]);
+    $datos['details'][0]['discount'] = 3;
+    $this->post(route('purchases.store'), $datos)->assertSessionHasNoErrors();
+    $purchase = Purchase::latest('id_purchase')->first();
+
+    $this->getJson(route('retaceos.purchase-data', $purchase->id_purchase))
+        ->assertJsonPath('details.0.cost_fob', fn ($v) => (float) $v === 97.0)
+        ->assertJsonPath('details.0.quantity', fn ($v) => (float) $v === 10.0);
 });
 
 // =============================================================================

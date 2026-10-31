@@ -112,4 +112,35 @@ class Retaceo extends Model
             'id_retaceo'
         );
     }
+
+    /**
+     * Otros gastos aduanales / seguro, uno por tipo de gasto; total_expenses es su suma.
+     */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(RetaceoExpense::class, 'id_retaceo', 'id_retaceo');
+    }
+
+    /**
+     * Las líneas de gasto para el formulario. Un retaceo de antes de las líneas solo tiene el
+     * total: se ofrece como una línea sin tipo, que hay que elegir al guardarlo.
+     *
+     * @return array<int, array{id_expense_type: ?int, description: ?string, amount: float}>
+     */
+    public function lineasDeGastos(): array
+    {
+        $lineas = $this->expenses()->orderBy('id_retaceo_expense')->get()
+            ->map(fn (RetaceoExpense $g) => [
+                'id_expense_type' => $g->id_expense_type,
+                'description' => $g->description,
+                'amount' => (float) $g->amount,
+            ])
+            ->all();
+
+        if (! $lineas && (float) $this->total_expenses > 0) {
+            $lineas[] = ['id_expense_type' => null, 'description' => 'Otros gastos', 'amount' => (float) $this->total_expenses];
+        }
+
+        return $lineas;
+    }
 }

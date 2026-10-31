@@ -89,6 +89,37 @@ class ProductCostService
         return round(array_sum($this->gastosPorLinea($purchase)), 4);
     }
 
+    /**
+     * Los mismos gastos, uno por uno con la parte que le toca a la compra: los que se sugieren
+     * como líneas de gasto de su retaceo.
+     *
+     * @return array<int, array{id_expense_type: int, description: ?string, amount: float}>
+     */
+    public function gastosSugeridos(Purchase $purchase): array
+    {
+        $order = $purchase->id_purchase_order
+            ? PurchaseOrder::queryAllBranches()->find($purchase->id_purchase_order)
+            : null;
+        $baseOrden = $order ? max(0, (float) $order->subtotal - (float) $order->discount) : 0;
+
+        if ($baseOrden <= 0) {
+            return [];
+        }
+
+        $purchase->loadMissing('details');
+        $neto = $purchase->details->sum(fn ($d) => max(0, (float) $d->subtotal - (float) $d->discount));
+
+        return $order->expenses()->where('is_costable', true)->orderBy('id_purchase_order_expense')->get()
+            ->map(fn ($gasto) => [
+                'id_expense_type' => $gasto->id_expense_type,
+                'description' => $gasto->description,
+                'amount' => round((float) $gasto->amount * $neto / $baseOrden, 4),
+            ])
+            ->filter(fn ($gasto) => $gasto['amount'] > 0)
+            ->values()
+            ->all();
+    }
+
     /** @return array<int, float> costo unitario por id_purchase_detail */
     private function costosDeLaFactura(Purchase $purchase): array
     {

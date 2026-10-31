@@ -22,15 +22,6 @@
             </button>
             @endcan
         </div>
-        @if($errors->any())
-            <div class="mb-5 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800">
-                <ul class="list-disc pl-5">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
         <div id="ordersIndex">
             {{-- Tarjetas --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

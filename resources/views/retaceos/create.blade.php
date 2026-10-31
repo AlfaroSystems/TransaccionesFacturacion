@@ -31,21 +31,6 @@
         </a>
     </div>
 
-    <!-- Alert de Errores -->
-    @if ($errors->any())
-        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
-            <div class="flex items-center gap-2 font-bold text-sm text-rose-800 dark:text-rose-200">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Revise los errores en el formulario:</span>
-            </div>
-            <ul class="list-disc pl-8 space-y-0.5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form id="retaceoForm" action="{{ $isEdit ? route('retaceos.update', $retaceo->id_retaceo) : route('retaceos.store') }}" method="POST" class="space-y-6">
         @csrf
         @if($isEdit)
@@ -111,7 +96,7 @@
                 {{-- FECHA DEL RETACEO --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Liquidación *</label>
-                    <input type="datetime-local" name="retaceo_date" id="retaceo_date" required value="{{ old('retaceo_date', isset($retaceo->retaceo_date) ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="datetime-local" name="retaceo_date" id="retaceo_date" required value="{{ old('retaceo_date', isset($retaceo->retaceo_date) ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" min="{{ isset($retaceo) ? $retaceo->purchase?->purchase_date?->format('Y-m-d\T00:00') : '' }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
                 </div>
 
                 {{-- ESTADO --}}
@@ -154,14 +139,10 @@
                 <h4 class="font-extrabold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider flex items-center gap-2">
                     <span>⚓ Gastos Generales de Importación a Prorratear</span>
                 </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Flete Internacional ($) *</label>
                         <input type="number" step="0.0001" min="0" name="total_freight" id="total_freight" value="{{ old('total_freight', (float)($retaceo->total_freight ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Otros Gastos Aduanales / Seguro ($) *</label>
-                        <input type="number" step="0.0001" min="0" name="total_expenses" id="total_expenses" value="{{ old('total_expenses', (float)($retaceo->total_expenses ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total DAI / Aranceles de la Póliza ($)</label>
@@ -169,6 +150,8 @@
                     </div>
                 </div>
             </div>
+
+            @include('retaceos._expenses', ['totalId' => 'total_expenses', 'lineas' => old('expenses') ?? (isset($retaceo) ? $retaceo->lineasDeGastos() : [])])
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Notas del Retaceo</label>
@@ -311,7 +294,10 @@
                     if (data.origin_country) document.getElementById('origin_country').value = data.origin_country;
                     if (data.supplier_invoice_number) document.getElementById('import_invoice_number').value = data.supplier_invoice_number;
                     if (data.supplier_invoice_date) document.getElementById('import_invoice_date').value = data.supplier_invoice_date;
-                    sugerirGastos(expensesInput, data.suggested_expenses);
+                    // La liquidación no puede ser anterior a la recepción de la compra
+                    document.getElementById('retaceo_date').min = data.purchase_date || '';
+                    // Gastos de la orden marcados como costo: se sugieren sin pisar lo que el usuario escribió
+                    retaceoGastos.sugerir(data.suggested_expense_lines || []);
 
                     retaceoBody.innerHTML = '';
                     if (!data.details || data.details.length === 0) {
@@ -353,16 +339,6 @@
                     console.error(err);
                     retaceoBody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-rose-500">Error al cargar productos de la compra.</td></tr>';
                 });
-        }
-
-        // Gastos de la orden marcados como costo: se sugieren sin pisar lo que el usuario escribió
-        function sugerirGastos(input, sugerido) {
-            if (!input) return;
-            const actual = parseFloat(input.value) || 0;
-            if (actual === 0 || actual === parseFloat(input.dataset.sugerido)) {
-                input.value = sugerido || 0;
-                input.dataset.sugerido = sugerido || 0;
-            }
         }
 
         function vincularInputs() {

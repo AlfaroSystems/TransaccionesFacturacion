@@ -8,6 +8,11 @@
         'purchase_receipt' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
         'purchase_cancel' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
         'cost_adjustment' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+        'transfer_out' => 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
+        'transfer_in' => 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300',
+        'transfer_loss' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
+        'relocation_out' => 'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
+        'relocation_in' => 'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
     ];
 @endphp
 <div class="w-full space-y-6 animate-fade-in duration-300">
@@ -78,6 +83,8 @@
                         <th class="py-4 px-5 text-right">Salida</th>
                         <th class="py-4 px-5 text-right">Costo Unit.</th>
                         <th class="py-4 px-5 text-right">Valor</th>
+                        <th class="py-4 px-5 text-right" title="Existencia del producto después del movimiento, en las bodegas que ve (o en la elegida)">Saldo</th>
+                        <th class="py-4 px-5 text-right" title="Valor del saldo entre su cantidad">Costo Prom.</th>
                         <th class="py-4 px-5">Documento</th>
                     </tr>
                 </thead>
@@ -106,17 +113,24 @@
                             <td class="py-3.5 px-5 text-right font-mono font-semibold whitespace-nowrap {{ $salida || (float) $movement->total_cost < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-white' }}">
                                 {{ $salida ? '-' : '' }}${{ number_format((float) $movement->total_cost, 2) }}
                             </td>
+                            @php $saldo = (float) $movement->running_quantity; @endphp
+                            <td class="py-3.5 px-5 text-right font-mono font-extrabold text-slate-800 dark:text-white">{{ $qty($saldo) }}</td>
+                            <td class="py-3.5 px-5 text-right font-mono">{{ $saldo > 0 ? '$'.number_format((float) $movement->running_value / $saldo, 4) : '—' }}</td>
                             <td class="py-3.5 px-5 text-xs whitespace-nowrap">
                                 @if($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_PURCHASE && isset($purchaseCodes[$movement->reference_id]))
                                     <a href="{{ route('purchases.show', $movement->reference_id) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $purchaseCodes[$movement->reference_id] }}</a>
+                                @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_TRANSFER && isset($transferCodes[$movement->reference_id]))
+                                    <a href="{{ route('inventory-transfers.show', $movement->reference_id) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $transferCodes[$movement->reference_id] }}</a>
+                                @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_RELOCATION && $movement->lot)
+                                    <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $movement->lot->lot_code }}</a>
                                 @endif
                                 <span class="block text-slate-400">{{ $movement->user?->username }}</span>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="py-16 text-center text-slate-400 text-sm">
-                                {{ request()->hasAny(['search', 'id_warehouse', 'type', 'date_from', 'date_to']) ? 'No se encontraron movimientos para los filtros.' : 'Aún no hay movimientos: se generan al recibir las compras.' }}
+                            <td colspan="11" class="py-16 text-center text-slate-400 text-sm">
+                                {{ request()->hasAny(['search', 'id_warehouse', 'type', 'date_from', 'date_to']) ? 'No se encontraron movimientos para los filtros.' : 'Aún no hay movimientos: se generan al colocar los lotes en bodega.' }}
                             </td>
                         </tr>
                     @endforelse

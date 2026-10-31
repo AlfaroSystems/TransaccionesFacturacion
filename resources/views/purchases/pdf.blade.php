@@ -113,36 +113,6 @@
             </div>
         </div>
 
-        <!-- Información de Proveedor y Factura -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-xs">
-            <div class="space-y-1">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[10px]">DATOS DEL PROVEEDOR</h3>
-                <p class="font-bold text-slate-900 text-sm">{{ $purchase->supplier->name ?? 'N/A' }}</p>
-                @if($purchase->supplier?->nit || $purchase->supplier?->nrc)
-                    <p class="text-slate-600"><strong>NIT/NRC:</strong> {{ $purchase->supplier->nit ?? '' }} / {{ $purchase->supplier->nrc ?? '' }}</p>
-                @endif
-                <p class="text-slate-600"><strong>País:</strong> {{ $purchase->supplier->country ?? 'El Salvador' }}</p>
-                <p class="text-slate-600"><strong>Tel:</strong> {{ $purchase->supplier->phone ?? 'N/A' }} &nbsp;|&nbsp; <strong>Email:</strong> {{ $purchase->supplier->email ?? 'N/A' }}</p>
-            </div>
-
-            <div class="space-y-1 border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[10px]">COMPROBANTE FISCAL</h3>
-                <p class="text-slate-700"><strong>No. Factura / CCF:</strong> {{ $purchase->supplier_invoice_number ?? 'N/A' }}</p>
-                <p class="text-slate-700"><strong>Fecha Factura:</strong> {{ $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('d/m/Y') : 'N/A' }}</p>
-                <p class="text-slate-700"><strong>Moneda:</strong> {{ $purchase->currency ?? 'USD' }} ($)</p>
-            </div>
-
-            <div class="space-y-1 border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
-                <h3 class="font-extrabold text-[#005e66] uppercase tracking-wider text-[10px]">TRAZABILIDAD Y REGISTRO</h3>
-                @if($purchase->purchaseOrder)
-                    <p class="text-slate-700"><strong>Orden de Compra:</strong> {{ $purchase->purchaseOrder->purchase_order_code }}</p>
-                @endif
-                <p class="text-slate-700"><strong>Registrado por:</strong> {{ $purchase->user->username ?? 'Sistema' }}</p>
-                @if($purchase->notes)
-                    <p class="text-slate-600 italic mt-1">"{{ $purchase->notes }}"</p>
-                @endif
-            </div>
-        </div>
 
         <!-- Tabla de Productos Recibidos -->
         <div class="space-y-2">

@@ -3,13 +3,6 @@
 
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    @if($errors->any())
-        <div class="bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-4 py-3 rounded-xl text-sm font-bold shadow-xs space-y-1">
-            @foreach($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
 
     @php
         // Adjudicada: cada línea apunta a la línea ganadora de alguna oferta

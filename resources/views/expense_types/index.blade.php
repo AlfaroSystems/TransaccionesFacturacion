@@ -40,21 +40,6 @@
         @endcan
     </div>
 
-    {{-- ERRORES --}}
-    @if($errors->any())
-        <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-900/20 dark:text-rose-300">
-            <p class="font-bold mb-1">
-                Se encontraron errores:
-            </p>
-
-            <ul class="list-disc list-inside">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     {{-- TABLA --}}
     <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-shadow overflow-hidden">
         <div class="overflow-x-auto">

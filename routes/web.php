@@ -7,6 +7,9 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryLabelController;
+use App\Http\Controllers\InventoryLotController;
+use App\Http\Controllers\InventoryTransferController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -53,6 +56,23 @@ Route::middleware('auth')->group(function () {
     // Inventario: existencias por lote, bodega y ubicación, y su kardex
     Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('inventory/movements', [InventoryController::class, 'movements'])->name('inventory.movements');
+    // Traslados entre bodegas: Casa Matriz reparte a las sucursales lo que entró con las compras
+    Route::post('inventory-transfers/{transfer}/dispatch', [InventoryTransferController::class, 'dispatchTransfer'])->name('inventory-transfers.dispatch');
+    Route::post('inventory-transfers/{transfer}/receive', [InventoryTransferController::class, 'receive'])->name('inventory-transfers.receive');
+    Route::post('inventory-transfers/{transfer}/cancel', [InventoryTransferController::class, 'cancel'])->name('inventory-transfers.cancel');
+    Route::resource('inventory-transfers', InventoryTransferController::class)->parameters(['inventory-transfers' => 'transfer']);
+    // Lotes: nacen por ubicar al aplicar el retaceo; se reparten en ubicaciones y al confirmar
+    // la colocación entran al inventario. Luego se cambian de ubicación con movimientos
+    Route::get('inventory/lots', [InventoryLotController::class, 'index'])->name('inventory.lots.index');
+    Route::get('inventory/lots/{lot}', [InventoryLotController::class, 'show'])->name('inventory.lots.show');
+    Route::put('inventory/lots/{lot}', [InventoryLotController::class, 'update'])->name('inventory.lots.update');
+    Route::post('inventory/lots/{lot}/split', [InventoryLotController::class, 'split'])->name('inventory.lots.split');
+    Route::put('inventory/lots/{lot}/placements', [InventoryLotController::class, 'updatePlacements'])->name('inventory.lots.placements');
+    Route::post('inventory/lots/{lot}/relocate', [InventoryLotController::class, 'relocate'])->name('inventory.lots.relocate');
+    // Etiquetas de lote: la primera impresión y cada reimpresión (con motivo) quedan registradas
+    Route::get('inventory/lots/{lot}/labels', [InventoryLabelController::class, 'create'])->name('inventory.labels');
+    Route::post('inventory/lots/{lot}/labels', [InventoryLabelController::class, 'store'])->name('inventory.labels.store');
+    Route::get('inventory/labels/{print}', [InventoryLabelController::class, 'show'])->name('inventory.labels.print');
     Route::resource('products', ProductController::class);
     Route::delete(
         '/product-images/{image}',

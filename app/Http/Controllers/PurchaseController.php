@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Company;
-use App\Models\InventoryMovement;
-use App\Models\Location;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
@@ -31,43 +29,10 @@ class PurchaseController extends Controller
         'details.*.id_purchase_order_detail.required' => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.exists' => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.distinct' => 'Un producto de la orden aparece en más de una línea.',
-        'details.*.id_location.exists' => 'La ubicación de cada producto debe ser de la bodega destino de la compra.',
     ];
 
     public function __construct(private readonly PurchaseService $service) {}
 
-    /**
-     * Ubicaciones activas de las bodegas visibles, para elegir dónde se guarda cada línea, y
-     * la última ubicación donde entró cada producto en cada bodega, para prellenarla.
-     *
-     * @return array{purchaseLocations: Collection, purchaseLastLocations: Collection}
-     */
-    private function datosUbicaciones(): array
-    {
-        $locations = Location::where('is_active', true)
-            ->orderBy('code')
-            ->get(['id_location', 'id_warehouse', 'code']);
-
-        $ultimas = InventoryMovement::query()
-            ->selectRaw('DISTINCT ON (id_warehouse, id_product) id_warehouse, id_product, id_location')
-            ->where('movement_type', InventoryMovement::TYPE_PURCHASE_RECEIPT)
-            ->whereNotNull('id_location')
-            ->orderBy('id_warehouse')
-            ->orderBy('id_product')
-            ->orderByDesc('id_inventory_movement')
-            ->get();
-
-        return [
-            'purchaseLocations' => $locations->groupBy('id_warehouse')
-                ->map(fn ($grupo) => $grupo->map(fn ($l) => ['id' => $l->id_location, 'code' => $l->code])->values()),
-            'purchaseLastLocations' => $ultimas->groupBy('id_warehouse')
-                ->map(fn ($grupo) => $grupo->pluck('id_location', 'id_product')),
-        ];
-    }
-
-    /**
-     * Regla de la ubicación de cada línea: de la bodega destino de la compra.
-     */
     /** Mensajes de la bodega destino: la mercadería entra a Casa Matriz */
     private const MENSAJES_BODEGA = [
         'id_warehouse.required' => 'Elija la bodega de Casa Matriz donde entra la mercadería.',
@@ -127,11 +92,6 @@ class PurchaseController extends Controller
             ->when(! BranchAccess::isUnrestricted(), fn ($q) => $q->whereIn('id_branch', BranchAccess::companyBranchIds()))
             ->orderBy('name')
             ->get();
-    }
-
-    private function ubicacionDeLaBodega(?int $warehouseId): array
-    {
-        return ['nullable', 'integer', Rule::exists('locations', 'id_location')->where('id_warehouse', $warehouseId ?? 0)];
     }
 
     /**
@@ -213,7 +173,6 @@ class PurchaseController extends Controller
                 'warehouses',
                 'orders'
             ),
-            ...$this->datosUbicaciones(),
         ]);
     }
 
@@ -243,7 +202,6 @@ class PurchaseController extends Controller
                 'products',
                 'units'
             ),
-            ...$this->datosUbicaciones(),
         ]);
     }
 
@@ -309,7 +267,6 @@ class PurchaseController extends Controller
         $order = PurchaseOrder::whereKey($request->integer('id_purchase_order'))->first();
         $bodegas = $this->bodegasDeCasaMatriz($order?->id_branch);
         $this->elegirBodegaPorDefecto($request, $bodegas, $order?->id_warehouse);
-        $destino = $request->integer('id_warehouse') ?: null;
 
         $validated = $request->validate([
             'id_purchase_order' => ['required', new Accessible(PurchaseOrder::class)],
@@ -331,7 +288,6 @@ class PurchaseController extends Controller
             'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes' => ['nullable', 'string'],
-            'details.*.id_location' => $this->ubicacionDeLaBodega($destino),
         ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_BODEGA, 'currency.in' => Moneda::MENSAJE]);
 
         try {
@@ -358,9 +314,14 @@ class PurchaseController extends Controller
             'details.product',
             'details.unit',
             'details.purchaseOrderDetail',
-            'details.location',
             'details.inventoryLots',
+            'retaceos',
         ]);
+
+        // Toda compra lleva retaceo: al aplicarlo se crean sus lotes, que luego se ubican en bodega
+        if (in_array($purchase->status, Purchase::RECEIVED_STATUSES, true) && ! $purchase->retaceos->contains('status', 'applied')) {
+            session()->now('info', 'La mercadería todavía no está en inventario: sus lotes se crean al aplicar el retaceo de esta compra y entran al ubicarlos en bodega.');
+        }
 
         return view('purchases.show', compact('purchase'));
     }
@@ -424,7 +385,6 @@ class PurchaseController extends Controller
                 'discount' => (float) $d->discount,
                 'tax_rate' => (float) $d->tax_rate,
                 'notes' => $d->notes ?? '',
-                'id_location' => $d->id_location,
             ]),
         ]);
     }
@@ -456,7 +416,6 @@ class PurchaseController extends Controller
                 'products',
                 'units'
             ),
-            ...$this->datosUbicaciones(),
         ]);
     }
 
@@ -493,7 +452,6 @@ class PurchaseController extends Controller
             'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes' => ['nullable', 'string'],
-            'details.*.id_location' => $this->ubicacionDeLaBodega($request->integer('id_warehouse') ?: null),
         ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_BODEGA, 'currency.in' => Moneda::MENSAJE]);
 
         try {

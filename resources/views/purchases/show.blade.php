@@ -99,7 +99,6 @@
         </div>
     </div>
 
-
     <!-- Tarjetas de Información General -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Tarjeta Factura y Recepción -->
@@ -213,13 +212,21 @@
                                 @if($item->notes)
                                     <div class="text-[11px] text-slate-500 italic mt-0.5">{{ $item->notes }}</div>
                                 @endif
-                                {{-- Dónde se guarda y, si ya entró al inventario, con qué lote --}}
-                                <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                                    <span class="text-slate-500 dark:text-slate-400">📍 {{ $item->location?->code ?? 'Sin ubicación' }}</span>
-                                    @foreach($item->inventoryLots as $lot)
-                                        <span class="px-1.5 py-0.5 rounded-sm font-mono font-bold {{ $lot->status === 'active' ? 'bg-teal-50 text-[#005e66] dark:bg-teal-950 dark:text-teal-300' : 'bg-slate-100 text-slate-400 line-through dark:bg-slate-800' }}" title="{{ $lot->status === 'active' ? 'Lote en inventario' : 'Lote anulado' }}">{{ $lot->lot_code }}</span>
-                                    @endforeach
-                                </div>
+                                {{-- Lote que creó el retaceo aplicado: por ubicar, disponible o anulado --}}
+                                @if($item->inventoryLots->isNotEmpty())
+                                    <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
+                                        @foreach($item->inventoryLots as $lot)
+                                            @php
+                                                $loteClass = match ($lot->status) {
+                                                    'active' => 'bg-teal-50 text-[#005e66] dark:bg-teal-950 dark:text-teal-300',
+                                                    'pending_placement' => 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
+                                                    default => 'bg-slate-100 text-slate-400 line-through dark:bg-slate-800',
+                                                };
+                                            @endphp
+                                            <a href="{{ route('inventory.lots.show', $lot->id_inventory_lot) }}" class="px-1.5 py-0.5 rounded-sm font-mono font-bold hover:underline {{ $loteClass }}" title="{{ $lot->statusLabel() }}">{{ $lot->lot_code }}</a>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-3.5 px-4 text-center font-mono font-semibold text-slate-500">
                                 {{ number_format($item->quantity_ordered, 2) }}

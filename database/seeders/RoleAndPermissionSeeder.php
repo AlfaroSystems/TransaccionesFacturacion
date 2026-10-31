@@ -154,6 +154,30 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite consultar las existencias por lote, bodega y ubicación, sus movimientos y el costo promedio.',
                 'action' => 'index',
             ],
+            [
+                'id_permission' => 'inventory.trasladar',
+                'name' => 'Crear y Despachar Traslados',
+                'description' => 'Permite preparar traslados de lotes entre bodegas, despacharlos y cancelar o eliminar los borradores.',
+                'action' => 'create',
+            ],
+            [
+                'id_permission' => 'inventory.recibir_traslados',
+                'name' => 'Recibir Traslados',
+                'description' => 'Permite confirmar lo que llegó de un traslado despachado a una bodega de la sucursal.',
+                'action' => 'update',
+            ],
+            [
+                'id_permission' => 'inventory.etiquetas',
+                'name' => 'Imprimir Etiquetas de Lote',
+                'description' => 'Permite imprimir y reimprimir (con motivo) las etiquetas de los lotes.',
+                'action' => 'print',
+            ],
+            [
+                'id_permission' => 'inventory.ubicar',
+                'name' => 'Ubicar Lotes',
+                'description' => 'Permite repartir los lotes por ubicar en las ubicaciones de su bodega, confirmar su colocación y cambiar de ubicación lo que ya está en inventario.',
+                'action' => 'update',
+            ],
             // Empresas (crear, editar y desactivar: solo el admin, Gate 'admin')
             [
                 'id_permission' => 'companies.ver',

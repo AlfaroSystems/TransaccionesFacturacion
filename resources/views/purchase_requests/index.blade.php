@@ -21,16 +21,6 @@
         </div>
     </div>
 
-    @if($errors->any())
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl">
-            <p class="font-extrabold text-sm mb-2">No se pudo guardar la solicitud:</p>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
     <!-- Métricas -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">

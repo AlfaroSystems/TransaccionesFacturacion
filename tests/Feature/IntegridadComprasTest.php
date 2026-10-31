@@ -3,6 +3,7 @@
 use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\Company;
+use App\Models\ExpenseType;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
@@ -71,7 +72,7 @@ function datosRetaceo(object $e, array $cambios = []): array
         'retaceo_date' => now()->toDateString(),
         'status' => 'calculated',
         'total_freight' => 100,
-        'total_expenses' => 20,
+        'expenses' => [['id_expense_type' => ExpenseType::firstOrCreate(['name' => 'Seguro de importación'])->id_expense_type, 'amount' => 20]],
         'total_dai' => 25,
         'details' => [[
             'id_product' => $e->product->id_product, 'id_purchase_detail' => $e->purchaseDetail->id_purchase_detail,
@@ -116,6 +117,63 @@ test('el retaceo guarda el prorrateo calculado en el servidor', function () {
     expect((float) $retaceo->total_fob)->toBe(500.0)
         ->and((float) $retaceo->total_cost)->toBe(645.0)          // 500 + 100 + 20 + 25
         ->and((float) $retaceo->details[0]->unit_cost)->toBe(64.5);
+});
+
+test('la fecha de liquidación del retaceo no puede ser anterior a la recepción de la compra', function () {
+    $e = escenarioCompras();
+    $this->actingAs($e->admin);
+    $recepcion = $e->purchase->fresh()->purchase_date;
+
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['retaceo_date' => $recepcion->copy()->subDay()->toDateString()]))
+        ->assertSessionHasErrors(['retaceo_date' => 'La fecha de liquidación no puede ser anterior a la recepción de la compra ('.$recepcion->format('d/m/Y').').']);
+
+    // El mismo día, a cualquier hora, sí
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['status' => 'draft', 'retaceo_date' => $recepcion->copy()->startOfDay()->format('Y-m-d\TH:i')]))
+        ->assertSessionHasNoErrors();
+
+    // Tampoco al editarlo
+    $this->put(route('retaceos.update', Retaceo::sole()), datosRetaceo($e, ['retaceo_date' => $recepcion->copy()->subDays(3)->toDateString()]))
+        ->assertSessionHasErrors('retaceo_date');
+
+    // Los formularios la reciben para no ofrecer fechas anteriores
+    $this->getJson(route('retaceos.purchase-data', $e->purchase->id_purchase))->assertJsonPath('purchase_date', $recepcion->format('Y-m-d\T00:00'));
+});
+
+test('los otros gastos del retaceo son líneas por tipo de gasto y su suma se prorratea', function () {
+    $e = escenarioCompras();
+    $this->actingAs($e->admin);
+    $seguro = ExpenseType::create(['name' => 'Seguro '.Str::random(4)]);
+    $agente = ExpenseType::create(['name' => 'Agente aduanal '.Str::random(4)]);
+    $inactivo = ExpenseType::create(['name' => 'Viejo '.Str::random(4), 'is_active' => false]);
+
+    // Cada línea lleva su tipo, y uno activo
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['expenses' => [['amount' => 5]]]))
+        ->assertSessionHasErrors(['expenses.0.id_expense_type' => 'Elija el tipo de cada gasto.']);
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['expenses' => [['id_expense_type' => $inactivo->id_expense_type, 'amount' => 5]]]))
+        ->assertSessionHasErrors(['expenses.0.id_expense_type' => 'El tipo de gasto no existe o está inactivo.']);
+
+    $this->post(route('retaceos.store'), datosRetaceo($e, ['status' => 'draft', 'expenses' => [
+        ['id_expense_type' => $seguro->id_expense_type, 'description' => 'Póliza de seguro', 'amount' => 12.5],
+        ['id_expense_type' => $agente->id_expense_type, 'amount' => 7.5],
+    ]]))->assertSessionHasNoErrors();
+
+    $retaceo = Retaceo::sole();
+    expect((float) $retaceo->total_expenses)->toBe(20.0)
+        ->and((float) $retaceo->total_cost)->toBe(645.0)
+        ->and($retaceo->expenses()->count())->toBe(2);
+
+    $this->get(route('retaceos.show', $retaceo))->assertOk()->assertSee($seguro->name)->assertSee('Póliza de seguro');
+    expect($this->getJson(route('retaceos.edit-data', $retaceo))->assertOk()->json('expenses'))->toHaveCount(2);
+
+    // Al editarlo se reemplazan sus líneas
+    $this->put(route('retaceos.update', $retaceo), datosRetaceo($e, ['expenses' => [['id_expense_type' => $agente->id_expense_type, 'amount' => 3]]]))
+        ->assertSessionHasNoErrors();
+    expect((float) $retaceo->fresh()->total_expenses)->toBe(3.0)->and($retaceo->expenses()->count())->toBe(1);
+
+    // Uno de antes de las líneas ofrece su total como una línea sin tipo
+    $retaceo->expenses()->get()->each->delete();
+    $retaceo->update(['total_expenses' => 9]);
+    expect($retaceo->fresh()->lineasDeGastos())->toBe([['id_expense_type' => null, 'description' => 'Otros gastos', 'amount' => 9.0]]);
 });
 
 test('cada línea del retaceo es una línea de su compra, con su producto y la cantidad recibida', function () {
@@ -169,16 +227,19 @@ test('el retaceo incluye cada línea de su compra una sola vez', function () {
     expect((float) $cantidades[$segunda->id_purchase_detail])->toBe(4.0);
 });
 
-test('un retaceo aplicado es definitivo', function () {
+// Solo vuelve a borrador mientras sus lotes sigan por ubicar (ver InventoryTest)
+test('un retaceo aplicado no se cancela ni vuelve a liquidado', function () {
     $e = escenarioCompras();
     $retaceo = Retaceo::create([
         'id_supplier' => $e->supplier->id_supplier, 'id_purchase' => $e->purchase->id_purchase,
         'retaceo_date' => now(), 'status' => 'applied',
     ]);
 
-    $this->actingAs($e->admin)
-        ->patch(route('retaceos.updateStatus', $retaceo), ['status' => 'draft'])
-        ->assertSessionHas('error');
+    foreach (['cancelled', 'calculated'] as $estado) {
+        $this->actingAs($e->admin)
+            ->patch(route('retaceos.updateStatus', $retaceo), ['status' => $estado])
+            ->assertSessionHas('error');
+    }
 
     expect($retaceo->fresh()->status)->toBe('applied');
 });

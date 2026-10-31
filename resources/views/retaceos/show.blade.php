@@ -20,6 +20,12 @@
     $factorIncremento = $retaceo->total_fob > 0 ? (($gastosTotales / $retaceo->total_fob) * 100) : 0;
     // Porcentaje de cada gasto sobre el FOB, como en la hoja de retaceo
     $pct = fn ($total) => number_format($retaceo->total_fob > 0 ? $total / $retaceo->total_fob * 100 : 0, 2).'%';
+
+    // Lotes que creó al aplicarse; mientras todos sigan por ubicar, se puede revertir
+    $lotes = $retaceo->status === 'applied'
+        ? $retaceo->details->flatMap(fn ($d) => $d->purchaseDetail?->inventoryLots ?? collect())->where('status', '!=', 'cancelled')->values()
+        : collect();
+    $revertible = $retaceo->status === 'applied' && $lotes->every(fn ($lot) => $lot->isPending());
 @endphp
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
@@ -58,9 +64,13 @@
                         <span>📊 Marcar Liquidado</span>
                     </button>
                 @elseif($retaceo->status === 'calculated')
-                    <button type="button" onclick="openRetaceoStatusModal('{{ route('retaceos.updateStatus', $retaceo->id_retaceo) }}', 'applied', '¿Aplicar Retaceo a Inventario?', 'Se considerará el costo liquidado como el costo real definitivo de entrada para los productos.', 'Sí, aplicar a inventario')" class="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
+                    <button type="button" onclick="openRetaceoStatusModal('{{ route('retaceos.updateStatus', $retaceo->id_retaceo) }}', 'applied', '¿Aplicar Retaceo a Inventario?', 'El costo liquidado será el costo de entrada de los productos y se crearán los lotes de la compra, por ubicar en bodega.', 'Sí, aplicar a inventario')" class="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         <span>Aplicar a Inventario</span>
+                    </button>
+                @elseif($revertible)
+                    <button type="button" onclick="openRetaceoStatusModal('{{ route('retaceos.updateStatus', $retaceo->id_retaceo) }}', 'draft', '¿Revertir el retaceo a borrador?', 'Se anularán sus lotes por ubicar (las viñetas impresas dejan de valer) y podrá corregir el retaceo antes de aplicarlo de nuevo.', 'Sí, revertir')" class="px-5 py-2.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-md" title="Solo mientras ningún lote se haya colocado en bodega">
+                        <span>↩ Revertir a borrador</span>
                     </button>
                 @endif
 
@@ -93,6 +103,19 @@
         </div>
     </div>
 
+    {{-- Lotes que creó el retaceo: se ubican en bodega y al confirmar entran al inventario --}}
+    @if($lotes->isNotEmpty())
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs px-5 py-4 flex flex-col md:flex-row md:items-center gap-3">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lotes de la compra</span>
+            <div class="flex flex-wrap gap-2">
+                @foreach($lotes as $lot)
+                    <a href="{{ route('inventory.lots.show', $lot->id_inventory_lot) }}" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold hover:underline {{ $lot->isPending() ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300' : 'bg-teal-50 text-[#005e66] dark:bg-teal-950 dark:text-teal-300' }}">
+                        {{ $lot->lot_code }} · {{ $lot->statusLabel() }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <!-- Tarjetas de Información de Importación -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -261,6 +284,13 @@
                     <span>Gastos Aduanales / Seguro:</span>
                     <span class="font-mono font-bold">${{ number_format($retaceo->total_expenses, 2) }}</span>
                 </div>
+                {{-- Cada gasto con su tipo --}}
+                @foreach($retaceo->expenses as $gasto)
+                    <div class="flex justify-between gap-3 pl-3 text-xs text-slate-500 dark:text-slate-400">
+                        <span>{{ $gasto->expenseType?->name }}@if($gasto->description) · {{ $gasto->description }}@endif</span>
+                        <span class="font-mono">${{ number_format((float) $gasto->amount, 2) }}</span>
+                    </div>
+                @endforeach
                 <div class="flex justify-between text-slate-600 dark:text-slate-400">
                     <span>Aranceles DAI:</span>
                     <span class="font-mono font-bold">${{ number_format($retaceo->total_dai, 2) }}</span>

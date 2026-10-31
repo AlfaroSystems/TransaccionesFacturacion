@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\InventoryLot;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
@@ -39,7 +40,6 @@ class PurchaseService
 
     public function __construct(
         private readonly ProductCostService $costos = new ProductCostService,
-        private readonly InventoryService $inventario = new InventoryService,
     ) {}
 
     /**
@@ -119,11 +119,9 @@ class PurchaseService
             // Actualizar estado de la Orden de Compra de acuerdo a las cantidades recibidas
             $this->actualizarEstadoOrden($order);
 
-            // Una compra que nace completada fija el último costo de sus productos
+            // Una compra que nace completada fija el último costo de sus productos. Su mercadería
+            // entra al inventario después, cuando se aplique su retaceo (ver InventoryService)
             $this->costos->actualizarDesdeCompra($purchase);
-
-            // Recibida o completada: su mercadería entra al inventario
-            $this->inventario->sincronizarCompra($purchase);
 
             return $purchase;
         });
@@ -202,6 +200,15 @@ class PurchaseService
                 throw new InvalidArgumentException('No se puede anular una compra con un retaceo activo: cancele primero el retaceo.');
             }
 
+            // Sus lotes los anula revertir el retaceo; uno que quede (de antes de este flujo) ya
+            // entró al inventario
+            if ($nuevoEstado === 'cancelled' && InventoryLot::queryAllBranches()
+                ->whereIn('id_purchase_detail', $purchase->details()->select('id_purchase_detail'))
+                ->where('status', '!=', InventoryLot::STATUS_CANCELLED)
+                ->exists()) {
+                throw new InvalidArgumentException('No se puede anular una compra cuya mercadería ya tiene lotes de inventario.');
+            }
+
             // Al confirmar un borrador, otras compras pudieron recibirse después de crearlo
             $confirma = in_array($nuevoEstado, Purchase::RECEIVED_STATUSES, true)
                 && ! in_array($purchase->status, Purchase::RECEIVED_STATUSES, true);
@@ -233,9 +240,6 @@ class PurchaseService
             if ($nuevoEstado === 'completed') {
                 $this->costos->actualizarDesdeCompra($purchase);
             }
-
-            // Al recibirla entra al inventario; al anularla, sale
-            $this->inventario->sincronizarCompra($purchase);
         });
     }
 
@@ -297,8 +301,6 @@ class PurchaseService
                 'tax_amount' => $taxAmount,
                 'total' => $total,
                 'notes' => $item['notes'] ?? null,
-                // Ubicación de la bodega donde se guarda lo recibido (entra ahí al inventario)
-                'id_location' => $item['id_location'] ?? null,
             ]);
         }
     }

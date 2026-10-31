@@ -31,7 +31,6 @@ class PurchaseDetail extends Model
         'total',
         'notes',
         'unit_cost',
-        'id_location',
     ];
 
     protected $casts = [
@@ -76,16 +75,7 @@ class PurchaseDetail extends Model
     }
 
     /**
-     * Ubicación de la bodega donde se guarda lo recibido.
-     */
-    public function location(): BelongsTo
-    {
-        return $this->belongsTo(Location::class, 'id_location', 'id_location')
-            ->withoutGlobalScope(BranchScope::class);
-    }
-
-    /**
-     * Lotes con que entró al inventario (uno; el anulado queda como historial).
+     * Lotes de la línea: el que crea el retaceo aplicado (los anulados quedan como historial).
      */
     public function inventoryLots(): HasMany
     {

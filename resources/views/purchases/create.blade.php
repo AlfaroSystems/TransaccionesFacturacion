@@ -31,21 +31,6 @@
         </a>
     </div>
 
-    <!-- Alert de Errores -->
-    @if ($errors->any())
-        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
-            <div class="flex items-center gap-2 font-bold text-sm text-rose-800 dark:text-rose-200">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Por favor revise los errores en el formulario:</span>
-            </div>
-            <ul class="list-disc pl-8 space-y-0.5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form id="purchaseForm" action="{{ $isEdit ? route('purchases.update', $purchase->id_purchase) : route('purchases.store') }}" method="POST" class="space-y-6">
         @csrf
         @if($isEdit)
@@ -193,7 +178,6 @@
                             <th class="py-3 px-3 w-1/4">Producto</th>
                             <th class="py-3 px-3 text-center">Cant. Pedida</th>
                             <th class="py-3 px-3 text-center w-28">Cant. Recibida *</th>
-                            <th class="py-3 px-3 w-36" title="Dónde se guarda en la bodega destino; ahí entra al inventario">Ubicación</th>
                             <th class="py-3 px-3 w-28">Precio Unit. *</th>
                             <th class="py-3 px-3 w-24">Desc. ($)</th>
                             <th class="py-3 px-3 w-20">% IVA</th>
@@ -220,8 +204,6 @@
                                     <td class="py-3 px-3">
                                         <input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity_received]" value="{{ old('details.'.$index.'.quantity_received', (float)$detail->quantity_received) }}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input">
                                     </td>
-                                    {{-- El selector de ubicación se arma con las de la bodega (ver _locations) --}}
-                                    <td class="py-3 px-3 location-cell" data-index="{{ $index }}" data-product="{{ $detail->id_product }}" data-selected="{{ old('details.'.$index.'.id_location', $detail->id_location) }}"></td>
                                     <td class="py-3 px-3">
                                         <input type="number" step="0.0001" min="0" name="details[{{ $index }}][unit_price]" value="{{ old('details.'.$index.'.unit_price', (float)$detail->unit_price) }}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input">
                                     </td>
@@ -238,7 +220,7 @@
                             @endforeach
                         @else
                             <tr id="emptyRow">
-                                <td colspan="10" class="py-8 text-center text-slate-400 dark:text-slate-500">
+                                <td colspan="9" class="py-8 text-center text-slate-400 dark:text-slate-500">
                                     Seleccione una orden de compra en la parte superior para cargar automáticamente los productos.
                                 </td>
                             </tr>
@@ -282,21 +264,10 @@
     </form>
 </div>
 
-@include('purchases._locations')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const orderSelect = document.getElementById('orderSelect');
         const itemsBody   = document.getElementById('itemsBody');
-        const warehouseSelect = document.getElementById('id_warehouse');
-
-        // Líneas de la compra en edición: su ubicación con las de la bodega
-        document.querySelectorAll('.location-cell').forEach(cell => {
-            cell.innerHTML = purchaseLocationSelect(cell.dataset.index, warehouseSelect.value, cell.dataset.product, cell.dataset.selected);
-        });
-
-        warehouseSelect.addEventListener('change', function () {
-            refreshPurchaseLocations(itemsBody, this.value);
-        });
 
         // Autocargar si ya hay una orden seleccionada
         if (orderSelect && orderSelect.value) {
@@ -308,14 +279,14 @@
                 if (this.value) {
                     cargarOrden(this.value);
                 } else {
-                    itemsBody.innerHTML = '<tr id="emptyRow"><td colspan="10" class="py-8 text-center text-slate-400">Seleccione una orden de compra para cargar productos.</td></tr>';
+                    itemsBody.innerHTML = '<tr id="emptyRow"><td colspan="9" class="py-8 text-center text-slate-400">Seleccione una orden de compra para cargar productos.</td></tr>';
                     calcularTotales();
                 }
             });
         }
 
         function cargarOrden(orderId) {
-            itemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">Cargando productos de la orden...</td></tr>';
+            itemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Cargando productos de la orden...</td></tr>';
 
             fetch(`/purchases/order-data/${orderId}`)
                 .then(res => res.json())
@@ -328,7 +299,7 @@
 
                     itemsBody.innerHTML = '';
                     if (!data.details || data.details.length === 0) {
-                        itemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-slate-400">La orden no tiene productos registrados.</td></tr>';
+                        itemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">La orden no tiene productos registrados.</td></tr>';
                         return;
                     }
 
@@ -354,9 +325,6 @@
                                 <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity_received]" value="${d.pending_quantity > 0 ? d.pending_quantity : d.quantity_ordered}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                ${purchaseLocationSelect(idx, document.getElementById('id_warehouse').value, d.id_product, null)}
-                            </td>
-                            <td class="py-3 px-3">
                                 <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${d.unit_price}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
@@ -377,7 +345,7 @@
                 })
                 .catch(err => {
                     console.error('Error al cargar datos de orden:', err);
-                    itemsBody.innerHTML = '<tr><td colspan="10" class="py-8 text-center text-rose-500">Error al cargar la orden de compra. Intente nuevamente.</td></tr>';
+                    itemsBody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-rose-500">Error al cargar la orden de compra. Intente nuevamente.</td></tr>';
                 });
         }
 

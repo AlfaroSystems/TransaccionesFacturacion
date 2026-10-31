@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryCostAverage;
+use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
+use App\Models\InventoryTransfer;
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Warehouse;
@@ -33,6 +35,13 @@ class InventoryController extends Controller
 
         $warehouses = $this->bodegasVisibles();
         $showCompany = BranchAccess::isUnrestricted();
+
+        // Lo que ya llegó pero no es existencia hasta que se coloque
+        $porUbicar = InventoryLot::query()->where('status', InventoryLot::STATUS_PENDING)->count();
+        if ($porUbicar > 0) {
+            session()->now('info', $porUbicar.($porUbicar === 1 ? ' lote espera' : ' lotes esperan')
+                .' su ubicación en bodega (Inventario → Lotes): no cuentan como existencia hasta confirmar su colocación.');
+        }
 
         if ($vista === 'productos') {
             $query = InventoryCostAverage::query()
@@ -78,7 +87,8 @@ class InventoryController extends Controller
     }
 
     /**
-     * Kardex: todos los movimientos, del más reciente al más antiguo.
+     * Kardex: todos los movimientos, del más reciente al más antiguo, con el saldo y el costo
+     * promedio del producto después de cada uno.
      */
     public function movements(Request $request)
     {
@@ -88,9 +98,19 @@ class InventoryController extends Controller
         $warehouseId = $request->integer('id_warehouse') ?: null;
         $type = array_key_exists((string) $request->input('type'), InventoryMovement::TYPE_LABELS) ? $request->input('type') : null;
 
-        $movements = InventoryMovement::query()
-            ->with(['product', 'lot', 'warehouse', 'location', 'user'])
+        // Saldo acumulado de cada producto en las bodegas visibles (o en la elegida). Se calcula
+        // antes de los demás filtros: un movimiento filtrado por fecha o tipo muestra el saldo
+        // que dejó, contando los anteriores
+        $orden = 'PARTITION BY id_product ORDER BY movement_date, id_inventory_movement';
+        $conSaldo = InventoryMovement::query()
             ->when($warehouseId, fn ($q) => $q->where('id_warehouse', $warehouseId))
+            ->select('inventory_movements.*')
+            ->selectRaw("SUM(quantity_in - quantity_out) OVER ({$orden}) AS running_quantity")
+            ->selectRaw('SUM('.InventoryMovement::signedValueSql().") OVER ({$orden}) AS running_value");
+
+        $movements = InventoryMovement::queryAllBranches()
+            ->fromSub($conSaldo, 'inventory_movements')
+            ->with(['product', 'lot', 'warehouse', 'location', 'user'])
             ->when($type, fn ($q) => $q->where('movement_type', $type))
             ->when($this->fechaDelFiltro($request, 'date_from'), fn ($q, $desde) => $q->whereDate('movement_date', '>=', $desde))
             ->when($this->fechaDelFiltro($request, 'date_to'), fn ($q, $hasta) => $q->whereDate('movement_date', '<=', $hasta))
@@ -109,9 +129,16 @@ class InventoryController extends Controller
                 ->pluck('reference_id'))
             ->pluck('purchase_code', 'id_purchase');
 
+        // Y del traslado, en los movimientos de traslados
+        $transferCodes = InventoryTransfer::queryAllBranches()
+            ->whereIn('id_inventory_transfer', $movements->getCollection()
+                ->where('reference_type', InventoryMovement::REFERENCE_TRANSFER)
+                ->pluck('reference_id'))
+            ->pluck('transfer_code', 'id_inventory_transfer');
+
         $warehouses = $this->bodegasVisibles();
 
-        return view('inventory.movements', compact('movements', 'purchaseCodes', 'warehouses', 'search', 'warehouseId', 'type'));
+        return view('inventory.movements', compact('movements', 'purchaseCodes', 'transferCodes', 'warehouses', 'search', 'warehouseId', 'type'));
     }
 
     /**

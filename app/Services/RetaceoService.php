@@ -122,7 +122,7 @@ class RetaceoService
             }
 
             $totalFreight = (float) ($validated['total_freight'] ?? 0);
-            $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
+            $totalExpenses = $this->totalDeGastos($validated['expenses'] ?? []);
             $totalDai = (float) ($validated['total_dai'] ?? 0);
 
             $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses, $totalDai);
@@ -161,10 +161,13 @@ class RetaceoService
                 ]);
             }
 
-            // Un retaceo que nace aplicado fija el costo de los productos de su compra
+            $this->guardarGastos($retaceo, $validated['expenses'] ?? []);
+
+            // Un retaceo que nace aplicado fija el costo de los productos de su compra y crea
+            // sus lotes por ubicar
             if ($retaceo->status === 'applied') {
                 $this->costos->actualizarDesdeCompra($purchase);
-                $this->inventario->sincronizarCompra($purchase);
+                $this->inventario->crearLotes($purchase);
             }
 
             return $retaceo;
@@ -183,7 +186,7 @@ class RetaceoService
             }
 
             $totalFreight = (float) ($validated['total_freight'] ?? 0);
-            $totalExpenses = (float) ($validated['total_expenses'] ?? 0);
+            $totalExpenses = $this->totalDeGastos($validated['expenses'] ?? []);
             $totalDai = (float) ($validated['total_dai'] ?? 0);
 
             $prorrateo = $this->calcularProrrateo($validated['details'], $totalFreight, $totalExpenses, $totalDai);
@@ -221,8 +224,35 @@ class RetaceoService
                 ]);
             }
 
+            $retaceo->expenses()->get()->each->delete();
+            $this->guardarGastos($retaceo, $validated['expenses'] ?? []);
+
             return $retaceo;
         });
+    }
+
+    /**
+     * Total de otros gastos aduanales / seguro: la suma de sus líneas.
+     *
+     * @param  array<int, array{amount: numeric}>  $gastos
+     */
+    private function totalDeGastos(array $gastos): float
+    {
+        return round(array_sum(array_map(fn ($g) => (float) $g['amount'], $gastos)), 4);
+    }
+
+    /**
+     * @param  array<int, array{id_expense_type: int, description?: ?string, amount: numeric}>  $gastos
+     */
+    private function guardarGastos(Retaceo $retaceo, array $gastos): void
+    {
+        foreach ($gastos as $gasto) {
+            $retaceo->expenses()->create([
+                'id_expense_type' => $gasto['id_expense_type'],
+                'description' => $gasto['description'] ?? null,
+                'amount' => round((float) $gasto['amount'], 4),
+            ]);
+        }
     }
 
     /**
@@ -230,11 +260,13 @@ class RetaceoService
      */
     public function cambiarEstado(Retaceo $retaceo, string $nuevoEstado): void
     {
-        // Borrador → Liquidado → Aplicado; se cancela antes de aplicarlo. Aplicado es final:
-        // los costos ya se liquidaron y no deben cambiar
+        // Borrador → Liquidado → Aplicado; se cancela antes de aplicarlo. Un aplicado vuelve a
+        // borrador (para corregirlo) solo mientras sus lotes sigan por ubicar: después, sus
+        // costos ya entraron al inventario y no deben cambiar
         $transitions = [
             'draft' => ['calculated', 'cancelled'],
             'calculated' => ['applied', 'cancelled'],
+            'applied' => ['draft'],
         ];
 
         DB::transaction(function () use ($retaceo, $nuevoEstado, $transitions) {
@@ -253,13 +285,24 @@ class RetaceoService
                 ));
             }
 
+            $revierte = $retaceo->status === 'applied';
+
+            // Antes de cambiarlo: si un lote ya se colocó, no se revierte
+            if ($revierte) {
+                $this->inventario->anularLotes($purchase);
+            }
+
             $retaceo->update(['status' => $nuevoEstado]);
 
-            // Al aplicarlo, su costo puesto en bodega pasa a ser el costo de los productos y
-            // de los lotes que ya entraron al inventario
-            if ($nuevoEstado === 'applied') {
+            // Al aplicarlo, su costo puesto en bodega pasa a ser el costo de los productos y de
+            // los lotes de la compra, que se crean por ubicar. Al revertirlo, una compra
+            // completada vuelve al costo de su factura
+            if ($nuevoEstado === 'applied' || $revierte) {
                 $this->costos->actualizarDesdeCompra($purchase);
-                $this->inventario->sincronizarCompra($purchase);
+            }
+
+            if ($nuevoEstado === 'applied') {
+                $this->inventario->crearLotes($purchase);
             }
         });
     }

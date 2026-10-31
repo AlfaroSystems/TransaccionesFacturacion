@@ -24,13 +24,35 @@ class InventoryMovement extends Model
 
     public const TYPE_COST_ADJUSTMENT = 'cost_adjustment';
 
+    public const TYPE_TRANSFER_OUT = 'transfer_out';
+
+    public const TYPE_TRANSFER_IN = 'transfer_in';
+
+    public const TYPE_TRANSFER_LOSS = 'transfer_loss';
+
+    public const TYPE_RELOCATION_OUT = 'relocation_out';
+
+    public const TYPE_RELOCATION_IN = 'relocation_in';
+
+    // Anulación de compra y ajuste de costo quedan para el historial: los lotes ya nacen con el
+    // costo del retaceo y una compra con lotes no se anula
     public const TYPE_LABELS = [
         self::TYPE_PURCHASE_RECEIPT => 'Entrada por compra',
         self::TYPE_PURCHASE_CANCEL => 'Anulación de compra',
         self::TYPE_COST_ADJUSTMENT => 'Ajuste de costo',
+        self::TYPE_TRANSFER_OUT => 'Salida por traslado',
+        self::TYPE_TRANSFER_IN => 'Entrada por traslado',
+        self::TYPE_TRANSFER_LOSS => 'Merma en traslado',
+        self::TYPE_RELOCATION_OUT => 'Cambio de ubicación (sale)',
+        self::TYPE_RELOCATION_IN => 'Cambio de ubicación (entra)',
     ];
 
     public const REFERENCE_PURCHASE = 'purchase';
+
+    public const REFERENCE_TRANSFER = 'transfer';
+
+    // Los cambios de ubicación no tienen documento: el par salida/entrada se reconoce por el lote
+    public const REFERENCE_RELOCATION = 'relocation';
 
     // Movimientos de las bodegas visibles: las de la sucursal del usuario, o las de toda su
     // empresa para el departamento de compras

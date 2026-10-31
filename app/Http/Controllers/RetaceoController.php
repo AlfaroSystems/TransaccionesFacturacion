@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\ExpenseType;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\Retaceo;
@@ -11,6 +12,7 @@ use App\Rules\Accessible;
 use App\Services\ProductCostService;
 use App\Services\RetaceoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
@@ -21,6 +23,20 @@ class RetaceoController extends Controller
         'details.*.id_purchase_detail.required' => 'Cada línea del retaceo debe ser una línea de la compra.',
         'details.*.id_purchase_detail.in' => 'Cada línea del retaceo debe ser una línea de la compra.',
         'details.*.id_purchase_detail.distinct' => 'Una línea de la compra aparece más de una vez en el retaceo.',
+    ];
+
+    /** Otros gastos aduanales / seguro: una línea por gasto, de un tipo de gasto activo */
+    private const REGLAS_GASTOS = [
+        'expenses' => ['nullable', 'array'],
+        'expenses.*.id_expense_type' => ['required', 'integer', 'exists:expense_types,id_expense_type,is_active,1'],
+        'expenses.*.description' => ['nullable', 'string', 'max:255'],
+        'expenses.*.amount' => ['required', 'numeric', 'min:0'],
+    ];
+
+    private const MENSAJES_GASTOS = [
+        'expenses.*.id_expense_type.required' => 'Elija el tipo de cada gasto.',
+        'expenses.*.id_expense_type.exists' => 'El tipo de gasto no existe o está inactivo.',
+        'expenses.*.amount.required' => 'Indique el monto de cada gasto.',
     ];
 
     public function __construct(private readonly RetaceoService $service) {}
@@ -68,6 +84,26 @@ class RetaceoController extends Controller
             }],
             'details.*.cost_fob' => ['required', 'numeric', 'min:0'],
         ];
+    }
+
+    /**
+     * Regla de la fecha de liquidación: no antes del día en que se recibió la compra.
+     */
+    private function fechaDesdeLaRecepcion(?Purchase $purchase): array
+    {
+        $recepcion = $purchase?->purchase_date;
+
+        return ['bail', 'required', 'date', function (string $attribute, mixed $value, \Closure $fail) use ($recepcion) {
+            if ($recepcion && Carbon::parse($value)->startOfDay()->lt($recepcion->copy()->startOfDay())) {
+                $fail('La fecha de liquidación no puede ser anterior a la recepción de la compra ('.$recepcion->format('d/m/Y').').');
+            }
+        }];
+    }
+
+    /** Tipos de gasto activos, para las líneas de otros gastos */
+    private function tiposDeGasto()
+    {
+        return ExpenseType::active()->orderBy('name')->get();
     }
 
     public function index(Request $request)
@@ -128,7 +164,7 @@ class RetaceoController extends Controller
             'totalCostAmount',
             'suppliers',
             'purchasesForModal'
-        ));
+        ) + ['expenseTypes' => $this->tiposDeGasto()]);
     }
 
     public function create(Request $request)
@@ -147,7 +183,7 @@ class RetaceoController extends Controller
         return view('retaceos.create', compact(
             'purchases',
             'suppliers'
-        ));
+        ) + ['expenseTypes' => $this->tiposDeGasto()]);
     }
 
     public function getPurchaseData($id)
@@ -169,14 +205,22 @@ class RetaceoController extends Controller
             'supplier_invoice_number' => $purchase->supplier_invoice_number,
             'supplier_invoice_date' => $purchase->supplier_invoice_date ? $purchase->supplier_invoice_date->format('Y-m-d') : null,
             'currency' => $purchase->currency,
+            // La liquidación no puede ser anterior a la recepción (ver fechaDesdeLaRecepcion)
+            'purchase_date' => $purchase->purchase_date?->format('Y-m-d\T00:00'),
             // Gastos de la orden marcados como costo que le tocan a esta compra, como sugerencia
             'suggested_expenses' => app(ProductCostService::class)->gastosDeLaCompra($purchase),
+            // Y uno por uno, para las líneas de gasto del retaceo
+            'suggested_expense_lines' => app(ProductCostService::class)->gastosSugeridos($purchase),
             'details' => $purchase->details->map(function ($d) {
                 $qty = (float) $d->quantity_received;
                 if ($qty <= 0) {
                     $qty = (float) $d->quantity_ordered;
                 }
-                $fob = $qty * (float) $d->unit_price;
+                // El valor de la línea en la factura: lo recibido menos su descuento, sin IVA (el
+                // mismo neto que usa ProductCostService para el costo de la compra)
+                $fob = $d->subtotal > 0
+                    ? max(0, (float) $d->subtotal - (float) $d->discount)
+                    : max(0, $qty * (float) $d->unit_price - (float) $d->discount);
 
                 return [
                     'id_purchase_detail' => $d->id_purchase_detail,
@@ -201,19 +245,19 @@ class RetaceoController extends Controller
             // compra bloqueada: aquí dos retaceos creados a la vez pasarían ambos
             'id_purchase' => ['required', new Accessible(Purchase::class)],
             'id_supplier' => ['required', 'exists:supliers,id_supplier'],
-            'retaceo_date' => ['required', 'date'],
+            'retaceo_date' => $this->fechaDesdeLaRecepcion(Purchase::find($request->integer('id_purchase'))),
             'origin_country' => ['nullable', 'string', 'max:100'],
             'import_invoice_number' => ['nullable', 'string', 'max:100'],
             'import_invoice_date' => ['nullable', 'date'],
             'import_policy_number' => ['nullable', 'string', 'max:100'],
             'import_policy_date' => ['nullable', 'date'],
             'total_freight' => ['nullable', 'numeric', 'min:0'],
-            'total_expenses' => ['nullable', 'numeric', 'min:0'],
+            ...self::REGLAS_GASTOS,
             'total_dai' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(['draft', 'calculated', 'applied'])],
             'notes' => ['nullable', 'string'],
             ...$this->reglasDeLineas($request, $request->integer('id_purchase')),
-        ], self::MENSAJES_LINEAS);
+        ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_GASTOS]);
 
         $retaceo = $this->service->crear($validated);
 
@@ -231,7 +275,8 @@ class RetaceoController extends Controller
             'supplier',
             'user',
             'details.product',
-            'details.purchaseDetail',
+            'details.purchaseDetail.inventoryLots',
+            'expenses.expenseType',
         ]);
 
         return view('retaceos.show', compact('retaceo'));
@@ -277,12 +322,14 @@ class RetaceoController extends Controller
             'supplier_name' => $retaceo->supplier?->name,
             'origin_country' => $retaceo->origin_country ?? '',
             'retaceo_date' => $retaceo->retaceo_date ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : '',
+            'purchase_date' => $retaceo->purchase?->purchase_date?->format('Y-m-d\T00:00'),
             'import_invoice_number' => $retaceo->import_invoice_number ?? '',
             'import_invoice_date' => $retaceo->import_invoice_date ? $retaceo->import_invoice_date->format('Y-m-d') : '',
             'import_policy_number' => $retaceo->import_policy_number ?? '',
             'import_policy_date' => $retaceo->import_policy_date ? $retaceo->import_policy_date->format('Y-m-d') : '',
             'total_freight' => (float) $retaceo->total_freight,
             'total_expenses' => (float) $retaceo->total_expenses,
+            'expenses' => $retaceo->lineasDeGastos(),
             'total_dai' => (float) $retaceo->total_dai,
             'status' => $retaceo->status,
             'notes' => $retaceo->notes ?? '',
@@ -318,7 +365,7 @@ class RetaceoController extends Controller
         $retaceo->load(['details.product', 'details.purchaseDetail', 'purchase']);
         $suppliers = Supplier::orderBy('name')->get();
 
-        return view('retaceos.create', compact('retaceo', 'suppliers'));
+        return view('retaceos.create', compact('retaceo', 'suppliers') + ['expenseTypes' => $this->tiposDeGasto()]);
     }
 
     public function update(Request $request, Retaceo $retaceo)
@@ -333,18 +380,18 @@ class RetaceoController extends Controller
 
         $validated = $request->validate([
             'id_supplier' => ['required', 'exists:supliers,id_supplier'],
-            'retaceo_date' => ['required', 'date'],
+            'retaceo_date' => $this->fechaDesdeLaRecepcion(Purchase::queryAllBranches()->find($retaceo->id_purchase)),
             'origin_country' => ['nullable', 'string', 'max:100'],
             'import_invoice_number' => ['nullable', 'string', 'max:100'],
             'import_invoice_date' => ['nullable', 'date'],
             'import_policy_number' => ['nullable', 'string', 'max:100'],
             'import_policy_date' => ['nullable', 'date'],
             'total_freight' => ['nullable', 'numeric', 'min:0'],
-            'total_expenses' => ['nullable', 'numeric', 'min:0'],
+            ...self::REGLAS_GASTOS,
             'total_dai' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
             ...$this->reglasDeLineas($request, $retaceo->id_purchase),
-        ], self::MENSAJES_LINEAS);
+        ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_GASTOS]);
 
         try {
             $this->service->actualizar($retaceo, $validated);
@@ -367,13 +414,21 @@ class RetaceoController extends Controller
             'status' => ['required', Rule::in(['draft', 'calculated', 'applied', 'cancelled'])],
         ]);
 
+        $revierte = $retaceo->status === 'applied';
+
         try {
             $this->service->cambiarEstado($retaceo, $request->status);
         } catch (\InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', 'Estado del retaceo actualizado correctamente.');
+        $mensaje = match (true) {
+            $request->status === 'applied' => 'Retaceo aplicado: los lotes de la compra quedaron por ubicar en bodega.',
+            $revierte => 'Retaceo revertido a borrador: sus lotes se anularon y se pueden corregir sus costos.',
+            default => 'Estado del retaceo actualizado correctamente.',
+        };
+
+        return back()->with('success', $mensaje);
     }
 
     public function destroy(Retaceo $retaceo)

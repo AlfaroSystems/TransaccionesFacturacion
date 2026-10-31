@@ -5,6 +5,8 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\District;
+use App\Models\InventoryLot;
+use App\Models\InventoryTransfer;
 use App\Models\Location;
 use App\Models\Municipality;
 use App\Models\Product;
@@ -75,13 +77,21 @@ function registrosParaPantallas(User $admin): array
     $retaceo = Retaceo::create([
         'id_supplier' => $supplier->id_supplier, 'id_purchase' => $purchase->id_purchase, 'retaceo_date' => now(), 'status' => 'draft',
     ]);
+    $bodegaDestino = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $whCat->id_warehouse_category, 'name' => 'Bodega destino']);
+    $transfer = InventoryTransfer::create([
+        'id_source_warehouse' => $warehouse->id_warehouse, 'id_destination_warehouse' => $bodegaDestino->id_warehouse, 'transfer_date' => now(),
+    ]);
+    $lot = InventoryLot::create([
+        'lot_code' => 'LOT-PANTALLAS', 'id_product' => $product->id_product, 'id_warehouse' => $warehouse->id_warehouse, 'received_at' => now(),
+        'quantity_received' => 5, 'unit_cost' => 10, 'total_cost' => 50, 'status' => InventoryLot::STATUS_PENDING,
+    ]);
 
     return [
         'branch' => $branch->id_branch, 'category' => $category->id_category, 'company' => $company->id_company, 'location' => $location->id_location,
         'product' => $product->id_product, 'purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
         'purchase_request' => $request->id_purchase_request, 'purchaseRequest' => $request->id_purchase_request,
         'purchase_order' => $order->id_purchase_order, 'purchase' => $purchase->id_purchase, 'retaceo' => $retaceo->id_retaceo,
-        'role' => $role->id_role, 'subcategory' => $sub->id_sub_category, 'supplier' => $supplier->id_supplier, 'unit' => $unit->id_unit,
+        'transfer' => $transfer->id_inventory_transfer, 'lot' => $lot->id_inventory_lot, 'role' => $role->id_role, 'subcategory' => $sub->id_sub_category, 'supplier' => $supplier->id_supplier, 'unit' => $unit->id_unit,
         'user' => $admin->id_user, 'warehouse_category' => $whCat->id_warehouse_category, 'warehouse' => $warehouse->id_warehouse,
     ];
 }

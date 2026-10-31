@@ -45,20 +45,6 @@
 
 
 
-    @if($errors->any())
-        <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
-            <div class="flex items-center gap-2 font-bold text-sm text-rose-800 dark:text-rose-200">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Revise los errores detectados en el formulario:</span>
-            </div>
-            <ul class="list-disc pl-8 space-y-0.5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
@@ -367,14 +353,10 @@
                     <div class="text-xs font-extrabold text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                         <span>⚓ Gastos Generales de Importación a Prorratear</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Flete Internacional ($) *</label>
                             <input type="number" step="0.0001" min="0" name="total_freight" id="modal_r_total_freight" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Otros Gastos Aduanales / Seguro ($) *</label>
-                            <input type="number" step="0.0001" min="0" name="total_expenses" id="modal_r_total_expenses" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total DAI / Aranceles de la Póliza ($)</label>
@@ -382,6 +364,8 @@
                         </div>
                     </div>
                 </div>
+
+                @include('retaceos._expenses', ['totalId' => 'modal_r_total_expenses', 'lineas' => old('expenses', [])])
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Notas u Observaciones</label>
@@ -528,13 +512,14 @@
         document.getElementById('modal_r_id_supplier').value           = '';
         document.getElementById('modal_r_origin_country').value        = '';
         document.getElementById('modal_r_retaceo_date').value          = new Date().toISOString().slice(0, 16);
+        document.getElementById('modal_r_retaceo_date').min            = '';
         document.getElementById('modal_r_status').value                = 'calculated';
         document.getElementById('modal_r_import_invoice_number').value = '';
         document.getElementById('modal_r_import_invoice_date').value   = '';
         document.getElementById('modal_r_import_policy_number').value  = '';
         document.getElementById('modal_r_import_policy_date').value    = '';
         document.getElementById('modal_r_total_freight').value         = '0.00';
-        document.getElementById('modal_r_total_expenses').value        = '0.00';
+        retaceoGastos.reemplazar([]);
         document.getElementById('modal_r_total_dai').value             = '0.00';
         document.getElementById('modal_r_notes').value                 = '';
 
@@ -576,13 +561,15 @@
                 document.getElementById('modal_r_id_supplier').value           = data.id_supplier || '';
                 document.getElementById('modal_r_origin_country').value        = data.origin_country || '';
                 document.getElementById('modal_r_retaceo_date').value          = data.retaceo_date || '';
+                // No antes de la recepción de la compra
+                document.getElementById('modal_r_retaceo_date').min            = data.purchase_date || '';
                 document.getElementById('modal_r_status').value                = data.status || 'draft';
                 document.getElementById('modal_r_import_invoice_number').value = data.import_invoice_number || '';
                 document.getElementById('modal_r_import_invoice_date').value   = data.import_invoice_date || '';
                 document.getElementById('modal_r_import_policy_number').value  = data.import_policy_number || '';
                 document.getElementById('modal_r_import_policy_date').value    = data.import_policy_date || '';
                 document.getElementById('modal_r_total_freight').value         = data.total_freight || 0;
-                document.getElementById('modal_r_total_expenses').value        = data.total_expenses || 0;
+                retaceoGastos.reemplazar(data.expenses || []);
                 document.getElementById('modal_r_total_dai').value             = data.total_dai || 0;
                 document.getElementById('modal_r_notes').value                 = data.notes || '';
 
@@ -619,14 +606,11 @@
                     if (data.origin_country) document.getElementById('modal_r_origin_country').value = data.origin_country;
                     if (data.supplier_invoice_number) document.getElementById('modal_r_import_invoice_number').value = data.supplier_invoice_number;
                     if (data.supplier_invoice_date) document.getElementById('modal_r_import_invoice_date').value = data.supplier_invoice_date;
+                    // La liquidación no puede ser anterior a la recepción de la compra
+                    document.getElementById('modal_r_retaceo_date').min = data.purchase_date || '';
 
                     // Gastos de la orden marcados como costo: se sugieren sin pisar lo que el usuario escribió
-                    const gastos = document.getElementById('modal_r_total_expenses');
-                    const actual = parseFloat(gastos.value) || 0;
-                    if (actual === 0 || actual === parseFloat(gastos.dataset.sugerido)) {
-                        gastos.value = data.suggested_expenses || 0;
-                        gastos.dataset.sugerido = data.suggested_expenses || 0;
-                    }
+                    retaceoGastos.sugerir(data.suggested_expense_lines || []);
 
                     renderizarDetallesRetaceoModal(data.details);
                 })

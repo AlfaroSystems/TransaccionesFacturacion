@@ -28,21 +28,6 @@
         </a>
     </div>
 
-    <!-- Alert de Errores de Validación -->
-    @if ($errors->any())
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl text-xs font-semibold space-y-1 shadow-xs">
-            <div class="flex items-center gap-2 font-bold text-sm text-rose-800">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Por favor corrija los errores en el formulario:</span>
-            </div>
-            <ul class="list-disc pl-8 space-y-0.5">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <form id="purchaseOrderForm" action="{{ $isEdit ? route('purchase_orders.update', $purchase_order->id_purchase_order) : route('purchase_orders.store') }}" method="POST" class="space-y-6">
         @csrf
         @if($isEdit)

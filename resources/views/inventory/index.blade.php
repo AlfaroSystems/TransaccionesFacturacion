@@ -18,7 +18,7 @@
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Existencias</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Existencias</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Lo que hay en bodega, por lote y ubicación, y el costo promedio de cada producto. Entra al recibir las compras.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Lo que hay en bodega, por lote y ubicación, y el costo promedio de cada producto. Entra al confirmar la colocación de cada lote.</p>
         </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('inventory.index', array_filter(['search' => $search, 'id_warehouse' => $warehouseId])) }}" class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all {{ $tabClass($vista === 'lotes') }}">Por lote y ubicación</a>
@@ -116,7 +116,7 @@
                         @empty
                             <tr>
                                 <td colspan="{{ $showCompany ? 5 : 4 }}" class="py-16 text-center text-slate-400 text-sm">
-                                    {{ $search ? 'No se encontraron productos con existencia para la búsqueda.' : 'Aún no hay existencias: entran al recibir las compras.' }}
+                                    {{ $search ? 'No se encontraron productos con existencia para la búsqueda.' : 'Aún no hay existencias: entran al confirmar la colocación de los lotes.' }}
                                 </td>
                             </tr>
                         @endforelse
@@ -144,6 +144,7 @@
                                 </td>
                                 <td class="py-4 px-6">
                                     <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 text-xs font-mono font-extrabold border border-teal-200 dark:border-teal-800">{{ $row->lot?->lot_code }}</span>
+                                    <a href="{{ route('inventory.lots.show', $row->id_inventory_lot) }}" class="block mt-1.5 text-[11px] font-bold text-slate-500 hover:text-[#005e66] dark:hover:text-teal-400">Ver lote →</a>
                                 </td>
                                 <td class="py-4 px-6">
                                     <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $row->warehouse?->name ?? 'N/A' }}</span>
@@ -161,7 +162,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="py-16 text-center text-slate-400 text-sm">
-                                    {{ ($search || $warehouseId) ? 'No se encontraron existencias para los filtros.' : 'Aún no hay existencias: entran al recibir las compras.' }}
+                                    {{ ($search || $warehouseId) ? 'No se encontraron existencias para los filtros.' : 'Aún no hay existencias: entran al confirmar la colocación de los lotes.' }}
                                 </td>
                             </tr>
                         @endforelse

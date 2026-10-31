@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
             'id', 'branch', 'category', 'company', 'expense_type', 'image', 'location', 'product',
             'purchase', 'purchase_order', 'purchase_quotation', 'purchase_quotation_request',
             'purchaseQuotationRequest', 'purchase_request', 'purchaseRequest', 'retaceo', 'role',
-            'subcategory', 'supplier', 'unit', 'user', 'warehouse', 'warehouse_category',
+            'subcategory', 'supplier', 'unit', 'user', 'warehouse', 'warehouse_category', 'transfer', 'lot', 'print',
         ], '[0-9]+'));
     }
 }

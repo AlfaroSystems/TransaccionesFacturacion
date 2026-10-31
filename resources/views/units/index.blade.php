@@ -2,27 +2,6 @@
 @section('title', 'Unidades de Medida')
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    {{-- ERRORES DE VALIDACIÓN --}}
-    @if($errors->any())
-        <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 shadow-xs">
-            <div class="flex items-center gap-3 mb-2">
-                <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77-1.333.192-3 1.732-3z" />
-                </svg>
-                <span class="font-bold text-sm">
-                    Se encontraron errores
-                </span>
-            </div>
-            <ul class="list-disc list-inside text-sm text-rose-600 ml-8">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     {{-- ENCABEZADO --}}
     <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
