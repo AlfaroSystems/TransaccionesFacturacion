@@ -100,8 +100,8 @@
                         @if($company->nit || $company->nrc)
                             <p><strong>NIT/NRC:</strong> {{ $company->nit }} / {{ $company->nrc }}</p>
                         @endif
-                        @if($company->addres)
-                            <p><strong>Dirección:</strong> {{ $company->addres }}</p>
+                        @if($company->address)
+                            <p><strong>Dirección:</strong> {{ $company->address }}</p>
                         @endif
                         @if($company->phone)
                             <p><strong>Teléfono:</strong> {{ $company->phone }}</p>

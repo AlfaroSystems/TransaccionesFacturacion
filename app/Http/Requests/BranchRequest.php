@@ -29,7 +29,7 @@ class BranchRequest extends FormRequest
             // Solo empresas visibles para el usuario (la suya, si no es administrador)
             'id_company' => ['required', new Accessible(Company::class)],
             'name' => 'required|string|max:255',
-            'addres' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
             'id_department' => 'nullable|exists:departments,id_department',
             'id_municipality' => 'nullable|exists:municipalities,id_municipality',
             'id_district' => 'nullable|exists:districts,id_district',

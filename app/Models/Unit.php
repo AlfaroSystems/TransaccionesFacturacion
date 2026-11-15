@@ -40,7 +40,7 @@ class Unit extends Model
      */
     public function purchaseProducts(): HasMany
     {
-        return $this->hasMany(Product::class, 'purchase_unit');
+        return $this->hasMany(Product::class, 'id_purchase_unit');
     }
 
     /**
@@ -48,6 +48,6 @@ class Unit extends Model
      */
     public function saleProducts(): HasMany
     {
-        return $this->hasMany(Product::class, 'sale_unit');
+        return $this->hasMany(Product::class, 'id_sale_unit');
     }
 }

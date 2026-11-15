@@ -270,7 +270,7 @@ class PurchaseController extends Controller
 
         $validated = $request->validate([
             'id_purchase_order' => ['required', new Accessible(PurchaseOrder::class)],
-            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_warehouse' => ['required', Rule::in($bodegas->all())],
             'purchase_date' => ['required', 'date'],
             'supplier_invoice_number' => ['nullable', 'string', 'max:100'],
@@ -435,7 +435,7 @@ class PurchaseController extends Controller
         $this->elegirBodegaPorDefecto($request, $bodegas, $purchase->id_warehouse);
 
         $validated = $request->validate([
-            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_warehouse' => ['required', Rule::in($bodegas->all())],
             'purchase_date' => ['required', 'date'],
             'supplier_invoice_number' => ['nullable', 'string', 'max:100'],

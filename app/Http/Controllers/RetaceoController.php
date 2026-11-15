@@ -244,7 +244,7 @@ class RetaceoController extends Controller
             // Que esté recibida y sin otro retaceo activo lo revisa RetaceoService::crear con la
             // compra bloqueada: aquí dos retaceos creados a la vez pasarían ambos
             'id_purchase' => ['required', new Accessible(Purchase::class)],
-            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'retaceo_date' => $this->fechaDesdeLaRecepcion(Purchase::find($request->integer('id_purchase'))),
             'origin_country' => ['nullable', 'string', 'max:100'],
             'import_invoice_number' => ['nullable', 'string', 'max:100'],
@@ -379,7 +379,7 @@ class RetaceoController extends Controller
         }
 
         $validated = $request->validate([
-            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'retaceo_date' => $this->fechaDesdeLaRecepcion(Purchase::queryAllBranches()->find($retaceo->id_purchase)),
             'origin_country' => ['nullable', 'string', 'max:100'],
             'import_invoice_number' => ['nullable', 'string', 'max:100'],

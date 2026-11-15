@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class SupplierContact extends Model
 {
     // Nombres de tabla y llave según el diagrama del sistema
-    protected $table = 'supliers_contacts';
+    protected $table = 'supplier_contacts';
 
-    protected $primaryKey = 'id_suplier_contact';
+    protected $primaryKey = 'id_supplier_contact';
 
     protected $fillable = [
         'id_supplier',

@@ -286,7 +286,7 @@ test('solo el administrador puede marcar la sucursal del departamento de compras
     $e = flujoEscenario();
     $gerente = flujoUsuario($e->sucursalA, ['branches.ver', 'branches.editar']);
 
-    $datos = ['id_company' => $e->sucursalA->id_company, 'name' => $e->sucursalA->name, 'addres' => 'Dirección', 'is_active' => 1, 'is_purchasing_department' => 1];
+    $datos = ['id_company' => $e->sucursalA->id_company, 'name' => $e->sucursalA->name, 'address' => 'Dirección', 'is_active' => 1, 'is_purchasing_department' => 1];
 
     $this->actingAs($gerente)->put(route('branches.update', $e->sucursalA), $datos)->assertSessionHasErrors('is_purchasing_department');
     expect($e->sucursalA->fresh()->is_purchasing_department)->toBeFalse();
@@ -356,7 +356,7 @@ test('compras ve las sucursales y bodegas de su empresa, pero solo modifica las 
         ->not->toContain($e->bodegaOtraEmpresa->id_warehouse);
 
     // No puede modificar ni crear en otra sucursal
-    $this->put(route('branches.update', $e->sucursalA), ['id_company' => $e->sucursalA->id_company, 'name' => 'Cambiada', 'addres' => 'x'])->assertNotFound();
+    $this->put(route('branches.update', $e->sucursalA), ['id_company' => $e->sucursalA->id_company, 'name' => 'Cambiada', 'address' => 'x'])->assertNotFound();
     $this->delete(route('warehouses.destroy', $e->bodegaA->id_warehouse))->assertNotFound();
     $this->post(route('warehouses.store'), [
         'id_branch' => $e->sucursalA->id_branch, 'id_warehouse_category' => $e->bodegaA->id_warehouse_category, 'name' => 'Bodega ajena',

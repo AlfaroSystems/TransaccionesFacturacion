@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -35,8 +34,8 @@ class Product extends Model
         'description',
         'id_category',
         'id_sub_category',
-        'purchase_unit',
-        'sale_unit',
+        'id_purchase_unit',
+        'id_sale_unit',
         'is_active',
     ];
 
@@ -156,7 +155,7 @@ class Product extends Model
      */
     public function purchaseUnit(): BelongsTo
     {
-        return $this->belongsTo(Unit::class, 'purchase_unit');
+        return $this->belongsTo(Unit::class, 'id_purchase_unit');
     }
 
     /**
@@ -164,7 +163,7 @@ class Product extends Model
      */
     public function saleUnit(): BelongsTo
     {
-        return $this->belongsTo(Unit::class, 'sale_unit');
+        return $this->belongsTo(Unit::class, 'id_sale_unit');
     }
 
     /**
@@ -173,16 +172,6 @@ class Product extends Model
     public function lastCostPurchaseDetail(): BelongsTo
     {
         return $this->belongsTo(PurchaseDetail::class, 'id_last_cost_purchase_detail', 'id_purchase_detail');
-    }
-
-    /**
-     * Relación con Ubicaciones en bodega (Location).
-     */
-    public function locations(): BelongsToMany
-    {
-        return $this->belongsToMany(Location::class, 'product_location', 'product_id', 'location_id')
-            ->withPivot('quantity')
-            ->withTimestamps();
     }
 
     /* =========================================================================

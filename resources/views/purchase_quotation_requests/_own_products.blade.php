@@ -11,7 +11,7 @@
         'id' => $product->id_product,
         'name' => $product->name,
         'sku' => $product->sku,
-        'unit' => $product->purchase_unit,
+        'unit' => $product->id_purchase_unit,
     ])->values();
 @endphp
 <div class="space-y-2">

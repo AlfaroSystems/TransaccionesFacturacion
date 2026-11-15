@@ -9,7 +9,7 @@ class WarehouseCategory extends Model
 {
     use HasFactory;
 
-    protected $table = 'warehouse_category';
+    protected $table = 'warehouse_categories';
 
     protected $primaryKey = 'id_warehouse_category';
 

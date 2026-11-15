@@ -45,8 +45,8 @@ function registrosParaPantallas(User $admin): array
         'id_district' => $district->id_district,
     ];
 
-    $company = Company::create(['name' => 'Empresa Pantallas', 'addres' => 'Dirección', ...$geo]);
-    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Pantallas', 'addres' => 'Dirección', ...$geo]);
+    $company = Company::create(['name' => 'Empresa Pantallas', 'address' => 'Dirección', ...$geo]);
+    $branch = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal Pantallas', 'address' => 'Dirección', ...$geo]);
     $whCat = WarehouseCategory::create(['name' => 'General']);
     $warehouse = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $whCat->id_warehouse_category, 'name' => 'Bodega']);
     $location = Location::create(['id_warehouse' => $warehouse->id_warehouse, 'code' => 'LOC-'.Str::random(6), 'aisle' => 'A', 'capacity' => 1]);
@@ -55,7 +55,7 @@ function registrosParaPantallas(User $admin): array
     $unit = Unit::create(['name' => 'Unidad', 'abbreviation' => 'UND']);
     $product = Product::create([
         'name' => 'Producto', 'sku' => 'SKU-'.Str::random(6), 'id_category' => $category->id_category,
-        'id_sub_category' => $sub->id_sub_category, 'purchase_unit' => $unit->id_unit, 'sale_unit' => $unit->id_unit,
+        'id_sub_category' => $sub->id_sub_category, 'id_purchase_unit' => $unit->id_unit, 'id_sale_unit' => $unit->id_unit,
     ]);
     $supplier = Supplier::create(['name' => 'Proveedor', 'email' => 'p@example.com', 'country' => 'El Salvador', 'is_active' => true, ...$geo]);
     $supplier->contacts()->create(['full_name' => 'Contacto', 'phone' => '2222-2222', 'email' => 'c@example.com', 'is_active' => true]);

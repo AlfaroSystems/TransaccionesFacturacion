@@ -403,7 +403,7 @@
                         class="space-y-3">
                         @forelse($supplier->contacts as $index => $contact)
                             <div class="edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                <input type="hidden" name="contacts[{{ $index }}][id_suplier_contact]" value="{{ $contact->id_suplier_contact }}">
+                                <input type="hidden" name="contacts[{{ $index }}][id_supplier_contact]" value="{{ $contact->id_supplier_contact }}">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
                                         Nombre completo *
@@ -535,7 +535,7 @@
             row.className = 'edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100';
 
             row.innerHTML = `
-                <input type="hidden" name="contacts[${nextIndex}][id_suplier_contact]" value="">
+                <input type="hidden" name="contacts[${nextIndex}][id_supplier_contact]" value="">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nombre completo *</label>
                     <input type="text" name="contacts[${nextIndex}][full_name]" required placeholder="Nombre completo" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">

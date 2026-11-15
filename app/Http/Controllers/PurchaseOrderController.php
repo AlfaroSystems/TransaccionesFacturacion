@@ -217,7 +217,7 @@ class PurchaseOrderController extends Controller
         $anyCompanyBranch = BranchAccess::isPurchasingDepartment();
 
         return $request->validate([
-            'id_supplier' => ['required', 'exists:supliers,id_supplier'],
+            'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             // Sucursal, bodega y cotización deben ser visibles para el usuario; la bodega, de la sucursal elegida
             'id_branch' => ['required', $anyCompanyBranch
                 ? Rule::exists('branches', 'id_branch')->where('id_company', BranchAccess::companyId())

@@ -62,7 +62,7 @@
         document.getElementById('edit-web_site').value = company.web_site || '';
         document.getElementById('edit-phone').value = company.phone || '';
         document.getElementById('edit-email').value = company.email || '';
-        document.getElementById('edit-addres').value = company.addres || '';
+        document.getElementById('edit-address').value = company.address || '';
         document.getElementById('edit-is_active').checked = Boolean(company.is_active);
 
         if (editGeographicFilter) {

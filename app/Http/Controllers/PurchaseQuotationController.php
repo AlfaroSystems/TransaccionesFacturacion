@@ -24,7 +24,7 @@ class PurchaseQuotationController extends Controller
 
         $validated = $request->validate([
             'id_purchase_quotation_request' => ['required', new Accessible(PurchaseQuotationRequest::class)],
-            'id_supplier' => 'required|exists:supliers,id_supplier',
+            'id_supplier' => 'required|exists:suppliers,id_supplier',
             'quotation_date' => 'required|date',
             'valid_until' => 'nullable|date',
             'currency' => Moneda::regla(),

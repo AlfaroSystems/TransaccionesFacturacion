@@ -283,19 +283,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Compra</label>
-                                <select name="purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <select name="id_purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                                     <option value="">Selecciona unidad...</option>
                                     @foreach($units as $u)
-                                        <option value="{{ $u->id_unit }}" {{ old('purchase_unit', $product->purchase_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
+                                        <option value="{{ $u->id_unit }}" {{ old('id_purchase_unit', $product->id_purchase_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Venta</label>
-                                <select name="sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <select name="id_sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                                     <option value="">Selecciona unidad...</option>
                                     @foreach($units as $u)
-                                        <option value="{{ $u->id_unit }}" {{ old('sale_unit', $product->sale_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
+                                        <option value="{{ $u->id_unit }}" {{ old('id_sale_unit', $product->id_sale_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -446,7 +446,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Compra</label>
-                        <select name="purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <select name="id_purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Selecciona unidad...</option>
                             @foreach($units as $u)
                                 <option value="{{ $u->id_unit }}">{{ $u->name }}</option>
@@ -455,7 +455,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Venta</label>
-                        <select name="sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <select name="id_sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                             <option value="">Selecciona unidad...</option>
                             @foreach($units as $u)
                                 <option value="{{ $u->id_unit }}">{{ $u->name }}</option>

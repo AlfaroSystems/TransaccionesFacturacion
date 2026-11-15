@@ -77,8 +77,8 @@
                     @if($company?->nit || $company?->nrc)
                         <p><strong>NIT:</strong> {{ $company->nit ?? 'N/A' }} &nbsp;|&nbsp; <strong>NRC:</strong> {{ $company->nrc ?? 'N/A' }}</p>
                     @endif
-                    @if($company?->addres)
-                        <p><strong>Dirección:</strong> {{ $company->addres }}</p>
+                    @if($company?->address)
+                        <p><strong>Dirección:</strong> {{ $company->address }}</p>
                     @endif
                     <p>
                         <strong>Sucursal:</strong> {{ $retaceo->purchase?->branch?->name ?? 'Sucursal Central' }} 

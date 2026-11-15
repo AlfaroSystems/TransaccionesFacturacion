@@ -27,7 +27,7 @@ class Company extends Model
         'commercial_line_1',
         'commercial_line_2',
         'commercial_line_3',
-        'addres',
+        'address',
         'id_department',
         'id_municipality',
         'id_district',

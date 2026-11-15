@@ -69,9 +69,9 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.crear');
 
         $validated = $request->validate([
-            'code' => 'required|string|max:20|unique:supliers,code',
+            'code' => 'required|string|max:20|unique:suppliers,code',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:supliers,email',
+            'email' => 'required|email|max:255|unique:suppliers,email',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
             'id_department' => 'nullable|exists:departments,id_department',
@@ -158,9 +158,9 @@ class SupplierController extends Controller
         Gate::authorize('suppliers.editar');
 
         $validated = $request->validate([
-            'code' => 'required|string|max:20|unique:supliers,code,'.$supplier->id_supplier.',id_supplier',
+            'code' => 'required|string|max:20|unique:suppliers,code,'.$supplier->id_supplier.',id_supplier',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:supliers,email,'.$supplier->id_supplier.',id_supplier',
+            'email' => 'required|email|max:255|unique:suppliers,email,'.$supplier->id_supplier.',id_supplier',
             'phone' => 'nullable|string|max:20',
             'country' => 'required|string|max:100',
             'id_department' => 'nullable|exists:departments,id_department',
@@ -171,7 +171,7 @@ class SupplierController extends Controller
             'is_active' => 'nullable|boolean',
 
             'contacts' => 'required|array|min:1',
-            'contacts.*.id_suplier_contact' => 'nullable|integer|exists:supliers_contacts,id_suplier_contact',
+            'contacts.*.id_supplier_contact' => 'nullable|integer|exists:supplier_contacts,id_supplier_contact',
             'contacts.*.full_name' => 'required|string|max:255',
             'contacts.*.phone' => 'required|string|max:20',
             'contacts.*.email' => 'nullable|email|max:255',
@@ -200,10 +200,10 @@ class SupplierController extends Controller
             $contactIds = [];
 
             foreach ($validated['contacts'] as $contactData) {
-                if (! empty($contactData['id_suplier_contact'])) {
+                if (! empty($contactData['id_supplier_contact'])) {
                     // Contacto existente
                     $contact = $supplier->contacts()
-                        ->where('id_suplier_contact', $contactData['id_suplier_contact'])
+                        ->where('id_supplier_contact', $contactData['id_supplier_contact'])
                         ->first();
 
                     if (! $contact) {
@@ -217,7 +217,7 @@ class SupplierController extends Controller
                         'is_active' => isset($contactData['is_active']) ? (bool) $contactData['is_active'] : true,
                     ]);
 
-                    $contactIds[] = $contact->id_suplier_contact;
+                    $contactIds[] = $contact->id_supplier_contact;
                 } else {
                     // Contacto nuevo
                     $newContact = SupplierContact::create([
@@ -228,13 +228,13 @@ class SupplierController extends Controller
                         'is_active' => isset($contactData['is_active']) ? (bool) $contactData['is_active'] : true,
                     ]);
 
-                    $contactIds[] = $newContact->id_suplier_contact;
+                    $contactIds[] = $newContact->id_supplier_contact;
                 }
             }
 
             // 3. Eliminar contactos quitados del formulario (uno por uno, para la bitácora)
             $supplier->contacts()
-                ->whereNotIn('id_suplier_contact', $contactIds)
+                ->whereNotIn('id_supplier_contact', $contactIds)
                 ->get()
                 ->each->delete();
         });

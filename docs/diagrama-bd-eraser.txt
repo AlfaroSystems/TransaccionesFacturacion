@@ -1,0 +1,792 @@
+title Transacciones y Facturación
+
+// Seguridad y auditoría
+users [icon: user, color: blue] {
+  id_user int pk
+  username string
+  email string
+  email_verified_at datetime
+  password_hash string
+  remember_token string
+  created_at datetime
+  updated_at datetime
+  id_branch int fk
+  is_active boolean
+}
+
+roles [icon: shield, color: blue] {
+  id_role int pk
+  name string
+  description string
+  created_at datetime
+  updated_at datetime
+}
+
+permissions [icon: key, color: blue] {
+  id_permission string pk
+  name string
+  description string
+  action string
+  created_at datetime
+  updated_at datetime
+}
+
+users_roles [icon: link, color: blue] {
+  id_user_role int pk
+  id_user int fk
+  id_role int fk
+  assigned_at datetime
+}
+
+roles_permissions [icon: link, color: blue] {
+  id_role_permission int pk
+  id_role int fk
+  id_permission string fk
+}
+
+logs [icon: file-text, color: blue] {
+  id_log int pk
+  id_user int fk
+  id_record int
+  controller string
+  action string
+  original_data json
+  modified_data json
+  created_at datetime
+  auditable_type string
+}
+
+// Empresa
+companies [icon: briefcase, color: green] {
+  id_company int pk
+  name string
+  commercial_name string
+  nit string
+  nrc string
+  commercial_line_1 string
+  commercial_line_2 string
+  commercial_line_3 string
+  address string
+  id_department int fk
+  id_municipality int fk
+  id_district int fk
+  phone string
+  email string
+  web_site string
+  logo string
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+branches [icon: home, color: green] {
+  id_branch int pk
+  id_company int fk
+  name string
+  address string
+  id_department int fk
+  id_municipality int fk
+  id_district int fk
+  phone string
+  email string
+  description text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+  is_purchasing_department boolean
+}
+
+employees [icon: users, color: green] {
+  id_employee int pk
+  first_name string
+  last_name string
+  email string
+  phone string
+  dui string
+  position string
+  id_branch int fk
+  is_active boolean
+  created_at datetime
+}
+
+// Geografía
+departments [icon: map, color: orange] {
+  id_department int pk
+  code string
+  name string
+  short_name string
+  created_at datetime
+  updated_at datetime
+}
+
+municipalities [icon: map, color: orange] {
+  id_municipality int pk
+  id_department int fk
+  code string
+  name string
+  created_at datetime
+  updated_at datetime
+}
+
+districts [icon: map-pin, color: orange] {
+  id_district int pk
+  id_municipality int fk
+  code string
+  name string
+  created_at datetime
+  updated_at datetime
+}
+
+countries [icon: globe, color: orange] {
+  id int pk
+  name string
+  code string
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+// Bodegas y vehículos
+warehouses [icon: archive, color: yellow] {
+  id_warehouse int pk
+  id_branch int fk
+  id_warehouse_category int fk
+  name string
+  description text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+warehouse_categories [icon: layers, color: yellow] {
+  id_warehouse_category int pk
+  name string
+  description text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+locations [icon: map-pin, color: yellow] {
+  id_location int pk
+  id_warehouse int fk
+  code string
+  aisle string
+  rack string
+  level string
+  position string
+  capacity int
+  notes text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+vehicles [icon: truck, color: yellow] {
+  id_vehicle int pk
+  brand string
+  model string
+  year int
+  license_plate string
+  id_responsible_employee int fk
+  is_active boolean
+  created_at datetime
+}
+
+vehicle_locations [icon: truck, color: yellow] {
+  id_vehicle_location int pk
+  id_vehicle int fk
+  id_warehouse int fk
+  code string
+  capacity int
+  notes text
+  is_active boolean
+  created_at datetime
+}
+
+// Catálogo de productos
+products [icon: box, color: gray] {
+  id_product int pk
+  uuid string
+  sku string
+  original_code string
+  internal_code string
+  name string
+  size string
+  dimensions string
+  presentation string
+  description text
+  id_category int fk
+  id_sub_category int fk
+  id_purchase_unit int fk
+  id_sale_unit int fk
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+  last_cost decimal
+  last_cost_date datetime
+  id_last_cost_purchase_detail int fk
+}
+
+product_images [icon: image, color: gray] {
+  id_product_image int pk
+  uuid string
+  id_product int fk
+  path string
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+categories [icon: tag, color: gray] {
+  id_category int pk
+  name string
+  description text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+sub_categories [icon: tag, color: gray] {
+  id_sub_category int pk
+  id_category int fk
+  name string
+  description text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+units [icon: hash, color: gray] {
+  id_unit int pk
+  name string
+  abbreviation string
+  type string
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+// Proveedores
+suppliers [icon: truck, color: purple] {
+  id_supplier int pk
+  code string
+  name string
+  email string
+  phone string
+  country string
+  address text
+  website string
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+  id_department int fk
+  id_municipality int fk
+  id_district int fk
+}
+
+supplier_contacts [icon: user, color: purple] {
+  id_supplier_contact int pk
+  id_supplier int fk
+  full_name string
+  phone string
+  email string
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+// Compras: solicitudes, cotizaciones y órdenes
+purchase_requests [icon: clipboard, color: pink] {
+  id_purchase_request int pk
+  uuid string
+  purchase_request_code string
+  id_branch int fk
+  id_warehouse int fk
+  id_user int fk
+  request_date datetime
+  required_date datetime
+  justification text
+  status string
+  notes text
+  created_at datetime
+  updated_at datetime
+  status_reason text
+  sent_at datetime
+}
+
+purchase_request_details [icon: clipboard, color: pink] {
+  id_purchase_request_detail int pk
+  id_purchase_request int fk
+  id_product int fk
+  quantity decimal
+  id_unit int fk
+  description string
+  notes text
+  created_at datetime
+  updated_at datetime
+}
+
+purchase_quotation_requests [icon: send, color: pink] {
+  id_purchase_quotation_request int pk
+  id_purchase_quotation int fk
+  created_at datetime
+  status string
+  sent_at datetime
+  id_branch int fk
+  id_warehouse int fk
+}
+
+purchase_quotation_request_details [icon: send, color: pink] {
+  id_purchase_quotation_request_detail int pk
+  id_purchase_quotation_detail int fk
+  id_purchase_request_detail int fk
+  quantity decimal
+  created_at datetime
+  id_purchase_quotation_request int fk
+  id_product int fk
+  id_unit int fk
+}
+
+purchase_quotations [icon: file-text, color: pink] {
+  id_purchase_quotation int pk
+  uuid string
+  purchase_quotation_code string
+  id_purchase_quotation_request int fk
+  id_supplier int fk
+  quotation_date datetime
+  valid_until datetime
+  currency string
+  payment_terms string
+  delivery_days int
+  subtotal decimal
+  discount decimal
+  tax decimal
+  total decimal
+  status string
+  notes text
+  id_user int fk
+  created_at datetime
+  updated_at datetime
+}
+
+purchase_quotation_details [icon: file-text, color: pink] {
+  id_purchase_quotation_detail int pk
+  id_purchase_quotation int fk
+  id_product int fk
+  quantity decimal
+  id_unit int fk
+  unit_price decimal
+  discount decimal
+  subtotal decimal
+  tax_rate decimal
+  tax_amount decimal
+  total decimal
+  delivery_days int
+  available_quantity decimal
+  notes text
+  created_at datetime
+  updated_at datetime
+}
+
+purchase_quotation_expenses [icon: dollar-sign, color: pink] {
+  id_purchase_quotation_expense int pk
+  id_purchase_quotation int fk
+  id_expense_type int fk
+  description string
+  amount decimal
+  created_at datetime
+  updated_at datetime
+}
+
+expense_types [icon: list, color: pink] {
+  id_expense_type int pk
+  name string
+  description text
+  is_active boolean
+  created_at datetime
+  updated_at datetime
+}
+
+purchase_orders [icon: shopping-cart, color: pink] {
+  id_purchase_order int pk
+  created_at datetime
+  updated_at datetime
+  uuid string
+  purchase_order_code string
+  id_supplier int fk
+  id_branch int fk
+  id_warehouse int fk
+  id_purchase_quotation int fk
+  id_user int fk
+  order_date datetime
+  expected_date datetime
+  currency string
+  payment_terms string
+  subtotal decimal
+  discount decimal
+  tax decimal
+  additional_expenses decimal
+  total decimal
+  status string
+  notes text
+}
+
+purchase_order_details [icon: shopping-cart, color: pink] {
+  id_purchase_order_detail int pk
+  created_at datetime
+  updated_at datetime
+  id_purchase_order int fk
+  id_product int fk
+  quantity decimal
+  id_unit int fk
+  unit_price decimal
+  discount decimal
+  subtotal decimal
+  tax_rate decimal
+  tax_amount decimal
+  total decimal
+  notes text
+}
+
+purchase_order_expenses [icon: dollar-sign, color: pink] {
+  id_purchase_order_expense int pk
+  created_at datetime
+  updated_at datetime
+  id_purchase_order int fk
+  id_expense_type int fk
+  description string
+  amount decimal
+  is_costable boolean
+}
+
+purchase_order_expense_documents [icon: paperclip, color: pink] {
+  id_purchase_order_expense_document int pk
+  id_purchase_order_expense int fk
+  file_name string
+  file_path string
+  file_type string
+  uploaded_at datetime
+  created_at datetime
+  updated_at datetime
+}
+
+document_sequences [icon: hash, color: pink] {
+  prefix string pk
+  last_number int
+}
+
+// Compras y retaceo
+purchases [icon: file, color: lightblue] {
+  id_purchase int pk
+  uuid string
+  purchase_code string
+  id_purchase_order int fk
+  id_supplier int fk
+  id_branch int fk
+  id_warehouse int fk
+  purchase_date datetime
+  supplier_invoice_number string
+  supplier_invoice_date date
+  currency string
+  subtotal decimal
+  discount decimal
+  tax decimal
+  total decimal
+  status string
+  notes text
+  id_user int fk
+  created_at datetime
+  updated_at datetime
+}
+
+purchase_details [icon: file, color: lightblue] {
+  id_purchase_detail int pk
+  id_purchase int fk
+  id_purchase_order_detail int fk
+  id_product int fk
+  quantity_ordered decimal
+  quantity_received decimal
+  id_unit int fk
+  unit_price decimal
+  discount decimal
+  subtotal decimal
+  tax_rate decimal
+  tax_amount decimal
+  total decimal
+  notes text
+  created_at datetime
+  updated_at datetime
+  unit_cost decimal
+}
+
+retaceos [icon: percent, color: lightblue] {
+  id_retaceo int pk
+  uuid string
+  retaceo_code string
+  id_supplier int fk
+  id_purchase int fk
+  retaceo_date datetime
+  origin_country string
+  import_invoice_number string
+  import_invoice_date date
+  import_policy_number string
+  import_policy_date date
+  total_fob decimal
+  total_freight decimal
+  total_expenses decimal
+  total_dai decimal
+  total_cost decimal
+  status string
+  notes text
+  id_user int fk
+  created_at datetime
+  updated_at datetime
+}
+
+retaceo_details [icon: percent, color: lightblue] {
+  id_retaceo_detail int pk
+  id_retaceo int fk
+  id_purchase_detail int fk
+  id_product int fk
+  quantity decimal
+  cost_fob decimal
+  freight_amount decimal
+  expense_amount decimal
+  dai_amount decimal
+  unit_cost decimal
+  total_cost decimal
+  created_at datetime
+  updated_at datetime
+}
+
+retaceo_expenses [icon: dollar-sign, color: lightblue] {
+  id_retaceo_expense int pk
+  id_retaceo int fk
+  id_expense_type int fk
+  description string
+  amount decimal
+  created_at datetime
+  updated_at datetime
+}
+
+// Inventario
+inventory_lots [icon: package, color: teal] {
+  id_inventory_lot int pk
+  lot_code string
+  id_product int fk
+  id_purchase_detail int fk
+  received_at datetime
+  quantity_received decimal
+  unit_cost decimal
+  total_cost decimal
+  status string
+  created_at datetime
+  id_warehouse int fk
+  placed_at datetime
+  supplier_lot_number string
+  expiration_date date
+}
+
+inventory_lot_placements [icon: grid, color: teal] {
+  id_inventory_lot_placement int pk
+  id_inventory_lot int fk
+  id_location int fk
+  quantity decimal
+}
+
+inventory_movements [icon: repeat, color: teal] {
+  id_inventory_movement int pk
+  id_product int fk
+  id_inventory_lot int fk
+  id_warehouse int fk
+  movement_type string
+  movement_date datetime
+  quantity_in decimal
+  quantity_out decimal
+  unit_cost decimal
+  total_cost decimal
+  reference_type string
+  reference_id int
+  id_user int fk
+  created_at datetime
+  id_inventory_location int fk
+}
+
+inventory_locations [icon: map-pin, color: teal] {
+  id_inventory_location int pk
+  id_location int fk
+  id_vehicle_location int fk
+  location_type string
+  is_active boolean
+}
+
+inventory_location_details [icon: layers, color: teal] {
+  id_inventory_location_detail int pk
+  id_inventory_lot int fk
+  id_inventory_location int fk
+  quantity decimal
+  updated_at datetime
+}
+
+inventory_cost_averages [icon: trending-up, color: teal] {
+  id_inventory_cost_average int pk
+  id_company int fk
+  id_product int fk
+  quantity_on_hand decimal
+  inventory_value decimal
+  average_unit_cost decimal
+  updated_at datetime
+}
+
+inventory_transfers [icon: truck, color: teal] {
+  id_inventory_transfer int pk
+  transfer_code string
+  id_source_warehouse int fk
+  id_destination_warehouse int fk
+  transfer_date datetime
+  dispatched_at datetime
+  received_at datetime
+  status string
+  id_user int fk
+  notes text
+  created_at datetime
+  id_vehicle int fk
+  id_driver_employee int fk
+}
+
+inventory_transfer_details [icon: truck, color: teal] {
+  id_inventory_transfer_detail int pk
+  id_inventory_transfer int fk
+  id_inventory_lot int fk
+  id_product int fk
+  quantity_dispatched decimal
+  quantity_received decimal
+  unit_cost decimal
+  notes text
+  id_source_inventory_location int fk
+  id_destination_inventory_location int fk
+  quantity_requested decimal
+}
+
+inventory_label_prints [icon: printer, color: teal] {
+  id_inventory_label_print int pk
+  id_inventory_lot int fk
+  quantity_printed int
+  print_date datetime
+  id_user int fk
+  reprint_reason string
+}
+
+// Relaciones: ">" muchos a uno, "-" uno a uno
+branches.id_company > companies.id_company
+branches.id_department > departments.id_department
+branches.id_district > districts.id_district
+branches.id_municipality > municipalities.id_municipality
+companies.id_department > departments.id_department
+companies.id_district > districts.id_district
+companies.id_municipality > municipalities.id_municipality
+districts.id_municipality > municipalities.id_municipality
+employees.id_branch > branches.id_branch
+inventory_cost_averages.id_company > companies.id_company
+inventory_cost_averages.id_product > products.id_product
+inventory_label_prints.id_inventory_lot > inventory_lots.id_inventory_lot
+inventory_label_prints.id_user > users.id_user
+inventory_location_details.id_inventory_location > inventory_locations.id_inventory_location
+inventory_location_details.id_inventory_lot > inventory_lots.id_inventory_lot
+inventory_locations.id_location - locations.id_location
+inventory_locations.id_vehicle_location - vehicle_locations.id_vehicle_location
+inventory_lot_placements.id_inventory_lot > inventory_lots.id_inventory_lot
+inventory_lot_placements.id_location > locations.id_location
+inventory_lots.id_product > products.id_product
+inventory_lots.id_purchase_detail > purchase_details.id_purchase_detail
+inventory_lots.id_warehouse > warehouses.id_warehouse
+inventory_movements.id_inventory_location > inventory_locations.id_inventory_location
+inventory_movements.id_inventory_lot > inventory_lots.id_inventory_lot
+inventory_movements.id_product > products.id_product
+inventory_movements.id_user > users.id_user
+inventory_movements.id_warehouse > warehouses.id_warehouse
+inventory_transfer_details.id_destination_inventory_location > inventory_locations.id_inventory_location
+inventory_transfer_details.id_inventory_lot > inventory_lots.id_inventory_lot
+inventory_transfer_details.id_inventory_transfer > inventory_transfers.id_inventory_transfer
+inventory_transfer_details.id_product > products.id_product
+inventory_transfer_details.id_source_inventory_location > inventory_locations.id_inventory_location
+inventory_transfers.id_destination_warehouse > warehouses.id_warehouse
+inventory_transfers.id_driver_employee > employees.id_employee
+inventory_transfers.id_source_warehouse > warehouses.id_warehouse
+inventory_transfers.id_user > users.id_user
+inventory_transfers.id_vehicle > vehicles.id_vehicle
+locations.id_warehouse > warehouses.id_warehouse
+logs.id_user > users.id_user
+municipalities.id_department > departments.id_department
+product_images.id_product > products.id_product
+products.id_category > categories.id_category
+products.id_last_cost_purchase_detail > purchase_details.id_purchase_detail
+products.id_purchase_unit > units.id_unit
+products.id_sale_unit > units.id_unit
+products.id_sub_category > sub_categories.id_sub_category
+purchase_details.id_product > products.id_product
+purchase_details.id_purchase > purchases.id_purchase
+purchase_details.id_purchase_order_detail > purchase_order_details.id_purchase_order_detail
+purchase_details.id_unit > units.id_unit
+purchase_order_details.id_product > products.id_product
+purchase_order_details.id_purchase_order > purchase_orders.id_purchase_order
+purchase_order_details.id_unit > units.id_unit
+purchase_order_expense_documents.id_purchase_order_expense > purchase_order_expenses.id_purchase_order_expense
+purchase_order_expenses.id_expense_type > expense_types.id_expense_type
+purchase_order_expenses.id_purchase_order > purchase_orders.id_purchase_order
+purchase_orders.id_branch > branches.id_branch
+purchase_orders.id_purchase_quotation > purchase_quotations.id_purchase_quotation
+purchase_orders.id_supplier > suppliers.id_supplier
+purchase_orders.id_user > users.id_user
+purchase_orders.id_warehouse > warehouses.id_warehouse
+purchase_quotation_details.id_product > products.id_product
+purchase_quotation_details.id_purchase_quotation > purchase_quotations.id_purchase_quotation
+purchase_quotation_details.id_unit > units.id_unit
+purchase_quotation_expenses.id_expense_type > expense_types.id_expense_type
+purchase_quotation_expenses.id_purchase_quotation > purchase_quotations.id_purchase_quotation
+purchase_quotation_request_details.id_product > products.id_product
+purchase_quotation_request_details.id_purchase_quotation_detail > purchase_quotation_details.id_purchase_quotation_detail
+purchase_quotation_request_details.id_purchase_quotation_request > purchase_quotation_requests.id_purchase_quotation_request
+purchase_quotation_request_details.id_purchase_request_detail > purchase_request_details.id_purchase_request_detail
+purchase_quotation_request_details.id_unit > units.id_unit
+purchase_quotation_requests.id_branch > branches.id_branch
+purchase_quotation_requests.id_purchase_quotation > purchase_quotations.id_purchase_quotation
+purchase_quotation_requests.id_warehouse > warehouses.id_warehouse
+purchase_quotations.id_purchase_quotation_request > purchase_quotation_requests.id_purchase_quotation_request
+purchase_quotations.id_supplier > suppliers.id_supplier
+purchase_quotations.id_user > users.id_user
+purchase_request_details.id_product > products.id_product
+purchase_request_details.id_purchase_request > purchase_requests.id_purchase_request
+purchase_request_details.id_unit > units.id_unit
+purchase_requests.id_branch > branches.id_branch
+purchase_requests.id_user > users.id_user
+purchase_requests.id_warehouse > warehouses.id_warehouse
+purchases.id_branch > branches.id_branch
+purchases.id_purchase_order > purchase_orders.id_purchase_order
+purchases.id_supplier > suppliers.id_supplier
+purchases.id_user > users.id_user
+purchases.id_warehouse > warehouses.id_warehouse
+retaceo_details.id_product > products.id_product
+retaceo_details.id_purchase_detail > purchase_details.id_purchase_detail
+retaceo_details.id_retaceo > retaceos.id_retaceo
+retaceo_expenses.id_expense_type > expense_types.id_expense_type
+retaceo_expenses.id_retaceo > retaceos.id_retaceo
+retaceos.id_purchase > purchases.id_purchase
+retaceos.id_supplier > suppliers.id_supplier
+retaceos.id_user > users.id_user
+roles_permissions.id_permission > permissions.id_permission
+roles_permissions.id_role > roles.id_role
+sub_categories.id_category > categories.id_category
+supplier_contacts.id_supplier > suppliers.id_supplier
+suppliers.id_department > departments.id_department
+suppliers.id_district > districts.id_district
+suppliers.id_municipality > municipalities.id_municipality
+users.id_branch > branches.id_branch
+users_roles.id_role > roles.id_role
+users_roles.id_user > users.id_user
+vehicle_locations.id_vehicle > vehicles.id_vehicle
+vehicle_locations.id_warehouse > warehouses.id_warehouse
+vehicles.id_responsible_employee > employees.id_employee
+warehouses.id_branch > branches.id_branch
+warehouses.id_warehouse_category > warehouse_categories.id_warehouse_category

@@ -74,11 +74,11 @@ class ProductRequest extends FormRequest
                 'nullable',
                 'exists:sub_categories,id_sub_category',
             ],
-            'purchase_unit' => [
+            'id_purchase_unit' => [
                 'nullable',
                 'exists:units,id_unit',
             ],
-            'sale_unit' => [
+            'id_sale_unit' => [
                 'nullable',
                 'exists:units,id_unit',
             ],

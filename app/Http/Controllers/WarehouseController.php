@@ -49,7 +49,7 @@ class WarehouseController extends Controller
 
         $validated = $request->validate([
             'id_branch' => ['required', new Accessible(Branch::class)],
-            'id_warehouse_category' => 'required|exists:warehouse_category,id_warehouse_category',
+            'id_warehouse_category' => 'required|exists:warehouse_categories,id_warehouse_category',
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
@@ -80,7 +80,7 @@ class WarehouseController extends Controller
         Gate::authorize('warehouses.editar');
         $validated = $request->validate([
             'id_branch' => ['required', new Accessible(Branch::class)],
-            'id_warehouse_category' => 'required|exists:warehouse_category,id_warehouse_category',
+            'id_warehouse_category' => 'required|exists:warehouse_categories,id_warehouse_category',
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
             'is_active' => 'boolean',

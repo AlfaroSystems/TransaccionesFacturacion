@@ -471,7 +471,7 @@ test('no se pueden crear documentos que referencien datos de otra sucursal', fun
     ])->assertSessionHasErrors(['id_warehouse']);
 
     $this->post(route('branches.store'), [
-        'id_company' => $b->company->id_company, 'name' => 'x', 'addres' => 'x',
+        'id_company' => $b->company->id_company, 'name' => 'x', 'address' => 'x',
     ])->assertSessionHasErrors(['id_company']);
 
     $this->post(route('users.store'), [

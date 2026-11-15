@@ -392,7 +392,7 @@
                                         <select name="details[{{ $index }}][id_product]" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm">
                                             <option value="">Producto...</option>
                                             @foreach($products as $product)
-                                                <option value="{{ $product->id_product }}" data-unit="{{ $product->purchase_unit }}" {{ $detail->id_product == $product->id_product ? 'selected' : '' }}>{{ $product->name }}</option>
+                                                <option value="{{ $product->id_product }}" data-unit="{{ $product->id_purchase_unit }}" {{ $detail->id_product == $product->id_product ? 'selected' : '' }}>{{ $product->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
@@ -445,7 +445,7 @@
             <select data-field="id_product" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
                 <option value="">Seleccione producto...</option>
                 @foreach($products as $product)
-                    <option value="{{ $product->id_product }}" data-unit="{{ $product->purchase_unit }}">{{ $product->name }}</option>
+                    <option value="{{ $product->id_product }}" data-unit="{{ $product->id_purchase_unit }}">{{ $product->name }}</option>
                 @endforeach
             </select>
         </td>

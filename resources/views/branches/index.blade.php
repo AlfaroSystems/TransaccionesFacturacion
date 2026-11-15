@@ -52,7 +52,7 @@
                             @endif
                         </td>
                         <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
-                            <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $branch->addres }}">{{ $branch->addres }}</span>
+                            <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $branch->address }}">{{ $branch->address }}</span>
                             @if($branch->department || $branch->municipality || $branch->district)
                                 <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-sm mt-1 inline-block">
                                     {{ $branch->department?->name }} / {{ $branch->municipality?->name }} / {{ $branch->district?->name }}
@@ -232,9 +232,9 @@
             <!-- Fila 4: Dirección -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="addres" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
-                    <textarea name="addres" id="addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'create' ? old('addres') : '' }}</textarea>
-                    @error('addres')
+                    <label for="address" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
+                    <textarea name="address" id="address" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('address') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'create' ? old('address') : '' }}</textarea>
+                    @error('address')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -386,9 +386,9 @@
             <!-- Fila 4: Dirección -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="edit-addres" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
-                    <textarea name="addres" id="edit-addres" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('addres') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'edit' ? old('addres') : '' }}</textarea>
-                    @error('addres')
+                    <label for="edit-address" class="block text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wider mb-2">Dirección Detallada <span class="text-rose-500">*</span></label>
+                    <textarea name="address" id="edit-address" rows="2" placeholder="Ej. Alameda Manuel Enrique Araujo, San Salvador" class="w-full bg-slate-50 dark:bg-slate-900 border @error('address') border-rose-300 focus:border-rose-500 @else border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold" required>{{ old('modal_type') === 'edit' ? old('address') : '' }}</textarea>
+                    @error('address')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 dark:text-rose-400 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
                         @endif
@@ -482,7 +482,7 @@
         document.getElementById('edit-id').value = branch.id_branch;
         document.getElementById('edit-id_company').value = branch.id_company;
         document.getElementById('edit-name').value = branch.name;
-        document.getElementById('edit-addres').value = branch.addres;
+        document.getElementById('edit-address').value = branch.address;
         document.getElementById('edit-phone').value = branch.phone || '';
         document.getElementById('edit-email').value = branch.email || '';
         
@@ -523,7 +523,7 @@
                     id_branch: "{{ old('id') }}",
                     id_company: "{{ old('id_company') }}",
                     name: "{{ old('name') }}",
-                    addres: "{{ old('addres') }}",
+                    address: "{{ old('address') }}",
                     id_department: "{{ old('id_department') }}",
                     id_municipality: "{{ old('id_municipality') }}",
                     id_district: "{{ old('id_district') }}",

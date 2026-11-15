@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     // Nombre de la tabla según el diagrama del sistema
-    protected $table = 'supliers';
+    protected $table = 'suppliers';
 
     protected $primaryKey = 'id_supplier';
 

@@ -37,7 +37,7 @@ function usuarioNoAdminDeEmpresa(Company $company, array $permisos): User
 /** Los campos que manda el formulario de empresa (vacíos se convierten en null) */
 function datosEmpresa(string $name): array
 {
-    return array_merge(array_fill_keys(['commercial_name', 'nit', 'nrc', 'commercial_line_1', 'commercial_line_2', 'commercial_line_3', 'addres', 'id_department', 'id_municipality', 'id_district', 'phone', 'email', 'web_site'], ''), ['name' => $name]);
+    return array_merge(array_fill_keys(['commercial_name', 'nit', 'nrc', 'commercial_line_1', 'commercial_line_2', 'commercial_line_3', 'address', 'id_department', 'id_municipality', 'id_district', 'phone', 'email', 'web_site'], ''), ['name' => $name]);
 }
 
 function usuarioAdmin(): User
