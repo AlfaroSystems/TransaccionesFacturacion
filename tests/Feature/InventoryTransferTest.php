@@ -56,7 +56,7 @@ function trasladoEscenario(): object
     ]);
     InventoryMovement::create([
         'id_product' => $product->id_product, 'id_inventory_lot' => $lot->id_inventory_lot, 'id_warehouse' => $bodegaMatriz->id_warehouse,
-        'id_location' => $a1->id_location, 'movement_type' => InventoryMovement::TYPE_PURCHASE_RECEIPT, 'movement_date' => now(),
+        'id_inventory_location' => ubicacionInventario($a1), 'movement_type' => InventoryMovement::TYPE_PURCHASE_RECEIPT, 'movement_date' => now(),
         'quantity_in' => 10, 'quantity_out' => 0, 'unit_cost' => 5, 'total_cost' => 50,
     ]);
     InventoryCostAverage::create(['id_company' => $company->id_company, 'id_product' => $product->id_product, 'quantity_on_hand' => 10, 'inventory_value' => 50, 'average_unit_cost' => 5]);
@@ -77,8 +77,8 @@ function trasladoDatos(object $e, float $cantidad): array
         'id_destination_warehouse' => $e->bodegaSucursal->id_warehouse,
         'transfer_date' => now()->toDateString(),
         'details' => [[
-            'id_inventory_lot' => $e->lot->id_inventory_lot, 'id_source_location' => $e->a1->id_location,
-            'quantity_dispatched' => $cantidad, 'id_destination_location' => $e->s1->id_location,
+            'id_inventory_lot' => $e->lot->id_inventory_lot, 'id_source_inventory_location' => ubicacionInventario($e->a1),
+            'quantity_requested' => $cantidad, 'id_destination_inventory_location' => ubicacionInventario($e->s1),
         ]],
     ];
 }
@@ -102,13 +102,17 @@ test('Casa Matriz despacha y la sucursal recibe: la existencia pasa de una bodeg
     $this->actingAs($e->compras)->post(route('inventory-transfers.store'), trasladoDatos($e, 6))->assertSessionHasNoErrors();
     $transfer = InventoryTransfer::queryAllBranches()->sole();
 
-    // El borrador no mueve nada
+    // El borrador no mueve nada: guarda lo pedido
     expect($transfer->status)->toBe('draft')
         ->and($transfer->transfer_code)->toStartWith('TRF-')
+        ->and((float) $transfer->details()->sole()->quantity_requested)->toBe(6.0)
+        ->and((float) $transfer->details()->sole()->quantity_dispatched)->toBe(0.0)
         ->and(trasladoExistencia($e->bodegaMatriz, $e->lot))->toBe(10.0);
 
+    // Al despachar sale lo pedido
     $this->post(route('inventory-transfers.dispatch', $transfer))->assertSessionHas('success');
     expect($transfer->fresh()->status)->toBe('dispatched')
+        ->and((float) $transfer->details()->sole()->quantity_dispatched)->toBe(6.0)
         ->and(trasladoExistencia($e->bodegaMatriz, $e->lot))->toBe(4.0)
         ->and(trasladoExistencia($e->bodegaSucursal, $e->lot))->toBe(0.0);
 
@@ -116,7 +120,7 @@ test('Casa Matriz despacha y la sucursal recibe: la existencia pasa de una bodeg
     $this->actingAs($e->receptor)->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('Confirmar recepción');
     $detalle = $transfer->details()->sole();
     $this->post(route('inventory-transfers.receive', $transfer), [
-        'received' => [$detalle->id_inventory_transfer_detail => ['quantity_received' => 6, 'id_destination_location' => $e->s1->id_location]],
+        'received' => [$detalle->id_inventory_transfer_detail => ['quantity_received' => 6, 'id_destination_inventory_location' => ubicacionInventario($e->s1)]],
     ])->assertSessionHas('success');
 
     $entrada = InventoryMovement::queryAllBranches()->where('movement_type', 'transfer_in')->sole();
@@ -124,20 +128,28 @@ test('Casa Matriz despacha y la sucursal recibe: la existencia pasa de una bodeg
 
     expect($transfer->fresh()->status)->toBe('received')
         ->and(trasladoExistencia($e->bodegaSucursal, $e->lot))->toBe(6.0)
-        ->and($entrada->id_location)->toBe($e->s1->id_location)
+        ->and($entrada->id_inventory_location)->toBe(ubicacionInventario($e->s1))
         ->and((float) $entrada->unit_cost)->toBe(5.0)
         // Sigue en la empresa: el promedio no cambia
         ->and((float) $promedio->quantity_on_hand)->toBe(10.0)
         ->and((float) $promedio->inventory_value)->toBe(50.0);
 
     $this->actingAs($e->receptor)->get(route('inventory.index'))->assertOk()->assertSee($e->lot->lot_code);
+
+    // La existencia por ubicación queda igual a la suma de los movimientos: 4 en A1 y 6 en S1
+    [$detalle, $movimientos] = existenciaPorUbicacion();
+    expect($detalle)->toBe($movimientos)
+        ->and($detalle)->toBe([
+            $e->lot->id_inventory_lot.'|'.ubicacionInventario($e->a1) => 4.0,
+            $e->lot->id_inventory_lot.'|'.ubicacionInventario($e->s1) => 6.0,
+        ]);
 });
 
 test('no se traslada más de lo que hay del lote en su ubicación', function () {
     $e = trasladoEscenario();
     $this->actingAs($e->compras);
 
-    $this->post(route('inventory-transfers.store'), trasladoDatos($e, 12))->assertSessionHasErrors('details.0.quantity_dispatched');
+    $this->post(route('inventory-transfers.store'), trasladoDatos($e, 12))->assertSessionHasErrors('details.0.quantity_requested');
 
     // Dos borradores de 6 caben por separado, pero no se pueden despachar los dos
     $this->post(route('inventory-transfers.store'), trasladoDatos($e, 6))->assertSessionHasNoErrors();
@@ -160,7 +172,7 @@ test('lo que no llega se registra como merma y sale del inventario de la empresa
 
     $detalle = $transfer->details()->sole();
     $this->actingAs($e->receptor)->post(route('inventory-transfers.receive', $transfer), [
-        'received' => [$detalle->id_inventory_transfer_detail => ['quantity_received' => 5, 'id_destination_location' => $e->s1->id_location]],
+        'received' => [$detalle->id_inventory_transfer_detail => ['quantity_received' => 5, 'id_destination_inventory_location' => ubicacionInventario($e->s1)]],
     ])->assertSessionHas('success');
 
     $merma = InventoryMovement::queryAllBranches()->where('movement_type', 'transfer_loss')->sole();
@@ -172,7 +184,8 @@ test('lo que no llega se registra como merma y sale del inventario de la empresa
         ->and((float) $detalle->fresh()->quantity_received)->toBe(5.0)
         ->and((float) $promedio->quantity_on_hand)->toBe(9.0)
         ->and((float) $promedio->inventory_value)->toBe(45.0)
-        ->and((float) $promedio->average_unit_cost)->toBe(5.0);
+        ->and((float) $promedio->average_unit_cost)->toBe(5.0)
+        ->and(existenciaPorUbicacion()[0])->toBe(existenciaPorUbicacion()[1]);
 
     // No se recibe más de lo despachado
     $this->actingAs($e->compras)->post(route('inventory-transfers.store'), trasladoDatos($e, 2));

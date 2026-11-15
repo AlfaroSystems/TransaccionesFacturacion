@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InventoryLocation;
+use App\Models\InventoryLocationDetail;
 use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
 use App\Models\Location;
@@ -78,26 +80,31 @@ class InventoryLotController extends Controller
             $ocupado = $this->ocupacion($ubicaciones->pluck('id_location')->all());
 
             // Para el primer reparto: la última ubicación donde entró el producto en esa bodega
-            $sugerida = InventoryMovement::queryAllBranches()
-                ->where('id_warehouse', $lot->id_warehouse)
-                ->where('id_product', $lot->id_product)
-                ->where('movement_type', InventoryMovement::TYPE_PURCHASE_RECEIPT)
-                ->whereNotNull('id_location')
-                ->orderByDesc('id_inventory_movement')
+            $sugerida = InventoryLocation::query()
+                ->whereIn('id_inventory_location', InventoryMovement::queryAllBranches()
+                    ->where('id_warehouse', $lot->id_warehouse)
+                    ->where('id_product', $lot->id_product)
+                    ->where('movement_type', InventoryMovement::TYPE_PURCHASE_RECEIPT)
+                    ->whereNotNull('id_inventory_location')
+                    ->orderByDesc('id_inventory_movement')
+                    ->limit(1)
+                    ->select('id_inventory_location'))
                 ->value('id_location');
         }
 
         // Disponible: dónde está y a qué ubicaciones de esas bodegas se puede mover
         $existencias = $lot->status === InventoryLot::STATUS_ACTIVE ? $this->service->existenciasDelLote($lot) : collect();
-        $destinos = Location::queryAllBranches()
-            ->whereIn('id_warehouse', $existencias->pluck('id_warehouse')->unique())
+        $destinos = InventoryLocation::query()
+            ->with('location')
+            ->where('location_type', InventoryLocation::TYPE_LOCATION)
             ->where('is_active', true)
-            ->orderBy('code')
+            ->whereIn('id_location', Location::queryAllBranches()->whereIn('id_warehouse', $existencias->pluck('id_warehouse')->filter()->unique())->select('id_location'))
             ->get()
-            ->groupBy('id_warehouse');
+            ->sortBy(fn (InventoryLocation $destino) => $destino->location->code)
+            ->groupBy(fn (InventoryLocation $destino) => $destino->location->id_warehouse);
 
         $movimientos = $lot->movements()
-            ->with(['warehouse', 'location', 'user'])
+            ->with(['warehouse', 'location', 'inventoryLocation.vehicleLocation.vehicle', 'user'])
             ->orderBy('movement_date')
             ->orderBy('id_inventory_movement')
             ->get();
@@ -211,19 +218,20 @@ class InventoryLotController extends Controller
 
         $validated = $request->validate([
             'id_warehouse' => ['required', 'integer', Rule::in(Warehouse::query()->pluck('id_warehouse')->all())],
-            'id_source_location' => ['nullable', 'integer'],
-            'id_destination_location' => ['required', 'integer'],
+            'id_source_inventory_location' => ['required', 'integer'],
+            'id_destination_inventory_location' => ['required', 'integer'],
             'quantity' => ['required', 'numeric', 'min:0.0001'],
         ], [
             'id_warehouse.in' => 'Solo se cambia de ubicación lo que está en una bodega de su sucursal.',
+            'id_destination_inventory_location.required' => 'Elija la ubicación a la que se mueve.',
         ]);
 
         try {
             $this->service->cambiarUbicacion(
                 $lot,
                 (int) $validated['id_warehouse'],
-                isset($validated['id_source_location']) ? (int) $validated['id_source_location'] : null,
-                (int) $validated['id_destination_location'],
+                (int) $validated['id_source_inventory_location'],
+                (int) $validated['id_destination_inventory_location'],
                 (float) $validated['quantity'],
             );
         } catch (InvalidArgumentException $e) {
@@ -240,10 +248,11 @@ class InventoryLotController extends Controller
      */
     private function ocupacion(array $locationIds)
     {
-        return InventoryMovement::queryAllBranches()
-            ->whereIn('id_location', $locationIds)
-            ->groupBy('id_location')
-            ->selectRaw('id_location, SUM(quantity_in - quantity_out) AS stock')
+        return InventoryLocationDetail::queryAllBranches()
+            ->join('inventory_locations', 'inventory_locations.id_inventory_location', '=', 'inventory_location_details.id_inventory_location')
+            ->whereIn('inventory_locations.id_location', $locationIds)
+            ->groupBy('inventory_locations.id_location')
+            ->selectRaw('inventory_locations.id_location, SUM(inventory_location_details.quantity) AS stock')
             ->pluck('stock', 'id_location')
             ->map(fn ($stock) => (float) $stock);
     }

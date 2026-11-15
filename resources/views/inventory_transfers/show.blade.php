@@ -13,7 +13,8 @@
     ];
     $porRecibir = $transfer->status === \App\Models\InventoryTransfer::STATUS_DISPATCHED;
     $recibido = $transfer->status === \App\Models\InventoryTransfer::STATUS_RECEIVED;
-    $valor = $transfer->details->sum(fn ($d) => (float) $d->quantity_dispatched * (float) $d->unit_cost);
+    // En borrador, lo pedido; después, lo que se despachó
+    $valor = $transfer->details->sum(fn ($d) => (float) ($transfer->isDraft() ? $d->quantity_requested : $d->quantity_dispatched) * (float) $d->unit_cost);
 @endphp
 <div class="w-full space-y-6 animate-fade-in duration-300">
     <!-- Encabezado -->
@@ -70,8 +71,9 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-2 text-sm">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Traslado</h3>
             <p class="text-xs text-slate-500">Fecha: <strong class="text-slate-800 dark:text-white">{{ $transfer->transfer_date?->format('d/m/Y') }}</strong></p>
-            <p class="text-xs text-slate-500">Vehículo / tránsito: <strong class="text-slate-800 dark:text-white">{{ $transfer->vehicleLocation ? $transfer->vehicleLocation->code.' ('.$transfer->vehicleLocation->warehouse?->name.')' : 'Sin indicar' }}</strong></p>
-            <p class="text-xs text-slate-500">Valor despachado: <strong class="text-[#005e66] dark:text-teal-400">${{ number_format($valor, 2) }}</strong></p>
+            <p class="text-xs text-slate-500">Vehículo: <strong class="text-slate-800 dark:text-white">{{ $transfer->vehicle?->label() ?? 'Sin indicar' }}</strong></p>
+            <p class="text-xs text-slate-500">Motorista: <strong class="text-slate-800 dark:text-white">{{ $transfer->driver?->fullName() ?? 'Sin indicar' }}</strong></p>
+            <p class="text-xs text-slate-500">{{ $transfer->isDraft() ? 'Valor pedido' : 'Valor despachado' }}: <strong class="text-[#005e66] dark:text-teal-400">${{ number_format($valor, 2) }}</strong></p>
             @if($transfer->notes)
                 <p class="text-xs text-slate-500 pt-1">{{ $transfer->notes }}</p>
             @endif
@@ -95,6 +97,7 @@
                             <th class="py-3 px-4">Producto</th>
                             <th class="py-3 px-4">Lote</th>
                             <th class="py-3 px-4">Ubicación origen</th>
+                            <th class="py-3 px-4 text-right">Pedido</th>
                             <th class="py-3 px-4 text-right">Despachado</th>
                             <th class="py-3 px-4 {{ $porRecibir ? 'w-36' : 'text-right' }}">Recibido</th>
                             <th class="py-3 px-4 {{ $porRecibir ? 'w-48' : '' }}">Ubicación destino</th>
@@ -111,19 +114,29 @@
                                 </td>
                                 <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $detalle->lot?->lot_code }}</td>
                                 <td class="py-3 px-4 font-mono text-xs">{{ $detalle->sourceLocation?->code ?? 'Sin ubicación' }}</td>
-                                <td class="py-3 px-4 text-right font-mono font-bold">{{ $qty($detalle->quantity_dispatched) }} <span class="text-xs font-sans text-slate-400">{{ $detalle->product?->purchaseUnit?->name }}</span></td>
+                                <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_requested) }} <span class="text-xs font-sans text-slate-400">{{ $detalle->product?->purchaseUnit?->name }}</span></td>
+                                <td class="py-3 px-4 text-right font-mono font-bold">
+                                    @if($transfer->isDraft() || $transfer->status === \App\Models\InventoryTransfer::STATUS_CANCELLED)
+                                        <span class="text-slate-400">—</span>
+                                    @else
+                                        {{ $qty($detalle->quantity_dispatched) }}
+                                    @endif
+                                </td>
                                 @if($porRecibir)
                                     <td class="py-3 px-4">
                                         <input type="number" step="0.0001" min="0" max="{{ (float) $detalle->quantity_dispatched }}" name="received[{{ $id }}][quantity_received]"
                                             value="{{ old("received.$id.quantity_received", (float) $detalle->quantity_dispatched) }}" class="{{ $inputClass }} text-right font-mono">
                                     </td>
                                     <td class="py-3 px-4">
-                                        <select name="received[{{ $id }}][id_destination_location]" class="{{ $inputClass }}">
-                                            <option value="">-- Sin ubicación --</option>
+                                        <select name="received[{{ $id }}][id_destination_inventory_location]" required class="{{ $inputClass }} @error("received.$id.id_destination_inventory_location") border-rose-400 @enderror">
+                                            <option value="">-- Elija la ubicación --</option>
                                             @foreach($ubicacionesDestino as $ubicacion)
-                                                <option value="{{ $ubicacion->id_location }}" @selected((string) old("received.$id.id_destination_location", $detalle->id_destination_location) === (string) $ubicacion->id_location)>{{ $ubicacion->code }}</option>
+                                                <option value="{{ $ubicacion->id_inventory_location }}" @selected((string) old("received.$id.id_destination_inventory_location", $detalle->id_destination_inventory_location) === (string) $ubicacion->id_inventory_location)>{{ $ubicacion->location?->code }}</option>
                                             @endforeach
                                         </select>
+                                        @error("received.$id.id_destination_inventory_location")
+                                            <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                                        @enderror
                                     </td>
                                 @else
                                     <td class="py-3 px-4 text-right font-mono">

@@ -8,11 +8,15 @@ use App\Support\BranchAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
- * Entrada o salida de un lote en una bodega y ubicación. La existencia es la suma de
- * quantity_in - quantity_out; el valor, la suma de total_cost con signo (ver signedValueSql).
+ * Entrada o salida de un lote en una bodega y ubicación de inventario. La existencia es la suma
+ * de quantity_in - quantity_out; el valor, la suma de total_cost con signo (ver signedValueSql).
  * Los ajustes de costo no mueven cantidad: solo cambian el valor.
+ *
+ * Al crearse, cada movimiento suma o resta su cantidad a la existencia del lote en su ubicación
+ * (inventory_location_details). Los movimientos no se editan ni se borran.
  */
 class InventoryMovement extends Model
 {
@@ -85,7 +89,7 @@ class InventoryMovement extends Model
         'id_product',
         'id_inventory_lot',
         'id_warehouse',
-        'id_location',
+        'id_inventory_location',
         'movement_type',
         'movement_date',
         'quantity_in',
@@ -104,6 +108,19 @@ class InventoryMovement extends Model
         'unit_cost' => 'decimal:4',
         'total_cost' => 'decimal:4',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function (InventoryMovement $movement) {
+            if ($movement->id_inventory_lot && $movement->id_inventory_location) {
+                InventoryLocationDetail::accumulate(
+                    (int) $movement->id_inventory_lot,
+                    (int) $movement->id_inventory_location,
+                    (float) $movement->quantity_in - (float) $movement->quantity_out
+                );
+            }
+        });
+    }
 
     public function typeLabel(): string
     {
@@ -127,9 +144,17 @@ class InventoryMovement extends Model
             ->withoutGlobalScope(BranchScope::class);
     }
 
-    public function location(): BelongsTo
+    public function inventoryLocation(): BelongsTo
     {
-        return $this->belongsTo(Location::class, 'id_location', 'id_location')
+        return $this->belongsTo(InventoryLocation::class, 'id_inventory_location', 'id_inventory_location');
+    }
+
+    /**
+     * Ubicación de bodega del movimiento (a través de su ubicación de inventario).
+     */
+    public function location(): HasOneThrough
+    {
+        return $this->hasOneThrough(Location::class, InventoryLocation::class, 'id_inventory_location', 'id_location', 'id_inventory_location', 'id_location')
             ->withoutGlobalScope(BranchScope::class);
     }
 

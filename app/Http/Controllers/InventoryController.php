@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\InventoryCostAverage;
+use App\Models\InventoryLocation;
+use App\Models\InventoryLocationDetail;
 use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
 use App\Models\InventoryTransfer;
@@ -11,7 +13,6 @@ use App\Models\Purchase;
 use App\Models\Warehouse;
 use App\Support\BranchAccess;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -59,27 +60,39 @@ class InventoryController extends Controller
             return view('inventory.index', compact('vista', 'search', 'warehouseId', 'warehouses', 'showCompany', 'totales', 'averages'));
         }
 
-        // Existencia de cada lote en cada bodega y ubicación: la suma de sus movimientos
-        $query = InventoryMovement::query()
-            ->selectRaw('id_inventory_lot, id_product, id_warehouse, id_location, SUM(quantity_in - quantity_out) AS stock')
-            ->groupBy('id_inventory_lot', 'id_product', 'id_warehouse', 'id_location')
-            ->havingRaw('SUM(quantity_in - quantity_out) > 0')
-            ->when($warehouseId, fn ($q) => $q->where('id_warehouse', $warehouseId))
-            ->when($search !== '', fn ($q) => $q->where(fn ($w) => $w
-                ->whereHas('product', $porProducto)
-                ->orWhereHas('lot', fn ($l) => $l->where('lot_code', 'ilike', "%{$search}%"))));
+        // Existencia actual de cada lote en cada ubicación de inventario
+        $query = InventoryLocationDetail::query()
+            ->where('inventory_location_details.quantity', '>', 0)
+            ->when($warehouseId, fn ($q) => $q->whereIn(
+                'inventory_location_details.id_inventory_location',
+                InventoryLocation::query()->inWarehouses($warehouseId)->select('id_inventory_location')
+            ))
+            ->when($search !== '', fn ($q) => $q->whereHas('lot', fn ($l) => $l->where(fn ($w) => $w
+                ->where('lot_code', 'ilike', "%{$search}%")
+                ->orWhereHas('product', $porProducto))));
 
         // El valor de cada fila es su existencia al costo actual de su lote
-        $totales = DB::query()
-            ->fromSub($query->toBase(), 'existencias')
-            ->join('inventory_lots', 'inventory_lots.id_inventory_lot', '=', 'existencias.id_inventory_lot')
-            ->selectRaw('COUNT(*) AS filas, COUNT(DISTINCT existencias.id_product) AS productos, COALESCE(SUM(existencias.stock * inventory_lots.unit_cost), 0) AS valor')
+        $totales = (clone $query)
+            ->join('inventory_lots', 'inventory_lots.id_inventory_lot', '=', 'inventory_location_details.id_inventory_lot')
+            ->toBase()
+            ->selectRaw('COUNT(*) AS filas, COUNT(DISTINCT inventory_lots.id_product) AS productos, COALESCE(SUM(inventory_location_details.quantity * inventory_lots.unit_cost), 0) AS valor')
             ->first();
 
+        // Cada fila lleva el producto de su lote (id_product), como las demás existencias
         $stock = $query
-            ->with(['product', 'lot.purchaseDetail.unit', 'warehouse', 'location'])
-            ->orderBy(Product::select('name')->whereColumn('products.id_product', 'inventory_movements.id_product'))
-            ->orderBy('id_inventory_lot')
+            ->select('inventory_location_details.*')
+            ->addSelect(['id_product' => InventoryLot::queryAllBranches()
+                ->select('id_product')
+                ->whereColumn('inventory_lots.id_inventory_lot', 'inventory_location_details.id_inventory_lot')])
+            ->with([
+                'lot.product', 'lot.purchaseDetail.unit', 'location.warehouseAllBranches',
+                'inventoryLocation.vehicleLocation.vehicle', 'inventoryLocation.vehicleLocation.warehouseAllBranches',
+            ])
+            ->orderBy(Product::select('products.name')
+                ->join('inventory_lots', 'inventory_lots.id_product', '=', 'products.id_product')
+                ->whereColumn('inventory_lots.id_inventory_lot', 'inventory_location_details.id_inventory_lot'))
+            ->orderBy('inventory_location_details.id_inventory_lot')
+            ->orderBy('inventory_location_details.id_inventory_location')
             ->paginate(20)
             ->withQueryString();
 

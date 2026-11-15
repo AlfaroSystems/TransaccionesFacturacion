@@ -45,7 +45,8 @@ class InventoryTransfer extends Model
     protected $fillable = [
         'id_source_warehouse',
         'id_destination_warehouse',
-        'id_vehicle_location',
+        'id_vehicle',
+        'id_driver_employee',
         'transfer_date',
         'dispatched_at',
         'received_at',
@@ -112,9 +113,14 @@ class InventoryTransfer extends Model
             ->withoutGlobalScope(BranchScope::class);
     }
 
-    public function vehicleLocation(): BelongsTo
+    public function vehicle(): BelongsTo
     {
-        return $this->belongsTo(Location::class, 'id_vehicle_location', 'id_location')
+        return $this->belongsTo(Vehicle::class, 'id_vehicle', 'id_vehicle');
+    }
+
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'id_driver_employee', 'id_employee')
             ->withoutGlobalScope(BranchScope::class);
     }
 

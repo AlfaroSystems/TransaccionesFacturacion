@@ -229,7 +229,11 @@ test('el lote se reparte en ubicaciones válidas y entra al inventario al confir
     expect($lote->status)->toBe(InventoryLot::STATUS_ACTIVE)
         ->and($lote->placed_at)->not->toBeNull()
         ->and($entradas->pluck('movement_type')->unique()->all())->toBe([InventoryMovement::TYPE_PURCHASE_RECEIPT])
-        ->and($entradas->pluck('id_location')->all())->toBe([$e->a1->id_location, $e->a2->id_location])
+        ->and($entradas->pluck('id_inventory_location')->all())->toBe([ubicacionInventario($e->a1), ubicacionInventario($e->a2)])
+        ->and(existenciaPorUbicacion()[0])->toBe([
+            $lote->id_inventory_lot.'|'.ubicacionInventario($e->a1) => 6.0,
+            $lote->id_inventory_lot.'|'.ubicacionInventario($e->a2) => 4.0,
+        ])
         ->and($entradas->pluck('quantity_in')->map(fn ($q) => (float) $q)->all())->toBe([6.0, 4.0])
         ->and((float) $entradas->sum('total_cost'))->toBe(120.0)
         ->and((float) $promedio->quantity_on_hand)->toBe(10.0)
@@ -340,16 +344,17 @@ test('un lote disponible se cambia de ubicación y el kardex muestra el saldo y 
     inventarioUbicar($segundo, [[$e->a1, 4]], confirmar: true)->assertSessionHasNoErrors();
 
     $mover = fn (array $datos) => $this->post(route('inventory.lots.relocate', $primero), $datos + [
-        'id_warehouse' => $e->bodegaMatriz->id_warehouse, 'id_source_location' => $e->a1->id_location,
+        'id_warehouse' => $e->bodegaMatriz->id_warehouse, 'id_source_inventory_location' => ubicacionInventario($e->a1),
     ]);
 
-    $mover(['id_destination_location' => $e->a1->id_location, 'quantity' => 1])->assertSessionHasErrors('id_destination_location');
-    $mover(['id_destination_location' => $e->s1->id_location, 'quantity' => 1])->assertSessionHasErrors('id_destination_location');
-    $mover(['id_destination_location' => $e->a2->id_location, 'quantity' => 7])->assertSessionHasErrors(['quantity' => 'Del lote '.$primero->lot_code.' solo hay 6 en esa ubicación.']);
-    $mover(['id_destination_location' => $e->a2->id_location, 'quantity' => 2])->assertSessionHasNoErrors()->assertSessionHas('success');
+    $mover(['id_destination_inventory_location' => ubicacionInventario($e->a1), 'quantity' => 1])->assertSessionHasErrors('id_destination_inventory_location');
+    $mover(['id_destination_inventory_location' => ubicacionInventario($e->s1), 'quantity' => 1])->assertSessionHasErrors('id_destination_inventory_location');
+    $mover(['id_destination_inventory_location' => ubicacionInventario($e->a2), 'quantity' => 7])->assertSessionHasErrors(['quantity' => 'Del lote '.$primero->lot_code.' solo hay 6 en esa ubicación.']);
+    $mover(['id_destination_inventory_location' => ubicacionInventario($e->a2), 'quantity' => 2])->assertSessionHasNoErrors()->assertSessionHas('success');
 
-    $existencias = app(InventoryService::class)->existenciasDelLote($primero)->mapWithKeys(fn ($f) => [$f->id_location => (float) $f->stock])->sortKeys();
-    expect($existencias->all())->toBe([$e->a1->id_location => 4.0, $e->a2->id_location => 2.0])
+    $existencias = app(InventoryService::class)->existenciasDelLote($primero)->mapWithKeys(fn ($f) => [$f->location->code => (float) $f->stock])->sortKeys();
+    expect($existencias->all())->toBe(['A1' => 4.0, 'A2' => 2.0])
+        ->and(existenciaPorUbicacion()[0])->toBe(existenciaPorUbicacion()[1])
         ->and(InventoryMovement::queryAllBranches()->whereIn('movement_type', ['relocation_out', 'relocation_in'])->count())->toBe(2)
         ->and((float) inventarioPromedio($e, $e->laptop)->average_unit_cost)->toBe(11.2);
 

@@ -147,6 +147,56 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite eliminar ubicaciones físicas.',
                 'action' => 'destroy',
             ],
+            // Empleados
+            [
+                'id_permission' => 'employees.ver',
+                'name' => 'Ver Empleados',
+                'description' => 'Permite ver el listado de empleados de las sucursales.',
+                'action' => 'index',
+            ],
+            [
+                'id_permission' => 'employees.crear',
+                'name' => 'Crear Empleados',
+                'description' => 'Permite registrar empleados (motoristas, responsables de vehículos).',
+                'action' => 'create',
+            ],
+            [
+                'id_permission' => 'employees.editar',
+                'name' => 'Editar Empleados',
+                'description' => 'Permite modificar y desactivar empleados.',
+                'action' => 'edit',
+            ],
+            [
+                'id_permission' => 'employees.eliminar',
+                'name' => 'Eliminar Empleados',
+                'description' => 'Permite eliminar empleados sin vehículos ni traslados.',
+                'action' => 'destroy',
+            ],
+            // Vehículos
+            [
+                'id_permission' => 'vehicles.ver',
+                'name' => 'Ver Vehículos',
+                'description' => 'Permite ver el listado de vehículos y sus espacios de carga.',
+                'action' => 'index',
+            ],
+            [
+                'id_permission' => 'vehicles.crear',
+                'name' => 'Crear Vehículos',
+                'description' => 'Permite registrar vehículos con sus espacios de carga.',
+                'action' => 'create',
+            ],
+            [
+                'id_permission' => 'vehicles.editar',
+                'name' => 'Editar Vehículos',
+                'description' => 'Permite modificar y desactivar vehículos y sus espacios de carga.',
+                'action' => 'edit',
+            ],
+            [
+                'id_permission' => 'vehicles.eliminar',
+                'name' => 'Eliminar Vehículos',
+                'description' => 'Permite eliminar vehículos sin traslados ni existencias.',
+                'action' => 'destroy',
+            ],
             // Inventario
             [
                 'id_permission' => 'inventory.ver',

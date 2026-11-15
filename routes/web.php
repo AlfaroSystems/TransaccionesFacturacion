@@ -5,6 +5,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InventoryLabelController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\WarehouseCategoryController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::post('inventory-transfers/{transfer}/receive', [InventoryTransferController::class, 'receive'])->name('inventory-transfers.receive');
     Route::post('inventory-transfers/{transfer}/cancel', [InventoryTransferController::class, 'cancel'])->name('inventory-transfers.cancel');
     Route::resource('inventory-transfers', InventoryTransferController::class)->parameters(['inventory-transfers' => 'transfer']);
+    Route::resource('employees', EmployeeController::class)->except(['show']);
+    Route::resource('vehicles', VehicleController::class)->except(['show']);
     // Lotes: nacen por ubicar al aplicar el retaceo; se reparten en ubicaciones y al confirmar
     // la colocación entran al inventario. Luego se cambian de ubicación con movimientos
     Route::get('inventory/lots', [InventoryLotController::class, 'index'])->name('inventory.lots.index');

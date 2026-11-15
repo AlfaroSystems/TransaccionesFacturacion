@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\InventoryLocation;
+use App\Models\InventoryLocationDetail;
+use App\Models\InventoryMovement;
+use App\Models\Location;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,4 +53,38 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Ubicación de inventario de una ubicación de bodega (se crea con ella).
+ */
+function ubicacionInventario(Location $location): int
+{
+    return (int) InventoryLocation::where('id_location', $location->id_location)->value('id_inventory_location');
+}
+
+/**
+ * Existencia por lote y ubicación de inventario según inventory_location_details, y según la
+ * suma de los movimientos: deben coincidir siempre.
+ *
+ * @return array{0: array<string, float>, 1: array<string, float>}
+ */
+function existenciaPorUbicacion(): array
+{
+    $detalle = InventoryLocationDetail::queryAllBranches()
+        ->orderBy('id_inventory_lot')->orderBy('id_inventory_location')->get()
+        ->mapWithKeys(fn ($d) => [$d->id_inventory_lot.'|'.$d->id_inventory_location => (float) $d->quantity])
+        ->all();
+
+    $movimientos = InventoryMovement::queryAllBranches()
+        ->whereNotNull('id_inventory_location')
+        ->groupBy('id_inventory_lot', 'id_inventory_location')
+        ->havingRaw('SUM(quantity_in - quantity_out) <> 0')
+        ->orderBy('id_inventory_lot')->orderBy('id_inventory_location')
+        ->selectRaw('id_inventory_lot, id_inventory_location, SUM(quantity_in - quantity_out) AS stock')
+        ->get()
+        ->mapWithKeys(fn ($m) => [$m->id_inventory_lot.'|'.$m->id_inventory_location => (float) $m->stock])
+        ->all();
+
+    return [$detalle, $movimientos];
 }

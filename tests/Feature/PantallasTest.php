@@ -5,6 +5,7 @@ use App\Models\Category;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\District;
+use App\Models\Employee;
 use App\Models\InventoryLot;
 use App\Models\InventoryTransfer;
 use App\Models\Location;
@@ -20,6 +21,7 @@ use App\Models\SubCategory;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
+use App\Models\Vehicle;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -77,9 +79,13 @@ function registrosParaPantallas(User $admin): array
     $retaceo = Retaceo::create([
         'id_supplier' => $supplier->id_supplier, 'id_purchase' => $purchase->id_purchase, 'retaceo_date' => now(), 'status' => 'draft',
     ]);
+    $employee = Employee::create(['first_name' => 'Juan', 'last_name' => 'Pérez', 'dui' => '01234567-8', 'position' => 'Motorista', 'id_branch' => $branch->id_branch]);
+    $vehicle = Vehicle::create(['brand' => 'Isuzu', 'model' => 'NPR', 'year' => 2020, 'license_plate' => 'C123-456', 'id_responsible_employee' => $employee->id_employee]);
+    $vehicle->locations()->create(['id_warehouse' => $warehouse->id_warehouse, 'code' => 'CAJON-1', 'capacity' => 50]);
     $bodegaDestino = Warehouse::create(['id_branch' => $branch->id_branch, 'id_warehouse_category' => $whCat->id_warehouse_category, 'name' => 'Bodega destino']);
     $transfer = InventoryTransfer::create([
         'id_source_warehouse' => $warehouse->id_warehouse, 'id_destination_warehouse' => $bodegaDestino->id_warehouse, 'transfer_date' => now(),
+        'id_vehicle' => $vehicle->id_vehicle, 'id_driver_employee' => $employee->id_employee,
     ]);
     $lot = InventoryLot::create([
         'lot_code' => 'LOT-PANTALLAS', 'id_product' => $product->id_product, 'id_warehouse' => $warehouse->id_warehouse, 'received_at' => now(),
@@ -91,7 +97,8 @@ function registrosParaPantallas(User $admin): array
         'product' => $product->id_product, 'purchase_quotation_request' => $quotationRequest->id_purchase_quotation_request,
         'purchase_request' => $request->id_purchase_request, 'purchaseRequest' => $request->id_purchase_request,
         'purchase_order' => $order->id_purchase_order, 'purchase' => $purchase->id_purchase, 'retaceo' => $retaceo->id_retaceo,
-        'transfer' => $transfer->id_inventory_transfer, 'lot' => $lot->id_inventory_lot, 'role' => $role->id_role, 'subcategory' => $sub->id_sub_category, 'supplier' => $supplier->id_supplier, 'unit' => $unit->id_unit,
+        'transfer' => $transfer->id_inventory_transfer, 'lot' => $lot->id_inventory_lot,
+        'employee' => $employee->id_employee, 'vehicle' => $vehicle->id_vehicle, 'role' => $role->id_role, 'subcategory' => $sub->id_sub_category, 'supplier' => $supplier->id_supplier, 'unit' => $unit->id_unit,
         'user' => $admin->id_user, 'warehouse_category' => $whCat->id_warehouse_category, 'warehouse' => $warehouse->id_warehouse,
     ];
 }

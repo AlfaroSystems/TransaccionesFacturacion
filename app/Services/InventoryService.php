@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\InventoryCostAverage;
+use App\Models\InventoryLocation;
+use App\Models\InventoryLocationDetail;
 use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
 use App\Models\Location;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
+use App\Models\VehicleLocation;
 use App\Models\Warehouse;
 use App\Support\DocumentSequence;
 use Illuminate\Support\Collection;
@@ -18,7 +21,7 @@ use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 /**
- * Inventario por lote, bodega y ubicación, y costo promedio por empresa.
+ * Inventario por lote, bodega y ubicación de inventario, y costo promedio por empresa.
  *
  * Toda compra lleva retaceo, y el inventario sigue este orden:
  * 1. Al aplicarse el retaceo, cada línea recibida de la compra se vuelve un lote por ubicar,
@@ -27,7 +30,8 @@ use InvalidArgumentException;
  *    se puede guardar y corregir mientras el lote esté por ubicar.
  * 3. Al confirmar la colocación, cada ubicación del reparto es una entrada al inventario y el
  *    lote queda disponible. Desde ahí solo se mueve con movimientos (cambio de ubicación,
- *    traslados), que quedan en el kardex.
+ *    traslados), que quedan en el kardex. Cada movimiento actualiza la existencia del lote en
+ *    su ubicación (inventory_location_details).
  *
  * Revertir el retaceo anula sus lotes, si ninguno se ha colocado. inventory_cost_averages lleva
  * la existencia, el valor y el costo promedio ponderado de cada producto por empresa.
@@ -249,6 +253,7 @@ class InventoryService
             $costo = (float) $lot->unit_cost;
             $pendiente = (float) $lot->total_cost;
             $purchaseId = $lot->purchaseDetail()->value('id_purchase');
+            $lugares = InventoryLocation::idsForLocations($reparto->pluck('id_location')->all());
 
             foreach ($reparto->values() as $i => $parte) {
                 $cantidad = (float) $parte->quantity;
@@ -259,7 +264,7 @@ class InventoryService
 
                 $this->registrarMovimiento($lot, [
                     'id_warehouse' => $lot->id_warehouse,
-                    'id_location' => $parte->id_location,
+                    'id_inventory_location' => $lugares[$parte->id_location],
                     'movement_type' => InventoryMovement::TYPE_PURCHASE_RECEIPT,
                     'quantity_in' => $cantidad,
                     'unit_cost' => $costo,
@@ -277,9 +282,10 @@ class InventoryService
 
     /**
      * Mueve existencia de un lote disponible a otra ubicación de la misma bodega: sale de una y
-     * entra a la otra al costo del lote. La empresa no cambia su existencia ni su valor.
+     * entra a la otra al costo del lote. La empresa no cambia su existencia ni su valor. Las
+     * ubicaciones son ubicaciones de inventario (inventory_locations).
      */
-    public function cambiarUbicacion(InventoryLot $lot, int $warehouseId, ?int $origenId, int $destinoId, float $cantidad): void
+    public function cambiarUbicacion(InventoryLot $lot, int $warehouseId, int $origenId, int $destinoId, float $cantidad): void
     {
         DB::transaction(function () use ($lot, $warehouseId, $origenId, $destinoId, $cantidad) {
             if ($lot->refreshWithLock()->status !== InventoryLot::STATUS_ACTIVE) {
@@ -287,17 +293,23 @@ class InventoryService
             }
 
             if ($origenId === $destinoId) {
-                throw ValidationException::withMessages(['id_destination_location' => 'La ubicación destino debe ser distinta de la de origen.']);
+                throw ValidationException::withMessages(['id_destination_inventory_location' => 'La ubicación destino debe ser distinta de la de origen.']);
             }
 
-            $destino = Location::queryAllBranches()->whereKey($destinoId)->lockForUpdate()->first();
-            $this->validarUbicacion($destino, $warehouseId, $cantidad, 'id_destination_location');
+            $origen = InventoryLocation::query()->whereKey($origenId)->value('id_location');
 
-            $hay = (float) InventoryMovement::queryAllBranches()
+            if (! $origen || (int) Location::queryAllBranches()->whereKey($origen)->value('id_warehouse') !== $warehouseId) {
+                throw ValidationException::withMessages(['id_source_inventory_location' => 'La ubicación de origen debe ser de la bodega.']);
+            }
+
+            $destino = InventoryLocation::query()->whereKey($destinoId)->value('id_location');
+            $location = $destino ? Location::queryAllBranches()->whereKey($destino)->lockForUpdate()->first() : null;
+            $this->validarUbicacion($location, $warehouseId, $cantidad, 'id_destination_inventory_location');
+
+            $hay = (float) InventoryLocationDetail::queryAllBranches()
                 ->where('id_inventory_lot', $lot->id_inventory_lot)
-                ->where('id_warehouse', $warehouseId)
-                ->where(fn ($q) => $origenId ? $q->where('id_location', $origenId) : $q->whereNull('id_location'))
-                ->sum(DB::raw('quantity_in - quantity_out'));
+                ->where('id_inventory_location', $origenId)
+                ->value('quantity');
 
             if ($cantidad > $hay + 0.00001) {
                 throw ValidationException::withMessages(['quantity' => 'Del lote '.$lot->lot_code.' solo hay '.$this->formato($hay).' en esa ubicación.']);
@@ -309,7 +321,7 @@ class InventoryService
             foreach ([[$origenId, InventoryMovement::TYPE_RELOCATION_OUT, 'quantity_out'], [$destinoId, InventoryMovement::TYPE_RELOCATION_IN, 'quantity_in']] as [$ubicacion, $tipo, $campo]) {
                 $this->registrarMovimiento($lot, [
                     'id_warehouse' => $warehouseId,
-                    'id_location' => $ubicacion,
+                    'id_inventory_location' => $ubicacion,
                     'movement_type' => $tipo,
                     $campo => $cantidad,
                     'unit_cost' => $costo,
@@ -387,9 +399,9 @@ class InventoryService
         }
 
         if ((int) $location->capacity > 0) {
-            $ocupado = (float) InventoryMovement::queryAllBranches()
-                ->where('id_location', $location->id_location)
-                ->sum(DB::raw('quantity_in - quantity_out'));
+            $ocupado = (float) InventoryLocationDetail::queryAllBranches()
+                ->whereIn('id_inventory_location', InventoryLocation::where('id_location', $location->id_location)->select('id_inventory_location'))
+                ->sum('quantity');
 
             if ($ocupado + $cantidad > (float) $location->capacity + 0.00001) {
                 throw ValidationException::withMessages([$campo => sprintf(
@@ -404,19 +416,32 @@ class InventoryService
     }
 
     /**
-     * Existencia del lote en cada bodega y ubicación (solo donde queda algo).
+     * Existencia del lote en cada ubicación de inventario de las bodegas visibles, con su bodega
+     * y su ubicación de bodega o espacio de vehículo.
      *
-     * @return Collection<int, object{id_warehouse: int, id_location: ?int, stock: float}>
+     * @return Collection<int, object{id_inventory_location: int, id_warehouse: ?int, warehouse: ?Warehouse, location: ?Location, vehicleLocation: ?VehicleLocation, stock: float}>
      */
     public function existenciasDelLote(InventoryLot $lot): Collection
     {
-        return InventoryMovement::query()
+        return InventoryLocationDetail::query()
             ->where('id_inventory_lot', $lot->id_inventory_lot)
-            ->groupBy('id_warehouse', 'id_location')
-            ->selectRaw('id_warehouse, id_location, SUM(quantity_in - quantity_out) AS stock')
-            ->havingRaw('SUM(quantity_in - quantity_out) > 0')
-            ->with(['warehouse', 'location'])
-            ->get();
+            ->where('quantity', '>', 0)
+            ->with(['inventoryLocation.location.warehouseAllBranches', 'inventoryLocation.vehicleLocation.warehouseAllBranches', 'inventoryLocation.vehicleLocation.vehicle'])
+            ->orderBy('id_inventory_location')
+            ->get()
+            ->map(function (InventoryLocationDetail $detalle) {
+                $lugar = $detalle->inventoryLocation;
+                $bodega = $lugar->location?->warehouseAllBranches ?? $lugar->vehicleLocation?->warehouseAllBranches;
+
+                return (object) [
+                    'id_inventory_location' => $detalle->id_inventory_location,
+                    'id_warehouse' => $bodega?->id_warehouse,
+                    'warehouse' => $bodega,
+                    'location' => $lugar->location,
+                    'vehicleLocation' => $lugar->vehicleLocation,
+                    'stock' => (float) $detalle->quantity,
+                ];
+            });
     }
 
     private function registrarMovimiento(InventoryLot $lot, array $datos): InventoryMovement

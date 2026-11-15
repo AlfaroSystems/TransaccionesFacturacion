@@ -137,27 +137,28 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         @forelse($stock as $row)
+                            @php $vehiculo = $row->inventoryLocation?->vehicleLocation; @endphp
                             <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
                                 <td class="py-4 px-6">
-                                    <span class="font-bold text-slate-800 dark:text-white block">{{ $row->product?->name ?? 'Producto' }}</span>
-                                    <span class="text-xs font-mono text-slate-400">{{ $row->product?->sku }}</span>
+                                    <span class="font-bold text-slate-800 dark:text-white block">{{ $row->lot?->product?->name ?? 'Producto' }}</span>
+                                    <span class="text-xs font-mono text-slate-400">{{ $row->lot?->product?->sku }}</span>
                                 </td>
                                 <td class="py-4 px-6">
                                     <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 text-xs font-mono font-extrabold border border-teal-200 dark:border-teal-800">{{ $row->lot?->lot_code }}</span>
                                     <a href="{{ route('inventory.lots.show', $row->id_inventory_lot) }}" class="block mt-1.5 text-[11px] font-bold text-slate-500 hover:text-[#005e66] dark:hover:text-teal-400">Ver lote →</a>
                                 </td>
                                 <td class="py-4 px-6">
-                                    <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $row->warehouse?->name ?? 'N/A' }}</span>
-                                    <span class="text-xs font-mono text-slate-400">{{ $row->location?->code ?? 'Sin ubicación' }}</span>
+                                    <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ ($row->location?->warehouseAllBranches ?? $vehiculo?->warehouseAllBranches)?->name ?? 'N/A' }}</span>
+                                    <span class="text-xs font-mono text-slate-400">{{ $row->location?->code ?? ($vehiculo ? 'Vehículo '.$vehiculo->vehicle?->license_plate.' · '.$vehiculo->code : 'Sin ubicación') }}</span>
                                 </td>
                                 <td class="py-4 px-6 text-xs whitespace-nowrap">{{ $row->lot?->received_at?->format('d/m/Y') }}</td>
                                 <td class="py-4 px-6 text-right font-mono font-extrabold text-slate-800 dark:text-white whitespace-nowrap">
-                                    {{ $qty($row->stock) }}
+                                    {{ $qty($row->quantity) }}
                                     {{-- En la unidad en que se recibió el lote --}}
                                     <span class="text-xs font-sans font-semibold text-slate-400">{{ $row->lot?->purchaseDetail?->unit?->name }}</span>
                                 </td>
                                 <td class="py-4 px-6 text-right font-mono">${{ number_format((float) $row->lot?->unit_cost, 4) }}</td>
-                                <td class="py-4 px-6 text-right font-mono font-bold text-[#005e66] dark:text-teal-400">${{ number_format((float) $row->stock * (float) $row->lot?->unit_cost, 2) }}</td>
+                                <td class="py-4 px-6 text-right font-mono font-bold text-[#005e66] dark:text-teal-400">${{ number_format((float) $row->quantity * (float) $row->lot?->unit_cost, 2) }}</td>
                             </tr>
                         @empty
                             <tr>

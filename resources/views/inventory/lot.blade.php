@@ -294,7 +294,7 @@
                         <tr>
                             <td class="py-3 px-4">
                                 <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $fila->warehouse?->name }}</span>
-                                <span class="text-xs font-mono text-slate-400">{{ $fila->location?->code ?? 'Sin ubicación' }}</span>
+                                <span class="text-xs font-mono text-slate-400">{{ $fila->location?->code ?? ($fila->vehicleLocation ? 'Vehículo '.$fila->vehicleLocation->vehicle?->license_plate.' · '.$fila->vehicleLocation->code : 'Sin ubicación') }}</span>
                             </td>
                             <td class="py-3 px-4 text-right font-mono font-extrabold">{{ $qty($fila->stock) }} <span class="text-xs font-sans text-slate-400">{{ $unidad }}</span></td>
                             @can('inventory.ubicar')
@@ -302,11 +302,11 @@
                                     <form method="POST" action="{{ route('inventory.lots.relocate', $lot) }}" class="flex flex-wrap items-center gap-2">
                                         @csrf
                                         <input type="hidden" name="id_warehouse" value="{{ $fila->id_warehouse }}">
-                                        <input type="hidden" name="id_source_location" value="{{ $fila->id_location }}">
-                                        <select name="id_destination_location" required class="{{ $inputClass }} md:w-44">
+                                        <input type="hidden" name="id_source_inventory_location" value="{{ $fila->id_inventory_location }}">
+                                        <select name="id_destination_inventory_location" required class="{{ $inputClass }} md:w-44">
                                             <option value="">-- Hacia --</option>
-                                            @foreach(($destinos[$fila->id_warehouse] ?? collect())->where('id_location', '!=', $fila->id_location) as $destino)
-                                                <option value="{{ $destino->id_location }}">{{ $destino->code }}</option>
+                                            @foreach(($destinos[$fila->id_warehouse] ?? collect())->where('id_inventory_location', '!=', $fila->id_inventory_location) as $destino)
+                                                <option value="{{ $destino->id_inventory_location }}">{{ $destino->location?->code }}</option>
                                             @endforeach
                                         </select>
                                         <input type="number" step="0.0001" min="0.0001" max="{{ (float) $fila->stock }}" name="quantity" required value="{{ (float) $fila->stock }}" class="{{ $inputClass }} md:w-28 text-right font-mono">
@@ -347,7 +347,7 @@
                     <tr>
                         <td class="py-3 px-4 text-xs whitespace-nowrap">{{ $movimiento->movement_date->format('d/m/Y h:i A') }}</td>
                         <td class="py-3 px-4 text-xs font-bold">{{ $movimiento->typeLabel() }}</td>
-                        <td class="py-3 px-4 text-xs">{{ $movimiento->warehouse?->name }} · <span class="font-mono">{{ $movimiento->location?->code ?? 'Sin ubicación' }}</span></td>
+                        <td class="py-3 px-4 text-xs">{{ $movimiento->warehouse?->name }} · <span class="font-mono">{{ $movimiento->location?->code ?? ($movimiento->inventoryLocation?->vehicleLocation ? 'Vehículo '.$movimiento->inventoryLocation->vehicleLocation->vehicle?->license_plate : 'Sin ubicación') }}</span></td>
                         <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">{{ (float) $movimiento->quantity_in > 0 ? $qty($movimiento->quantity_in) : '' }}</td>
                         <td class="py-3 px-4 text-right font-mono font-bold text-rose-600 dark:text-rose-400">{{ (float) $movimiento->quantity_out > 0 ? $qty($movimiento->quantity_out) : '' }}</td>
                         <td class="py-3 px-4 text-xs">{{ $movimiento->user?->username ?? 'Sistema' }}</td>
