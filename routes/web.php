@@ -59,8 +59,18 @@ Route::middleware('auth')->group(function () {
     Route::get('inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('inventory/movements', [InventoryController::class, 'movements'])->name('inventory.movements');
     // Traslados entre bodegas: Casa Matriz reparte a las sucursales lo que entró con las compras
+    // Flujo del traslado: autorizar, preparar, despachar al vehículo, recibir y regularizar
+    Route::post('inventory-transfers/{transfer}/submit', [InventoryTransferController::class, 'submit'])->name('inventory-transfers.submit');
+    Route::post('inventory-transfers/{transfer}/authorize', [InventoryTransferController::class, 'authorizeTransfer'])->name('inventory-transfers.authorize');
+    Route::post('inventory-transfers/{transfer}/reject', [InventoryTransferController::class, 'reject'])->name('inventory-transfers.reject');
+    Route::post('inventory-transfers/{transfer}/prepare', [InventoryTransferController::class, 'prepare'])->name('inventory-transfers.prepare');
+    Route::get('inventory-transfers/{transfer}/picking', [InventoryTransferController::class, 'picking'])->name('inventory-transfers.picking');
     Route::post('inventory-transfers/{transfer}/dispatch', [InventoryTransferController::class, 'dispatchTransfer'])->name('inventory-transfers.dispatch');
     Route::post('inventory-transfers/{transfer}/receive', [InventoryTransferController::class, 'receive'])->name('inventory-transfers.receive');
+    Route::post('inventory-transfers/{transfer}/continue-transit', [InventoryTransferController::class, 'continueTransit'])->name('inventory-transfers.continue-transit');
+    Route::get('inventory-transfers/{transfer}/discrepancies', [InventoryTransferController::class, 'discrepancies'])->name('inventory-transfers.discrepancies');
+    Route::post('inventory-transfers/{transfer}/discrepancies', [InventoryTransferController::class, 'storeDiscrepancies'])->name('inventory-transfers.discrepancies.store');
+    Route::post('inventory-transfers/{transfer}/regularize', [InventoryTransferController::class, 'regularize'])->name('inventory-transfers.regularize');
     Route::post('inventory-transfers/{transfer}/cancel', [InventoryTransferController::class, 'cancel'])->name('inventory-transfers.cancel');
     Route::resource('inventory-transfers', InventoryTransferController::class)->parameters(['inventory-transfers' => 'transfer']);
     Route::resource('employees', EmployeeController::class)->except(['show']);

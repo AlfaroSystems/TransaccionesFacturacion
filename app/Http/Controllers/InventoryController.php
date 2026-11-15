@@ -123,7 +123,7 @@ class InventoryController extends Controller
 
         $movements = InventoryMovement::queryAllBranches()
             ->fromSub($conSaldo, 'inventory_movements')
-            ->with(['product', 'lot', 'warehouse', 'location', 'user'])
+            ->with(['product', 'lot', 'warehouse', 'location', 'inventoryLocation.vehicleLocation.vehicle', 'user'])
             ->when($type, fn ($q) => $q->where('movement_type', $type))
             ->when($this->fechaDelFiltro($request, 'date_from'), fn ($q, $desde) => $q->whereDate('movement_date', '>=', $desde))
             ->when($this->fechaDelFiltro($request, 'date_to'), fn ($q, $hasta) => $q->whereDate('movement_date', '<=', $hasta))

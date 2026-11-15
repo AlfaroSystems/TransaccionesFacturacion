@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
@@ -38,6 +39,24 @@ class InventoryTransferDetail extends Model
         'quantity_received' => 'decimal:4',
         'unit_cost' => 'decimal:4',
     ];
+
+    /**
+     * Lo que sigue en el vehículo: lo despachado menos lo recibido y lo que se regularizó como
+     * faltante o daño.
+     */
+    public function pendingQuantity(): float
+    {
+        $bajas = $this->relationLoaded('discrepancies')
+            ? $this->discrepancies->whereNotNull('regularized_at')->where('discrepancy_type', '!=', InventoryTransferDiscrepancy::TYPE_SURPLUS)->sum(fn ($d) => (float) $d->quantity)
+            : (float) $this->discrepancies()->whereNotNull('regularized_at')->where('discrepancy_type', '!=', InventoryTransferDiscrepancy::TYPE_SURPLUS)->sum('quantity');
+
+        return round((float) $this->quantity_dispatched - (float) $this->quantity_received - $bajas, 4);
+    }
+
+    public function discrepancies(): HasMany
+    {
+        return $this->hasMany(InventoryTransferDiscrepancy::class, 'id_inventory_transfer_detail', 'id_inventory_transfer_detail');
+    }
 
     public function transfer(): BelongsTo
     {

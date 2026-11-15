@@ -15,7 +15,8 @@
             'notes' => $l->notes,
             'is_active' => $l->is_active,
         ])->values()->all()
-        : []);
+        // Uno nuevo empieza con un espacio por llenar (sin código no se guarda)
+        : [['id_warehouse' => null, 'code' => '', 'capacity' => 0, 'notes' => '', 'is_active' => true]]);
     $siguiente = count($espacios) ? max(array_keys($espacios)) + 1 : 0;
 @endphp
 

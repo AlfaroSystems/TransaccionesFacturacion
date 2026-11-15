@@ -210,11 +210,31 @@ class VehicleController extends Controller
             ];
 
             if (! empty($espacio['id_vehicle_location'])) {
-                $actuales[(int) $espacio['id_vehicle_location']]->update($datos);
+                $actual = $actuales[(int) $espacio['id_vehicle_location']];
+
+                // Lleva mercadería de un traslado en tránsito: no se desactiva ni cambia de bodega
+                $desactiva = $actual->is_active && ! $datos['is_active'];
+                $cambiaBodega = (int) $actual->id_warehouse !== $datos['id_warehouse'];
+
+                if (($desactiva || $cambiaBodega) && $this->llevaMercaderia($actual)) {
+                    throw ValidationException::withMessages([
+                        'locations' => "El espacio {$actual->code} lleva mercadería de un traslado en tránsito: no se puede desactivar ni cambiar de bodega hasta recibirla.",
+                    ]);
+                }
+
+                $actual->update($datos);
             } else {
                 $vehicle->locations()->create($datos);
             }
         }
+    }
+
+    private function llevaMercaderia(VehicleLocation $espacio): bool
+    {
+        return InventoryLocationDetail::queryAllBranches()
+            ->whereIn('id_inventory_location', InventoryLocation::where('id_vehicle_location', $espacio->id_vehicle_location)->select('id_inventory_location'))
+            ->where('quantity', '>', 0)
+            ->exists();
     }
 
     /**

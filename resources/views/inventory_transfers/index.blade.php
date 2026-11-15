@@ -5,9 +5,14 @@
 @php
     $statusClasses = [
         'draft' => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-        'dispatched' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+        'pending_authorization' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+        'authorized' => 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
+        'preparing' => 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',
+        'in_transit' => 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300',
+        'partially_received' => 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950/60 dark:text-yellow-300',
+        'with_discrepancy' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
         'received' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
-        'cancelled' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
+        'cancelled' => 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
     ];
 @endphp
 <div class="w-full space-y-6 animate-fade-in duration-300">
@@ -20,7 +25,7 @@
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Traslados</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Traslados de Inventario</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Casa Matriz reparte a las sucursales lo que entró con las compras: se despacha desde la bodega origen y se recibe en la destino.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Casa Matriz reparte a las sucursales lo que entró con las compras: se autoriza, se prepara, viaja en el vehículo y se recibe en la bodega destino.</p>
         </div>
         @can('inventory.trasladar')
             <a href="{{ route('inventory-transfers.create') }}" class="inline-flex items-center justify-center gap-2 bg-[#005e66] hover:bg-[#004d54] text-white font-bold py-2.5 px-5 rounded-xl text-sm transition-all shadow-xs">
@@ -56,6 +61,7 @@
                         <th class="py-4 px-6">Código</th>
                         <th class="py-4 px-6">Fecha</th>
                         <th class="py-4 px-6">Origen → Destino</th>
+                        <th class="py-4 px-6">Vehículo</th>
                         <th class="py-4 px-6 text-center">Lotes</th>
                         <th class="py-4 px-6">Estado</th>
                         <th class="py-4 px-6 text-right">Acciones</th>
@@ -71,6 +77,10 @@
                                 <span class="text-slate-400 mx-1">→</span>
                                 <span class="font-semibold text-slate-800 dark:text-white">{{ $transfer->destinationWarehouse?->name }}</span>
                             </td>
+                            <td class="py-4 px-6 text-xs">
+                                <span class="font-mono font-bold block">{{ $transfer->vehicle?->license_plate ?? '—' }}</span>
+                                <span class="text-slate-400">{{ $transfer->driver?->fullName() }}</span>
+                            </td>
                             <td class="py-4 px-6 text-center font-mono">{{ $transfer->details_count }}</td>
                             <td class="py-4 px-6">
                                 <span class="px-2 py-1 rounded-lg text-xs font-extrabold whitespace-nowrap {{ $statusClasses[$transfer->status] ?? '' }}">{{ $transfer->statusLabel() }}</span>
@@ -81,7 +91,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-16 text-center text-slate-400 text-sm">
+                            <td colspan="7" class="py-16 text-center text-slate-400 text-sm">
                                 {{ $search || $status ? 'No se encontraron traslados con esos filtros.' : 'Aún no hay traslados. Cree uno para repartir a las sucursales lo que entró a Casa Matriz.' }}
                             </td>
                         </tr>

@@ -11,6 +11,10 @@
         'transfer_out' => 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
         'transfer_in' => 'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300',
         'transfer_loss' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
+        'transfer_load' => 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300',
+        'transfer_unload' => 'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300',
+        'transfer_damage' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
+        'transfer_surplus' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
         'relocation_out' => 'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
         'relocation_in' => 'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
     ];
@@ -105,7 +109,8 @@
                             </td>
                             <td class="py-3.5 px-5">
                                 <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $movement->warehouse?->name ?? 'N/A' }}</span>
-                                <span class="text-xs font-mono text-slate-400">{{ $movement->location?->code ?? 'Sin ubicación' }}</span>
+                                @php $espacio = $movement->inventoryLocation?->vehicleLocation; @endphp
+                                <span class="text-xs font-mono text-slate-400">{{ $movement->location?->code ?? ($espacio ? 'Vehículo '.$espacio->vehicle?->license_plate.' · '.$espacio->code : 'Sin ubicación') }}</span>
                             </td>
                             <td class="py-3.5 px-5 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">{{ (float) $movement->quantity_in > 0 ? $qty($movement->quantity_in) : '' }}</td>
                             <td class="py-3.5 px-5 text-right font-mono font-bold text-rose-600 dark:text-rose-400">{{ $salida ? $qty($movement->quantity_out) : '' }}</td>

@@ -34,6 +34,14 @@ class InventoryMovement extends Model
 
     public const TYPE_TRANSFER_LOSS = 'transfer_loss';
 
+    public const TYPE_TRANSFER_LOAD = 'transfer_load';
+
+    public const TYPE_TRANSFER_UNLOAD = 'transfer_unload';
+
+    public const TYPE_TRANSFER_DAMAGE = 'transfer_damage';
+
+    public const TYPE_TRANSFER_SURPLUS = 'transfer_surplus';
+
     public const TYPE_RELOCATION_OUT = 'relocation_out';
 
     public const TYPE_RELOCATION_IN = 'relocation_in';
@@ -45,8 +53,12 @@ class InventoryMovement extends Model
         self::TYPE_PURCHASE_CANCEL => 'Anulación de compra',
         self::TYPE_COST_ADJUSTMENT => 'Ajuste de costo',
         self::TYPE_TRANSFER_OUT => 'Salida por traslado',
+        self::TYPE_TRANSFER_LOAD => 'Carga al vehículo',
+        self::TYPE_TRANSFER_UNLOAD => 'Descarga del vehículo',
         self::TYPE_TRANSFER_IN => 'Entrada por traslado',
-        self::TYPE_TRANSFER_LOSS => 'Merma en traslado',
+        self::TYPE_TRANSFER_LOSS => 'Faltante en traslado',
+        self::TYPE_TRANSFER_DAMAGE => 'Baja por daño en traslado',
+        self::TYPE_TRANSFER_SURPLUS => 'Sobrante en traslado',
         self::TYPE_RELOCATION_OUT => 'Cambio de ubicación (sale)',
         self::TYPE_RELOCATION_IN => 'Cambio de ubicación (entra)',
     ];

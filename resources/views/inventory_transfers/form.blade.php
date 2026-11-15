@@ -20,7 +20,7 @@
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $transfer ? $transfer->transfer_code : 'Nuevo' }}</span>
             </div>
             <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">{{ $transfer ? 'Editar Traslado' : 'Nuevo Traslado' }}</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Se guarda como borrador; la mercadería sale de la bodega origen al despacharlo.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Se guarda como borrador. Para enviarlo a autorizar necesita vehículo y motorista; la mercadería sale de la bodega origen al despacharlo.</p>
         </div>
         <a href="{{ $transfer ? route('inventory-transfers.show', $transfer) : route('inventory-transfers.index') }}" class="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">← Volver</a>
     </div>
@@ -80,6 +80,9 @@
                     @error('id_vehicle')
                         <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
                     @enderror
+                    @if($vehiculos->isEmpty())
+                        <p class="text-[11px] text-slate-400 mt-1">No hay vehículos activos: regístrelos en Inventario → Vehículos.</p>
+                    @endif
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Motorista</label>
@@ -92,6 +95,9 @@
                     @error('id_driver_employee')
                         <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
                     @enderror
+                    @if($motoristas->isEmpty())
+                        <p class="text-[11px] text-slate-400 mt-1">No hay empleados activos: regístrelos en Empresa → Empleados.</p>
+                    @endif
                 </div>
                 <div class="md:col-span-4">
                     <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Notas</label>
@@ -102,7 +108,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                     <h2 class="font-extrabold text-slate-800 dark:text-white">Existencia en {{ $origen->name }}</h2>
-                    <p class="text-xs text-slate-400">Indique cuánto sale de cada lote; las filas sin cantidad no se trasladan.</p>
+                    <p class="text-xs text-slate-400">Indique cuánto se solicita de cada lote; las filas sin cantidad no se trasladan.</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
@@ -112,7 +118,7 @@
                                 <th class="py-3 px-4">Lote</th>
                                 <th class="py-3 px-4">Ubicación origen</th>
                                 <th class="py-3 px-4 text-right">Existencia</th>
-                                <th class="py-3 px-4 w-36">Cantidad a trasladar</th>
+                                <th class="py-3 px-4 w-36">Cantidad solicitada</th>
                                 <th class="py-3 px-4 w-48">Ubicación destino</th>
                             </tr>
                         </thead>

@@ -14,8 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Traslado de lotes entre bodegas: Casa Matriz reparte a las sucursales lo que entró con las
- * compras. Borrador → Despachado (sale de la bodega origen) → Recibido (entra a la destino).
- * Ver InventoryTransferService.
+ * compras.
+ *
+ * Borrador → Por autorizar → Autorizado (o rechazado: vuelve a borrador con su motivo) →
+ * En preparación → En tránsito (la mercadería va en el espacio de carga del vehículo) →
+ * Recepción parcial (lo que falta sigue en el vehículo) → Con discrepancia → Recibido.
+ * Antes de despacharse se puede cancelar. Ver InventoryTransferService.
  */
 class InventoryTransfer extends Model
 {
@@ -23,7 +27,17 @@ class InventoryTransfer extends Model
 
     public const STATUS_DRAFT = 'draft';
 
-    public const STATUS_DISPATCHED = 'dispatched';
+    public const STATUS_PENDING_AUTHORIZATION = 'pending_authorization';
+
+    public const STATUS_AUTHORIZED = 'authorized';
+
+    public const STATUS_PREPARING = 'preparing';
+
+    public const STATUS_IN_TRANSIT = 'in_transit';
+
+    public const STATUS_PARTIALLY_RECEIVED = 'partially_received';
+
+    public const STATUS_WITH_DISCREPANCY = 'with_discrepancy';
 
     public const STATUS_RECEIVED = 'received';
 
@@ -31,10 +45,21 @@ class InventoryTransfer extends Model
 
     public const STATUS_LABELS = [
         self::STATUS_DRAFT => 'Borrador',
-        self::STATUS_DISPATCHED => 'Despachado',
+        self::STATUS_PENDING_AUTHORIZATION => 'Por autorizar',
+        self::STATUS_AUTHORIZED => 'Autorizado',
+        self::STATUS_PREPARING => 'En preparación',
+        self::STATUS_IN_TRANSIT => 'En tránsito',
+        self::STATUS_PARTIALLY_RECEIVED => 'Recepción parcial',
+        self::STATUS_WITH_DISCREPANCY => 'Con discrepancia',
         self::STATUS_RECEIVED => 'Recibido',
         self::STATUS_CANCELLED => 'Cancelado',
     ];
+
+    // Se cancelan mientras su mercadería no haya salido de la bodega origen
+    public const CANCELLABLE = [self::STATUS_DRAFT, self::STATUS_PENDING_AUTHORIZATION, self::STATUS_AUTHORIZED, self::STATUS_PREPARING];
+
+    // Su mercadería (o parte) va en el vehículo: se recibe y se le registran discrepancias
+    public const RECEIVABLE = [self::STATUS_IN_TRANSIT, self::STATUS_PARTIALLY_RECEIVED, self::STATUS_WITH_DISCREPANCY];
 
     const UPDATED_AT = null;
 
@@ -47,7 +72,12 @@ class InventoryTransfer extends Model
         'id_destination_warehouse',
         'id_vehicle',
         'id_driver_employee',
+        'id_vehicle_location',
         'transfer_date',
+        'authorized_at',
+        'id_authorized_by',
+        'status_reason',
+        'prepared_at',
         'dispatched_at',
         'received_at',
         'status',
@@ -61,6 +91,8 @@ class InventoryTransfer extends Model
 
     protected $casts = [
         'transfer_date' => 'datetime',
+        'authorized_at' => 'datetime',
+        'prepared_at' => 'datetime',
         'dispatched_at' => 'datetime',
         'received_at' => 'datetime',
     ];
@@ -91,6 +123,16 @@ class InventoryTransfer extends Model
         return $this->status === self::STATUS_DRAFT;
     }
 
+    public function isCancellable(): bool
+    {
+        return in_array($this->status, self::CANCELLABLE, true);
+    }
+
+    public function isReceivable(): bool
+    {
+        return in_array($this->status, self::RECEIVABLE, true);
+    }
+
     public function statusLabel(): string
     {
         return self::STATUS_LABELS[$this->status] ?? $this->status;
@@ -116,6 +158,20 @@ class InventoryTransfer extends Model
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class, 'id_vehicle', 'id_vehicle');
+    }
+
+    /**
+     * Espacio de carga del vehículo donde viaja la mercadería (se elige al despachar).
+     */
+    public function vehicleLocation(): BelongsTo
+    {
+        return $this->belongsTo(VehicleLocation::class, 'id_vehicle_location', 'id_vehicle_location')
+            ->withoutGlobalScope(BranchScope::class);
+    }
+
+    public function authorizedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_authorized_by', 'id_user');
     }
 
     public function driver(): BelongsTo

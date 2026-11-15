@@ -6,13 +6,16 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\InventoryLocation;
 use App\Models\InventoryLocationDetail;
+use App\Models\InventoryMovement;
 use App\Models\InventoryTransfer;
+use App\Models\InventoryTransferDiscrepancy;
 use App\Models\Location;
 use App\Models\Scopes\BranchScope;
 use App\Models\Vehicle;
 use App\Models\Warehouse;
 use App\Services\InventoryTransferService;
 use App\Support\BranchAccess;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -21,12 +24,13 @@ use Illuminate\Validation\Rule;
 
 /**
  * Traslados de lotes entre bodegas: Casa Matriz reparte a las sucursales lo que entró con las
- * compras. La lógica (existencias, despacho, recepción y merma) está en InventoryTransferService.
+ * compras. Cada paso del flujo (autorizar, preparar, despachar al vehículo, recibir, registrar
+ * discrepancias y regularizar) es una acción; la lógica está en InventoryTransferService.
  */
 class InventoryTransferController extends Controller
 {
     private const MENSAJES = [
-        'details.required' => 'Indique la cantidad a trasladar de al menos un lote.',
+        'details.required' => 'Indique la cantidad solicitada de al menos un lote.',
         'id_destination_warehouse.different' => 'La bodega destino debe ser distinta de la de origen.',
         'id_destination_warehouse.in' => 'La bodega destino debe ser de la misma empresa que la de origen.',
         'id_source_warehouse.in' => 'Elija una bodega de origen de su sucursal.',
@@ -46,7 +50,7 @@ class InventoryTransferController extends Controller
         $search = trim((string) $request->input('search'));
 
         $transfers = InventoryTransfer::query()
-            ->with(['sourceWarehouse', 'destinationWarehouse', 'user'])
+            ->with(['sourceWarehouse', 'destinationWarehouse', 'user', 'vehicle', 'driver'])
             ->withCount('details')
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($search !== '', fn ($q) => $q->where('transfer_code', 'ilike', "%{$search}%"))
@@ -98,16 +102,30 @@ class InventoryTransferController extends Controller
     {
         Gate::authorize('inventory.ver');
 
-        $transfer->load([
-            'sourceWarehouse.branch' => fn ($q) => $q->withoutGlobalScope(BranchScope::class),
-            'destinationWarehouse.branch' => fn ($q) => $q->withoutGlobalScope(BranchScope::class),
-            'vehicle', 'driver', 'user',
-            'details.lot', 'details.product.purchaseUnit', 'details.sourceLocation', 'details.destinationLocation',
+        $this->cargarDetalle($transfer);
+
+        return view('inventory_transfers.show', [
+            'transfer' => $transfer,
+            'ubicacionesDestino' => $this->ubicacionesDeBodega($transfer->id_destination_warehouse),
+            'espacios' => $transfer->status === InventoryTransfer::STATUS_PREPARING ? $this->service->espaciosDelVehiculo($transfer) : collect(),
+            'seguimiento' => $this->seguimiento($transfer),
         ]);
+    }
 
-        $ubicacionesDestino = $this->ubicacionesDeBodega($transfer->id_destination_warehouse);
+    /**
+     * Lista de preparación para imprimir: qué sacar de cada ubicación de la bodega origen.
+     */
+    public function picking(InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.trasladar');
 
-        return view('inventory_transfers.show', compact('transfer', 'ubicacionesDestino'));
+        if (! in_array($transfer->status, [InventoryTransfer::STATUS_AUTHORIZED, InventoryTransfer::STATUS_PREPARING], true)) {
+            return redirect()->route('inventory-transfers.show', $transfer)->with('error', 'La lista de preparación es de un traslado autorizado o en preparación.');
+        }
+
+        $this->cargarDetalle($transfer);
+
+        return view('inventory_transfers.picking', compact('transfer'));
     }
 
     public function edit(InventoryTransfer $transfer)
@@ -163,11 +181,56 @@ class InventoryTransferController extends Controller
         return redirect()->route('inventory-transfers.index')->with('success', 'Traslado eliminado.');
     }
 
-    public function dispatchTransfer(InventoryTransfer $transfer)
+    public function submit(InventoryTransfer $transfer)
     {
         Gate::authorize('inventory.trasladar');
 
-        return $this->accion(fn () => $this->service->despachar($transfer), 'Traslado despachado: lo pedido salió de la bodega origen.');
+        return $this->accion(fn () => $this->service->enviarAAutorizacion($transfer), 'Traslado enviado a autorización.');
+    }
+
+    public function authorizeTransfer(InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.autorizar_traslados');
+
+        return $this->accion(fn () => $this->service->autorizar($transfer), 'Traslado autorizado: ya se puede preparar su despacho.');
+    }
+
+    public function reject(Request $request, InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.autorizar_traslados');
+
+        $validated = $request->validate(
+            ['status_reason' => ['required', 'string', 'max:500']],
+            ['status_reason.required' => 'Indique el motivo del rechazo.']
+        );
+
+        return $this->accion(fn () => $this->service->rechazar($transfer, $validated['status_reason']), 'Traslado rechazado: volvió a borrador con el motivo.');
+    }
+
+    public function prepare(InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.trasladar');
+
+        return $this->accion(fn () => $this->service->prepararDespacho($transfer), 'Despacho en preparación: indique lo preparado y confirme el despacho.');
+    }
+
+    public function dispatchTransfer(Request $request, InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.trasladar');
+
+        $validated = $request->validate([
+            'id_vehicle_location' => ['required', 'integer'],
+            'prepared' => ['nullable', 'array'],
+            'prepared.*' => ['nullable', 'numeric', 'min:0'],
+        ], ['id_vehicle_location.required' => 'Elija el espacio del vehículo donde va la mercadería.']);
+
+        // Sin cantidad, se despacha lo solicitado
+        $preparado = array_filter($validated['prepared'] ?? [], fn ($valor) => $valor !== null);
+
+        return $this->accion(
+            fn () => $this->service->despachar($transfer, $preparado, (int) $validated['id_vehicle_location']),
+            'Traslado despachado: la mercadería salió de la bodega origen y va en el vehículo.'
+        );
     }
 
     public function cancel(InventoryTransfer $transfer)
@@ -187,8 +250,8 @@ class InventoryTransferController extends Controller
             'received.*.id_destination_inventory_location' => ['nullable', 'integer', Rule::in($this->ubicacionesDeBodega($transfer->id_destination_warehouse)->pluck('id_inventory_location')->all())],
         ], ['received.*.id_destination_inventory_location.in' => 'La ubicación debe ser de la bodega destino.']);
 
-        // Sin cantidad, se recibe lo despachado (0 es una cantidad: no llegó nada). Sin ubicación,
-        // la que se indicó en el borrador
+        // Sin cantidad, se recibe todo lo que sigue en el vehículo (0 es una cantidad: no llegó
+        // nada). Sin ubicación, la que se indicó en el borrador
         $recibido = collect($validated['received'] ?? [])
             ->map(fn ($linea) => array_filter([
                 'quantity_received' => $linea['quantity_received'] ?? null,
@@ -196,7 +259,167 @@ class InventoryTransferController extends Controller
             ], fn ($valor) => $valor !== null))
             ->all();
 
-        return $this->accion(fn () => $this->service->recibir($transfer, $recibido), 'Traslado recibido: su mercadería ya está en la bodega destino.');
+        try {
+            $this->service->recibir($transfer, $recibido);
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        $mensajes = [
+            InventoryTransfer::STATUS_RECEIVED => 'Traslado recibido completo: su mercadería ya está en la bodega destino.',
+            InventoryTransfer::STATUS_PARTIALLY_RECEIVED => 'Recepción parcial registrada: lo que falta sigue en el vehículo.',
+            InventoryTransfer::STATUS_WITH_DISCREPANCY => 'Recepción registrada con discrepancias: regularícelas para cerrar el traslado.',
+        ];
+
+        return back()->with('success', $mensajes[$transfer->fresh()->status] ?? 'Recepción registrada.');
+    }
+
+    public function continueTransit(InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.recibir_traslados');
+
+        return $this->accion(fn () => $this->service->continuarEnTransito($transfer), 'El traslado sigue en tránsito: lo que falta se recibirá después.');
+    }
+
+    /**
+     * Formulario de faltantes, daños y sobrantes de cada línea.
+     */
+    public function discrepancies(InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.recibir_traslados');
+
+        if (! $transfer->isReceivable()) {
+            return redirect()->route('inventory-transfers.show', $transfer)->with('error', 'Las discrepancias se registran al recibir un traslado en tránsito.');
+        }
+
+        $this->cargarDetalle($transfer);
+
+        return view('inventory_transfers.discrepancies', [
+            'transfer' => $transfer,
+            'ubicacionesDestino' => $this->ubicacionesDeBodega($transfer->id_destination_warehouse),
+        ]);
+    }
+
+    public function storeDiscrepancies(Request $request, InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.recibir_traslados');
+
+        $validated = $request->validate([
+            'discrepancies' => ['nullable', 'array'],
+            'discrepancies.*.shortage' => ['nullable', 'numeric', 'min:0'],
+            'discrepancies.*.damage' => ['nullable', 'numeric', 'min:0'],
+            'discrepancies.*.surplus' => ['nullable', 'numeric', 'min:0'],
+            'discrepancies.*.id_destination_inventory_location' => ['nullable', 'integer', Rule::in($this->ubicacionesDeBodega($transfer->id_destination_warehouse)->pluck('id_inventory_location')->all())],
+            'discrepancies.*.notes' => ['nullable', 'string', 'max:500'],
+        ], ['discrepancies.*.id_destination_inventory_location.in' => 'La ubicación debe ser de la bodega destino.']);
+
+        try {
+            $this->service->registrarDiscrepancias($transfer, $validated['discrepancies'] ?? []);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        return redirect()
+            ->route('inventory-transfers.show', $transfer)
+            ->with('success', 'Discrepancias registradas: quien autoriza los traslados las regulariza para cerrarlo.');
+    }
+
+    public function regularize(InventoryTransfer $transfer)
+    {
+        Gate::authorize('inventory.regularizar_traslados');
+
+        return $this->accion(fn () => $this->service->regularizar($transfer), 'Existencias regularizadas: el traslado quedó recibido y cerrado.');
+    }
+
+    /**
+     * "1 unidad", "2.5 unidades".
+     */
+    public static function unidades(float $cantidad): string
+    {
+        $texto = rtrim(rtrim(number_format($cantidad, 4, '.', ''), '0'), '.');
+
+        return $texto.' '.($texto === '1' ? 'unidad' : 'unidades');
+    }
+
+    /**
+     * Relaciones que muestran el detalle, la lista de preparación y las discrepancias.
+     */
+    private function cargarDetalle(InventoryTransfer $transfer): void
+    {
+        $transfer->load([
+            'sourceWarehouse.branch' => fn ($q) => $q->withoutGlobalScope(BranchScope::class),
+            'destinationWarehouse.branch' => fn ($q) => $q->withoutGlobalScope(BranchScope::class),
+            'vehicle', 'driver', 'user', 'authorizedBy', 'vehicleLocation.warehouseAllBranches',
+            'details' => fn ($q) => $q->orderBy('id_inventory_transfer_detail'),
+            'details.lot', 'details.product.purchaseUnit', 'details.sourceLocation', 'details.destinationLocation',
+            'details.discrepancies.destinationLocation', 'details.discrepancies.user',
+        ]);
+    }
+
+    /**
+     * Seguimiento del traslado: cada paso con su fecha y quién lo hizo, del más antiguo al más
+     * reciente. Las recepciones salen de sus movimientos (una por fecha y usuario).
+     *
+     * @return Collection<int, object{fecha: CarbonInterface, titulo: string, detalle: ?string}>
+     */
+    private function seguimiento(InventoryTransfer $transfer): Collection
+    {
+        $pasos = collect([(object) [
+            'fecha' => $transfer->created_at,
+            'titulo' => 'Traslado creado',
+            'detalle' => $transfer->user?->username,
+        ]]);
+
+        if ($transfer->authorized_at) {
+            $pasos->push((object) ['fecha' => $transfer->authorized_at, 'titulo' => 'Autorizado', 'detalle' => $transfer->authorizedBy?->username]);
+        }
+
+        if ($transfer->prepared_at) {
+            $pasos->push((object) ['fecha' => $transfer->prepared_at, 'titulo' => 'Despacho en preparación', 'detalle' => null]);
+        }
+
+        if ($transfer->dispatched_at) {
+            $pasos->push((object) [
+                'fecha' => $transfer->dispatched_at,
+                'titulo' => 'Despachado: en tránsito',
+                'detalle' => collect([$transfer->vehicle?->label(), $transfer->vehicleLocation?->code, $transfer->driver?->fullName()])->filter()->join(' · '),
+            ]);
+        }
+
+        InventoryMovement::queryAllBranches()
+            ->with('user')
+            ->where('reference_type', InventoryMovement::REFERENCE_TRANSFER)
+            ->where('reference_id', $transfer->id_inventory_transfer)
+            ->where('movement_type', InventoryMovement::TYPE_TRANSFER_IN)
+            ->orderBy('id_inventory_movement')
+            ->get()
+            ->groupBy(fn ($m) => $m->movement_date->format('Y-m-d H:i:s').'|'.$m->id_user)
+            ->each(fn ($grupo) => $pasos->push((object) [
+                'fecha' => $grupo->first()->movement_date,
+                'titulo' => 'Recepción de '.self::unidades((float) $grupo->sum('quantity_in')),
+                'detalle' => $grupo->first()->user?->username,
+            ]));
+
+        $discrepancias = $transfer->details->flatMap->discrepancies;
+
+        $discrepancias->groupBy(fn ($d) => $d->created_at->format('Y-m-d H:i'))
+            ->each(fn ($grupo) => $pasos->push((object) [
+                'fecha' => $grupo->first()->created_at,
+                'titulo' => 'Discrepancias registradas',
+                'detalle' => $grupo->groupBy('discrepancy_type')
+                    ->map(fn ($tipo, $clave) => InventoryTransferDiscrepancy::TYPE_LABELS[$clave].': '.rtrim(rtrim(number_format((float) $tipo->sum('quantity'), 4, '.', ''), '0'), '.'))
+                    ->join(' · '),
+            ]));
+
+        if ($regularizada = $discrepancias->whereNotNull('regularized_at')->max('regularized_at')) {
+            $pasos->push((object) ['fecha' => $regularizada, 'titulo' => 'Existencias regularizadas', 'detalle' => null]);
+        }
+
+        if ($transfer->received_at) {
+            $pasos->push((object) ['fecha' => $transfer->received_at, 'titulo' => 'Traslado finalizado: recibido', 'detalle' => null]);
+        }
+
+        return $pasos->sortBy(fn ($paso) => $paso->fecha->getTimestamp())->values();
     }
 
     private function accion(\Closure $accion, string $mensaje)
@@ -245,8 +468,12 @@ class InventoryTransferController extends Controller
      */
     private function datosDeLineas(Warehouse $origen, Warehouse $destino, ?InventoryTransfer $transfer = null): array
     {
+        // Solo lo que está en ubicaciones de la bodega: lo que va en un vehículo no se traslada
         $existencias = InventoryLocationDetail::queryAllBranches()
-            ->whereIn('id_inventory_location', InventoryLocation::query()->inWarehouses($origen->id_warehouse)->select('id_inventory_location'))
+            ->whereIn('id_inventory_location', InventoryLocation::query()
+                ->where('location_type', InventoryLocation::TYPE_LOCATION)
+                ->inWarehouses($origen->id_warehouse)
+                ->select('id_inventory_location'))
             ->where('quantity', '>', 0)
             ->with(['lot.product.purchaseUnit', 'location'])
             ->get()

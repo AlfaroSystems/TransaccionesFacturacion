@@ -193,22 +193,6 @@ test('el traslado registra su vehículo y su motorista', function () {
     expect($transfer->id_vehicle)->toBe($vehicle->id_vehicle)->and($transfer->id_driver_employee)->toBe($motorista->id_employee);
     $this->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('C1 · Isuzu NPR')->assertSee('Carlos Ruiz');
 
-    // Sin ubicación destino en el borrador, se elige al recibir
-    $this->post(route('inventory-transfers.dispatch', $transfer))->assertSessionHas('success');
-    $detalle = $transfer->details()->sole();
-    $this->post(route('inventory-transfers.receive', $transfer))->assertSessionHasErrors("received.{$detalle->id_inventory_transfer_detail}.id_destination_inventory_location");
-    expect($transfer->fresh()->status)->toBe('dispatched');
-
-    $s1 = Location::create(['id_warehouse' => $e->bodegaSucursal->id_warehouse, 'code' => 'S1', 'capacity' => 0]);
-    $this->post(route('inventory-transfers.receive', $transfer), [
-        'received' => [$detalle->id_inventory_transfer_detail => ['id_destination_inventory_location' => ubicacionInventario($s1)]],
-    ])->assertSessionHas('success');
-    expect($transfer->fresh()->status)->toBe('received')
-        ->and(existenciaPorUbicacion()[0])->toBe([
-            $lot->id_inventory_lot.'|'.ubicacionInventario($a1) => 3.0,
-            $lot->id_inventory_lot.'|'.ubicacionInventario($s1) => 2.0,
-        ]);
-
     // Con traslados, el vehículo y el motorista ya no se eliminan
     $this->actingAs($e->compras);
     $this->delete(route('vehicles.destroy', $vehicle))->assertSessionHas('error');
@@ -219,6 +203,30 @@ test('el traslado registra su vehículo y su motorista', function () {
     // Sin uso, sí
     $this->delete(route('vehicles.destroy', $inactivo))->assertSessionHas('success');
     expect(Vehicle::whereKey($inactivo->id_vehicle)->exists())->toBeFalse();
+});
+
+test('un espacio que lleva mercadería en tránsito no se desactiva', function () {
+    $e = flotaEscenario();
+    $vehicle = Vehicle::create(['license_plate' => 'C9', 'brand' => 'Isuzu', 'model' => 'NPR']);
+    $cajon = $vehicle->locations()->create(['id_warehouse' => $e->bodega->id_warehouse, 'code' => 'CAJON-1']);
+    $product = Product::create(['name' => 'Laptop', 'sku' => 'L-'.Str::random(5)]);
+    $lot = InventoryLot::create([
+        'lot_code' => 'LOT-'.Str::random(5), 'id_product' => $product->id_product, 'id_warehouse' => $e->bodega->id_warehouse, 'received_at' => now(),
+        'quantity_received' => 2, 'unit_cost' => 2, 'total_cost' => 4, 'status' => InventoryLot::STATUS_ACTIVE, 'placed_at' => now(),
+    ]);
+    // Como lo deja un despacho: la mercadería va en el cajón
+    InventoryMovement::create([
+        'id_product' => $product->id_product, 'id_inventory_lot' => $lot->id_inventory_lot, 'id_warehouse' => $e->bodega->id_warehouse,
+        'id_inventory_location' => $cajon->inventoryLocation()->value('id_inventory_location'), 'movement_type' => 'transfer_load',
+        'movement_date' => now(), 'quantity_in' => 2, 'quantity_out' => 0, 'unit_cost' => 2, 'total_cost' => 4,
+    ]);
+
+    $this->actingAs($e->compras)->put(route('vehicles.update', $vehicle), [
+        'license_plate' => 'C9', 'brand' => 'Isuzu', 'model' => 'NPR', 'is_active' => '1',
+        'locations' => [['id_vehicle_location' => $cajon->id_vehicle_location, 'code' => 'CAJON-1', 'id_warehouse' => $e->bodega->id_warehouse, 'is_active' => '0']],
+    ])->assertSessionHasErrors('locations');
+
+    expect($cajon->fresh()->is_active)->toBeTrue();
 });
 
 test('empleados y vehículos requieren su permiso', function () {

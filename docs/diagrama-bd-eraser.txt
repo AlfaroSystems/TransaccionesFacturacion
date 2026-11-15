@@ -653,6 +653,11 @@ inventory_transfers [icon: truck, color: teal] {
   created_at datetime
   id_vehicle int fk
   id_driver_employee int fk
+  authorized_at datetime
+  id_authorized_by int fk
+  status_reason text
+  prepared_at datetime
+  id_vehicle_location int fk
 }
 
 inventory_transfer_details [icon: truck, color: teal] {
@@ -667,6 +672,18 @@ inventory_transfer_details [icon: truck, color: teal] {
   id_source_inventory_location int fk
   id_destination_inventory_location int fk
   quantity_requested decimal
+}
+
+inventory_transfer_discrepancies [icon: alert-triangle, color: teal] {
+  id_inventory_transfer_discrepancy int pk
+  id_inventory_transfer_detail int fk
+  discrepancy_type string
+  quantity decimal
+  id_destination_inventory_location int fk
+  notes text
+  id_user int fk
+  created_at datetime
+  regularized_at datetime
 }
 
 inventory_label_prints [icon: printer, color: teal] {
@@ -711,11 +728,16 @@ inventory_transfer_details.id_inventory_lot > inventory_lots.id_inventory_lot
 inventory_transfer_details.id_inventory_transfer > inventory_transfers.id_inventory_transfer
 inventory_transfer_details.id_product > products.id_product
 inventory_transfer_details.id_source_inventory_location > inventory_locations.id_inventory_location
+inventory_transfer_discrepancies.id_destination_inventory_location > inventory_locations.id_inventory_location
+inventory_transfer_discrepancies.id_inventory_transfer_detail > inventory_transfer_details.id_inventory_transfer_detail
+inventory_transfer_discrepancies.id_user > users.id_user
+inventory_transfers.id_authorized_by > users.id_user
 inventory_transfers.id_destination_warehouse > warehouses.id_warehouse
 inventory_transfers.id_driver_employee > employees.id_employee
 inventory_transfers.id_source_warehouse > warehouses.id_warehouse
 inventory_transfers.id_user > users.id_user
 inventory_transfers.id_vehicle > vehicles.id_vehicle
+inventory_transfers.id_vehicle_location > vehicle_locations.id_vehicle_location
 locations.id_warehouse > warehouses.id_warehouse
 logs.id_user > users.id_user
 municipalities.id_department > departments.id_department

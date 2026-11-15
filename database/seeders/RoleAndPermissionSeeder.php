@@ -211,6 +211,18 @@ class RoleAndPermissionSeeder extends Seeder
                 'action' => 'create',
             ],
             [
+                'id_permission' => 'inventory.autorizar_traslados',
+                'name' => 'Autorizar Traslados',
+                'description' => 'Permite autorizar o rechazar los traslados enviados a autorización.',
+                'action' => 'authorize',
+            ],
+            [
+                'id_permission' => 'inventory.regularizar_traslados',
+                'name' => 'Regularizar Discrepancias de Traslados',
+                'description' => 'Permite regularizar los faltantes, sobrantes y daños de un traslado y cerrarlo.',
+                'action' => 'regularize',
+            ],
+            [
                 'id_permission' => 'inventory.recibir_traslados',
                 'name' => 'Recibir Traslados',
                 'description' => 'Permite confirmar lo que llegó de un traslado despachado a una bodega de la sucursal.',

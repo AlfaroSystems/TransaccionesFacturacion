@@ -299,6 +299,9 @@
                             <td class="py-3 px-4 text-right font-mono font-extrabold">{{ $qty($fila->stock) }} <span class="text-xs font-sans text-slate-400">{{ $unidad }}</span></td>
                             @can('inventory.ubicar')
                                 <td class="py-3 px-4">
+                                    @if(! $fila->location)
+                                        <span class="text-xs font-bold text-orange-600 dark:text-orange-400">En tránsito: se recibe desde su traslado</span>
+                                    @else
                                     <form method="POST" action="{{ route('inventory.lots.relocate', $lot) }}" class="flex flex-wrap items-center gap-2">
                                         @csrf
                                         <input type="hidden" name="id_warehouse" value="{{ $fila->id_warehouse }}">
@@ -312,6 +315,7 @@
                                         <input type="number" step="0.0001" min="0.0001" max="{{ (float) $fila->stock }}" name="quantity" required value="{{ (float) $fila->stock }}" class="{{ $inputClass }} md:w-28 text-right font-mono">
                                         <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white">Mover</button>
                                     </form>
+                                    @endif
                                 </td>
                             @endcan
                         </tr>
@@ -347,7 +351,7 @@
                     <tr>
                         <td class="py-3 px-4 text-xs whitespace-nowrap">{{ $movimiento->movement_date->format('d/m/Y h:i A') }}</td>
                         <td class="py-3 px-4 text-xs font-bold">{{ $movimiento->typeLabel() }}</td>
-                        <td class="py-3 px-4 text-xs">{{ $movimiento->warehouse?->name }} · <span class="font-mono">{{ $movimiento->location?->code ?? ($movimiento->inventoryLocation?->vehicleLocation ? 'Vehículo '.$movimiento->inventoryLocation->vehicleLocation->vehicle?->license_plate : 'Sin ubicación') }}</span></td>
+                        <td class="py-3 px-4 text-xs">{{ $movimiento->warehouse?->name }} · <span class="font-mono">{{ $movimiento->location?->code ?? ($movimiento->inventoryLocation?->vehicleLocation ? 'Vehículo '.$movimiento->inventoryLocation->vehicleLocation->vehicle?->license_plate.' · '.$movimiento->inventoryLocation->vehicleLocation->code : 'Sin ubicación') }}</span></td>
                         <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">{{ (float) $movimiento->quantity_in > 0 ? $qty($movimiento->quantity_in) : '' }}</td>
                         <td class="py-3 px-4 text-right font-mono font-bold text-rose-600 dark:text-rose-400">{{ (float) $movimiento->quantity_out > 0 ? $qty($movimiento->quantity_out) : '' }}</td>
                         <td class="py-3 px-4 text-xs">{{ $movimiento->user?->username ?? 'Sistema' }}</td>
