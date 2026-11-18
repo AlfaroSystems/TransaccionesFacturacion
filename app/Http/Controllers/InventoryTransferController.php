@@ -105,8 +105,14 @@ class InventoryTransferController extends Controller
 
         $this->cargarDetalle($transfer);
 
+        // Cuánto hay en la bodega origen del lote de cada sobrante por regularizar: de ahí sale
+        $origenDeSobrantes = $transfer->details
+            ->filter(fn ($d) => $d->discrepancies->contains(fn ($x) => $x->discrepancy_type === InventoryTransferDiscrepancy::TYPE_SURPLUS && ! $x->regularized_at))
+            ->mapWithKeys(fn ($d) => [$d->id_inventory_transfer_detail => $this->service->disponibleEnOrigen($transfer, $d)]);
+
         return view('inventory_transfers.show', [
             'transfer' => $transfer,
+            'origenDeSobrantes' => $origenDeSobrantes,
             'ubicacionesDestino' => $this->ubicacionesDeBodega($transfer->id_destination_warehouse),
             'espacios' => $transfer->status === InventoryTransfer::STATUS_PREPARING ? $this->service->espaciosDelVehiculo($transfer) : collect(),
             'seguimiento' => $this->seguimiento($transfer),

@@ -18,6 +18,8 @@ use App\Models\Vehicle;
 use App\Models\VehicleLocation;
 use App\Models\Warehouse;
 use App\Models\WarehouseCategory;
+use App\Services\InventoryService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 // =============================================================================
@@ -355,7 +357,7 @@ test('faltantes y daños salen del vehículo como pérdida al regularizar', func
     $this->get(route('inventory.movements', ['type' => 'transfer_damage']))->assertOk()->assertSee('Baja por daño en traslado');
 });
 
-test('lo que llega de más es un sobrante que entra a la bodega destino al regularizar', function () {
+test('un sobrante salió de la bodega origen sin registrarse: sale de ahí al regularizar', function () {
     $e = trasladoEscenario();
     $transfer = trasladoDespachado($e, 2);
     $linea = $transfer->details()->sole()->id_inventory_transfer_detail;
@@ -371,12 +373,72 @@ test('lo que llega de más es un sobrante que entra a la bodega destino al regul
         // Lo despachado ya salió del vehículo; el sobrante aún no entra
         ->and(trasladoUbicaciones($e))->toBe(['A1' => 8.0, 'S1' => 2.0]);
 
+    // Quien regulariza ve de dónde saldrá
+    $this->actingAs($e->autorizador)->get(route('inventory-transfers.show', $transfer))->assertOk()
+        ->assertSee("Sale de {$e->bodegaMatriz->name} (hay 8 del lote)");
+
+    $this->post(route('inventory-transfers.regularize', $transfer))->assertSessionHas('success');
+
+    // La caja de más sale de A1: la empresa sigue con 10 a $5
+    expect($transfer->fresh()->status)->toBe(InventoryTransfer::STATUS_RECEIVED)
+        ->and(trasladoUbicaciones($e))->toBe(['A1' => 7.0, 'S1' => 3.0])
+        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(10.0)
+        ->and((float) trasladoPromedio($e)->inventory_value)->toBe(50.0)
+        ->and(InventoryMovement::queryAllBranches()->where('movement_type', InventoryMovement::TYPE_TRANSFER_SURPLUS_GAIN)->exists())->toBeFalse();
+
+    $this->get(route('inventory.movements', ['type' => InventoryMovement::TYPE_TRANSFER_SURPLUS_OUT]))->assertOk()->assertSee('Sobrante: sale de la bodega origen');
+});
+
+test('el sobrante sale primero de la ubicación de la línea y luego de otras del mismo lote', function () {
+    $e = trasladoEscenario();
+    $a2 = Location::create(['id_warehouse' => $e->bodegaMatriz->id_warehouse, 'code' => 'A2', 'capacity' => 100]);
+    (new InventoryService)->cambiarUbicacion($e->lot, $e->bodegaMatriz->id_warehouse, ubicacionInventario($e->a1), ubicacionInventario($a2), 3);
+
+    // A1 queda con 1 y A2 con 3; llegan 9 de 6
+    $transfer = trasladoDespachado($e, 6);
+    $linea = $transfer->details()->sole()->id_inventory_transfer_detail;
+    $this->actingAs($e->receptor)->post(route('inventory-transfers.receive', $transfer), [
+        'received' => [$linea => ['quantity_received' => 9]],
+    ])->assertSessionHas('success');
+
     $this->actingAs($e->autorizador)->post(route('inventory-transfers.regularize', $transfer))->assertSessionHas('success');
 
-    expect($transfer->fresh()->status)->toBe(InventoryTransfer::STATUS_RECEIVED)
-        ->and(trasladoUbicaciones($e))->toBe(['A1' => 8.0, 'S1' => 3.0])
-        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(11.0)
-        ->and((float) trasladoPromedio($e)->inventory_value)->toBe(55.0);
+    $salidas = InventoryMovement::queryAllBranches()->where('movement_type', InventoryMovement::TYPE_TRANSFER_SURPLUS_OUT)
+        ->orderBy('id_inventory_movement')->get()
+        ->map(fn ($m) => [(int) $m->id_inventory_location, (float) $m->quantity_out])->all();
+
+    expect($salidas)->toBe([[ubicacionInventario($e->a1), 1.0], [ubicacionInventario($a2), 2.0]])
+        ->and(trasladoUbicaciones($e))->toBe([$e->lot->id_inventory_lot.'|'.ubicacionInventario($a2) => 1.0, 'S1' => 9.0])
+        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(10.0);
+});
+
+test('lo que la bodega origen ya no tiene del lote entra como ganancia', function () {
+    $e = trasladoEscenario();
+    // A1 queda con 1; llegan 12 de 9: 1 sale de A1 y 2 no tienen de dónde salir
+    $transfer = trasladoDespachado($e, 9);
+    $linea = $transfer->details()->sole()->id_inventory_transfer_detail;
+    $this->actingAs($e->receptor)->post(route('inventory-transfers.receive', $transfer), [
+        'received' => [$linea => ['quantity_received' => 12]],
+    ])->assertSessionHas('success');
+
+    $this->actingAs($e->autorizador)->get(route('inventory-transfers.show', $transfer))->assertOk()
+        ->assertSee("Sale 1 de {$e->bodegaMatriz->name};", false)
+        ->assertSee('2 entra como ganancia');
+
+    $this->post(route('inventory-transfers.regularize', $transfer))->assertSessionHas('success');
+
+    $porTipo = fn (string $tipo) => (float) InventoryMovement::queryAllBranches()->where('movement_type', $tipo)->sum(DB::raw('quantity_in + quantity_out'));
+
+    expect(trasladoUbicaciones($e))->toBe(['S1' => 12.0])
+        ->and($porTipo(InventoryMovement::TYPE_TRANSFER_SURPLUS_OUT))->toBe(1.0)
+        ->and($porTipo(InventoryMovement::TYPE_TRANSFER_SURPLUS))->toBe(1.0)
+        ->and($porTipo(InventoryMovement::TYPE_TRANSFER_SURPLUS_GAIN))->toBe(2.0)
+        // Solo la ganancia sube lo que tiene la empresa: 2 a $5
+        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(12.0)
+        ->and((float) trasladoPromedio($e)->inventory_value)->toBe(60.0)
+        ->and((float) trasladoPromedio($e)->average_unit_cost)->toBe(5.0);
+
+    $this->get(route('inventory.movements', ['type' => InventoryMovement::TYPE_TRANSFER_SURPLUS_GAIN]))->assertOk()->assertSee('Ganancia por sobrante (sin origen)');
 });
 
 test('solo se cancela antes de despacharse y solo el borrador se edita o elimina', function () {

@@ -40,7 +40,13 @@ class InventoryMovement extends Model
 
     public const TYPE_TRANSFER_DAMAGE = 'transfer_damage';
 
+    // Sobrante de un traslado: salió de la bodega origen sin registrarse (sale de ahí y entra a
+    // la destino); lo que la origen ya no tiene entra a la destino como ganancia
     public const TYPE_TRANSFER_SURPLUS = 'transfer_surplus';
+
+    public const TYPE_TRANSFER_SURPLUS_OUT = 'transfer_surplus_out';
+
+    public const TYPE_TRANSFER_SURPLUS_GAIN = 'transfer_surplus_gain';
 
     public const TYPE_RELOCATION_OUT = 'relocation_out';
 
@@ -58,7 +64,9 @@ class InventoryMovement extends Model
         self::TYPE_TRANSFER_IN => 'Entrada por traslado',
         self::TYPE_TRANSFER_LOSS => 'Faltante en traslado',
         self::TYPE_TRANSFER_DAMAGE => 'Baja por daño en traslado',
+        self::TYPE_TRANSFER_SURPLUS_OUT => 'Sobrante: sale de la bodega origen',
         self::TYPE_TRANSFER_SURPLUS => 'Sobrante en traslado',
+        self::TYPE_TRANSFER_SURPLUS_GAIN => 'Ganancia por sobrante (sin origen)',
         self::TYPE_RELOCATION_OUT => 'Cambio de ubicación (sale)',
         self::TYPE_RELOCATION_IN => 'Cambio de ubicación (entra)',
     ];

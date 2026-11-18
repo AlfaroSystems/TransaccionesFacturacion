@@ -405,7 +405,7 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-rose-100 dark:border-rose-900/60 shadow-xs overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Discrepancias</h2>
-                <p class="text-xs text-slate-400">Faltantes y daños salen del vehículo como pérdida; los sobrantes entran a la bodega destino. Se aplican al regularizar.</p>
+                <p class="text-xs text-slate-400">Faltantes y daños salen del vehículo como pérdida. Un sobrante salió de la bodega origen sin registrarse: sale del mismo lote en la origen y entra a la destino; lo que la origen ya no tenga entra como ganancia. Se aplican al regularizar.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
@@ -431,6 +431,22 @@
                                     {{ $discrepancia->typeLabel() }}
                                     @if($discrepancia->destinationLocation)
                                         <span class="block font-mono font-normal text-slate-400">Entra en {{ $discrepancia->destinationLocation->code }}</span>
+                                    @endif
+                                    @if($discrepancia->discrepancy_type === \App\Models\InventoryTransferDiscrepancy::TYPE_SURPLUS && ! $discrepancia->regularized_at && $origenDeSobrantes->has($detalle->id_inventory_transfer_detail))
+                                        @php
+                                            $enOrigen = (float) $origenDeSobrantes[$detalle->id_inventory_transfer_detail];
+                                            $ganancia = max(0, (float) $discrepancia->quantity - $enOrigen);
+                                        @endphp
+                                        <span class="block font-normal text-slate-400">
+                                            @if($ganancia <= 0.00001)
+                                                Sale de {{ $transfer->sourceWarehouse?->name }} (hay {{ $qty($enOrigen) }} del lote)
+                                            @elseif($enOrigen > 0)
+                                                Sale {{ $qty($enOrigen) }} de {{ $transfer->sourceWarehouse?->name }};
+                                                <span class="text-amber-600 dark:text-amber-400">{{ $qty($ganancia) }} entra como ganancia</span>
+                                            @else
+                                                <span class="text-amber-600 dark:text-amber-400">{{ $transfer->sourceWarehouse?->name }} ya no tiene del lote: entra como ganancia</span>
+                                            @endif
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 text-right font-mono font-bold">{{ $qty($discrepancia->quantity) }}</td>

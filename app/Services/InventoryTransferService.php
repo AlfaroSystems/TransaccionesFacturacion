@@ -11,6 +11,7 @@ use App\Models\InventoryMovement;
 use App\Models\InventoryTransfer;
 use App\Models\InventoryTransferDetail;
 use App\Models\InventoryTransferDiscrepancy;
+use App\Models\Location;
 use App\Models\Vehicle;
 use App\Models\VehicleLocation;
 use App\Models\Warehouse;
@@ -35,7 +36,9 @@ use InvalidArgumentException;
  *    Lo que falta sigue en el vehículo (recepción parcial); lo que llega de más es un sobrante.
  * 6. Discrepancias: lo que sigue en el vehículo y no llegará se registra como faltante o daño;
  *    al regularizar, faltantes y daños salen del vehículo como pérdida (la empresa descuenta
- *    existencia y valor) y los sobrantes entran a la bodega destino. El traslado queda recibido.
+ *    existencia y valor). Un sobrante salió de la bodega origen sin registrarse: sale del mismo
+ *    lote en la origen y entra a la destino; lo que la origen ya no tenga entra como ganancia
+ *    (la empresa suma existencia y valor). El traslado queda recibido.
  *
  * Las ubicaciones son ubicaciones de inventario (inventory_locations). Mientras la mercadería va
  * en el vehículo sigue en la empresa, así que el costo promedio solo cambia al regularizar.
@@ -490,15 +493,7 @@ class InventoryTransferService
                     $valor = round($cantidad * $costo, 4);
 
                     if ($discrepancia->discrepancy_type === InventoryTransferDiscrepancy::TYPE_SURPLUS) {
-                        $this->registrarMovimiento($transfer, $detalle, [
-                            'id_warehouse' => $transfer->id_destination_warehouse,
-                            'id_inventory_location' => $discrepancia->id_destination_inventory_location,
-                            'movement_type' => InventoryMovement::TYPE_TRANSFER_SURPLUS,
-                            'quantity_in' => $cantidad,
-                            'unit_cost' => $costo,
-                            'total_cost' => $valor,
-                        ]);
-                        $this->inventario->acumularPromedio($empresa, $detalle->id_product, $cantidad, $valor);
+                        $this->regularizarSobrante($transfer, $detalle, $discrepancia, $empresa);
                     } else {
                         $this->registrarMovimiento($transfer, $detalle, [
                             'id_warehouse' => $espacio->id_warehouse,
@@ -519,6 +514,90 @@ class InventoryTransferService
 
             $transfer->update(['status' => InventoryTransfer::STATUS_RECEIVED, 'received_at' => now()]);
         });
+    }
+
+    /**
+     * Lo que llegó de más salió de la bodega origen sin registrarse: sale del mismo lote en la
+     * origen (primero de la ubicación de la línea) y entra a la destino, sin cambiar lo que tiene
+     * la empresa. Lo que la origen ya no tiene entra a la destino como ganancia de inventario.
+     */
+    private function regularizarSobrante(InventoryTransfer $transfer, InventoryTransferDetail $detalle, InventoryTransferDiscrepancy $discrepancia, int $empresa): void
+    {
+        $cantidad = (float) $discrepancia->quantity;
+        $costo = (float) $detalle->unit_cost;
+        $porSacar = $cantidad;
+
+        foreach ($this->existenciaEnOrigen($transfer, $detalle, bloquear: true) as $existencia) {
+            if ($porSacar <= 0.00001) {
+                break;
+            }
+
+            $sale = round(min($porSacar, (float) $existencia->quantity), 4);
+
+            $this->registrarMovimiento($transfer, $detalle, [
+                'id_warehouse' => $transfer->id_source_warehouse,
+                'id_inventory_location' => $existencia->id_inventory_location,
+                'movement_type' => InventoryMovement::TYPE_TRANSFER_SURPLUS_OUT,
+                'quantity_out' => $sale,
+                'unit_cost' => $costo,
+                'total_cost' => round($sale * $costo, 4),
+            ]);
+
+            $porSacar = round($porSacar - $sale, 4);
+        }
+
+        $ganancia = max(0.0, $porSacar);
+
+        foreach ([
+            InventoryMovement::TYPE_TRANSFER_SURPLUS => round($cantidad - $ganancia, 4),
+            InventoryMovement::TYPE_TRANSFER_SURPLUS_GAIN => $ganancia,
+        ] as $tipo => $entra) {
+            if ($entra > 0) {
+                $this->registrarMovimiento($transfer, $detalle, [
+                    'id_warehouse' => $transfer->id_destination_warehouse,
+                    'id_inventory_location' => $discrepancia->id_destination_inventory_location,
+                    'movement_type' => $tipo,
+                    'quantity_in' => $entra,
+                    'unit_cost' => $costo,
+                    'total_cost' => round($entra * $costo, 4),
+                ]);
+            }
+        }
+
+        // Solo la ganancia cambia la existencia y el valor de la empresa
+        if ($ganancia > 0) {
+            $this->inventario->acumularPromedio($empresa, $detalle->id_product, $ganancia, round($ganancia * $costo, 4));
+        }
+    }
+
+    /**
+     * Cuánto hay del lote de la línea en la bodega origen (sin los espacios de vehículos): de
+     * ahí sale un sobrante al regularizarlo.
+     */
+    public function disponibleEnOrigen(InventoryTransfer $transfer, InventoryTransferDetail $detalle): float
+    {
+        return (float) $this->existenciaEnOrigen($transfer, $detalle)->sum(fn ($existencia) => (float) $existencia->quantity);
+    }
+
+    /**
+     * Existencia del lote de la línea en las ubicaciones de la bodega origen: primero la ubicación
+     * de la línea, luego las que más tienen.
+     *
+     * @return Collection<int, InventoryLocationDetail>
+     */
+    private function existenciaEnOrigen(InventoryTransfer $transfer, InventoryTransferDetail $detalle, bool $bloquear = false): Collection
+    {
+        $query = InventoryLocationDetail::queryAllBranches()
+            ->where('id_inventory_lot', $detalle->id_inventory_lot)
+            ->whereIn('id_inventory_location', InventoryLocation::query()
+                ->whereIn('id_location', Location::queryAllBranches()->where('id_warehouse', $transfer->id_source_warehouse)->select('id_location'))
+                ->select('id_inventory_location'))
+            ->where('quantity', '>', 0)
+            ->orderByRaw('(id_inventory_location = ?) DESC', [(int) $detalle->id_source_inventory_location])
+            ->orderByDesc('quantity')
+            ->orderBy('id_inventory_location');
+
+        return ($bloquear ? $query->lockForUpdate() : $query)->get();
     }
 
     public function cancelar(InventoryTransfer $transfer): void

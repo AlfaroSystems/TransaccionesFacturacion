@@ -23,7 +23,8 @@
             <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Registrar discrepancias</h1>
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5 max-w-3xl">
                 Lo que sigue en el vehículo y no va a llegar se registra como <strong>faltante</strong> o <strong>daño</strong> (se da de baja);
-                lo que llegó de más, como <strong>sobrante</strong> (entra a la bodega destino). Para cerrar el traslado, faltantes y daños
+                lo que llegó de más, como <strong>sobrante</strong> (sale del mismo lote en la bodega origen, de donde salió sin registrarse,
+                y entra a la destino). Para cerrar el traslado, faltantes y daños
                 deben cubrir todo lo que sigue en el vehículo; quien autoriza los traslados regulariza las existencias.
             </p>
         </div>
