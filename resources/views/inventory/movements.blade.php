@@ -17,6 +17,8 @@
         'transfer_surplus' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300',
         'transfer_surplus_out' => 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
         'transfer_surplus_gain' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+        'adjustment_in' => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
+        'adjustment_out' => 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300',
         'relocation_out' => 'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
         'relocation_in' => 'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300',
     ];
@@ -128,6 +130,8 @@
                                     <a href="{{ route('purchases.show', $movement->reference_id) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $purchaseCodes[$movement->reference_id] }}</a>
                                 @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_TRANSFER && isset($transferCodes[$movement->reference_id]))
                                     <a href="{{ route('inventory-transfers.show', $movement->reference_id) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $transferCodes[$movement->reference_id] }}</a>
+                                @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_ADJUSTMENT && isset($adjustmentCodes[$movement->reference_id]))
+                                    <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}#ajustes" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $adjustmentCodes[$movement->reference_id] }}</a>
                                 @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_RELOCATION && $movement->lot)
                                     <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $movement->lot->lot_code }}</a>
                                 @endif

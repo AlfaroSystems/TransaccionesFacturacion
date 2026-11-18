@@ -29,7 +29,9 @@ use InvalidArgumentException;
  *    No mueve nada; se edita, cancela o elimina.
  * 2. Por autorizar: se envía con vehículo, motorista y existencia suficiente. Quien autoriza lo
  *    aprueba o lo rechaza con un motivo (vuelve a borrador).
- * 3. Autorizado → En preparación: se prepara lo solicitado (puede prepararse menos).
+ * 3. Autorizado → En preparación: se prepara lo solicitado (puede prepararse menos). Desde que
+ *    se autoriza, lo solicitado queda apartado en la bodega origen hasta despacharse o cancelarse:
+ *    otros traslados y los cambios de ubicación no pueden usarlo.
  * 4. Despachar: lo preparado sale de su ubicación de origen y entra al espacio de carga del
  *    vehículo, al costo actual del lote. Queda en tránsito.
  * 5. Recibir (una o varias veces): lo recibido sale del vehículo y entra a la ubicación destino.
@@ -84,7 +86,7 @@ class InventoryTransferService
                 throw new InvalidArgumentException('Solo se pueden editar traslados en borrador.');
             }
 
-            $this->validarExistencias($transfer->id_source_warehouse, $datos['details']);
+            $this->validarExistencias($transfer->id_source_warehouse, $datos['details'], $transfer->id_inventory_transfer);
 
             $transfer->update([
                 'id_vehicle' => $datos['id_vehicle'] ?? null,
@@ -222,7 +224,7 @@ class InventoryTransferService
                     'quantity_requested' => $cantidades[$d->id_inventory_transfer_detail],
                 ])->all();
 
-            if ($faltantes = $this->faltantes($transfer->id_source_warehouse, $lineas)) {
+            if ($faltantes = $this->faltantes($transfer->id_source_warehouse, $lineas, $transfer->id_inventory_transfer)) {
                 throw new InvalidArgumentException('No se puede despachar: '.reset($faltantes));
             }
 
@@ -383,13 +385,16 @@ class InventoryTransferService
 
     /**
      * Registra (o corrige, mientras no se regularicen) los faltantes, daños y sobrantes de cada
-     * línea. Faltantes y daños no pueden pasar de lo que sigue en el vehículo.
+     * línea. Faltantes y daños no pueden pasar de lo que sigue en el vehículo. Lo que llegó y no
+     * venía en el traslado ($extras: un lote con existencia en la bodega origen) queda como una
+     * línea más del traslado con su sobrante.
      *
      * @param  array<int, array{shortage?: numeric, damage?: numeric, surplus?: numeric, id_destination_inventory_location?: ?int, notes?: ?string}>  $lineas  por id de línea
+     * @param  array<int, array{id_inventory_lot?: ?int, quantity?: numeric, id_destination_inventory_location?: ?int, notes?: ?string}>  $extras
      */
-    public function registrarDiscrepancias(InventoryTransfer $transfer, array $lineas): void
+    public function registrarDiscrepancias(InventoryTransfer $transfer, array $lineas, array $extras = []): void
     {
-        DB::transaction(function () use ($transfer, $lineas) {
+        DB::transaction(function () use ($transfer, $lineas, $extras) {
             if (! $transfer->refreshWithLock()->isReceivable()) {
                 throw new InvalidArgumentException('Las discrepancias se registran al recibir un traslado en tránsito.');
             }
@@ -416,6 +421,36 @@ class InventoryTransferService
                 }
 
                 $total += $faltante + $dano + $sobrante;
+            }
+
+            // Lo que no venía: un lote con existencia en la bodega origen que no es línea del traslado
+            $disponibles = $this->lotesEnOrigen($transfer)->keyBy('id_inventory_lot');
+            $nuevas = [];
+
+            foreach ($extras as $i => $extra) {
+                $cantidad = round((float) ($extra['quantity'] ?? 0), 4);
+                $lote = (int) ($extra['id_inventory_lot'] ?? 0);
+
+                if ($cantidad <= 0 && ! $lote) {
+                    continue;
+                }
+
+                if (! $lote) {
+                    $errores["extras.{$i}.id_inventory_lot"] = 'Elija el lote que llegó.';
+                } elseif ($detalles->contains('id_inventory_lot', $lote)) {
+                    $errores["extras.{$i}.id_inventory_lot"] = 'Ese lote ya viene en el traslado: registre lo que llegó de más como sobrante en su línea.';
+                } elseif (! $disponibles->has($lote)) {
+                    $errores["extras.{$i}.id_inventory_lot"] = 'Elija un lote con existencia en la bodega origen.';
+                } elseif (isset($nuevas[$lote])) {
+                    $errores["extras.{$i}.id_inventory_lot"] = 'Ese lote está dos veces: súmelo en una sola fila.';
+                } elseif ($cantidad <= 0) {
+                    $errores["extras.{$i}.quantity"] = 'Indique cuánto llegó.';
+                } elseif (empty($extra['id_destination_inventory_location'])) {
+                    $errores["extras.{$i}.id_destination_inventory_location"] = 'Elija dónde entra.';
+                } else {
+                    $nuevas[$lote] = ['cantidad' => $cantidad] + $extra;
+                    $total += $cantidad;
+                }
             }
 
             if ($errores) {
@@ -449,10 +484,76 @@ class InventoryTransferService
                         ]);
                     }
                 }
+
+                // Una línea agregada al recibir que ya no tiene sobrante se quita
+                if ($detalle->isUnexpected() && ! $detalle->discrepancies()->exists()) {
+                    $detalle->delete();
+                }
+            }
+
+            foreach ($nuevas as $lote => $extra) {
+                $detalle = InventoryTransferDetail::create([
+                    'id_inventory_transfer' => $transfer->id_inventory_transfer,
+                    'id_inventory_lot' => $lote,
+                    'id_product' => $disponibles[$lote]->id_product,
+                    // De donde más hay: de ahí sale primero al regularizar
+                    'id_source_inventory_location' => $disponibles[$lote]->id_inventory_location,
+                    'id_destination_inventory_location' => (int) $extra['id_destination_inventory_location'],
+                    'quantity_requested' => 0,
+                    'quantity_dispatched' => 0,
+                    'quantity_received' => 0,
+                    'unit_cost' => $disponibles[$lote]->unit_cost,
+                    'notes' => 'No venía en el traslado.',
+                ]);
+
+                $detalle->discrepancies()->create([
+                    'discrepancy_type' => InventoryTransferDiscrepancy::TYPE_SURPLUS,
+                    'quantity' => $extra['cantidad'],
+                    'id_destination_inventory_location' => (int) $extra['id_destination_inventory_location'],
+                    'notes' => ($extra['notes'] ?? null) ?: 'No venía en el traslado.',
+                    'id_user' => Auth::id(),
+                ]);
             }
 
             $transfer->update(['status' => InventoryTransfer::STATUS_WITH_DISCREPANCY]);
         });
+    }
+
+    /**
+     * Lotes con existencia en las ubicaciones de la bodega origen que no son líneas del
+     * traslado: lo que pudo cargarse por error. Con su producto, su costo y la ubicación donde
+     * más hay.
+     *
+     * @return Collection<int, object{id_inventory_lot: int, lot_code: ?string, id_product: int, product: ?string, unit_cost: float, id_inventory_location: int, stock: float}>
+     */
+    public function lotesEnOrigen(InventoryTransfer $transfer): Collection
+    {
+        $enTraslado = $transfer->details()->pluck('id_inventory_lot');
+
+        return InventoryLocationDetail::queryAllBranches()
+            ->whereIn('id_inventory_location', InventoryLocation::query()
+                ->whereIn('id_location', Location::queryAllBranches()->where('id_warehouse', $transfer->id_source_warehouse)->select('id_location'))
+                ->select('id_inventory_location'))
+            ->whereNotIn('id_inventory_lot', $enTraslado)
+            ->where('quantity', '>', 0)
+            ->with('lot.product')
+            ->get()
+            ->groupBy('id_inventory_lot')
+            ->map(function (Collection $filas) {
+                $mayor = $filas->sortByDesc(fn ($fila) => (float) $fila->quantity)->first();
+
+                return (object) [
+                    'id_inventory_lot' => (int) $mayor->id_inventory_lot,
+                    'lot_code' => $mayor->lot?->lot_code,
+                    'id_product' => (int) $mayor->lot?->id_product,
+                    'product' => $mayor->lot?->product?->name,
+                    'unit_cost' => (float) $mayor->lot?->unit_cost,
+                    'id_inventory_location' => (int) $mayor->id_inventory_location,
+                    'stock' => (float) $filas->sum(fn ($fila) => (float) $fila->quantity),
+                ];
+            })
+            ->sortBy(fn ($lote) => [$lote->product, $lote->lot_code])
+            ->values();
     }
 
     /**
@@ -690,7 +791,14 @@ class InventoryTransferService
 
         $lineas = $detalles->map->only(['id_inventory_lot', 'id_source_inventory_location', 'quantity_requested'])->all();
 
-        if ($faltantes = $this->faltantes($transfer->id_source_warehouse, $lineas)) {
+        // Se bloquean sus lotes: dos autorizaciones a la vez no deben apartar la misma existencia
+        InventoryLot::queryAllBranches()
+            ->whereKey($detalles->pluck('id_inventory_lot')->unique())
+            ->orderBy('id_inventory_lot')
+            ->lockForUpdate()
+            ->get();
+
+        if ($faltantes = $this->faltantes($transfer->id_source_warehouse, $lineas, $transfer->id_inventory_transfer)) {
             throw new InvalidArgumentException('No hay existencia suficiente: '.reset($faltantes));
         }
     }
@@ -794,15 +902,17 @@ class InventoryTransferService
     }
 
     /**
-     * Líneas que piden más de lo que hay del lote en su ubicación de origen (sumando las líneas
-     * del mismo lote y ubicación).
+     * Líneas que piden más de lo disponible del lote en su ubicación de origen (sumando las
+     * líneas del mismo lote y ubicación). Disponible: la existencia menos lo apartado por otros
+     * traslados autorizados o en preparación.
      *
      * @return array<string, string> mensaje por campo (details.N.quantity_requested)
      */
-    private function faltantes(int $warehouseId, array $lineas): array
+    private function faltantes(int $warehouseId, array $lineas, ?int $excepto = null): array
     {
         $lotIds = collect($lineas)->pluck('id_inventory_lot')->unique();
         $stock = $this->existencias($warehouseId, $lotIds);
+        $apartado = InventoryTransfer::apartado($lotIds, $excepto);
         $codigos = InventoryLot::queryAllBranches()->whereKey($lotIds)->pluck('lot_code', 'id_inventory_lot');
         $pedido = [];
         $errores = [];
@@ -811,20 +921,22 @@ class InventoryTransferService
         foreach ($lineas as $i => $linea) {
             $clave = self::clave($linea['id_inventory_lot'], $linea['id_source_inventory_location'] ?? null);
             $pedido[$clave] = ($pedido[$clave] ?? 0) + (float) $linea['quantity_requested'];
-            $hay = $stock[$clave] ?? 0;
+            $deOtros = (float) ($apartado[$clave] ?? 0);
+            $hay = max(0, ($stock[$clave] ?? 0) - $deOtros);
 
             if ($pedido[$clave] > $hay + 0.00001) {
-                $errores["details.{$i}.quantity_requested"] = 'Del lote '.($codigos[$linea['id_inventory_lot']] ?? '')
-                    .' solo hay '.$this->formato($hay).' en esa ubicación de la bodega origen.';
+                $errores["details.{$i}.quantity_requested"] = 'Del lote '.($codigos[$linea['id_inventory_lot']] ?? '').($deOtros > 0
+                    ? ' solo hay '.$this->formato($hay).' disponibles en esa ubicación de la bodega origen ('.$this->formato($deOtros).' apartadas para otros traslados autorizados).'
+                    : ' solo hay '.$this->formato($hay).' en esa ubicación de la bodega origen.');
             }
         }
 
         return $errores;
     }
 
-    private function validarExistencias(int $warehouseId, array $lineas): void
+    private function validarExistencias(int $warehouseId, array $lineas, ?int $excepto = null): void
     {
-        if ($errores = $this->faltantes($warehouseId, $lineas)) {
+        if ($errores = $this->faltantes($warehouseId, $lineas, $excepto)) {
             throw ValidationException::withMessages($errores);
         }
     }

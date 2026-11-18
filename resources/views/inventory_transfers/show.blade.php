@@ -257,7 +257,12 @@
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->product?->sku }}</span>
                                 </td>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $detalle->lot?->lot_code }}</td>
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">
+                                    {{ $detalle->lot?->lot_code }}
+                                    @if($detalle->isUnexpected())
+                                        <span class="block font-sans text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
+                                    @endif
+                                </td>
                                 <td class="py-3 px-4 font-mono text-xs">{{ $detalle->sourceLocation?->code }}</td>
                                 <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_requested) }} <span class="text-xs font-sans text-slate-400">{{ $unidad($detalle) }}</span></td>
                                 <td class="py-3 px-4">
@@ -313,7 +318,12 @@
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->product?->sku }}</span>
                                 </td>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $detalle->lot?->lot_code }}</td>
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">
+                                    {{ $detalle->lot?->lot_code }}
+                                    @if($detalle->isUnexpected())
+                                        <span class="block font-sans text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
+                                    @endif
+                                </td>
                                 <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_dispatched) }}</td>
                                 <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_received) }}</td>
                                 <td class="py-3 px-4 text-right font-mono font-bold {{ $pendiente > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-slate-400' }}">{{ $qty($pendiente) }} <span class="text-xs font-sans text-slate-400">{{ $unidad($detalle) }}</span></td>
@@ -373,7 +383,12 @@
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->product?->sku }}</span>
                                 </td>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $detalle->lot?->lot_code }}</td>
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">
+                                    {{ $detalle->lot?->lot_code }}
+                                    @if($detalle->isUnexpected())
+                                        <span class="block font-sans text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
+                                    @endif
+                                </td>
                                 <td class="py-3 px-4 font-mono text-xs">{{ $detalle->sourceLocation?->code ?? 'Sin ubicación' }}</td>
                                 <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_requested) }} <span class="text-xs font-sans text-slate-400">{{ $unidad($detalle) }}</span></td>
                                 <td class="py-3 px-4 text-right font-mono">
@@ -426,6 +441,9 @@
                                 <td class="py-3 px-4">
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->lot?->lot_code }}</span>
+                                    @if($detalle->isUnexpected())
+                                        <span class="block text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
+                                    @endif
                                 </td>
                                 <td class="py-3 px-4 text-xs font-bold">
                                     {{ $discrepancia->typeLabel() }}

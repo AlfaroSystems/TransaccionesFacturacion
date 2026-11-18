@@ -3,6 +3,7 @@
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Employee;
+use App\Models\InventoryAdjustment;
 use App\Models\InventoryCostAverage;
 use App\Models\InventoryLabelPrint;
 use App\Models\InventoryLot;
@@ -21,6 +22,7 @@ use App\Models\WarehouseCategory;
 use App\Services\InventoryService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 // =============================================================================
 // Traslados: se crean con vehículo y motorista, se autorizan, se preparan, viajan en el
@@ -255,28 +257,46 @@ test('se despacha lo preparado, que debe existir en la bodega y caber en el espa
         ->and(trasladoUbicaciones($e))->toBe(['A1' => 6.0, 'CAJON-1' => 4.0]);
 });
 
-test('dos traslados no despachan la misma existencia', function () {
+test('lo autorizado queda apartado: otro traslado ni un cambio de ubicación pueden usarlo', function () {
     $e = trasladoEscenario();
     $this->actingAs($e->compras);
 
-    // Los dos caben al enviarlos, pero solo uno se puede despachar
+    // Los borradores y lo que está por autorizar no apartan: los dos se envían
     foreach ([1, 2] as $vez) {
-        $this->post(route('inventory-transfers.store'), trasladoDatos($e, 6));
+        $this->post(route('inventory-transfers.store'), trasladoDatos($e, 6))->assertSessionHasNoErrors();
     }
     [$primero, $segundo] = InventoryTransfer::queryAllBranches()->orderBy('id_inventory_transfer')->get();
 
     foreach ([$primero, $segundo] as $transfer) {
-        $this->actingAs($e->compras)->post(route('inventory-transfers.submit', $transfer))->assertSessionHas('success');
-        $this->actingAs($e->autorizador)->post(route('inventory-transfers.authorize', $transfer))->assertSessionHas('success');
-        $this->actingAs($e->compras)->post(route('inventory-transfers.prepare', $transfer))->assertSessionHas('success');
+        $this->post(route('inventory-transfers.submit', $transfer))->assertSessionHas('success');
     }
 
-    $this->post(route('inventory-transfers.dispatch', $primero), ['id_vehicle_location' => $e->cajon->id_vehicle_location])->assertSessionHas('success');
-    $this->post(route('inventory-transfers.dispatch', $segundo), ['id_vehicle_location' => $e->cajon->id_vehicle_location])
-        ->assertSessionHas('error', "No se puede despachar: Del lote {$e->lot->lot_code} solo hay 4 en esa ubicación de la bodega origen.");
+    // Autorizado el primero, sus 6 quedan apartados: el segundo ya no se autoriza
+    $this->actingAs($e->autorizador)->post(route('inventory-transfers.authorize', $primero))->assertSessionHas('success');
+    $this->post(route('inventory-transfers.authorize', $segundo))->assertSessionHas('error',
+        "No hay existencia suficiente: Del lote {$e->lot->lot_code} solo hay 4 disponibles en esa ubicación de la bodega origen (6 apartadas para otros traslados autorizados).");
+    expect($segundo->fresh()->status)->toBe(InventoryTransfer::STATUS_PENDING_AUTHORIZATION);
 
-    expect($segundo->fresh()->status)->toBe(InventoryTransfer::STATUS_PREPARING)
-        ->and(trasladoUbicaciones($e))->toBe(['A1' => 4.0, 'CAJON-1' => 6.0]);
+    // Un borrador nuevo tampoco pide más de lo disponible, y el formulario lo muestra
+    $this->actingAs($e->compras)->post(route('inventory-transfers.store'), trasladoDatos($e, 5))->assertSessionHasErrors('details.0.quantity_requested');
+    $this->get(route('inventory-transfers.create', ['id_source_warehouse' => $e->bodegaMatriz->id_warehouse, 'id_destination_warehouse' => $e->bodegaSucursal->id_warehouse]))
+        ->assertOk()->assertSee('6 apartadas para otros traslados');
+
+    // Lo apartado no se cambia de ubicación; lo libre sí
+    $a2 = Location::create(['id_warehouse' => $e->bodegaMatriz->id_warehouse, 'code' => 'A2', 'capacity' => 100]);
+    $mover = fn (float $cantidad) => (new InventoryService)->cambiarUbicacion($e->lot, $e->bodegaMatriz->id_warehouse, ubicacionInventario($e->a1), ubicacionInventario($a2), $cantidad);
+    expect(fn () => $mover(5))->toThrow(ValidationException::class, 'están apartadas para traslados autorizados: solo se pueden mover 4.');
+    $mover(4);
+    $this->get(route('inventory.lots.show', $e->lot))->assertOk()->assertSee('6 apartadas para traslados');
+
+    // Al cancelar el primero se libera, y el segundo se autoriza y se despacha
+    $this->post(route('inventory-transfers.cancel', $primero))->assertSessionHas('success');
+    $this->actingAs($e->autorizador)->post(route('inventory-transfers.authorize', $segundo))->assertSessionHas('success');
+    $this->actingAs($e->compras)->post(route('inventory-transfers.prepare', $segundo))->assertSessionHas('success');
+    $this->post(route('inventory-transfers.dispatch', $segundo), ['id_vehicle_location' => $e->cajon->id_vehicle_location])->assertSessionHas('success');
+
+    expect(trasladoUbicaciones($e))->toBe([$e->lot->id_inventory_lot.'|'.ubicacionInventario($a2) => 4.0, 'CAJON-1' => 6.0])
+        ->and(InventoryTransfer::apartado())->toBeEmpty();
 });
 
 test('recepción parcial: lo que falta sigue en el vehículo hasta que llega', function () {
@@ -441,6 +461,67 @@ test('lo que la bodega origen ya no tiene del lote entra como ganancia', functio
     $this->get(route('inventory.movements', ['type' => InventoryMovement::TYPE_TRANSFER_SURPLUS_GAIN]))->assertOk()->assertSee('Ganancia por sobrante (sin origen)');
 });
 
+test('lo que llegó y no venía en el traslado se agrega como línea y sale de la bodega origen', function () {
+    $e = trasladoEscenario();
+    // Otro lote en A1: 4 mouses a $3
+    $mouse = Product::create(['name' => 'Mouse '.$e->lot->lot_code, 'sku' => 'M-'.$e->lot->lot_code]);
+    $otro = InventoryLot::create([
+        'lot_code' => 'OTRO-'.$e->lot->lot_code, 'id_product' => $mouse->id_product, 'id_warehouse' => $e->bodegaMatriz->id_warehouse, 'received_at' => now(),
+        'quantity_received' => 4, 'unit_cost' => 3, 'total_cost' => 12, 'status' => InventoryLot::STATUS_ACTIVE, 'placed_at' => now(),
+    ]);
+    InventoryMovement::create([
+        'id_product' => $mouse->id_product, 'id_inventory_lot' => $otro->id_inventory_lot, 'id_warehouse' => $e->bodegaMatriz->id_warehouse,
+        'id_inventory_location' => ubicacionInventario($e->a1), 'movement_type' => InventoryMovement::TYPE_PURCHASE_RECEIPT, 'movement_date' => now(),
+        'quantity_in' => 4, 'quantity_out' => 0, 'unit_cost' => 3, 'total_cost' => 12,
+    ]);
+    InventoryCostAverage::create(['id_company' => $e->company->id_company, 'id_product' => $mouse->id_product, 'quantity_on_hand' => 4, 'inventory_value' => 12, 'average_unit_cost' => 3]);
+
+    // Llegan 5 de las 6 laptops, y además 2 mouses que nadie pidió
+    $transfer = trasladoDespachado($e, 6);
+    $linea = $transfer->details()->sole()->id_inventory_transfer_detail;
+    $s1 = ubicacionInventario($e->s1);
+    $this->actingAs($e->receptor)->post(route('inventory-transfers.receive', $transfer), ['received' => [$linea => ['quantity_received' => 5]]])->assertSessionHas('success');
+
+    $this->get(route('inventory-transfers.discrepancies', $transfer))->assertOk()
+        ->assertSee('Llegó algo que no venía en el traslado')->assertSee($otro->lot_code);
+
+    $registrar = fn (array $extras, array $lineas = []) => $this->post(route('inventory-transfers.discrepancies.store', $transfer), [
+        'discrepancies' => $lineas + [$linea => ['shortage' => 1]],
+        'extras' => $extras,
+    ]);
+
+    $registrar([['id_inventory_lot' => $e->lot->id_inventory_lot, 'quantity' => 1, 'id_destination_inventory_location' => $s1]])
+        ->assertSessionHasErrors(['extras.0.id_inventory_lot' => 'Ese lote ya viene en el traslado: registre lo que llegó de más como sobrante en su línea.']);
+    $registrar([['id_inventory_lot' => $otro->id_inventory_lot, 'quantity' => 2]])->assertSessionHasErrors('extras.0.id_destination_inventory_location');
+
+    $mouses = [['id_inventory_lot' => $otro->id_inventory_lot, 'quantity' => 2, 'id_destination_inventory_location' => $s1, 'notes' => 'Venían en la misma tarima']];
+    $registrar($mouses)->assertSessionHasNoErrors();
+    $nueva = $transfer->details()->where('id_inventory_lot', $otro->id_inventory_lot)->sole();
+    expect($nueva->isUnexpected())->toBeTrue()
+        ->and((float) $nueva->discrepancies()->sole()->quantity)->toBe(2.0);
+    $this->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('No venía en el traslado');
+
+    // Corregida sin ese sobrante, la línea agregada se quita
+    $registrar([], [$nueva->id_inventory_transfer_detail => ['surplus' => 0]])->assertSessionHasNoErrors();
+    expect($transfer->details()->count())->toBe(1);
+
+    $registrar($mouses)->assertSessionHasNoErrors();
+    $this->actingAs($e->autorizador)->post(route('inventory-transfers.regularize', $transfer))->assertSessionHas('success');
+
+    // Los 2 mouses salen de A1 y entran a S1: la empresa sigue con 4 a $3; la laptop faltante se pierde
+    $ubicaciones = trasladoUbicaciones($e);
+    $promedioMouse = InventoryCostAverage::queryAllBranches()->where('id_company', $e->company->id_company)->where('id_product', $mouse->id_product)->sole();
+    expect($transfer->fresh()->status)->toBe(InventoryTransfer::STATUS_RECEIVED)
+        ->and($ubicaciones)->toHaveCount(4)
+        ->and($ubicaciones['A1'])->toBe(4.0)
+        ->and($ubicaciones['S1'])->toBe(5.0)
+        ->and($ubicaciones[$otro->id_inventory_lot.'|'.ubicacionInventario($e->a1)])->toBe(2.0)
+        ->and($ubicaciones[$otro->id_inventory_lot.'|'.$s1])->toBe(2.0)
+        ->and((float) $promedioMouse->quantity_on_hand)->toBe(4.0)
+        ->and((float) $promedioMouse->inventory_value)->toBe(12.0)
+        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(9.0);
+});
+
 test('solo se cancela antes de despacharse y solo el borrador se edita o elimina', function () {
     $e = trasladoEscenario();
     $this->actingAs($e->compras);
@@ -489,6 +570,70 @@ test('cada paso del traslado requiere su permiso', function () {
     $this->get(route('inventory-transfers.create', [
         'id_source_warehouse' => $e->bodegaMatriz->id_warehouse, 'id_destination_warehouse' => $e->bodegaSucursal->id_warehouse,
     ]))->assertOk()->assertSee($e->lot->lot_code)->assertSee($e->camion->license_plate);
+});
+
+// =============================================================================
+// Ajustes de inventario por conteo físico
+// =============================================================================
+
+test('un ajuste por conteo deja lo contado y mueve la existencia y el valor de la empresa', function () {
+    $e = trasladoEscenario();
+    $ajustador = trasladoUsuario($e->matriz, ['inventory.ver', 'inventory.ajustar']);
+    $a1 = ubicacionInventario($e->a1);
+    $ajustar = fn (array $datos) => $this->post(route('inventory.lots.adjust', $e->lot), $datos + ['id_inventory_location' => $a1, 'reason' => 'count']);
+
+    // Sin el permiso no se ajusta
+    $this->actingAs($e->compras);
+    $ajustar(['quantity_counted' => 8])->assertForbidden();
+
+    $this->actingAs($ajustador);
+    $this->get(route('inventory.lots.show', $e->lot))->assertOk()->assertSee('Ajustes de inventario')->assertSee('Registrar ajuste');
+
+    $ajustar(['quantity_counted' => 10])->assertSessionHasErrors(['quantity_counted' => 'Lo contado es igual a lo que dice el sistema (10): no hay nada que ajustar.']);
+    $ajustar(['quantity_counted' => 8, 'reason' => 'other'])->assertSessionHasErrors('notes');
+    // Solo bodegas donde está o entró el lote
+    $ajustar(['quantity_counted' => 1, 'id_inventory_location' => ubicacionInventario($e->s1)])->assertSessionHasErrors('id_inventory_location');
+
+    // Faltan 2: salen a $5
+    $ajustar(['quantity_counted' => 8, 'reason' => 'loss', 'notes' => 'No aparecieron'])
+        ->assertSessionHas('success', fn ($mensaje) => str_contains($mensaje, 'registrado: salieron 2 al costo del lote ($10.00).'));
+
+    $ajuste = InventoryAdjustment::sole();
+    expect(trasladoUbicaciones($e))->toBe(['A1' => 8.0])
+        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(8.0)
+        ->and((float) trasladoPromedio($e)->inventory_value)->toBe(40.0)
+        ->and($ajuste->adjustment_code)->toStartWith('AJU-'.now()->year.'-')
+        ->and((float) $ajuste->quantity_before)->toBe(10.0)
+        ->and((float) $ajuste->difference)->toBe(-2.0)
+        ->and($ajuste->reason)->toBe(InventoryAdjustment::REASON_LOSS);
+
+    // Aparecen 3 más: entran a $5
+    $ajustar(['quantity_counted' => 11])->assertSessionHas('success', fn ($mensaje) => str_contains($mensaje, 'entraron 3'));
+    expect(trasladoUbicaciones($e))->toBe(['A1' => 11.0])
+        ->and((float) trasladoPromedio($e)->quantity_on_hand)->toBe(11.0)
+        ->and((float) trasladoPromedio($e)->inventory_value)->toBe(55.0);
+
+    $this->get(route('inventory.movements', ['type' => InventoryMovement::TYPE_ADJUSTMENT_OUT]))->assertOk()
+        ->assertSee('Ajuste de inventario (sale)')->assertSee($ajuste->adjustment_code);
+    $this->get(route('inventory.lots.show', $e->lot))->assertOk()->assertSee('Pérdida o robo')->assertSee('No aparecieron');
+});
+
+test('el ajuste avisa cuando lo contado no alcanza para lo apartado en un traslado', function () {
+    $e = trasladoEscenario();
+    $ajustador = trasladoUsuario($e->matriz, ['inventory.ver', 'inventory.ajustar']);
+
+    // 6 quedan apartados para un traslado autorizado
+    $this->actingAs($e->compras)->post(route('inventory-transfers.store'), trasladoDatos($e, 6));
+    $transfer = InventoryTransfer::queryAllBranches()->sole();
+    $this->post(route('inventory-transfers.submit', $transfer));
+    $this->actingAs($e->autorizador)->post(route('inventory-transfers.authorize', $transfer))->assertSessionHas('success');
+
+    // Se cuentan 4: el ajuste se registra (es lo que hay) y avisa
+    $this->actingAs($ajustador)->post(route('inventory.lots.adjust', $e->lot), [
+        'id_inventory_location' => ubicacionInventario($e->a1), 'quantity_counted' => 4, 'reason' => 'damage',
+    ])->assertSessionHas('success')->assertSessionHas('warning', 'Hay 4 en esa ubicación, pero 6 están apartadas para traslados autorizados: no alcanzará al despacharlos.');
+
+    expect(trasladoUbicaciones($e))->toBe(['A1' => 4.0]);
 });
 
 test('cada impresión de etiquetas queda registrada y la reimpresión exige el motivo', function () {

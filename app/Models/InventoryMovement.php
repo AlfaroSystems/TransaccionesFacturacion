@@ -48,6 +48,11 @@ class InventoryMovement extends Model
 
     public const TYPE_TRANSFER_SURPLUS_GAIN = 'transfer_surplus_gain';
 
+    // Ajuste por conteo físico (InventoryAdjustment): la diferencia entra o sale al costo del lote
+    public const TYPE_ADJUSTMENT_IN = 'adjustment_in';
+
+    public const TYPE_ADJUSTMENT_OUT = 'adjustment_out';
+
     public const TYPE_RELOCATION_OUT = 'relocation_out';
 
     public const TYPE_RELOCATION_IN = 'relocation_in';
@@ -67,6 +72,8 @@ class InventoryMovement extends Model
         self::TYPE_TRANSFER_SURPLUS_OUT => 'Sobrante: sale de la bodega origen',
         self::TYPE_TRANSFER_SURPLUS => 'Sobrante en traslado',
         self::TYPE_TRANSFER_SURPLUS_GAIN => 'Ganancia por sobrante (sin origen)',
+        self::TYPE_ADJUSTMENT_IN => 'Ajuste de inventario (entra)',
+        self::TYPE_ADJUSTMENT_OUT => 'Ajuste de inventario (sale)',
         self::TYPE_RELOCATION_OUT => 'Cambio de ubicación (sale)',
         self::TYPE_RELOCATION_IN => 'Cambio de ubicación (entra)',
     ];
@@ -77,6 +84,8 @@ class InventoryMovement extends Model
 
     // Los cambios de ubicación no tienen documento: el par salida/entrada se reconoce por el lote
     public const REFERENCE_RELOCATION = 'relocation';
+
+    public const REFERENCE_ADJUSTMENT = 'adjustment';
 
     // Movimientos de las bodegas visibles: las de la sucursal del usuario, o las de toda su
     // empresa para el departamento de compras

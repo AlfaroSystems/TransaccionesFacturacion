@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::post('inventory/lots/{lot}/split', [InventoryLotController::class, 'split'])->name('inventory.lots.split');
     Route::put('inventory/lots/{lot}/placements', [InventoryLotController::class, 'updatePlacements'])->name('inventory.lots.placements');
     Route::post('inventory/lots/{lot}/relocate', [InventoryLotController::class, 'relocate'])->name('inventory.lots.relocate');
+    Route::post('inventory/lots/{lot}/adjust', [InventoryLotController::class, 'adjust'])->name('inventory.lots.adjust');
     // Etiquetas de lote: la primera impresión y cada reimpresión (con motivo) quedan registradas
     Route::get('inventory/lots/{lot}/labels', [InventoryLabelController::class, 'create'])->name('inventory.labels');
     Route::post('inventory/lots/{lot}/labels', [InventoryLabelController::class, 'store'])->name('inventory.labels.store');

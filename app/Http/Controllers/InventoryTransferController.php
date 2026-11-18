@@ -304,6 +304,8 @@ class InventoryTransferController extends Controller
         return view('inventory_transfers.discrepancies', [
             'transfer' => $transfer,
             'ubicacionesDestino' => $this->ubicacionesDeBodega($transfer->id_destination_warehouse),
+            // Para lo que llegó y no venía: lotes de la bodega origen que no son líneas del traslado
+            'lotesEnOrigen' => $this->service->lotesEnOrigen($transfer),
         ]);
     }
 
@@ -311,17 +313,27 @@ class InventoryTransferController extends Controller
     {
         Gate::authorize('inventory.recibir_traslados');
 
+        $destino = $this->ubicacionesDeBodega($transfer->id_destination_warehouse)->pluck('id_inventory_location')->all();
+
         $validated = $request->validate([
             'discrepancies' => ['nullable', 'array'],
             'discrepancies.*.shortage' => ['nullable', 'numeric', 'min:0'],
             'discrepancies.*.damage' => ['nullable', 'numeric', 'min:0'],
             'discrepancies.*.surplus' => ['nullable', 'numeric', 'min:0'],
-            'discrepancies.*.id_destination_inventory_location' => ['nullable', 'integer', Rule::in($this->ubicacionesDeBodega($transfer->id_destination_warehouse)->pluck('id_inventory_location')->all())],
+            'discrepancies.*.id_destination_inventory_location' => ['nullable', 'integer', Rule::in($destino)],
             'discrepancies.*.notes' => ['nullable', 'string', 'max:500'],
-        ], ['discrepancies.*.id_destination_inventory_location.in' => 'La ubicación debe ser de la bodega destino.']);
+            'extras' => ['nullable', 'array', 'max:20'],
+            'extras.*.id_inventory_lot' => ['nullable', 'integer'],
+            'extras.*.quantity' => ['nullable', 'numeric', 'min:0'],
+            'extras.*.id_destination_inventory_location' => ['nullable', 'integer', Rule::in($destino)],
+            'extras.*.notes' => ['nullable', 'string', 'max:500'],
+        ], [
+            'discrepancies.*.id_destination_inventory_location.in' => 'La ubicación debe ser de la bodega destino.',
+            'extras.*.id_destination_inventory_location.in' => 'La ubicación debe ser de la bodega destino.',
+        ]);
 
         try {
-            $this->service->registrarDiscrepancias($transfer, $validated['discrepancies'] ?? []);
+            $this->service->registrarDiscrepancias($transfer, $validated['discrepancies'] ?? [], $validated['extras'] ?? []);
         } catch (\InvalidArgumentException $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
@@ -548,6 +560,8 @@ class InventoryTransferController extends Controller
 
         return [
             'existencias' => $existencias,
+            // Lo apartado por otros traslados autorizados no está disponible para este
+            'apartado' => InventoryTransfer::apartado($existencias->pluck('id_inventory_lot')->unique(), $transfer?->id_inventory_transfer),
             'ubicacionesDestino' => $this->ubicacionesDeBodega($destino->id_warehouse),
             'vehiculos' => $this->vehiculos($transfer),
             'motoristas' => $this->motoristas($transfer),

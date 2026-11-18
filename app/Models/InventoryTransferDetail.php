@@ -53,6 +53,15 @@ class InventoryTransferDetail extends Model
         return round((float) $this->quantity_dispatched - (float) $this->quantity_received - $bajas, 4);
     }
 
+    /**
+     * Línea agregada al recibir: llegó un lote que no se solicitó ni se despachó (su sobrante
+     * sale de la bodega origen al regularizar).
+     */
+    public function isUnexpected(): bool
+    {
+        return (float) $this->quantity_requested == 0.0 && (float) $this->quantity_dispatched == 0.0;
+    }
+
     public function discrepancies(): HasMany
     {
         return $this->hasMany(InventoryTransferDiscrepancy::class, 'id_inventory_transfer_detail', 'id_inventory_transfer_detail');

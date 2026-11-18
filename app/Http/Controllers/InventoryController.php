@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InventoryAdjustment;
 use App\Models\InventoryCostAverage;
 use App\Models\InventoryLocation;
 use App\Models\InventoryLocationDetail;
@@ -149,9 +150,16 @@ class InventoryController extends Controller
                 ->pluck('reference_id'))
             ->pluck('transfer_code', 'id_inventory_transfer');
 
+        // Y del ajuste, en los ajustes por conteo
+        $adjustmentCodes = InventoryAdjustment::query()
+            ->whereIn('id_inventory_adjustment', $movements->getCollection()
+                ->where('reference_type', InventoryMovement::REFERENCE_ADJUSTMENT)
+                ->pluck('reference_id'))
+            ->pluck('adjustment_code', 'id_inventory_adjustment');
+
         $warehouses = $this->bodegasVisibles();
 
-        return view('inventory.movements', compact('movements', 'purchaseCodes', 'transferCodes', 'warehouses', 'search', 'warehouseId', 'type'));
+        return view('inventory.movements', compact('movements', 'purchaseCodes', 'transferCodes', 'adjustmentCodes', 'warehouses', 'search', 'warehouseId', 'type'));
     }
 
     /**

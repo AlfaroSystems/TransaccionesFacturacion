@@ -296,7 +296,12 @@
                                 <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $fila->warehouse?->name }}</span>
                                 <span class="text-xs font-mono text-slate-400">{{ $fila->location?->code ?? ($fila->vehicleLocation ? 'Vehículo '.$fila->vehicleLocation->vehicle?->license_plate.' · '.$fila->vehicleLocation->code : 'Sin ubicación') }}</span>
                             </td>
-                            <td class="py-3 px-4 text-right font-mono font-extrabold">{{ $qty($fila->stock) }} <span class="text-xs font-sans text-slate-400">{{ $unidad }}</span></td>
+                            <td class="py-3 px-4 text-right font-mono font-extrabold">
+                                {{ $qty($fila->stock) }} <span class="text-xs font-sans text-slate-400">{{ $unidad }}</span>
+                                @if($fila->apartado > 0)
+                                    <span class="block text-[11px] font-sans font-semibold text-amber-600 dark:text-amber-400">{{ $qty($fila->apartado) }} apartadas para traslados</span>
+                                @endif
+                            </td>
                             @can('inventory.ubicar')
                                 <td class="py-3 px-4">
                                     @if(! $fila->location)
@@ -312,7 +317,7 @@
                                                 <option value="{{ $destino->id_inventory_location }}">{{ $destino->location?->code }}</option>
                                             @endforeach
                                         </select>
-                                        <input type="number" step="0.0001" min="0.0001" max="{{ (float) $fila->stock }}" name="quantity" required value="{{ (float) $fila->stock }}" class="{{ $inputClass }} md:w-28 text-right font-mono">
+                                        <input type="number" step="0.0001" min="0.0001" max="{{ max(0, (float) $fila->stock - $fila->apartado) }}" name="quantity" required value="{{ max(0, (float) $fila->stock - $fila->apartado) }}" class="{{ $inputClass }} md:w-28 text-right font-mono">
                                         <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white">Mover</button>
                                     </form>
                                     @endif
@@ -326,6 +331,109 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    @endif
+
+    <!-- Ajustes por conteo físico -->
+    @if($lot->status === 'active' && (auth()->user()->can('inventory.ajustar') || $ajustes->isNotEmpty()))
+        <div id="ajustes" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="font-extrabold text-slate-800 dark:text-white">Ajustes de inventario</h2>
+                <p class="text-xs text-slate-400">
+                    Por conteo físico: indique lo que contó del lote en una ubicación. La diferencia con lo que dice el sistema entra o sale
+                    al costo del lote (${{ number_format((float) $lot->unit_cost, 4) }}) y queda en el kardex.
+                </p>
+            </div>
+            @can('inventory.ajustar')
+                <form method="POST" action="{{ route('inventory.lots.adjust', $lot) }}" class="px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start border-b border-slate-100 dark:border-slate-800">
+                    @csrf
+                    <div class="md:col-span-3">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Ubicación contada *</label>
+                        <select name="id_inventory_location" required class="{{ $inputClass }} @error('id_inventory_location') border-rose-400 @enderror">
+                            <option value="">-- Elija la ubicación --</option>
+                            @foreach($ubicacionesAjuste as $grupo)
+                                <optgroup label="{{ $grupo->first()->location?->warehouseAllBranches?->name }}">
+                                    @foreach($grupo as $ubicacion)
+                                        @php($enSistema = (float) ($existencias->firstWhere('id_inventory_location', $ubicacion->id_inventory_location)?->stock ?? 0))
+                                        <option value="{{ $ubicacion->id_inventory_location }}" @selected((string) old('id_inventory_location') === (string) $ubicacion->id_inventory_location)>
+                                            {{ $ubicacion->location?->code }} · sistema: {{ $qty($enSistema) }}{{ $ubicacion->is_active ? '' : ' (inactiva)' }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                        @error('id_inventory_location')
+                            <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Contado ({{ $unidad }}) *</label>
+                        <input type="number" step="0.0001" min="0" name="quantity_counted" required value="{{ old('quantity_counted') }}" class="{{ $inputClass }} text-right font-mono @error('quantity_counted') border-rose-400 @enderror">
+                        @error('quantity_counted')
+                            <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Motivo *</label>
+                        <select name="reason" required class="{{ $inputClass }} @error('reason') border-rose-400 @enderror">
+                            <option value="">-- Motivo --</option>
+                            @foreach(\App\Models\InventoryAdjustment::REASON_LABELS as $clave => $etiqueta)
+                                <option value="{{ $clave }}" @selected(old('reason') === $clave)>{{ $etiqueta }}</option>
+                            @endforeach
+                        </select>
+                        @error('reason')
+                            <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Notas</label>
+                        <input type="text" maxlength="500" name="notes" value="{{ old('notes') }}" placeholder="Qué se encontró..." class="{{ $inputClass }} @error('notes') border-rose-400 @enderror">
+                        @error('notes')
+                            <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="md:col-span-2 md:pt-5">
+                        <button type="submit" onclick="return confirm('¿Registrar el ajuste? La diferencia entra o sale del inventario al costo del lote.')" class="w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white">Registrar ajuste</button>
+                    </div>
+                </form>
+            @endcan
+            @if($ajustes->isNotEmpty())
+                <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                        <tr>
+                            <th class="py-3 px-4">Ajuste</th>
+                            <th class="py-3 px-4">Bodega / Ubicación</th>
+                            <th class="py-3 px-4 text-right">Sistema → Contado</th>
+                            <th class="py-3 px-4 text-right">Diferencia</th>
+                            <th class="py-3 px-4">Motivo</th>
+                            <th class="py-3 px-4">Registró</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        @foreach($ajustes as $ajuste)
+                            <tr>
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $ajuste->adjustment_code }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $ajuste->warehouse?->name }}</span>
+                                    <span class="text-xs font-mono text-slate-400">{{ $ajuste->inventoryLocation?->location?->code }}</span>
+                                </td>
+                                <td class="py-3 px-4 text-right font-mono">{{ $qty($ajuste->quantity_before) }} → {{ $qty($ajuste->quantity_counted) }}</td>
+                                <td class="py-3 px-4 text-right font-mono font-bold {{ (float) $ajuste->difference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
+                                    {{ (float) $ajuste->difference > 0 ? '+' : '−' }}{{ $qty(abs((float) $ajuste->difference)) }}
+                                    <span class="block text-xs font-normal">${{ number_format(abs((float) $ajuste->difference) * (float) $ajuste->unit_cost, 2) }}</span>
+                                </td>
+                                <td class="py-3 px-4 text-xs">
+                                    <span class="font-bold">{{ $ajuste->reasonLabel() }}</span>
+                                    @if($ajuste->notes)
+                                        <span class="block text-slate-400">{{ $ajuste->notes }}</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4 text-xs">{{ $ajuste->user?->username }} · {{ $ajuste->created_at?->format('d/m/Y h:i A') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
     @endif
 

@@ -126,6 +126,8 @@
                             @forelse($existencias as $i => $fila)
                                 @php($actual = $actuales->get(\App\Services\InventoryTransferService::clave($fila->id_inventory_lot, $fila->id_inventory_location)))
                                 @php($producto = $fila->lot?->product)
+                                @php($deOtros = (float) ($apartado[\App\Services\InventoryTransferService::clave($fila->id_inventory_lot, $fila->id_inventory_location)] ?? 0))
+                                @php($disponible = max(0, (float) $fila->quantity - $deOtros))
                                 <tr>
                                     <td class="py-3 px-4">
                                         <span class="font-bold text-slate-800 dark:text-white block">{{ $producto?->name }}</span>
@@ -133,11 +135,16 @@
                                     </td>
                                     <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $fila->lot?->lot_code }}</td>
                                     <td class="py-3 px-4 font-mono text-xs">{{ $fila->location?->code ?? 'Vehículo' }}</td>
-                                    <td class="py-3 px-4 text-right font-mono font-bold">{{ $qty($fila->quantity) }} <span class="text-xs font-sans text-slate-400">{{ $producto?->purchaseUnit?->name }}</span></td>
+                                    <td class="py-3 px-4 text-right font-mono font-bold">
+                                        {{ $qty($disponible) }} <span class="text-xs font-sans text-slate-400">{{ $producto?->purchaseUnit?->name }}</span>
+                                        @if($deOtros > 0)
+                                            <span class="block text-[11px] font-sans font-semibold text-amber-600 dark:text-amber-400" title="Hay {{ $qty($fila->quantity) }} en la ubicación">{{ $qty($deOtros) }} apartadas para otros traslados</span>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4">
                                         <input type="hidden" name="details[{{ $i }}][id_inventory_lot]" value="{{ $fila->id_inventory_lot }}">
                                         <input type="hidden" name="details[{{ $i }}][id_source_inventory_location]" value="{{ $fila->id_inventory_location }}">
-                                        <input type="number" step="0.0001" min="0" max="{{ (float) $fila->quantity }}" name="details[{{ $i }}][quantity_requested]"
+                                        <input type="number" step="0.0001" min="0" max="{{ $disponible }}" name="details[{{ $i }}][quantity_requested]"
                                             value="{{ old("details.$i.quantity_requested", $actual ? (float) $actual->quantity_requested : '') }}"
                                             class="{{ $inputClass }} text-right font-mono @error("details.$i.quantity_requested") border-rose-400 @enderror">
                                         @error("details.$i.quantity_requested")

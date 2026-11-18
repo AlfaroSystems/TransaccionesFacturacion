@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\Branch;
+use App\Models\InventoryAdjustment;
 use App\Models\InventoryCostAverage;
 use App\Models\InventoryLocation;
 use App\Models\InventoryLocationDetail;
 use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
+use App\Models\InventoryTransfer;
 use App\Models\Location;
 use App\Models\Purchase;
 use App\Models\PurchaseOrder;
@@ -315,6 +317,14 @@ class InventoryService
                 throw ValidationException::withMessages(['quantity' => 'Del lote '.$lot->lot_code.' solo hay '.$this->formato($hay).' en esa ubicación.']);
             }
 
+            // Lo apartado para un traslado autorizado se despacha desde esta ubicación: no se mueve
+            $apartado = (float) (InventoryTransfer::apartado([$lot->id_inventory_lot])[$lot->id_inventory_lot.'|'.$origenId] ?? 0);
+
+            if ($cantidad > $hay - $apartado + 0.00001) {
+                throw ValidationException::withMessages(['quantity' => 'Del lote '.$lot->lot_code.' hay '.$this->formato($hay).' en esa ubicación, pero '
+                    .$this->formato($apartado).' están apartadas para traslados autorizados: solo se pueden mover '.$this->formato(max(0, $hay - $apartado)).'.']);
+            }
+
             $costo = (float) $lot->unit_cost;
             $total = round($cantidad * $costo, 4);
 
@@ -385,6 +395,92 @@ class InventoryService
     }
 
     /**
+     * Ajuste por conteo físico: lo contado del lote en una ubicación de bodega reemplaza lo que
+     * decía el sistema. La diferencia entra o sale al costo del lote y suma o resta a la
+     * existencia y al valor de la empresa. No mira lo apartado para traslados: el conteo es lo
+     * que hay (el traslado lo verá al despacharse).
+     */
+    public function ajustar(InventoryLot $lot, int $inventoryLocationId, float $contado, string $motivo, ?string $notas = null): InventoryAdjustment
+    {
+        return DB::transaction(function () use ($lot, $inventoryLocationId, $contado, $motivo, $notas) {
+            if ($lot->refreshWithLock()->status !== InventoryLot::STATUS_ACTIVE) {
+                throw new InvalidArgumentException('Solo se ajusta un lote que ya está en inventario.');
+            }
+
+            if (! array_key_exists($motivo, InventoryAdjustment::REASON_LABELS)) {
+                throw ValidationException::withMessages(['reason' => 'Elija el motivo del ajuste.']);
+            }
+
+            if ($motivo === InventoryAdjustment::REASON_OTHER && blank($notas)) {
+                throw ValidationException::withMessages(['notes' => 'Explique el motivo del ajuste.']);
+            }
+
+            // Solo ubicaciones de bodega: lo que va en un vehículo se arregla en su traslado
+            $location = Location::queryAllBranches()
+                ->whereKey(InventoryLocation::query()->whereKey($inventoryLocationId)->value('id_location'))
+                ->first();
+
+            if (! $location) {
+                throw ValidationException::withMessages(['id_inventory_location' => 'Elija una ubicación de bodega.']);
+            }
+
+            $contado = round($contado, 4);
+
+            if ($contado < 0) {
+                throw ValidationException::withMessages(['quantity_counted' => 'Lo contado no puede ser negativo.']);
+            }
+
+            $antes = round((float) InventoryLocationDetail::queryAllBranches()
+                ->where('id_inventory_lot', $lot->id_inventory_lot)
+                ->where('id_inventory_location', $inventoryLocationId)
+                ->lockForUpdate()
+                ->value('quantity'), 4);
+            $diferencia = round($contado - $antes, 4);
+
+            if (abs($diferencia) < 0.00001) {
+                throw ValidationException::withMessages(['quantity_counted' => 'Lo contado es igual a lo que dice el sistema ('.$this->formato($antes).'): no hay nada que ajustar.']);
+            }
+
+            if ($diferencia > 0 && ! $location->is_active) {
+                throw ValidationException::withMessages(['id_inventory_location' => "La ubicación {$location->code} está inactiva: no puede entrar nada."]);
+            }
+
+            $costo = (float) $lot->unit_cost;
+            $valor = round($diferencia * $costo, 4);
+
+            $ajuste = InventoryAdjustment::create([
+                'adjustment_code' => DocumentSequence::next('AJU-'.now()->year.'-', 'inventory_adjustments', 'adjustment_code'),
+                'id_inventory_lot' => $lot->id_inventory_lot,
+                'id_product' => $lot->id_product,
+                'id_warehouse' => $location->id_warehouse,
+                'id_inventory_location' => $inventoryLocationId,
+                'quantity_before' => $antes,
+                'quantity_counted' => $contado,
+                'difference' => $diferencia,
+                'unit_cost' => $costo,
+                'reason' => $motivo,
+                'notes' => $notas,
+                'id_user' => Auth::id(),
+            ]);
+
+            $this->registrarMovimiento($lot, [
+                'id_warehouse' => $location->id_warehouse,
+                'id_inventory_location' => $inventoryLocationId,
+                'movement_type' => $diferencia > 0 ? InventoryMovement::TYPE_ADJUSTMENT_IN : InventoryMovement::TYPE_ADJUSTMENT_OUT,
+                $diferencia > 0 ? 'quantity_in' : 'quantity_out' => abs($diferencia),
+                'unit_cost' => $costo,
+                'total_cost' => abs($valor),
+                'reference_type' => InventoryMovement::REFERENCE_ADJUSTMENT,
+                'reference_id' => $ajuste->id_inventory_adjustment,
+            ]);
+
+            $this->acumularPromedio($this->empresaDeBodega($location->id_warehouse), $lot->id_product, $diferencia, $valor);
+
+            return $ajuste;
+        });
+    }
+
+    /**
      * La ubicación debe ser de la bodega, estar activa y tener lugar para la cantidad. Una
      * capacidad de 0 es sin límite.
      */
@@ -419,17 +515,19 @@ class InventoryService
      * Existencia del lote en cada ubicación de inventario de las bodegas visibles, con su bodega
      * y su ubicación de bodega o espacio de vehículo.
      *
-     * @return Collection<int, object{id_inventory_location: int, id_warehouse: ?int, warehouse: ?Warehouse, location: ?Location, vehicleLocation: ?VehicleLocation, stock: float}>
+     * @return Collection<int, object{id_inventory_location: int, id_warehouse: ?int, warehouse: ?Warehouse, location: ?Location, vehicleLocation: ?VehicleLocation, stock: float, apartado: float}>
      */
     public function existenciasDelLote(InventoryLot $lot): Collection
     {
+        $apartado = InventoryTransfer::apartado([$lot->id_inventory_lot]);
+
         return InventoryLocationDetail::query()
             ->where('id_inventory_lot', $lot->id_inventory_lot)
             ->where('quantity', '>', 0)
             ->with(['inventoryLocation.location.warehouseAllBranches', 'inventoryLocation.vehicleLocation.warehouseAllBranches', 'inventoryLocation.vehicleLocation.vehicle'])
             ->orderBy('id_inventory_location')
             ->get()
-            ->map(function (InventoryLocationDetail $detalle) {
+            ->map(function (InventoryLocationDetail $detalle) use ($apartado) {
                 $lugar = $detalle->inventoryLocation;
                 $bodega = $lugar->location?->warehouseAllBranches ?? $lugar->vehicleLocation?->warehouseAllBranches;
 
@@ -440,6 +538,8 @@ class InventoryService
                     'location' => $lugar->location,
                     'vehicleLocation' => $lugar->vehicleLocation,
                     'stock' => (float) $detalle->quantity,
+                    // Para traslados autorizados o en preparación: no se mueve de aquí
+                    'apartado' => (float) ($apartado[$detalle->id_inventory_lot.'|'.$detalle->id_inventory_location] ?? 0),
                 ];
             });
     }

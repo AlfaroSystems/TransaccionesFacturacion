@@ -223,6 +223,12 @@ class RoleAndPermissionSeeder extends Seeder
                 'action' => 'regularize',
             ],
             [
+                'id_permission' => 'inventory.ajustar',
+                'name' => 'Ajustar Inventario',
+                'description' => 'Permite registrar ajustes por conteo físico: lo contado de un lote en una ubicación; la diferencia entra o sale al costo del lote.',
+                'action' => 'adjust',
+            ],
+            [
                 'id_permission' => 'inventory.recibir_traslados',
                 'name' => 'Recibir Traslados',
                 'description' => 'Permite confirmar lo que llegó de un traslado despachado a una bodega de la sucursal.',

@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Traslado de lotes entre bodegas: Casa Matriz reparte a las sucursales lo que entró con las
@@ -61,7 +63,32 @@ class InventoryTransfer extends Model
     // Su mercadería (o parte) va en el vehículo: se recibe y se le registran discrepancias
     public const RECEIVABLE = [self::STATUS_IN_TRANSIT, self::STATUS_PARTIALLY_RECEIVED, self::STATUS_WITH_DISCREPANCY];
 
+    // Autorizado y en preparación: lo solicitado queda apartado en la bodega origen hasta despacharse
+    public const RESERVING = [self::STATUS_AUTHORIZED, self::STATUS_PREPARING];
+
     const UPDATED_AT = null;
+
+    /**
+     * Existencia apartada por los traslados autorizados o en preparación, por lote y ubicación
+     * de origen ("lote|ubicación", como InventoryTransferService::clave), sin el traslado
+     * indicado. Sin el filtro por sucursal: lo apartado vale para todos.
+     *
+     * @param  iterable<int>|null  $lotIds
+     * @return Collection<string, float>
+     */
+    public static function apartado(?iterable $lotIds = null, ?int $excepto = null): Collection
+    {
+        return DB::table('inventory_transfer_details as d')
+            ->join('inventory_transfers as t', 't.id_inventory_transfer', '=', 'd.id_inventory_transfer')
+            ->whereIn('t.status', self::RESERVING)
+            ->whereNotNull('d.id_source_inventory_location')
+            ->when($excepto, fn ($q) => $q->where('t.id_inventory_transfer', '!=', $excepto))
+            ->when($lotIds !== null, fn ($q) => $q->whereIn('d.id_inventory_lot', collect($lotIds)->all()))
+            ->groupBy('d.id_inventory_lot', 'd.id_source_inventory_location')
+            ->selectRaw('d.id_inventory_lot, d.id_source_inventory_location, SUM(d.quantity_requested) AS cantidad')
+            ->get()
+            ->mapWithKeys(fn ($fila) => [$fila->id_inventory_lot.'|'.$fila->id_source_inventory_location => (float) $fila->cantidad]);
+    }
 
     protected $table = 'inventory_transfers';
 

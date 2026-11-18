@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InventoryAdjustment;
 use App\Models\InventoryLocation;
 use App\Models\InventoryLocationDetail;
 use App\Models\InventoryLot;
@@ -103,6 +104,14 @@ class InventoryLotController extends Controller
             ->sortBy(fn (InventoryLocation $destino) => $destino->location->code)
             ->groupBy(fn (InventoryLocation $destino) => $destino->location->id_warehouse);
 
+        // Ajuste por conteo: ubicaciones de las bodegas visibles donde está o entró el lote
+        $ubicacionesAjuste = $lot->status === InventoryLot::STATUS_ACTIVE ? $this->ubicacionesParaAjuste($lot, $existencias) : collect();
+        $ajustes = InventoryAdjustment::query()
+            ->with(['inventoryLocation.location', 'warehouse', 'user'])
+            ->where('id_inventory_lot', $lot->id_inventory_lot)
+            ->latest('id_inventory_adjustment')
+            ->get();
+
         $movimientos = $lot->movements()
             ->with(['warehouse', 'location', 'inventoryLocation.vehicleLocation.vehicle', 'user'])
             ->orderBy('movement_date')
@@ -113,7 +122,7 @@ class InventoryLotController extends Controller
             session()->now('warning', 'Lote anulado al revertir el retaceo de su compra; sus viñetas ya no valen. Al aplicar de nuevo el retaceo se crea un lote nuevo.');
         }
 
-        return view('inventory.lot', compact('lot', 'ubicaciones', 'ocupado', 'sugerida', 'existencias', 'destinos', 'movimientos'));
+        return view('inventory.lot', compact('lot', 'ubicaciones', 'ocupado', 'sugerida', 'existencias', 'destinos', 'movimientos', 'ubicacionesAjuste', 'ajustes'));
     }
 
     /**
@@ -239,6 +248,78 @@ class InventoryLotController extends Controller
         }
 
         return back()->with('success', 'Cambio de ubicación registrado en el kardex.');
+    }
+
+    /**
+     * Ajuste por conteo físico: lo contado del lote en una ubicación de una bodega del usuario.
+     */
+    public function adjust(Request $request, InventoryLot $lot)
+    {
+        Gate::authorize('inventory.ajustar');
+
+        $existencias = $this->service->existenciasDelLote($lot);
+        $permitidas = $this->ubicacionesParaAjuste($lot, $existencias)->flatten()->pluck('id_inventory_location')->all();
+
+        $validated = $request->validate([
+            'id_inventory_location' => ['required', 'integer', Rule::in($permitidas)],
+            'quantity_counted' => ['required', 'numeric', 'min:0'],
+            'reason' => ['required', Rule::in(array_keys(InventoryAdjustment::REASON_LABELS))],
+            'notes' => ['nullable', 'string', 'max:500', 'required_if:reason,'.InventoryAdjustment::REASON_OTHER],
+        ], [
+            'id_inventory_location.required' => 'Elija la ubicación que contó.',
+            'id_inventory_location.in' => 'Elija una ubicación de una bodega de su sucursal donde esté o haya entrado el lote.',
+            'quantity_counted.required' => 'Indique lo que contó.',
+            'reason.required' => 'Elija el motivo del ajuste.',
+            'notes.required_if' => 'Explique el motivo del ajuste.',
+        ]);
+
+        try {
+            $ajuste = $this->service->ajustar(
+                $lot,
+                (int) $validated['id_inventory_location'],
+                (float) $validated['quantity_counted'],
+                $validated['reason'],
+                $validated['notes'] ?? null,
+            );
+        } catch (InvalidArgumentException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+
+        $diferencia = (float) $ajuste->difference;
+        $cantidad = rtrim(rtrim(number_format(abs($diferencia), 4, '.', ''), '0'), '.');
+        $respuesta = back()->with('success', "Ajuste {$ajuste->adjustment_code} registrado: "
+            .($diferencia > 0 ? ($cantidad === '1' ? 'entró' : 'entraron') : ($cantidad === '1' ? 'salió' : 'salieron'))." {$cantidad}"
+            .' al costo del lote ($'.number_format(abs($diferencia) * (float) $ajuste->unit_cost, 2).').');
+
+        // Lo apartado para traslados ya no alcanza: se verá al despacharlos
+        $apartado = (float) ($existencias->firstWhere('id_inventory_location', $ajuste->id_inventory_location)?->apartado ?? 0);
+
+        if ($apartado > (float) $ajuste->quantity_counted + 0.00001) {
+            $respuesta->with('warning', 'Hay '.rtrim(rtrim(number_format((float) $ajuste->quantity_counted, 4, '.', ''), '0'), '.')
+                .' en esa ubicación, pero '.rtrim(rtrim(number_format($apartado, 4, '.', ''), '0'), '.')
+                .' están apartadas para traslados autorizados: no alcanzará al despacharlos.');
+        }
+
+        return $respuesta;
+    }
+
+    /**
+     * Ubicaciones de bodega (activas o no) donde se puede ajustar el lote, por bodega: las de
+     * las bodegas visibles donde está el lote, y la suya.
+     */
+    private function ubicacionesParaAjuste(InventoryLot $lot, $existencias)
+    {
+        $bodegas = Warehouse::query()
+            ->whereIn('id_warehouse', $existencias->pluck('id_warehouse')->push($lot->id_warehouse)->filter()->unique())
+            ->pluck('id_warehouse');
+
+        return InventoryLocation::query()
+            ->with('location.warehouseAllBranches')
+            ->where('location_type', InventoryLocation::TYPE_LOCATION)
+            ->whereIn('id_location', Location::queryAllBranches()->whereIn('id_warehouse', $bodegas)->select('id_location'))
+            ->get()
+            ->sortBy(fn (InventoryLocation $ubicacion) => $ubicacion->location->code)
+            ->groupBy(fn (InventoryLocation $ubicacion) => $ubicacion->location->id_warehouse);
     }
 
     /**

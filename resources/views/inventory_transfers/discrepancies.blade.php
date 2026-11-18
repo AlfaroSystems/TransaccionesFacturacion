@@ -62,6 +62,9 @@
                             <td class="py-3 px-4">
                                 <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                 <span class="text-xs font-mono text-slate-400">{{ $detalle->lot?->lot_code }}</span>
+                                @if($detalle->isUnexpected())
+                                    <span class="block text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
+                                @endif
                             </td>
                             <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_dispatched) }}</td>
                             <td class="py-3 px-4 text-right font-mono">{{ $qty($detalle->quantity_received) }}</td>
@@ -97,6 +100,59 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Lo que llegó y no venía en el traslado -->
+        <div class="px-6 py-5 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <div>
+                <h2 class="font-extrabold text-slate-800 dark:text-white">Llegó algo que no venía en el traslado</h2>
+                <p class="text-xs text-slate-400">
+                    Elija el lote por su viñeta. Queda como una línea más del traslado con su sobrante: al regularizar sale de
+                    {{ $transfer->sourceWarehouse?->name }} y lo que ya no esté allí entra como ganancia.
+                </p>
+            </div>
+            @if($lotesEnOrigen->isEmpty())
+                <p class="text-sm text-slate-400">{{ $transfer->sourceWarehouse?->name }} no tiene otros lotes con existencia.</p>
+            @else
+                @for($i = 0; $i < 3; $i++)
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2 items-start">
+                        <div class="md:col-span-5">
+                            <select name="extras[{{ $i }}][id_inventory_lot]" class="{{ $inputClass }} @error("extras.$i.id_inventory_lot") border-rose-400 @enderror">
+                                <option value="">-- Lote que llegó --</option>
+                                @foreach($lotesEnOrigen as $lote)
+                                    <option value="{{ $lote->id_inventory_lot }}" @selected((string) old("extras.$i.id_inventory_lot") === (string) $lote->id_inventory_lot)>
+                                        {{ $lote->lot_code }} · {{ $lote->product }} (hay {{ $qty($lote->stock) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error("extras.$i.id_inventory_lot")
+                                <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <input type="number" step="0.0001" min="0" name="extras[{{ $i }}][quantity]" value="{{ old("extras.$i.quantity") }}" placeholder="Cantidad" class="{{ $inputClass }} text-right font-mono @error("extras.$i.quantity") border-rose-400 @enderror">
+                            @error("extras.$i.quantity")
+                                <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <select name="extras[{{ $i }}][id_destination_inventory_location]" class="{{ $inputClass }} @error("extras.$i.id_destination_inventory_location") border-rose-400 @enderror">
+                                <option value="">-- Entra en --</option>
+                                @foreach($ubicacionesDestino as $ubicacion)
+                                    <option value="{{ $ubicacion->id_inventory_location }}" @selected((string) old("extras.$i.id_destination_inventory_location") === (string) $ubicacion->id_inventory_location)>{{ $ubicacion->location?->code }}</option>
+                                @endforeach
+                            </select>
+                            @error("extras.$i.id_destination_inventory_location")
+                                <p class="text-rose-500 text-[11px] font-semibold mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="md:col-span-3">
+                            <input type="text" maxlength="500" name="extras[{{ $i }}][notes]" value="{{ old("extras.$i.notes") }}" placeholder="Qué pasó..." class="{{ $inputClass }}">
+                        </div>
+                    </div>
+                @endfor
+            @endif
+        </div>
+
         <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
             <a href="{{ route('inventory-transfers.show', $transfer) }}" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Cancelar</a>
             <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-xs">Registrar discrepancias</button>
