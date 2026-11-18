@@ -5,6 +5,14 @@
 @php
     $isEdit = isset($purchase) && $purchase->id_purchase;
     $selectedOrderId = old('id_purchase_order', $purchase->id_purchase_order ?? request('id_purchase_order'));
+    // Tras un error de validación, lo escrito en cada línea (por línea de orden) y sus errores
+    $lineasAnteriores = collect(old('details', []))
+        ->filter(fn ($linea) => is_array($linea) && isset($linea['id_purchase_order_detail']))
+        ->map(fn ($linea, $indice) => ['indice' => $indice] + $linea)
+        ->keyBy('id_purchase_order_detail');
+    $erroresLineas = collect($errors->getMessages())
+        ->filter(fn ($mensajes, $campo) => str_starts_with($campo, 'details.'))
+        ->map(fn ($mensajes) => $mensajes[0]);
 @endphp
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
@@ -168,8 +176,11 @@
                 <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <span>📦 Líneas de Productos a Recibir</span>
                 </h3>
-                <span class="text-xs text-slate-400">Verifique las cantidades recibidas y los importes de factura</span>
+                <span class="text-xs text-slate-400">Verifique las cantidades recibidas y los importes de factura. Deje en 0 lo que no llegó: queda pendiente en la orden.</span>
             </div>
+            @error('details')
+                <p class="text-xs font-semibold text-rose-600">{{ $message }}</p>
+            @enderror
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs" id="itemsTable">
@@ -202,7 +213,10 @@
                                         {{ number_format($detail->quantity_ordered, 2) }}
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity_received]" value="{{ old('details.'.$index.'.quantity_received', (float)$detail->quantity_received) }}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input">
+                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][quantity_received]" value="{{ old('details.'.$index.'.quantity_received', (float)$detail->quantity_received) }}" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input">
+                                        @foreach($erroresLineas->filter(fn ($m, $campo) => str_starts_with($campo, 'details.'.$index.'.')) as $mensaje)
+                                            <p class="mt-1 text-[11px] font-semibold text-rose-600">{{ $mensaje }}</p>
+                                        @endforeach
                                     </td>
                                     <td class="py-3 px-3">
                                         <input type="number" step="0.0001" min="0" name="details[{{ $index }}][unit_price]" value="{{ old('details.'.$index.'.unit_price', (float)$detail->unit_price) }}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input">
@@ -269,6 +283,10 @@
         const orderSelect = document.getElementById('orderSelect');
         const itemsBody   = document.getElementById('itemsBody');
 
+        // Lo escrito antes de un error de validación: solo se usa al cargar de nuevo esa orden
+        let lineasAnteriores = @json($lineasAnteriores);
+        const erroresLineas  = @json($erroresLineas);
+
         // Autocargar si ya hay una orden seleccionada
         if (orderSelect && orderSelect.value) {
             cargarOrden(orderSelect.value);
@@ -304,8 +322,14 @@
                     }
 
                     data.details.forEach((d, idx) => {
+                        const previa = lineasAnteriores[d.id_purchase_order_detail];
+                        const valor = (campo, porDefecto) => (previa && previa[campo] !== undefined && previa[campo] !== null) ? previa[campo] : porDefecto;
+                        const errores = previa
+                            ? Object.entries(erroresLineas).filter(([campo]) => campo.startsWith(`details.${previa.indice}.`)).map(([, mensaje]) => mensaje)
+                            : [];
+
                         const tr = document.createElement('tr');
-                        tr.className = 'item-row hover:bg-slate-50/60 dark:hover:bg-slate-700/30 transition-colors';
+                        tr.className = 'item-row hover:bg-slate-50/60 dark:hover:bg-slate-700/30 transition-colors' + (errores.length ? ' bg-rose-50/60 dark:bg-rose-900/10' : '');
                         tr.dataset.index = idx;
 
                         tr.innerHTML = `
@@ -316,22 +340,23 @@
                                 <input type="hidden" name="details[${idx}][quantity_ordered]" value="${d.quantity_ordered}">
                                 <div class="font-bold text-slate-800 dark:text-slate-200">${escapeHtml(d.product_name)}</div>
                                 <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
-                                ${d.already_received > 0 ? `<div class="text-[10px] text-amber-600 font-semibold">Ya recibido: ${d.already_received}</div>` : ''}
+                                ${d.already_received > 0 ? `<div class="text-[10px] text-amber-600 font-semibold">Ya recibido: ${d.already_received} · Falta: ${d.pending_quantity}</div>` : ''}
+                                ${errores.map(mensaje => `<div class="mt-1 text-[11px] font-semibold text-rose-600">${escapeHtml(mensaje)}</div>`).join('')}
                             </td>
                             <td class="py-3 px-3 text-center font-mono font-bold text-slate-600 dark:text-slate-400">
                                 ${d.quantity_ordered}
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity_received]" value="${d.pending_quantity > 0 ? d.pending_quantity : d.quantity_ordered}" required class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" max="${d.pending_quantity}" name="details[${idx}][quantity_received]" value="${escapeHtml(valor('quantity_received', d.pending_quantity))}" title="Falta recibir ${d.pending_quantity}; 0 si no llegó" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${d.unit_price}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${escapeHtml(valor('unit_price', d.unit_price))}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" name="details[${idx}][discount]" value="${d.discount || 0}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 discount-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" name="details[${idx}][discount]" value="${escapeHtml(valor('discount', d.discount || 0))}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 discount-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.01" min="0" max="100" name="details[${idx}][tax_rate]" value="${d.tax_rate || 0}" class="w-full px-2 py-1.5 text-center font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 tax-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.01" min="0" max="100" name="details[${idx}][tax_rate]" value="${escapeHtml(valor('tax_rate', d.tax_rate || 0))}" class="w-full px-2 py-1.5 text-center font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 tax-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3 text-right font-mono row-subtotal">$0.00</td>
                             <td class="py-3 px-3 text-right font-mono row-tax">$0.00</td>
@@ -339,6 +364,9 @@
                         `;
                         itemsBody.appendChild(tr);
                     });
+
+                    // Si se cambia de orden, ya no aplican
+                    lineasAnteriores = {};
 
                     vincularEventosInputs();
                     calcularTotales();

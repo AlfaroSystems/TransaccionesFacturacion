@@ -50,12 +50,12 @@
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
                             <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">
-                                {{ $role->permissions_count }} permisos
+                                {{ $role->permissions_count }} {{ $role->permissions_count == 1 ? 'permiso' : 'permisos' }}
                             </span>
                         </td>
                         <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
                             <span class="px-2.5 py-1 bg-navy-sidebar/10 text-navy-sidebar rounded-full text-xs font-bold">
-                                {{ $role->users_count }} usuarios
+                                {{ $role->users_count }} {{ $role->users_count == 1 ? 'usuario' : 'usuarios' }}
                             </span>
                         </td>
                         <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">

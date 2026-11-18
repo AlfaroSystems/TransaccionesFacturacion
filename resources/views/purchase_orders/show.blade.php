@@ -154,7 +154,7 @@
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-400 uppercase">Cotización Origen:</span>
                         <span class="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-sm">
-                            {{ $purchase_order->quotation->quotation_code ?? ($purchase_order->id_purchase_quotation ? '#'.$purchase_order->id_purchase_quotation : 'Ninguna') }}
+                            {{ $purchase_order->quotation->purchase_quotation_code ?? ($purchase_order->id_purchase_quotation ? '#'.$purchase_order->id_purchase_quotation : 'Ninguna') }}
                         </span>
                     </div>
                 </div>
@@ -190,7 +190,11 @@
                     <span class="font-bold text-rose-600">-${{ number_format($purchase_order->discount, 4) }}</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-semibold text-slate-500">IVA (13%):</span>
+                    @php
+                        // La tasa sale de las líneas: una sola tasa se muestra; si varían, solo "IVA"
+                        $tasasIva = $purchase_order->details->map(fn ($d) => (float) $d->tax_rate)->unique();
+                    @endphp
+                    <span class="text-xs font-semibold text-slate-500">IVA{{ $tasasIva->count() === 1 ? ' ('.rtrim(rtrim(number_format($tasasIva->first(), 2), '0'), '.').'%)' : '' }}:</span>
                     <span class="font-bold text-slate-700">${{ number_format($purchase_order->tax, 4) }}</span>
                 </div>
                 <div class="flex justify-between items-center">

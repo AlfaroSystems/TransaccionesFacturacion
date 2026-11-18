@@ -29,6 +29,8 @@ class PurchaseController extends Controller
         'details.*.id_purchase_order_detail.required' => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.exists' => 'Solo se pueden recibir productos de la orden de compra.',
         'details.*.id_purchase_order_detail.distinct' => 'Un producto de la orden aparece en más de una línea.',
+        'details.required' => 'Indique la cantidad recibida de al menos un producto de la orden.',
+        'details.min' => 'Indique la cantidad recibida de al menos un producto de la orden.',
     ];
 
     public function __construct(private readonly PurchaseService $service) {}
@@ -80,6 +82,31 @@ class PurchaseController extends Controller
 
         if ($bodega) {
             $request->merge(['id_warehouse' => $bodega]);
+        }
+    }
+
+    /**
+     * Valida la compra sin las líneas que no llegaron en esta entrega (cantidad vacía o 0): no
+     * se envían al servicio y quedan pendientes en la orden. Las demás conservan su clave (la
+     * fila del formulario), para mostrar cada error en su fila. Después se devuelven todas las
+     * líneas a la petición: si algo falla, el formulario vuelve con lo escrito, también los 0.
+     */
+    private function validarLineasRecibidas(Request $request, array $reglas, array $mensajes): array
+    {
+        $lineas = $request->input('details', []);
+
+        $request->merge([
+            'details' => array_filter((array) $lineas, function ($linea) {
+                $cantidad = is_array($linea) ? ($linea['quantity_received'] ?? null) : 'invalida';
+
+                return ! ($cantidad === null || $cantidad === '' || (is_numeric($cantidad) && (float) $cantidad == 0.0));
+            }),
+        ]);
+
+        try {
+            return $request->validate($reglas, $mensajes);
+        } finally {
+            $request->merge(['details' => $lineas]);
         }
     }
 
@@ -268,7 +295,7 @@ class PurchaseController extends Controller
         $bodegas = $this->bodegasDeCasaMatriz($order?->id_branch);
         $this->elegirBodegaPorDefecto($request, $bodegas, $order?->id_warehouse);
 
-        $validated = $request->validate([
+        $validated = $this->validarLineasRecibidas($request, [
             'id_purchase_order' => ['required', new Accessible(PurchaseOrder::class)],
             'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_warehouse' => ['required', Rule::in($bodegas->all())],
@@ -434,7 +461,7 @@ class PurchaseController extends Controller
         $bodegas = $this->bodegasDeCasaMatriz($purchase->id_branch);
         $this->elegirBodegaPorDefecto($request, $bodegas, $purchase->id_warehouse);
 
-        $validated = $request->validate([
+        $validated = $this->validarLineasRecibidas($request, [
             'id_supplier' => ['required', 'exists:suppliers,id_supplier'],
             'id_warehouse' => ['required', Rule::in($bodegas->all())],
             'purchase_date' => ['required', 'date'],

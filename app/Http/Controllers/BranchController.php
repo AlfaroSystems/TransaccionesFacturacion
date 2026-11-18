@@ -65,6 +65,8 @@ class BranchController extends Controller
     {
         Gate::authorize('branches.ver');
 
+        $branch->load(['company', 'department', 'municipality', 'district', 'warehouses' => fn ($q) => $q->orderBy('name')]);
+
         return view('branches.show', compact('branch'));
     }
 

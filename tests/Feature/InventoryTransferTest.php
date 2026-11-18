@@ -207,7 +207,9 @@ test('sin vehículo o motorista no se envía a autorizar; rechazado vuelve a bor
     expect($transfer->fresh()->status)->toBe(InventoryTransfer::STATUS_DRAFT)
         ->and($transfer->fresh()->status_reason)->toBe('Mandar solo 2');
 
-    $this->actingAs($e->compras)->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('Mandar solo 2');
+    // El seguimiento muestra el envío y el rechazo, quién lo rechazó y por qué
+    $this->actingAs($e->compras)->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('Mandar solo 2')
+        ->assertSeeInOrder(['Enviado a autorización', 'Rechazado: volvió a borrador', $e->autorizador->username.' · Mandar solo 2']);
     $this->put(route('inventory-transfers.update', $transfer), trasladoDatos($e, 2))->assertSessionHasNoErrors();
     $this->post(route('inventory-transfers.submit', $transfer))->assertSessionHas('success');
     $this->actingAs($e->autorizador)->post(route('inventory-transfers.authorize', $transfer))->assertSessionHas('success');
@@ -299,6 +301,7 @@ test('recepción parcial: lo que falta sigue en el vehículo hasta que llega', f
     // El resto llega después: vuelve a tránsito y se recibe (sin cantidad, todo lo pendiente)
     $this->post(route('inventory-transfers.continue-transit', $transfer))->assertSessionHas('success');
     expect($transfer->fresh()->status)->toBe(InventoryTransfer::STATUS_IN_TRANSIT);
+    $this->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSeeInOrder(['Recepción de 4 unidades', 'Sigue en tránsito']);
 
     $this->post(route('inventory-transfers.receive', $transfer))->assertSessionHas('success');
     expect($transfer->fresh()->status)->toBe(InventoryTransfer::STATUS_RECEIVED)
@@ -347,7 +350,8 @@ test('faltantes y daños salen del vehículo como pérdida al regularizar', func
         ->and((float) $promedio->inventory_value)->toBe(35.0)
         ->and((float) $promedio->average_unit_cost)->toBe(5.0);
 
-    $this->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('Regularizada')->assertSee('Existencias regularizadas');
+    $this->get(route('inventory-transfers.show', $transfer))->assertOk()->assertSee('Regularizada')
+        ->assertSeeInOrder(['Existencias regularizadas', $e->autorizador->username, 'Traslado finalizado: recibido']);
     $this->get(route('inventory.movements', ['type' => 'transfer_damage']))->assertOk()->assertSee('Baja por daño en traslado');
 });
 

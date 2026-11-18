@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\InventoryLocation;
@@ -358,31 +359,80 @@ class InventoryTransferController extends Controller
 
     /**
      * Seguimiento del traslado: cada paso con su fecha y quién lo hizo, del más antiguo al más
-     * reciente. Las recepciones salen de sus movimientos (una por fecha y usuario).
+     * reciente. Las recepciones salen de sus movimientos (una por fecha y usuario); los envíos a
+     * autorización, los rechazos y quién hizo cada paso, de los cambios de estado de la bitácora.
      *
-     * @return Collection<int, object{fecha: CarbonInterface, titulo: string, detalle: ?string}>
+     * @return Collection<int, object{orden: int, fecha: CarbonInterface, titulo: string, detalle: ?string}>
      */
     private function seguimiento(InventoryTransfer $transfer): Collection
     {
+        $cambios = AuditLog::query()
+            ->with('user')
+            ->where('auditable_type', $transfer->getMorphClass())
+            ->where('id_record', $transfer->id_inventory_transfer)
+            ->orderBy('id_log')
+            ->get()
+            ->filter(fn (AuditLog $log) => isset($log->modified_data['status']))
+            ->values();
+
+        // Quién pasó el traslado de un estado a otro (la última vez)
+        $quien = fn (array $desde, string $hacia) => $cambios->last(
+            fn (AuditLog $log) => $log->modified_data['status'] === $hacia && in_array($log->original_data['status'] ?? null, $desde, true)
+        )?->user?->username;
+
+        // "orden" desempata pasos del mismo segundo según el flujo
         $pasos = collect([(object) [
+            'orden' => 0,
             'fecha' => $transfer->created_at,
             'titulo' => 'Traslado creado',
             'detalle' => $transfer->user?->username,
         ]]);
 
+        foreach ($cambios as $log) {
+            $anterior = $log->original_data['status'] ?? null;
+            $nuevo = $log->modified_data['status'];
+
+            $paso = match (true) {
+                $nuevo === InventoryTransfer::STATUS_PENDING_AUTHORIZATION => [1, 'Enviado a autorización', $log->user?->username],
+                $nuevo === InventoryTransfer::STATUS_DRAFT && $anterior === InventoryTransfer::STATUS_PENDING_AUTHORIZATION => [
+                    1,
+                    'Rechazado: volvió a borrador',
+                    collect([$log->user?->username, $log->modified_data['status_reason'] ?? null])->filter()->join(' · '),
+                ],
+                $nuevo === InventoryTransfer::STATUS_IN_TRANSIT && $anterior !== InventoryTransfer::STATUS_PREPARING => [6, 'Sigue en tránsito', $log->user?->username],
+                $nuevo === InventoryTransfer::STATUS_CANCELLED => [9, 'Traslado cancelado', $log->user?->username],
+                default => null,
+            };
+
+            if ($paso) {
+                $pasos->push((object) ['orden' => $paso[0], 'fecha' => $log->created_at, 'titulo' => $paso[1], 'detalle' => $paso[2]]);
+            }
+        }
+
         if ($transfer->authorized_at) {
-            $pasos->push((object) ['fecha' => $transfer->authorized_at, 'titulo' => 'Autorizado', 'detalle' => $transfer->authorizedBy?->username]);
+            $pasos->push((object) ['orden' => 2, 'fecha' => $transfer->authorized_at, 'titulo' => 'Autorizado', 'detalle' => $transfer->authorizedBy?->username]);
         }
 
         if ($transfer->prepared_at) {
-            $pasos->push((object) ['fecha' => $transfer->prepared_at, 'titulo' => 'Despacho en preparación', 'detalle' => null]);
+            $pasos->push((object) [
+                'orden' => 3,
+                'fecha' => $transfer->prepared_at,
+                'titulo' => 'Despacho en preparación',
+                'detalle' => $quien([InventoryTransfer::STATUS_AUTHORIZED], InventoryTransfer::STATUS_PREPARING),
+            ]);
         }
 
         if ($transfer->dispatched_at) {
             $pasos->push((object) [
+                'orden' => 4,
                 'fecha' => $transfer->dispatched_at,
                 'titulo' => 'Despachado: en tránsito',
-                'detalle' => collect([$transfer->vehicle?->label(), $transfer->vehicleLocation?->code, $transfer->driver?->fullName()])->filter()->join(' · '),
+                'detalle' => collect([
+                    $quien([InventoryTransfer::STATUS_PREPARING], InventoryTransfer::STATUS_IN_TRANSIT),
+                    $transfer->vehicle?->label(),
+                    $transfer->vehicleLocation?->code,
+                    $transfer->driver?->fullName(),
+                ])->filter()->join(' · '),
             ]);
         }
 
@@ -395,6 +445,7 @@ class InventoryTransferController extends Controller
             ->get()
             ->groupBy(fn ($m) => $m->movement_date->format('Y-m-d H:i:s').'|'.$m->id_user)
             ->each(fn ($grupo) => $pasos->push((object) [
+                'orden' => 5,
                 'fecha' => $grupo->first()->movement_date,
                 'titulo' => 'Recepción de '.self::unidades((float) $grupo->sum('quantity_in')),
                 'detalle' => $grupo->first()->user?->username,
@@ -404,6 +455,7 @@ class InventoryTransferController extends Controller
 
         $discrepancias->groupBy(fn ($d) => $d->created_at->format('Y-m-d H:i'))
             ->each(fn ($grupo) => $pasos->push((object) [
+                'orden' => 7,
                 'fecha' => $grupo->first()->created_at,
                 'titulo' => 'Discrepancias registradas',
                 'detalle' => $grupo->groupBy('discrepancy_type')
@@ -412,14 +464,22 @@ class InventoryTransferController extends Controller
             ]));
 
         if ($regularizada = $discrepancias->whereNotNull('regularized_at')->max('regularized_at')) {
-            $pasos->push((object) ['fecha' => $regularizada, 'titulo' => 'Existencias regularizadas', 'detalle' => null]);
+            $pasos->push((object) [
+                'orden' => 8,
+                'fecha' => $regularizada,
+                'titulo' => 'Existencias regularizadas',
+                'detalle' => $quien([InventoryTransfer::STATUS_WITH_DISCREPANCY], InventoryTransfer::STATUS_RECEIVED),
+            ]);
         }
 
         if ($transfer->received_at) {
-            $pasos->push((object) ['fecha' => $transfer->received_at, 'titulo' => 'Traslado finalizado: recibido', 'detalle' => null]);
+            $pasos->push((object) ['orden' => 9, 'fecha' => $transfer->received_at, 'titulo' => 'Traslado finalizado: recibido', 'detalle' => null]);
         }
 
-        return $pasos->sortBy(fn ($paso) => $paso->fecha->getTimestamp())->values();
+        // Orden estable: los pasos del mismo segundo y orden quedan como se agregaron
+        return $pasos
+            ->sort(fn ($a, $b) => [$a->fecha->getTimestamp(), $a->orden] <=> [$b->fecha->getTimestamp(), $b->orden])
+            ->values();
     }
 
     private function accion(\Closure $accion, string $mensaje)

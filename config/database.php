@@ -94,6 +94,9 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // La misma zona que la aplicación: lo que llena la base (CURRENT_TIMESTAMP, NOW()),
+            // como la fecha de la bitácora, queda en hora local igual que lo que guarda Laravel
+            'timezone' => env('DB_TIMEZONE', env('APP_TIMEZONE', 'America/El_Salvador')),
         ],
         'sqlsrv' => [
             'driver' => 'sqlsrv',

@@ -34,6 +34,11 @@
     $discrepancias = $transfer->details->flatMap(fn ($d) => $d->discrepancies->map(fn ($x) => [$d, $x]));
     $porRegularizar = $discrepancias->contains(fn ($par) => $par[1]->regularized_at === null);
     $unidad = fn ($d) => $d->product?->purchaseUnit?->name;
+    // Con una sola unidad entre lo que va en el vehículo se dice cuál ("5 Caja"); si se mezclan, "unidades"
+    $unidadesEnVehiculo = $transfer->details->filter(fn ($d) => $d->pendingQuantity() > 0)->map($unidad)->unique();
+    $textoEnVehiculo = $unidadesEnVehiculo->count() === 1 && $unidadesEnVehiculo->first()
+        ? rtrim(rtrim(number_format($enVehiculo, 4, '.', ''), '0'), '.').' '.$unidadesEnVehiculo->first()
+        : \App\Http\Controllers\InventoryTransferController::unidades($enVehiculo);
 @endphp
 <div class="w-full space-y-6 animate-fade-in duration-300">
     <!-- Encabezado y acciones del paso actual -->
@@ -193,7 +198,7 @@
                 <p class="text-xs text-slate-500">Espacio de carga: <strong class="text-slate-800 dark:text-white font-mono">{{ $transfer->vehicleLocation->code }}</strong></p>
             @endif
             @if($enVehiculo > 0 && ! $antesDeDespachar)
-                <p class="text-xs font-bold text-orange-600 dark:text-orange-400">En el vehículo: {{ \App\Http\Controllers\InventoryTransferController::unidades($enVehiculo) }}</p>
+                <p class="text-xs font-bold text-orange-600 dark:text-orange-400">En el vehículo: {{ $textoEnVehiculo }}</p>
             @endif
         </div>
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">

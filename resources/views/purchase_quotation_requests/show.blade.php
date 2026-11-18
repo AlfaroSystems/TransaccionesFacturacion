@@ -711,7 +711,7 @@
                                             <input type="number" step="0.01" min="0" name="items[{{ $index }}][discount]" value="0.00" class="w-24 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <input type="number" step="0.01" min="0" name="items[{{ $index }}][tax_rate]" value="15.00" class="w-20 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+                                            <input type="number" step="0.01" min="0" name="items[{{ $index }}][tax_rate]" value="13.00" class="w-20 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
                                             <input type="number" min="0" name="items[{{ $index }}][delivery_days]" placeholder="Días" class="w-20 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
@@ -837,7 +837,7 @@ function awardAllTo(quotationId) {
 }
 
 function formatMoney(value) {
-    return '$' + value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function updateAwardTotal() {

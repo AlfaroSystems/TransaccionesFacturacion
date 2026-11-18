@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('title', 'Órdenes de Compra')
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">

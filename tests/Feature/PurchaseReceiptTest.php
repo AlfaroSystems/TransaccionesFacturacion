@@ -186,6 +186,37 @@ test('el formulario de recepción solo ofrece lo que falta recibir', function ()
         ->and((float) $detalles[0]['pending_quantity'])->toBe(3.0);
 });
 
+test('una línea en 0 no llegó en esta entrega y queda pendiente en la orden', function () {
+    $e = recepcionEscenario();
+    $this->actingAs($e->admin);
+
+    // Solo llegaron las laptops: el monitor va en 0 (o vacío) y no entra a la compra
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 10], [$e->lineaMonitor, 0]]))->assertSessionHasNoErrors();
+
+    $compra = Purchase::with('details')->sole();
+    expect($compra->details)->toHaveCount(1)
+        ->and((int) $compra->details->first()->id_purchase_order_detail)->toBe((int) $e->lineaLaptop->id_purchase_order_detail)
+        ->and($e->order->fresh()->status)->toBe('partial_received');
+
+    // Sin ninguna cantidad no hay compra
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaMonitor, '']]))
+        ->assertSessionHasErrors(['details' => 'Indique la cantidad recibida de al menos un producto de la orden.']);
+
+    // El error de una línea conserva su fila aunque otra vaya en 0, y el formulario vuelve con
+    // la línea en 0 (no con lo pendiente, que haría recibir lo que no llegó)
+    $this->post(route('purchases.store'), recepcionDatos($e, [[$e->lineaLaptop, 0], [$e->lineaMonitor, 6]]))
+        ->assertSessionHasErrors(['details.1.quantity_received' => "De {$e->monitor->name} solo faltan 5 por recibir."])
+        ->assertSessionHasInput('details.0.quantity_received', 0);
+
+    $datos = recepcionDatos($e, [[$e->lineaMonitor, 0], [$e->lineaMonitor, 2]]);
+    $datos['details'][1]['unit_price'] = '';
+    $this->post(route('purchases.store'), $datos)
+        ->assertSessionHasErrors('details.1.unit_price')
+        ->assertSessionHasInput('details.0.quantity_received', 0);
+
+    expect(Purchase::count())->toBe(1);
+});
+
 // =============================================================================
 // Punto 7: transiciones de estado
 // =============================================================================

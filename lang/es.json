@@ -14,5 +14,11 @@
     "validation.unique": "Este valor ya ha sido registrado.",
     "validation.min.string": "El campo debe contener al menos :min caracteres.",
     "validation.max.string": "El campo no debe superar los :max caracteres.",
-    "validation.confirmed": "La confirmación no coincide."
+    "validation.confirmed": "La confirmación no coincide.",
+    "Pagination Navigation": "Navegación de páginas",
+    "Showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "Go to page :page": "Ir a la página :page"
 }

@@ -341,7 +341,7 @@ function selectedRequestIds() {
 }
 
 function formatQuantity(value) {
-    return Number(value).toLocaleString(undefined, { maximumFractionDigits: 4 });
+    return Number(value).toLocaleString('en-US', { maximumFractionDigits: 4 });
 }
 
 // Vista previa: una línea por producto y unidad, con la cantidad total y el desglose

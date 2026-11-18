@@ -64,3 +64,13 @@ it('logs creation, update, and deletion of different models', function () {
     expect($deleteLog)->not->toBeNull();
     expect($deleteLog->original_data['name'])->toBe('Electrodomésticos');
 });
+
+it('guarda la hora de la bitácora en la zona de la aplicación', function () {
+    // La fecha la pone la base (CURRENT_TIMESTAMP): debe coincidir con la hora local de Laravel,
+    // no con UTC, para que la bitácora y el filtro por fechas cuadren con el resto del sistema
+    $company = Company::create(['name' => 'Empresa con hora']);
+
+    $log = AuditLog::where('id_record', $company->id_company)->where('auditable_type', Company::class)->sole();
+
+    expect(abs($log->created_at->diffInSeconds(now())))->toBeLessThan(120);
+});
