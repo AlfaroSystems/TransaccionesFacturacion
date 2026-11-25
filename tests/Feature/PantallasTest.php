@@ -3,6 +3,8 @@
 use App\Models\Branch;
 use App\Models\Category;
 use App\Models\Company;
+use App\Models\Customer;
+use App\Models\Sale;
 use App\Models\Department;
 use App\Models\District;
 use App\Models\Employee;
@@ -91,6 +93,15 @@ function registrosParaPantallas(User $admin): array
         'lot_code' => 'LOT-PANTALLAS', 'id_product' => $product->id_product, 'id_warehouse' => $warehouse->id_warehouse, 'received_at' => now(),
         'quantity_received' => 5, 'unit_cost' => 10, 'total_cost' => 50, 'status' => InventoryLot::STATUS_PENDING,
     ]);
+    $customer = Customer::create(['name' => 'Cliente Pantallas', 'customer_type' => 'final', 'email' => 'cliente@example.com']);
+    $sale = Sale::create([
+        'id_branch' => $branch->id_branch, 'id_customer' => $customer->id_customer, 'id_user' => $admin->id_user,
+        'sale_date' => now(), 'document_type' => 'invoice', 'payment_method' => 'cash', 'status' => Sale::STATUS_DELIVERED,
+    ]);
+    $sale->details()->create([
+        'id_product' => $product->id_product, 'quantity' => 1, 'id_unit' => $unit->id_unit, 'unit_price' => 10,
+        'subtotal' => 10, 'tax_amount' => 1.3, 'total' => 11.3,
+    ]);
 
     return [
         'branch' => $branch->id_branch, 'category' => $category->id_category, 'company' => $company->id_company, 'location' => $location->id_location,
@@ -100,6 +111,7 @@ function registrosParaPantallas(User $admin): array
         'transfer' => $transfer->id_inventory_transfer, 'lot' => $lot->id_inventory_lot,
         'employee' => $employee->id_employee, 'vehicle' => $vehicle->id_vehicle, 'role' => $role->id_role, 'subcategory' => $sub->id_sub_category, 'supplier' => $supplier->id_supplier, 'unit' => $unit->id_unit,
         'user' => $admin->id_user, 'warehouse_category' => $whCat->id_warehouse_category, 'warehouse' => $warehouse->id_warehouse,
+        'sale' => $sale->id_sale, 'customer' => $customer->id_customer,
     ];
 }
 

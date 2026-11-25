@@ -595,6 +595,20 @@ class RoleAndPermissionSeeder extends Seeder
                 'description' => 'Permite cambiar el estado de un retaceo (calculado, aplicado, anulado).',
                 'action' => 'updateStatus',
             ],
+            // Clientes
+            ['id_permission' => 'customers.ver', 'name' => 'Ver Clientes', 'description' => 'Permite ver el listado y detalle de los clientes.', 'action' => 'index'],
+            ['id_permission' => 'customers.crear', 'name' => 'Crear Clientes', 'description' => 'Permite registrar nuevos clientes.', 'action' => 'create'],
+            ['id_permission' => 'customers.editar', 'name' => 'Editar Clientes', 'description' => 'Permite modificar la información de los clientes.', 'action' => 'edit'],
+            ['id_permission' => 'customers.eliminar', 'name' => 'Activar/Desactivar Clientes', 'description' => 'Permite activar o desactivar clientes.', 'action' => 'destroy'],
+            // Asignación de Precios
+            ['id_permission' => 'prices.ver', 'name' => 'Ver Precios de Venta', 'description' => 'Permite consultar el precio de venta vigente de los productos.', 'action' => 'index'],
+            ['id_permission' => 'prices.cambiar', 'name' => 'Asignar/Cambiar Precios', 'description' => 'Permite asignar y cambiar el precio de venta de un producto.', 'action' => 'update'],
+            ['id_permission' => 'prices.historial', 'name' => 'Ver Historial de Precios', 'description' => 'Permite consultar el historial de precios de un producto con sus fechas.', 'action' => 'history'],
+            // Ventas
+            ['id_permission' => 'sales.ver', 'name' => 'Ver Ventas', 'description' => 'Permite consultar el listado y detalle de ventas.', 'action' => 'index'],
+            ['id_permission' => 'sales.crear', 'name' => 'Registrar Ventas', 'description' => 'Permite registrar ventas y entregarlas, descontando el inventario con PEPS.', 'action' => 'create'],
+            ['id_permission' => 'sales.anular', 'name' => 'Anular Ventas', 'description' => 'Permite anular ventas.', 'action' => 'cancel'],
+            ['id_permission' => 'sales.rentabilidad', 'name' => 'Ver Rentabilidad de Ventas', 'description' => 'Permite ver el costo de venta (PEPS) y el margen de las ventas.', 'action' => 'profit'],
         ];
 
         // Guardar o actualizar permisos

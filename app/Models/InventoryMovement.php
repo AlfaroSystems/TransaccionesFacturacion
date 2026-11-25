@@ -57,6 +57,12 @@ class InventoryMovement extends Model
 
     public const TYPE_RELOCATION_IN = 'relocation_in';
 
+    // Ventas: la entrega descuenta del inventario de la sucursal con PEPS (lote más antiguo
+    // primero); la devolución aceptada reingresa al costo del lote
+    public const TYPE_SALE_ISSUE = 'sale_issue';
+
+    public const TYPE_SALE_RETURN = 'sale_return';
+
     // Anulación de compra y ajuste de costo quedan para el historial: los lotes ya nacen con el
     // costo del retaceo y una compra con lotes no se anula
     public const TYPE_LABELS = [
@@ -76,6 +82,8 @@ class InventoryMovement extends Model
         self::TYPE_ADJUSTMENT_OUT => 'Ajuste de inventario (sale)',
         self::TYPE_RELOCATION_OUT => 'Cambio de ubicación (sale)',
         self::TYPE_RELOCATION_IN => 'Cambio de ubicación (entra)',
+        self::TYPE_SALE_ISSUE => 'Salida por venta',
+        self::TYPE_SALE_RETURN => 'Entrada por devolución de venta',
     ];
 
     public const REFERENCE_PURCHASE = 'purchase';
@@ -86,6 +94,8 @@ class InventoryMovement extends Model
     public const REFERENCE_RELOCATION = 'relocation';
 
     public const REFERENCE_ADJUSTMENT = 'adjustment';
+
+    public const REFERENCE_SALE = 'sale';
 
     // Movimientos de las bodegas visibles: las de la sucursal del usuario, o las de toda su
     // empresa para el departamento de compras

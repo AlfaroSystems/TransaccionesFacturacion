@@ -33,6 +33,9 @@ class PermissionGroups
         ['Compras: Facturas / Compras', 'bg-lime-500', ['purchases.']],
         ['Compras: Retaceos', 'bg-pink-500', ['retaceos.']],
         ['Compras: Tipos de Gastos', 'bg-slate-500', ['expense_types.']],
+        ['Gestión de Clientes', 'bg-fuchsia-500', ['customers.']],
+        ['Asignación de Precios', 'bg-violet-500', ['prices.']],
+        ['Ventas', 'bg-red-500', ['sales.']],
     ];
 
     /**

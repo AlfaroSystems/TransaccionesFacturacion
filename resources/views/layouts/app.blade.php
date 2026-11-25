@@ -202,6 +202,42 @@
                         <span>Proveedores</span>
                     </a>
                 @endcan
+                <!-- Clientes -->
+                @php
+                    $isCustomer = request()->routeIs('customers.*');
+                @endphp
+                @can('customers.ver')
+                    <a href="{{ route('customers.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isCustomer ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span>Clientes</span>
+                    </a>
+                @endcan
+                <!-- Asignación de Precios -->
+                @php
+                    $isPrices = request()->routeIs('prices.*');
+                @endphp
+                @can('prices.ver')
+                    <a href="{{ route('prices.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isPrices ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+                        </svg>
+                        <span>Precios</span>
+                    </a>
+                @endcan
+                <!-- Ventas -->
+                @php
+                    $isSales = request()->routeIs('sales.*');
+                @endphp
+                @can('sales.ver')
+                    <a href="{{ route('sales.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ $isSales ? 'bg-navy-active text-white font-bold' : 'text-slate-200 dark:text-slate-400 hover:bg-white/10 dark:hover:bg-slate-800/60 hover:text-white font-semibold' }} transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span>Ventas</span>
+                    </a>
+                @endcan
                 <!-- Compras -->
                 @php
                     $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');

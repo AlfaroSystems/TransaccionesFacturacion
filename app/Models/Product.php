@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -36,6 +37,7 @@ class Product extends Model
         'id_sub_category',
         'id_purchase_unit',
         'id_sale_unit',
+        'base_to_sale_factor',
         'is_active',
     ];
 
@@ -46,6 +48,8 @@ class Product extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
+        // Cuántas unidades de venta equivale 1 unidad de inventario (compra)
+        'base_to_sale_factor' => 'decimal:4',
         // Último costo: lo fija ProductCostService, no el formulario del producto
         'last_cost' => 'decimal:4',
         'last_cost_date' => 'datetime',
@@ -174,9 +178,37 @@ class Product extends Model
         return $this->belongsTo(PurchaseDetail::class, 'id_last_cost_purchase_detail', 'id_purchase_detail');
     }
 
+    /**
+     * Historial de precios de venta (más reciente primero).
+     */
+    public function prices(): HasMany
+    {
+        return $this->hasMany(ProductPrice::class, 'id_product', 'id_product')->orderByDesc('valid_from');
+    }
+
+    /**
+     * Precio de venta vigente (el que no tiene fecha de cambio).
+     */
+    public function currentPrice(): HasOne
+    {
+        return $this->hasOne(ProductPrice::class, 'id_product', 'id_product')->whereNull('valid_until');
+    }
+
     /* =========================================================================
      *  SCOPES & ACCESORS
      * ========================================================================= */
+
+    /**
+     * Valor del precio de venta vigente, o null si el producto aún no tiene precio.
+     */
+    public function precioVigente(): ?float
+    {
+        $price = $this->relationLoaded('currentPrice')
+            ? $this->getRelation('currentPrice')
+            : $this->currentPrice()->first();
+
+        return $price ? (float) $price->price : null;
+    }
 
     public function scopeActive($query)
     {
