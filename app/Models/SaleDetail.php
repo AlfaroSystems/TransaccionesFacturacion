@@ -21,6 +21,7 @@ class SaleDetail extends Model
     protected $fillable = [
         'id_sale',
         'id_product',
+        'id_product_presentation',
         'quantity',
         'id_unit',
         'unit_price',
@@ -54,6 +55,11 @@ class SaleDetail extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'id_product', 'id_product');
+    }
+
+    public function presentation(): BelongsTo
+    {
+        return $this->belongsTo(ProductPresentation::class, 'id_product_presentation', 'id_product_presentation');
     }
 
     public function unit(): BelongsTo

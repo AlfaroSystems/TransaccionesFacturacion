@@ -3,11 +3,14 @@
 namespace App\Services;
 
 use App\Models\Branch;
+use App\Models\CashShift;
+use App\Models\Customer;
 use App\Models\InventoryLocation;
 use App\Models\InventoryLot;
 use App\Models\InventoryMovement;
 use App\Models\InventoryTransfer;
 use App\Models\Product;
+use App\Models\ProductPresentation;
 use App\Models\Sale;
 use App\Models\SaleCostDetail;
 use App\Models\SaleDetail;
@@ -28,7 +31,10 @@ use Illuminate\Validation\ValidationException;
  */
 class SaleService
 {
-    public function __construct(private readonly InventoryService $inventory = new InventoryService) {}
+    public function __construct(
+        private readonly InventoryService $inventory = new InventoryService,
+        private readonly CashRegisterService $cash = new CashRegisterService,
+    ) {}
 
     /**
      * Registra la venta y la entrega: descuenta el inventario de la sucursal con PEPS.
@@ -43,34 +49,75 @@ class SaleService
             $companyId = (int) Branch::queryAllBranches()->whereKey($data['id_branch'])->value('id_company');
             $taxRate = round((float) ($data['tax_rate'] ?? 13), 2);
 
+            $shift = CashShift::openForBranch((int) $data['id_branch']);
+
+            if (! $shift) {
+                throw ValidationException::withMessages([
+                    'id_branch' => 'No hay un turno de caja abierto en la sucursal. Abra la caja antes de vender.',
+                ]);
+            }
+
+            // Crédito Fiscal: el cliente debe ser contribuyente con NRC y documento. Se guarda
+            // un snapshot de sus datos fiscales en la venta (no cambia si luego se edita el cliente).
+            $customer = Customer::find($data['id_customer']);
+
+            if (($data['document_type'] ?? null) === 'ccf' && (! $customer
+                || $customer->customer_type !== Customer::TYPE_TAXPAYER
+                || blank($customer->nrc) || blank($customer->document_number))) {
+                throw ValidationException::withMessages([
+                    'id_customer' => 'Para Crédito Fiscal el cliente debe ser contribuyente con NRC y NIT/documento.',
+                ]);
+            }
+
+            $receptor = $customer ? [
+                'receptor_business_name' => $customer->name,
+                'receptor_document_type' => $customer->document_type,
+                'receptor_document_number' => $customer->document_number,
+                'receptor_nrc' => $customer->nrc,
+                'receptor_line' => $customer->commercial_line,
+                'receptor_address' => $customer->address,
+            ] : [];
+
             $sale = Sale::create([
                 'id_branch' => $data['id_branch'],
+                'id_cash_shift' => $shift->id_cash_shift,
                 'id_customer' => $data['id_customer'],
                 'id_user' => Auth::id(),
                 'sale_date' => now(),
                 'document_type' => $data['document_type'],
                 'fiscal_document_number' => $data['fiscal_document_number'] ?? null,
                 'payment_method' => $data['payment_method'],
+                'payment_reference' => $data['payment_reference'] ?? null,
+                'payment_bank' => $data['payment_bank'] ?? null,
+                'payment_document_number' => $data['payment_document_number'] ?? null,
                 'currency' => 'USD',
                 'status' => Sale::STATUS_DRAFT,
                 'notes' => $data['notes'] ?? null,
-            ]);
+            ] + $receptor);
 
             $subtotal = 0.0;
             $descuento = 0.0;
             $impuesto = 0.0;
 
             foreach ($data['lines'] as $i => $linea) {
-                $product = Product::active()->find($linea['id_product']);
+                $presentation = ProductPresentation::query()
+                    ->where('is_active', true)
+                    ->find($linea['id_product_presentation'] ?? null);
 
-                if (! $product) {
-                    throw ValidationException::withMessages(["lines.{$i}.id_product" => 'El producto no existe o está inactivo.']);
+                if (! $presentation) {
+                    throw ValidationException::withMessages(["lines.{$i}.id_product_presentation" => 'La presentación no existe o está inactiva.']);
                 }
 
-                $precio = $product->precioVigente();
+                $product = Product::active()->find($presentation->id_product);
+
+                if (! $product) {
+                    throw ValidationException::withMessages(["lines.{$i}.id_product_presentation" => 'El producto no existe o está inactivo.']);
+                }
+
+                $precio = $presentation->precioVigente();
 
                 if ($precio === null) {
-                    throw ValidationException::withMessages(["lines.{$i}.id_product" => "El producto {$product->name} no tiene precio de venta asignado."]);
+                    throw ValidationException::withMessages(["lines.{$i}.id_product_presentation" => "El producto {$product->name} ({$presentation->name}) no tiene precio de venta asignado."]);
                 }
 
                 $cantidad = round((float) $linea['quantity'], 4);
@@ -91,6 +138,7 @@ class SaleService
                 SaleDetail::create([
                     'id_sale' => $sale->id_sale,
                     'id_product' => $product->id_product,
+                    'id_product_presentation' => $presentation->id_product_presentation,
                     'quantity' => $cantidad,
                     'id_unit' => $product->id_sale_unit,
                     'unit_price' => $precio,
@@ -115,6 +163,7 @@ class SaleService
             ]);
 
             $this->entregar($sale, $companyId);
+            $this->cash->acumularVenta($shift->id_cash_shift, $sale);
 
             return $sale->fresh(['details.product']);
         });
@@ -127,14 +176,15 @@ class SaleService
      */
     private function entregar(Sale $sale, int $companyId): void
     {
-        $sale->load('details.product');
+        $sale->load('details.product', 'details.presentation');
         $costoVenta = 0.0;
 
         foreach ($sale->details as $detail) {
             $product = $detail->product;
-            $factor = (float) ($product->base_to_sale_factor ?: 1);
+            // Unidades base del inventario = cantidad vendida × factor de la presentación
+            $factor = (float) ($detail->presentation->factor ?? 1);
             $factor = $factor > 0 ? $factor : 1;
-            $cantidadBase = round((float) $detail->quantity / $factor, 4);
+            $cantidadBase = round((float) $detail->quantity * $factor, 4);
 
             $filas = $this->filasPeps($product->id_product, (int) $sale->id_branch);
             $apartado = InventoryTransfer::apartado($filas->pluck('id_inventory_lot')->unique()->all());
@@ -216,8 +266,9 @@ class SaleService
     }
 
     /**
-     * Existencia disponible del producto en las bodegas de la sucursal, por lote y ubicación,
-     * en orden PEPS (lote más antiguo primero). Consulta directa para no depender de los scopes.
+     * Existencia disponible del producto en las bodegas de la sucursal, por lote y ubicación.
+     * Excluye lotes vencidos y ordena por vencimiento más próximo (FEFO); sin vencimiento cae a
+     * PEPS (lote más antiguo primero). Consulta directa para no depender de los scopes.
      *
      * @return Collection<int, object{id_inventory_lot:int, id_inventory_location:int, id_warehouse:int, quantity:float, unit_cost:float}>
      */
@@ -233,6 +284,12 @@ class SaleService
             ->where('il.location_type', InventoryLocation::TYPE_LOCATION)
             ->where('w.id_branch', $branchId)
             ->where('ild.quantity', '>', 0)
+            // No se venden lotes vencidos
+            ->where(function ($q) {
+                $q->whereNull('l.expiration_date')->orWhere('l.expiration_date', '>=', now()->toDateString());
+            })
+            // FEFO: primero el que vence antes; sin vencimiento cae a PEPS (received_at)
+            ->orderByRaw('l.expiration_date ASC NULLS LAST')
             ->orderBy('l.received_at')
             ->orderBy('l.id_inventory_lot')
             ->orderBy('ild.id_inventory_location')

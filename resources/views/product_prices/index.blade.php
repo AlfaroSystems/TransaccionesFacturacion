@@ -2,168 +2,156 @@
 @section('title', 'Asignación de Precios')
 @section('content')
 <div class="animate-fade-in duration-300">
-    {{-- ENCABEZADO --}}
     <x-ui.page-header eyebrow="Precios" title="Asignación de Precios"
-        subtitle="Precio de venta vigente de cada producto y su historial de cambios." />
+        subtitle="Presentaciones de venta de cada producto (Unidad, Blíster, Caja...), su precio vigente e historial." />
 
     {{-- BUSCADOR --}}
     <div class="ui-surface p-4 mb-6">
         <form method="GET" action="{{ route('prices.index') }}" class="flex flex-col sm:flex-row gap-4">
-            <div class="relative flex-1">
-                <input type="text" name="search" value="{{ request('search') }}"
-                    placeholder="Buscar por nombre, SKU o código interno..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-line text-sm focus:border-accent">
-                <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </div>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre, SKU o código interno..."
+                class="flex-1 px-4 py-2.5 rounded-xl border border-line text-sm focus:border-accent">
             <div class="flex gap-2">
-                <button type="submit" class="px-5 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold rounded-xl text-sm transition-all">Buscar</button>
+                <button type="submit" class="px-5 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold rounded-xl text-sm">Buscar</button>
                 @if(request('search'))
-                    <a href="{{ route('prices.index') }}" class="px-5 py-2.5 bg-sunken hover:brightness-95 text-body font-bold rounded-xl text-sm transition-all">Limpiar</a>
+                    <a href="{{ route('prices.index') }}" class="px-5 py-2.5 bg-sunken hover:brightness-95 text-body font-bold rounded-xl text-sm">Limpiar</a>
                 @endif
             </div>
         </form>
     </div>
 
-    {{-- LISTADO --}}
-    <section class="overflow-x-auto">
-        <table class="ui-table">
-            <thead>
-                <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    <th class="py-3 px-6 pl-10">Producto</th>
-                    <th class="py-3 px-6">Categoría</th>
-                    <th class="py-3 px-6 text-right">Precio vigente</th>
-                    <th class="py-3 px-6">Desde</th>
-                    <th class="py-3 px-6 text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($products as $product)
-                    @php $current = $product->currentPrice; @endphp
-                    <tr class="group hover:shadow-md transition-all duration-200">
-                        <td class="py-4 px-6 bg-surface rounded-l-2xl border-l border-y border-line text-sm">
-                            <span class="font-bold text-primary dark:text-accent text-xs">{{ $product->sku }}</span>
-                            <span class="font-extrabold text-slate-800 block">{{ $product->name }}</span>
-                        </td>
-                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-600 font-semibold">{{ $product->category->name ?? '-' }}</td>
-                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-right">
-                            @if($current)
-                                <span class="font-extrabold text-slate-800">$ {{ number_format($current->price, 2) }}</span>
-                            @else
-                                <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-warning-soft text-warning border border-amber-200 uppercase tracking-wider">Sin precio</span>
-                            @endif
-                        </td>
-                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-500">
-                            {{ $current ? $current->valid_from->format('d/m/Y H:i') : '-' }}
-                        </td>
-                        <td class="py-4 px-6 bg-surface rounded-r-2xl border-r border-y border-line text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                @can('prices.cambiar')
-                                    <button type="button" onclick="openModal('change-price-modal-{{ $product->id_product }}')"
-                                        class="px-3 py-2 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-xs transition-all">
-                                        {{ $current ? 'Cambiar precio' : 'Asignar precio' }}
-                                    </button>
-                                @endcan
-                                @can('prices.historial')
-                                    <button type="button" onclick="openModal('history-price-modal-{{ $product->id_product }}')"
-                                        class="p-2.5 rounded-xl bg-info-soft text-info hover:brightness-95 font-semibold text-xs transition-all flex items-center justify-center" title="Historial">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </button>
-                                @endcan
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="5" class="py-12 text-center text-slate-400 font-semibold">No se encontraron productos.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </section>
-
-    @if($products->hasPages())
-        <div class="mt-6">{{ $products->links() }}</div>
-    @endif
-</div>
-
-{{-- MODALES --}}
-@foreach($products as $product)
-    @php $current = $product->currentPrice; @endphp
-
-    {{-- Cambiar / Asignar precio --}}
-    @can('prices.cambiar')
-        <div id="change-price-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-            <div class="bg-surface rounded-3xl p-6 max-w-md w-full shadow-2xl mx-4">
-                <div class="flex items-center justify-between border-b pb-4 mb-5">
-                    <h3 class="text-lg font-extrabold text-slate-800">{{ $current ? 'Cambiar precio' : 'Asignar precio' }}</h3>
-                    <button type="button" onclick="closeModal('change-price-modal-{{ $product->id_product }}')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
-                </div>
-                <p class="text-sm font-semibold text-slate-600 mb-4">{{ $product->name }}
-                    @if($current)<span class="block text-xs text-slate-400 mt-0.5">Precio vigente: $ {{ number_format($current->price, 2) }}</span>@endif
-                </p>
-                <form action="{{ route('prices.change', $product) }}" method="POST" class="space-y-4">
-                    @csrf
+    {{-- PRODUCTOS Y PRESENTACIONES --}}
+    <div class="space-y-4">
+        @forelse($products as $product)
+            <div class="ui-surface p-5">
+                <div class="flex items-center justify-between mb-3">
                     <div>
-                        <label class="ui-label">Nuevo precio *</label>
-                        <input type="number" step="0.01" min="0" name="price" value="{{ old('price', $current->price ?? '') }}" required
-                            class="ui-input">
+                        <span class="font-extrabold text-body">{{ $product->name }}</span>
+                        <span class="text-xs text-muted">· {{ $product->sku }} · {{ $product->category->name ?? 'Sin categoría' }}</span>
                     </div>
-                    <div>
-                        <label class="ui-label">Motivo / Observación</label>
-                        <input type="text" name="notes" maxlength="255" value="{{ old('notes') }}"
-                            class="ui-input">
-                    </div>
-                    <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button type="button" onclick="closeModal('change-price-modal-{{ $product->id_product }}')" class="px-5 py-2.5 rounded-xl bg-sunken text-muted font-bold text-sm">Cancelar</button>
-                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endcan
-
-    {{-- Historial --}}
-    @can('prices.historial')
-        <div id="history-price-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-            <div class="bg-surface rounded-3xl p-6 max-w-2xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between border-b pb-4 mb-5">
-                    <h3 class="text-lg font-extrabold text-slate-800">Historial de precios — {{ $product->name }}</h3>
-                    <button type="button" onclick="closeModal('history-price-modal-{{ $product->id_product }}')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+                    @can('prices.cambiar')
+                        <button type="button" onclick="openModal('add-pres-{{ $product->id_product }}')" class="px-3 py-1.5 rounded-lg bg-customTeal-800 hover:bg-customTeal-500 text-white text-xs font-bold">+ Presentación</button>
+                    @endcan
                 </div>
+
                 <table class="w-full text-left text-sm">
                     <thead>
-                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b">
-                            <th class="py-2 pr-4 text-right">Precio</th>
-                            <th class="py-2 px-4">Desde</th>
-                            <th class="py-2 px-4">Hasta</th>
-                            <th class="py-2 px-4">Usuario</th>
-                            <th class="py-2 pl-4">Motivo</th>
+                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-line">
+                            <th class="py-2">Presentación</th>
+                            <th class="py-2 text-center">Factor (u. base)</th>
+                            <th class="py-2 text-right">Precio vigente</th>
+                            <th class="py-2">Desde</th>
+                            <th class="py-2 text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($product->prices as $price)
-                            <tr class="border-b border-slate-50">
-                                <td class="py-2 pr-4 text-right font-bold text-slate-800">$ {{ number_format($price->price, 2) }}</td>
-                                <td class="py-2 px-4 text-slate-600">{{ $price->valid_from->format('d/m/Y H:i') }}</td>
-                                <td class="py-2 px-4">
-                                    @if($price->valid_until)
-                                        <span class="text-slate-500">{{ $price->valid_until->format('d/m/Y H:i') }}</span>
-                                    @else
-                                        <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-success-soft text-success border border-emerald-200 uppercase">Vigente</span>
-                                    @endif
+                        @forelse($product->presentations as $pres)
+                            @php $current = $pres->currentPrice; @endphp
+                            <tr class="border-b border-line/60 {{ $pres->is_active ? '' : 'opacity-50' }}">
+                                <td class="py-2 font-semibold text-body">{{ $pres->name }}</td>
+                                <td class="py-2 text-center text-muted">{{ rtrim(rtrim(number_format($pres->factor, 4), '0'), '.') }}</td>
+                                <td class="py-2 text-right">
+                                    @if($current)<span class="font-extrabold text-body">$ {{ number_format($current->price, 2) }}</span>
+                                    @else<span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-amber-100 text-amber-700 border border-amber-200 uppercase">Sin precio</span>@endif
                                 </td>
-                                <td class="py-2 px-4 text-slate-600">{{ $price->user->name ?? '-' }}</td>
-                                <td class="py-2 pl-4 text-slate-500">{{ $price->notes ?? '-' }}</td>
+                                <td class="py-2 text-muted text-xs">{{ $current ? $current->valid_from->format('d/m/Y H:i') : '-' }}</td>
+                                <td class="py-2 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        @can('prices.cambiar')
+                                            <button type="button" onclick="openModal('change-pres-{{ $pres->id_product_presentation }}')" class="px-3 py-1.5 rounded-lg bg-customTeal-800 hover:bg-customTeal-500 text-white text-xs font-bold">{{ $current ? 'Cambiar' : 'Asignar' }} precio</button>
+                                        @endcan
+                                        @can('prices.historial')
+                                            <button type="button" onclick="openModal('hist-pres-{{ $pres->id_product_presentation }}')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 text-xs font-bold" title="Historial">Historial</button>
+                                        @endcan
+                                    </div>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="py-6 text-center text-slate-400 font-semibold">Este producto todavía no tiene precios registrados.</td></tr>
+                            <tr><td colspan="5" class="py-4 text-center text-muted">Sin presentaciones.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-        </div>
-    @endcan
-@endforeach
+
+            {{-- MODAL: agregar presentación --}}
+            @can('prices.cambiar')
+                <div id="add-pres-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
+                    <div class="bg-surface rounded-3xl p-6 max-w-sm w-full pop-shadow mx-4 border border-line">
+                        <div class="flex items-center justify-between border-b border-line pb-4 mb-5"><h3 class="text-lg font-extrabold text-body">Nueva presentación</h3><button type="button" onclick="closeModal('add-pres-{{ $product->id_product }}')" class="text-muted text-xl">✕</button></div>
+                        <p class="text-sm text-muted mb-4">{{ $product->name }}</p>
+                        <form action="{{ route('prices.presentations.store', $product) }}" method="POST" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label class="ui-label">Nombre *</label>
+                                <input type="text" name="name" maxlength="100" required placeholder="Ej. Caja, Blíster, Unidad" class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                            </div>
+                            <div>
+                                <label class="ui-label">Factor (unidades base por presentación) *</label>
+                                <input type="number" step="0.0001" min="0.0001" name="factor" value="1" required class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                            </div>
+                            <div class="flex justify-end gap-3 pt-3 border-t border-line">
+                                <button type="button" onclick="closeModal('add-pres-{{ $product->id_product }}')" class="px-5 py-2.5 rounded-xl bg-sunken text-body font-bold text-sm">Cancelar</button>
+                                <button type="submit" class="px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">Agregar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @endcan
+
+            {{-- MODALES por presentación --}}
+            @foreach($product->presentations as $pres)
+                @php $current = $pres->currentPrice; @endphp
+                @can('prices.cambiar')
+                    <div id="change-pres-{{ $pres->id_product_presentation }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
+                        <div class="bg-surface rounded-3xl p-6 max-w-sm w-full pop-shadow mx-4 border border-line">
+                            <div class="flex items-center justify-between border-b border-line pb-4 mb-5"><h3 class="text-lg font-extrabold text-body">{{ $current ? 'Cambiar' : 'Asignar' }} precio</h3><button type="button" onclick="closeModal('change-pres-{{ $pres->id_product_presentation }}')" class="text-muted text-xl">✕</button></div>
+                            <p class="text-sm text-muted mb-4">{{ $product->name }} — <strong>{{ $pres->name }}</strong>@if($current)<span class="block text-xs">Vigente: $ {{ number_format($current->price, 2) }}</span>@endif</p>
+                            <form action="{{ route('prices.change', $pres) }}" method="POST" class="space-y-4">
+                                @csrf
+                                <div>
+                                    <label class="ui-label">Nuevo precio *</label>
+                                    <input type="number" step="0.01" min="0" name="price" value="{{ $current->price ?? '' }}" required class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                                </div>
+                                <div>
+                                    <label class="ui-label">Motivo / Observación</label>
+                                    <input type="text" name="notes" maxlength="255" class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                                </div>
+                                <div class="flex justify-end gap-3 pt-3 border-t border-line">
+                                    <button type="button" onclick="closeModal('change-pres-{{ $pres->id_product_presentation }}')" class="px-5 py-2.5 rounded-xl bg-sunken text-body font-bold text-sm">Cancelar</button>
+                                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">Guardar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endcan
+                @can('prices.historial')
+                    <div id="hist-pres-{{ $pres->id_product_presentation }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
+                        <div class="bg-surface rounded-3xl p-6 max-w-xl w-full pop-shadow mx-4 max-h-[90vh] overflow-y-auto border border-line">
+                            <div class="flex items-center justify-between border-b border-line pb-4 mb-5"><h3 class="text-lg font-extrabold text-body">Historial — {{ $product->name }} ({{ $pres->name }})</h3><button type="button" onclick="closeModal('hist-pres-{{ $pres->id_product_presentation }}')" class="text-muted text-xl">✕</button></div>
+                            <table class="w-full text-left text-sm">
+                                <thead><tr class="text-[10px] font-extrabold text-slate-400 uppercase border-b border-line"><th class="py-2 text-right">Precio</th><th class="py-2 px-3">Desde</th><th class="py-2 px-3">Hasta</th><th class="py-2 px-3">Usuario</th><th class="py-2">Motivo</th></tr></thead>
+                                <tbody>
+                                    @forelse($pres->prices as $price)
+                                        <tr class="border-b border-line/60">
+                                            <td class="py-2 text-right font-bold text-body">$ {{ number_format($price->price, 2) }}</td>
+                                            <td class="py-2 px-3 text-muted">{{ $price->valid_from->format('d/m/Y H:i') }}</td>
+                                            <td class="py-2 px-3">@if($price->valid_until)<span class="text-muted">{{ $price->valid_until->format('d/m/Y H:i') }}</span>@else<span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-100 text-emerald-700 uppercase">Vigente</span>@endif</td>
+                                            <td class="py-2 px-3 text-muted">{{ $price->user->name ?? '-' }}</td>
+                                            <td class="py-2 text-muted">{{ $price->notes ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="5" class="py-4 text-center text-muted">Sin precios registrados.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endcan
+            @endforeach
+        @empty
+            <div class="ui-surface p-8 text-center text-muted font-semibold">No se encontraron productos.</div>
+        @endforelse
+    </div>
+
+    @if($products->hasPages())<div class="mt-6">{{ $products->links() }}</div>@endif
+</div>
 @endsection

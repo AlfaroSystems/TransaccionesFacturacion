@@ -58,6 +58,7 @@
         $isSupplier = request()->routeIs('suppliers.*');
         $isCustomer = request()->routeIs('customers.*');
         $isPrices = request()->routeIs('prices.*');
+        $isCash = request()->routeIs('cash.*');
         $isSales = request()->routeIs('sales.*');
 
         $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');
@@ -141,6 +142,9 @@
                 @endcan
                 @can('prices.ver')
                     <x-ui.nav-item :href="route('prices.index')" icon="currency" label="Precios" :active="$isPrices" />
+                @endcan
+                @can('cash.ver')
+                    <x-ui.nav-item :href="route('cash.index')" icon="currency" label="Caja" :active="$isCash" />
                 @endcan
                 @can('sales.ver')
                     <x-ui.nav-item :href="route('sales.index')" icon="cart" label="Ventas" :active="$isSales" />

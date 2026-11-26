@@ -6,6 +6,7 @@
         <x-slot:actions>
             @can('sales.rentabilidad')
                 <x-ui.button :href="route('sales.report')" variant="secondary" icon="currency">Rentabilidad</x-ui.button>
+                <x-ui.button :href="route('sales.report-lot')" variant="secondary">Por lote</x-ui.button>
             @endcan
             @can('sales.crear')
                 <x-ui.button :href="route('sales.create')" icon="plus">Nueva Venta</x-ui.button>

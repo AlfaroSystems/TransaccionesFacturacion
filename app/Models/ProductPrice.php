@@ -20,6 +20,7 @@ class ProductPrice extends Model
 
     protected $fillable = [
         'id_product',
+        'id_product_presentation',
         'price',
         'currency',
         'valid_from',
@@ -42,6 +43,11 @@ class ProductPrice extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'id_product', 'id_product');
+    }
+
+    public function presentation(): BelongsTo
+    {
+        return $this->belongsTo(ProductPresentation::class, 'id_product_presentation', 'id_product_presentation');
     }
 
     public function user(): BelongsTo

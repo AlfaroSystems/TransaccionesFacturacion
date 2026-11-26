@@ -35,6 +35,7 @@ class PermissionGroups
         ['Compras: Tipos de Gastos', 'bg-slate-500', ['expense_types.']],
         ['Gestión de Clientes', 'bg-fuchsia-500', ['customers.']],
         ['Asignación de Precios', 'bg-violet-500', ['prices.']],
+        ['Caja', 'bg-green-500', ['cash.']],
         ['Ventas', 'bg-red-500', ['sales.']],
     ];
 

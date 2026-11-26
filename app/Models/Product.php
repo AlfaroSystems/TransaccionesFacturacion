@@ -179,7 +179,15 @@ class Product extends Model
     }
 
     /**
-     * Historial de precios de venta (más reciente primero).
+     * Presentaciones de venta del producto (Unidad, Blíster, Caja...).
+     */
+    public function presentations(): HasMany
+    {
+        return $this->hasMany(ProductPresentation::class, 'id_product', 'id_product')->orderBy('factor');
+    }
+
+    /**
+     * Historial de precios de venta del producto (todas sus presentaciones).
      */
     public function prices(): HasMany
     {
@@ -187,28 +195,20 @@ class Product extends Model
     }
 
     /**
-     * Precio de venta vigente (el que no tiene fecha de cambio).
+     * Presentación por defecto: "Unidad" si existe, o la de menor factor.
      */
-    public function currentPrice(): HasOne
+    public function defaultPresentation(): ?ProductPresentation
     {
-        return $this->hasOne(ProductPrice::class, 'id_product', 'id_product')->whereNull('valid_until');
+        return $this->presentations()
+            ->where('is_active', true)
+            ->orderByRaw("CASE WHEN name = 'Unidad' THEN 0 ELSE 1 END")
+            ->orderBy('factor')
+            ->first();
     }
 
     /* =========================================================================
      *  SCOPES & ACCESORS
      * ========================================================================= */
-
-    /**
-     * Valor del precio de venta vigente, o null si el producto aún no tiene precio.
-     */
-    public function precioVigente(): ?float
-    {
-        $price = $this->relationLoaded('currentPrice')
-            ? $this->getRelation('currentPrice')
-            : $this->currentPrice()->first();
-
-        return $price ? (float) $price->price : null;
-    }
 
     public function scopeActive($query)
     {

@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\SaleCostDetail;
 use App\Services\SaleService;
 use App\Support\BranchAccess;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -46,21 +47,36 @@ class SaleController extends Controller
     {
         Gate::authorize('sales.crear');
 
+        // El POS exige una caja abierta en la sucursal del usuario
+        $branchId = BranchAccess::branchId();
+        if ($branchId && ! \App\Models\CashShift::openForBranch($branchId)) {
+            return redirect()->route('cash.index')
+                ->with('info', 'Abre la caja de tu sucursal antes de registrar ventas.');
+        }
+
         $branches = $this->branchesForUser();
         $customers = Customer::active()->orderBy('name')->get(['id_customer', 'name', 'customer_type', 'email']);
 
-        // Productos vendibles: activos y con precio vigente
+        // Productos vendibles: activos y con al menos una presentación con precio vigente
         $products = Product::active()
-            ->with('currentPrice')
+            ->with(['presentations' => fn ($q) => $q->where('is_active', true), 'presentations.currentPrice'])
             ->get(['id_product', 'sku', 'internal_code', 'name'])
-            ->filter(fn (Product $p) => $p->currentPrice)
             ->map(fn (Product $p) => [
                 'id' => $p->id_product,
                 'sku' => $p->sku,
                 'code' => $p->internal_code,
                 'name' => $p->name,
-                'price' => (float) $p->currentPrice->price,
+                'presentations' => $p->presentations
+                    ->filter(fn (ProductPresentation $pr) => $pr->currentPrice)
+                    ->map(fn (ProductPresentation $pr) => [
+                        'id' => $pr->id_product_presentation,
+                        'name' => $pr->name,
+                        'factor' => (float) $pr->factor,
+                        'price' => (float) $pr->currentPrice->price,
+                    ])
+                    ->values(),
             ])
+            ->filter(fn ($p) => $p['presentations']->isNotEmpty())
             ->values();
 
         // Catálogos para el alta rápida de cliente desde el modal de la venta
@@ -80,11 +96,14 @@ class SaleController extends Controller
             'id_customer' => ['required', 'integer', Rule::exists('customers', 'id_customer')->where('is_active', true)],
             'document_type' => ['required', Rule::in(array_keys(Sale::DOCUMENT_LABELS))],
             'payment_method' => ['required', Rule::in(array_keys(Sale::PAYMENT_LABELS))],
+            'payment_reference' => [Rule::requiredIf(in_array($request->input('payment_method'), ['credit_card', 'check'], true)), 'nullable', 'string', 'max:100'],
+            'payment_bank' => ['nullable', 'string', 'max:100'],
+            'payment_document_number' => ['nullable', 'string', 'max:100'],
             'fiscal_document_number' => ['nullable', 'string', 'max:50'],
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string', 'max:500'],
             'lines' => ['required', 'array', 'min:1'],
-            'lines.*.id_product' => ['required', 'integer', 'exists:products,id_product'],
+            'lines.*.id_product_presentation' => ['required', 'integer', 'exists:product_presentations,id_product_presentation'],
             'lines.*.quantity' => ['required', 'integer', 'min:1'],
             'lines.*.discount' => ['nullable', 'numeric', 'min:0'],
         ], [
@@ -99,7 +118,7 @@ class SaleController extends Controller
         $sale = $this->service->vender($validated);
 
         $redirect = redirect()
-            ->route('sales.show', $sale)
+            ->route('sales.show', ['sale' => $sale, 'ticket' => 1])
             ->with('success', "Venta {$sale->sale_code} registrada y entregada.");
 
         $enviado = $this->enviarComprobante($sale);
@@ -120,6 +139,17 @@ class SaleController extends Controller
 
         return Pdf::loadView('sales.pdf', compact('sale', 'company'))
             ->stream('Comprobante-'.$sale->sale_code.'.pdf');
+    }
+
+    /** Ticket imprimible (tirilla de caja), aparte del comprobante PDF que va al correo. */
+    public function ticket(Sale $sale)
+    {
+        Gate::authorize('sales.ver');
+
+        $sale->load(['customer', 'branch.company', 'user', 'details.product', 'details.presentation']);
+        $company = $sale->branch?->company ?? Company::where('is_active', true)->first();
+
+        return view('sales.ticket', compact('sale', 'company'));
     }
 
     public function sendReceipt(Sale $sale)
@@ -183,13 +213,33 @@ class SaleController extends Controller
         return view('sales.report', compact('sales', 'from', 'to', 'ingresos', 'costo', 'utilidad'));
     }
 
+    public function reportByLot(Request $request)
+    {
+        Gate::authorize('sales.rentabilidad');
+
+        $from = $request->filled('from') ? \Illuminate\Support\Carbon::parse($request->input('from'))->startOfDay() : now()->startOfMonth();
+        $to = $request->filled('to') ? \Illuminate\Support\Carbon::parse($request->input('to'))->endOfDay() : now()->endOfDay();
+
+        $rows = SaleCostDetail::query()
+            ->whereHas('saleDetail.sale', fn ($q) => $q->where('status', Sale::STATUS_DELIVERED)->whereBetween('sale_date', [$from, $to]))
+            ->with(['lot.product', 'saleDetail.sale'])
+            ->get()
+            ->sortBy(fn ($r) => ($r->lot->lot_code ?? '').'|'.optional($r->saleDetail->sale)->sale_date)
+            ->values();
+
+        $totalCantidad = round((float) $rows->sum('quantity'), 4);
+        $totalCosto = round((float) $rows->sum('total_cost'), 2);
+
+        return view('sales.report_lot', compact('rows', 'from', 'to', 'totalCantidad', 'totalCosto'));
+    }
+
     public function show(Sale $sale)
     {
         Gate::authorize('sales.ver');
 
         $sale->load([
             'customer', 'branch.company', 'user',
-            'details.product', 'details.unit',
+            'details.product', 'details.unit', 'details.presentation',
             'details.costDetails.lot',
         ]);
 

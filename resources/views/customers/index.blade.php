@@ -5,11 +5,12 @@
     {{-- ENCABEZADO --}}
     <x-ui.page-header eyebrow="Clientes" title="Gestión de Clientes"
         subtitle="Administra los clientes para el proceso de ventas.">
-        @can('customers.crear')
-            <x-slot:actions>
+        <x-slot:actions>
+            <x-ui.button :href="route('customers.cartera')" variant="secondary">Cartera</x-ui.button>
+            @can('customers.crear')
                 <x-ui.button type="button" icon="plus" onclick="openModal('create-customer-modal')">Nuevo Cliente</x-ui.button>
-            </x-slot:actions>
-        @endcan
+            @endcan
+        </x-slot:actions>
     </x-ui.page-header>
 
     {{-- BUSCADOR --}}

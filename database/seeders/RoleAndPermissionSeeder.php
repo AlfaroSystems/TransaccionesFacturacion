@@ -609,6 +609,11 @@ class RoleAndPermissionSeeder extends Seeder
             ['id_permission' => 'sales.crear', 'name' => 'Registrar Ventas', 'description' => 'Permite registrar ventas y entregarlas, descontando el inventario con PEPS.', 'action' => 'create'],
             ['id_permission' => 'sales.anular', 'name' => 'Anular Ventas', 'description' => 'Permite anular ventas.', 'action' => 'cancel'],
             ['id_permission' => 'sales.rentabilidad', 'name' => 'Ver Rentabilidad de Ventas', 'description' => 'Permite ver el costo de venta (PEPS) y el margen de las ventas.', 'action' => 'profit'],
+            // Caja
+            ['id_permission' => 'cash.ver', 'name' => 'Ver Caja', 'description' => 'Permite ver el turno de caja, su resumen y los egresos.', 'action' => 'index'],
+            ['id_permission' => 'cash.abrir', 'name' => 'Abrir Caja', 'description' => 'Permite abrir un turno de caja con su monto de apertura.', 'action' => 'open'],
+            ['id_permission' => 'cash.cerrar', 'name' => 'Cerrar Caja', 'description' => 'Permite cerrar el turno de caja y registrar el arqueo.', 'action' => 'close'],
+            ['id_permission' => 'cash.egreso', 'name' => 'Registrar Egresos de Caja', 'description' => 'Permite registrar retiros o egresos de efectivo del turno.', 'action' => 'outflow'],
         ];
 
         // Guardar o actualizar permisos

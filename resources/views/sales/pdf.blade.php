@@ -54,14 +54,22 @@
     <table class="box">
         <tr>
             <td style="width: 50%;">
+                @php
+                    $docNum = $sale->receptor_document_number ?? $sale->customer?->document_number;
+                    $docType = $sale->receptor_document_type ?? $sale->customer?->document_type;
+                @endphp
                 <span class="label">Cliente</span><br>
-                <strong>{{ $sale->customer->name ?? '-' }}</strong><br>
-                @if($sale->customer?->document_number)<span class="muted">{{ strtoupper($sale->customer->document_type ?? '') }} {{ $sale->customer->document_number }}</span><br>@endif
-                @if($fiscal && $sale->customer?->nrc)<span class="muted">NRC: {{ $sale->customer->nrc }}</span>@endif
+                <strong>{{ $sale->receptor_business_name ?? $sale->customer->name ?? '-' }}</strong><br>
+                @if($docNum)<span class="muted">{{ strtoupper($docType ?? '') }} {{ $docNum }}</span><br>@endif
+                @if($fiscal)
+                    @if($sale->receptor_nrc)<span class="muted">NRC: {{ $sale->receptor_nrc }}</span><br>@endif
+                    @if($sale->receptor_line)<span class="muted">Giro: {{ $sale->receptor_line }}</span><br>@endif
+                    @if($sale->receptor_address)<span class="muted">{{ $sale->receptor_address }}</span>@endif
+                @endif
             </td>
             <td style="width: 50%;">
                 <span class="label">Sucursal</span> {{ $sale->branch->name ?? '-' }}<br>
-                <span class="label">Forma de pago</span> {{ $sale->paymentLabel() }}<br>
+                <span class="label">Forma de pago</span> {{ $sale->paymentLabel() }}@if($sale->payment_reference) <span class="muted">(Ref: {{ $sale->payment_reference }}@if($sale->payment_bank) · {{ $sale->payment_bank }}@endif)</span>@endif<br>
                 <span class="label">Vendedor</span> {{ $sale->user->name ?? '-' }}
             </td>
         </tr>
@@ -81,7 +89,7 @@
         <tbody>
             @foreach($sale->details as $detail)
                 <tr>
-                    <td>{{ $detail->product->name ?? '-' }}</td>
+                    <td>{{ $detail->product->name ?? '-' }}@if($detail->presentation) ({{ $detail->presentation->name }})@endif</td>
                     <td class="center">{{ rtrim(rtrim(number_format($detail->quantity, 4), '0'), '.') }} {{ $detail->unit->name ?? '' }}</td>
                     <td class="right">{{ number_format($detail->unit_price, 2) }}</td>
                     <td class="right">{{ number_format($detail->discount, 2) }}</td>

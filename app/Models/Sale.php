@@ -62,12 +62,22 @@ class Sale extends Model
         'uuid',
         'sale_code',
         'id_branch',
+        'id_cash_shift',
         'id_customer',
+        'receptor_business_name',
+        'receptor_document_type',
+        'receptor_document_number',
+        'receptor_nrc',
+        'receptor_line',
+        'receptor_address',
         'id_user',
         'sale_date',
         'document_type',
         'fiscal_document_number',
         'payment_method',
+        'payment_reference',
+        'payment_bank',
+        'payment_document_number',
         'currency',
         'subtotal',
         'discount',
@@ -127,6 +137,11 @@ class Sale extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'id_branch', 'id_branch');
+    }
+
+    public function cashShift(): BelongsTo
+    {
+        return $this->belongsTo(CashShift::class, 'id_cash_shift', 'id_cash_shift');
     }
 
     public function customer(): BelongsTo

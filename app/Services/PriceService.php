@@ -2,26 +2,26 @@
 
 namespace App\Services;
 
-use App\Models\Product;
+use App\Models\ProductPresentation;
 use App\Models\ProductPrice;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Precios de venta por producto, con historial. Cambiar el precio no pisa el anterior: cierra el
- * vigente (valid_until = ahora) y abre uno nuevo (valid_from = ahora, valid_until = NULL). Así
- * queda el registro de qué precio tenía el producto y desde/hasta cuándo.
+ * Precios de venta por presentación, con historial. Cambiar el precio no pisa el anterior:
+ * cierra el vigente (valid_until = ahora) y abre uno nuevo (valid_from = ahora, valid_until =
+ * NULL). Así queda el registro de qué precio tenía la presentación y desde/hasta cuándo.
  */
 class PriceService
 {
     /**
-     * Asigna o cambia el precio de venta del producto. La primera vez crea el precio vigente;
-     * después cierra el anterior y abre el nuevo. Devuelve el precio vigente resultante.
+     * Asigna o cambia el precio de venta de una presentación. La primera vez crea el precio
+     * vigente; después cierra el anterior y abre el nuevo. Devuelve el precio vigente resultante.
      */
-    public function cambiarPrecio(Product $product, float $precio, ?string $notas = null): ProductPrice
+    public function cambiarPrecio(ProductPresentation $presentation, float $precio, ?string $notas = null): ProductPrice
     {
-        return DB::transaction(function () use ($product, $precio, $notas) {
+        return DB::transaction(function () use ($presentation, $precio, $notas) {
             $precio = round($precio, 4);
 
             if ($precio < 0) {
@@ -30,7 +30,7 @@ class PriceService
 
             // Se bloquea el vigente: dos cambios a la vez no deben dejar dos precios vigentes
             $vigente = ProductPrice::query()
-                ->where('id_product', $product->id_product)
+                ->where('id_product_presentation', $presentation->id_product_presentation)
                 ->whereNull('valid_until')
                 ->lockForUpdate()
                 ->first();
@@ -46,7 +46,8 @@ class PriceService
             }
 
             return ProductPrice::create([
-                'id_product' => $product->id_product,
+                'id_product' => $presentation->id_product,
+                'id_product_presentation' => $presentation->id_product_presentation,
                 'price' => $precio,
                 'currency' => 'USD',
                 'valid_from' => $ahora,

@@ -65,6 +65,11 @@ class Customer extends Model
         return self::TYPE_LABELS[$this->customer_type] ?? $this->customer_type;
     }
 
+    public function sales(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Sale::class, 'id_customer', 'id_customer');
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'id_department');

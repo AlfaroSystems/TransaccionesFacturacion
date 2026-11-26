@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CashController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
@@ -48,14 +49,23 @@ Route::middleware('auth')->group(function () {
     Route::resource('companies', CompanyController::class)->except(['create', 'show']);
     Route::resource('suppliers', SupplierController::class);
     // Clientes (módulo de Ventas): alta y edición con modales en el listado
+    Route::get('customers/cartera', [CustomerController::class, 'cartera'])->name('customers.cartera');
     Route::resource('customers', CustomerController::class)->except(['create', 'show', 'edit']);
-    // Asignación de Precios: precio de venta vigente de cada producto, con historial
+    // Asignación de Precios: presentaciones de venta por producto, con precio vigente e historial
     Route::get('prices', [ProductPriceController::class, 'index'])->name('prices.index');
-    Route::post('prices/{product}', [ProductPriceController::class, 'change'])->name('prices.change');
+    Route::post('prices/{product}/presentations', [ProductPriceController::class, 'storePresentation'])->name('prices.presentations.store');
+    Route::post('prices/presentations/{presentation}', [ProductPriceController::class, 'change'])->name('prices.change');
+    // Caja: turnos y arqueo (el POS exige caja abierta)
+    Route::get('cash', [CashController::class, 'index'])->name('cash.index');
+    Route::post('cash/open', [CashController::class, 'open'])->name('cash.open');
+    Route::post('cash/{shift}/outflow', [CashController::class, 'outflow'])->name('cash.outflow');
+    Route::post('cash/{shift}/close', [CashController::class, 'close'])->name('cash.close');
     // Ventas: venta de mostrador con salida de inventario por PEPS
     Route::get('sales/report', [SaleController::class, 'report'])->name('sales.report');
+    Route::get('sales/report-lot', [SaleController::class, 'reportByLot'])->name('sales.report-lot');
     Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->name('sales.cancel');
     Route::get('sales/{sale}/pdf', [SaleController::class, 'generatePdf'])->name('sales.pdf');
+    Route::get('sales/{sale}/ticket', [SaleController::class, 'ticket'])->name('sales.ticket');
     Route::post('sales/{sale}/send-receipt', [SaleController::class, 'sendReceipt'])->name('sales.send-receipt');
     Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'show']);
     Route::resource('users', UserController::class);

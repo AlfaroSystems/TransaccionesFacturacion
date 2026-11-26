@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Department;
 use App\Models\District;
 use App\Models\Municipality;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -37,6 +38,37 @@ class CustomerController extends Controller
         $districts = District::orderBy('name')->get();
 
         return view('customers.index', compact('customers', 'departments', 'municipalities', 'districts'));
+    }
+
+    /**
+     * Cartera de clientes: clientes con compras, su número, última compra y total acumulado
+     * (ventas entregadas, de las sucursales visibles para el usuario).
+     */
+    public function cartera(Request $request)
+    {
+        Gate::authorize('customers.ver');
+
+        $search = $request->input('search');
+        $entregadas = fn ($q) => $q->where('status', Sale::STATUS_DELIVERED);
+
+        $customers = Customer::query()
+            ->whereHas('sales', $entregadas)
+            ->withCount(['sales as compras' => $entregadas])
+            ->withSum(['sales as total_acumulado' => $entregadas], 'total')
+            ->withMax(['sales as ultima_compra' => $entregadas], 'sale_date')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'ilike', '%'.$search.'%')
+                        ->orWhere('document_number', 'ilike', '%'.$search.'%')
+                        ->orWhere('phone', 'ilike', '%'.$search.'%')
+                        ->orWhere('email', 'ilike', '%'.$search.'%');
+                });
+            })
+            ->orderByDesc('ultima_compra')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('customers.cartera', compact('customers'));
     }
 
     public function create()

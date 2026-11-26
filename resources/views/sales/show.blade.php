@@ -9,6 +9,7 @@
             <p class="text-slate-400 text-sm font-semibold mt-1">{{ $sale->sale_date?->format('d/m/Y H:i') }} · {{ $sale->statusLabel() }}</p>
         </div>
         <div class="flex items-center gap-2">
+            <a href="{{ route('sales.ticket', $sale) }}" target="_blank" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-bold text-sm">Ticket</a>
             <a href="{{ route('sales.pdf', $sale) }}" target="_blank" class="px-4 py-2 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">Ver PDF</a>
             @can('sales.crear')
                 <form action="{{ route('sales.send-receipt', $sale) }}" method="POST">
@@ -39,6 +40,21 @@
         <div><span class="block text-[10px] font-bold text-slate-400 uppercase">Forma de pago</span><span class="font-semibold text-slate-700">{{ $sale->paymentLabel() }}</span></div>
     </div>
 
+    @if(session('info'))
+        <div class="mb-4 p-4 rounded-2xl bg-sky-50 border border-sky-200 text-sky-700 text-sm font-semibold">{{ session('info') }}</div>
+    @endif
+
+    @if($sale->payment_reference || $sale->payment_bank || $sale->payment_document_number)
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4 mb-5 text-sm text-slate-600">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Datos del pago</span>
+            <div class="mt-1 flex flex-wrap gap-x-4">
+                @if($sale->payment_reference)<span>Referencia: <strong class="text-slate-700">{{ $sale->payment_reference }}</strong></span>@endif
+                @if($sale->payment_bank)<span>Banco: <strong class="text-slate-700">{{ $sale->payment_bank }}</strong></span>@endif
+                @if($sale->payment_document_number)<span>Comprobante: <strong class="text-slate-700">{{ $sale->payment_document_number }}</strong></span>@endif
+            </div>
+        </div>
+    @endif
+
     <div class="ui-surface overflow-hidden mb-5">
         <table class="w-full text-left text-sm">
             <thead>
@@ -56,7 +72,7 @@
                 @foreach($sale->details as $detail)
                     <tr class="border-t border-line">
                         <td class="py-2 px-4 font-semibold text-slate-700">
-                            {{ $detail->product->name ?? '-' }}
+                            {{ $detail->product->name ?? '-' }}@if($detail->presentation) <span class="text-xs text-slate-400">({{ $detail->presentation->name }})</span>@endif
                             @if($verCosto && $detail->costDetails->count())
                                 <div class="text-[11px] text-slate-400 font-normal mt-0.5">
                                     @foreach($detail->costDetails as $cd)
@@ -90,4 +106,8 @@
         </div>
     </div>
 </div>
+
+@if(request('ticket'))
+    <script>window.open('{{ route('sales.ticket', $sale) }}', '_blank');</script>
+@endif
 @endsection

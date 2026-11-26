@@ -32,14 +32,15 @@
                     <label class="ui-label">Buscar producto</label>
                     <div class="relative">
                         <input type="text" x-model="search" @focus="openList = true" @click.away="openList = false"
-                            placeholder="Nombre, SKU o código interno..."
+                            @keydown.enter.prevent="scan()"
+                            placeholder="Escanear código de barras, o buscar por nombre / SKU / código..."
                             class="ui-input">
                         <div x-show="openList && filtered.length" class="absolute z-30 left-0 right-0 mt-1 bg-surface border border-line rounded-xl shadow-xl max-h-64 overflow-y-auto">
                             <template x-for="p in filtered" :key="p.id">
                                 <button type="button" @click="addProduct(p)" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center justify-between">
                                     <span class="text-sm font-semibold text-slate-700"><span x-text="p.name"></span>
                                         <span class="text-xs text-slate-400" x-text="p.sku"></span></span>
-                                    <span class="text-sm font-bold text-primary dark:text-accent" x-text="'$ ' + p.price.toFixed(2)"></span>
+                                    <span class="text-xs text-slate-400" x-text="p.presentations.length + (p.presentations.length === 1 ? ' presentación' : ' presentaciones')"></span>
                                 </button>
                             </template>
                         </div>
@@ -61,7 +62,14 @@
                         <tbody>
                             <template x-for="(line, i) in cart" :key="line.id">
                                 <tr class="border-t border-line">
-                                    <td class="py-2 px-4 font-semibold text-slate-700" x-text="line.name"></td>
+                                    <td class="py-2 px-4 font-semibold text-slate-700">
+                                        <div x-text="line.name"></div>
+                                        <select x-model.number="line.presId" @change="onPresChange(line)" class="mt-1 px-2 py-1 rounded-lg border border-line bg-surface text-body text-xs">
+                                            <template x-for="pr in line.presentations" :key="pr.id">
+                                                <option :value="pr.id" x-text="pr.name + ' · $' + pr.price.toFixed(2)"></option>
+                                            </template>
+                                        </select>
+                                    </td>
                                     <td class="py-2 px-3 text-center">
                                         <input type="number" min="1" step="1" inputmode="numeric" x-model.number="line.qty"
                                             @input="line.qty = line.qty.toString().replace(/[^0-9]/g,'')"
@@ -127,11 +135,28 @@
                         </div>
                         <div>
                             <label class="ui-label">Forma de pago *</label>
-                            <select name="payment_method" class="w-full px-3 py-2.5 rounded-xl border border-line text-sm">
+                            <select name="payment_method" x-model="paymentMethod" class="w-full px-3 py-2.5 rounded-xl border border-line text-sm">
                                 <option value="cash">Efectivo</option>
                                 <option value="credit_card">Tarjeta</option>
                                 <option value="check">Cheque</option>
                             </select>
+                        </div>
+                    </div>
+                    {{-- Datos del pago (tarjeta/cheque) --}}
+                    <div x-show="paymentMethod !== 'cash'" x-cloak class="space-y-3 p-3 rounded-xl bg-sunken/50 border border-line">
+                        <div>
+                            <label class="ui-label">Referencia / Autorización *</label>
+                            <input type="text" name="payment_reference" maxlength="100" class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="ui-label">Banco</label>
+                                <input type="text" name="payment_bank" maxlength="100" class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                            </div>
+                            <div>
+                                <label class="ui-label">Nº comprobante/cheque</label>
+                                <input type="text" name="payment_document_number" maxlength="100" class="w-full px-4 py-2.5 rounded-xl border border-line text-sm">
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -156,7 +181,7 @@
         {{-- Líneas enviadas al servidor --}}
         <template x-for="(line, i) in cart" :key="'h'+line.id">
             <div>
-                <input type="hidden" :name="`lines[${i}][id_product]`" :value="line.id">
+                <input type="hidden" :name="`lines[${i}][id_product_presentation]`" :value="line.presId">
                 <input type="hidden" :name="`lines[${i}][quantity]`" :value="line.qty">
                 <input type="hidden" :name="`lines[${i}][discount]`" :value="line.discount || 0">
             </div>
@@ -271,6 +296,7 @@
             search: '',
             openList: false,
             taxRate: 13,
+            paymentMethod: 'cash',
             get filtered() {
                 const s = this.search.trim().toLowerCase();
                 if (!s) return this.products.slice(0, 20);
@@ -283,9 +309,24 @@
             addProduct(p) {
                 const existing = this.cart.find(l => l.id === p.id);
                 if (existing) { existing.qty = Number(existing.qty) + 1; }
-                else { this.cart.push({ id: p.id, name: p.name, sku: p.sku, price: p.price, qty: 1, discount: 0 }); }
+                else {
+                    const pr = p.presentations[0];
+                    this.cart.push({ id: p.id, name: p.name, sku: p.sku, presentations: p.presentations, presId: pr.id, price: pr.price, qty: 1, discount: 0 });
+                }
                 this.search = '';
                 this.openList = false;
+            },
+            onPresChange(line) {
+                const pr = line.presentations.find(x => x.id === Number(line.presId));
+                if (pr) line.price = pr.price;
+            },
+            // Lectura de código de barras (escáner): Enter agrega por código/SKU exacto, o el único resultado
+            scan() {
+                const s = this.search.trim().toLowerCase();
+                if (!s) return;
+                const exact = this.products.find(p => (p.code || '').toLowerCase() === s || (p.sku || '').toLowerCase() === s);
+                if (exact) { this.addProduct(exact); return; }
+                if (this.filtered.length === 1) { this.addProduct(this.filtered[0]); }
             },
             lineSubtotal(line) {
                 const sub = (Number(line.qty) || 0) * line.price - (Number(line.discount) || 0);
