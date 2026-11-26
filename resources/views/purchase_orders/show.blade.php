@@ -5,7 +5,7 @@
 @php
     $purchase_order = $purchase_order ?? $purchaseOrder ?? null;
     $statusClasses = [
-        'draft' => 'bg-slate-100 text-slate-700 border-slate-200',
+        'draft' => 'bg-slate-100 text-slate-700 border-line',
         'issued' => 'bg-sky-50 text-sky-700 border-sky-200',
         'partial_received' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
         'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -27,15 +27,15 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg">Órdenes de Compra</span>
+                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-lg">Órdenes de Compra</span>
                 <span class="text-slate-400">•</span>
                 <span class="text-xs font-semibold text-slate-500 uppercase">Detalle</span>
             </div>
             <div class="flex items-center gap-3 mt-1">
-                <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight">
+                <h1 class="text-3xl font-extrabold text-primary dark:text-accent tracking-tight">
                     {{ $purchase_order->purchase_order_code ?? 'OC-' . $purchase_order->id_purchase_order }}
                 </h1>
-                <span class="px-3 py-1 rounded-full text-xs font-extrabold border {{ $statusClasses[$purchase_order->status] ?? 'bg-gray-100 text-gray-700 border-gray-200' }}">
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold border {{ $statusClasses[$purchase_order->status] ?? 'bg-gray-100 text-gray-700 border-line' }}">
                     ● {{ $statusNames[$purchase_order->status] ?? ucfirst($purchase_order->status) }}
                 </span>
             </div>
@@ -105,9 +105,9 @@
     <!-- Tarjetas de Información General y Proveedor -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Información de la Orden -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4 md:col-span-2">
-            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 text-[#005e66] flex items-center justify-center text-lg font-bold">
+        <div class="ui-surface p-6 space-y-4 md:col-span-2">
+            <div class="flex items-center gap-3 border-b border-line pb-3">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-primary dark:text-accent flex items-center justify-center text-lg font-bold">
                     📦
                 </div>
                 <div>
@@ -143,7 +143,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-400 uppercase">Fecha Esperada:</span>
-                        <span class="font-bold text-[#005e66] bg-teal-50 px-2.5 py-0.5 rounded-lg border border-teal-100 text-xs">
+                        <span class="font-bold text-primary dark:text-accent bg-teal-50 px-2.5 py-0.5 rounded-lg border border-teal-100 text-xs">
                             {{ $purchase_order->expected_date ? $purchase_order->expected_date->format('d/m/Y H:i') : 'N/A' }}
                         </span>
                     </div>
@@ -160,9 +160,9 @@
                 </div>
             </div>
             @if($purchase_order->notes)
-                <div class="pt-3 border-t border-slate-100">
+                <div class="pt-3 border-t border-line">
                     <span class="text-xs font-bold text-slate-400 uppercase block mb-1">Notas / Observaciones:</span>
-                    <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 font-medium">
+                    <p class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-line font-medium">
                         {{ $purchase_order->notes }}
                     </p>
                 </div>
@@ -170,8 +170,8 @@
         </div>
 
         <!-- Resumen Financiero -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 flex flex-col justify-between space-y-4">
-            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+        <div class="ui-surface p-6 flex flex-col justify-between space-y-4">
+            <div class="flex items-center gap-3 border-b border-line pb-3">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
                     💵
                 </div>
@@ -201,17 +201,17 @@
                     <span class="text-xs font-semibold text-slate-500">Gastos Adicionales:</span>
                     <span class="font-bold text-amber-600">+${{ number_format($purchase_order->additional_expenses, 4) }}</span>
                 </div>
-                <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                <div class="pt-3 border-t border-line flex justify-between items-center">
                     <span class="text-sm font-extrabold text-slate-800">Total General:</span>
-                    <span class="text-lg font-extrabold text-[#005e66]">${{ number_format($purchase_order->total, 4) }}</span>
+                    <span class="text-lg font-extrabold text-primary dark:text-accent">${{ number_format($purchase_order->total, 4) }}</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Tabla de Productos / Detalles -->
-    <section class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+    <section class="ui-surface p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-line pb-4">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                     🛍️
@@ -226,7 +226,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                    <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-line">
                         <th class="py-3 px-4">#</th>
                         <th class="py-3 px-4">Producto</th>
                         <th class="py-3 px-4 text-center">Cantidad</th>
@@ -263,7 +263,7 @@
                             <td class="py-3.5 px-4 text-right font-semibold text-slate-700">
                                 ${{ number_format($detail->tax_amount, 4) }}
                             </td>
-                            <td class="py-3.5 px-4 text-right font-extrabold text-[#005e66]">
+                            <td class="py-3.5 px-4 text-right font-extrabold text-primary dark:text-accent">
                                 ${{ number_format($detail->total, 4) }}
                             </td>
                         </tr>
@@ -281,8 +281,8 @@
 
     <!-- Gastos Adicionales (Si existen) -->
     @if($purchase_order->expenses && $purchase_order->expenses->count() > 0)
-        <section class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
-            <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+        <section class="ui-surface p-6 space-y-4">
+            <div class="flex items-center gap-3 border-b border-line pb-4">
                 <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
                     🚚
                 </div>
@@ -295,7 +295,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-line">
                             <th class="py-3 px-4">#</th>
                             <th class="py-3 px-4">Tipo de Gasto</th>
                             <th class="py-3 px-4">Descripción</th>
@@ -317,7 +317,7 @@
                                     @if($expense->is_costable)
                                         <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Sí</span>
                                     @else
-                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">No</span>
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-line">No</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 text-right font-extrabold text-amber-600">
@@ -334,7 +334,7 @@
 
 <!-- Modal Personalizado para Confirmar Cambio de Estado -->
 <div id="status-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl relative mx-4 text-center transform scale-95 transition-all duration-200 border border-slate-100 dark:border-slate-700">
+    <div class="bg-surface dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl relative mx-4 text-center transform scale-95 transition-all duration-200 border border-line dark:border-slate-700">
         <button type="button" onclick="closeModal('status-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>

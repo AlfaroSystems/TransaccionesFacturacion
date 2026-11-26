@@ -18,45 +18,30 @@
 @endphp
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg">Compras</span>
-                <span class="text-slate-400">•</span>
-                <span class="text-xs font-semibold text-slate-500">Módulo de Facturas y Recepciones</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
-                Facturas y Compras
-            </h1>
-            <p class="text-sm text-slate-500 mt-0.5">
-                Consulte y gestione las facturas comerciales y recepciones de mercancía asociadas a Órdenes de Compra.
-            </p>
-        </div>
+    <x-ui.page-header eyebrow="Compras" module="Módulo de Facturas y Recepciones"
+        title="Facturas y Compras"
+        subtitle="Consulte y gestione las facturas comerciales y recepciones de mercancía asociadas a Órdenes de Compra.">
         @can('purchases.crear')
-            <button type="button" onclick="openCreatePurchaseModal()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Nueva Compra</span>
-            </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openCreatePurchaseModal()">Nueva Compra</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </div>
+    </x-ui.page-header>
 
 
 
     <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Compras</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $totalCount }}</p>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/40 text-[#005e66] dark:text-teal-300 flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/40 text-primary dark:text-accent dark:text-teal-300 flex items-center justify-center text-xl font-bold">
                 🧾
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Borradores</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $draftCount }}</p>
@@ -65,7 +50,7 @@
                 ✎
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Recibidas / Completadas</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $completedCount }}</p>
@@ -74,10 +59,10 @@
                 ✓
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Monto Total</p>
-                <p class="text-2xl font-extrabold text-[#005e66] dark:text-teal-400 mt-1">${{ number_format($totalAmount, 2) }}</p>
+                <p class="text-2xl font-extrabold text-primary dark:text-accent dark:text-teal-400 mt-1">${{ number_format($totalAmount, 2) }}</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-xl font-bold">
                 💲
@@ -86,15 +71,15 @@
     </div>
 
     <!-- Barra de Búsqueda y Filtros -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-xs">
+    <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 p-5 shadow-xs">
         <form method="GET" action="{{ route('purchases.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Buscar</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Código, factura de proveedor, OC..." class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Buscar</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Código, factura de proveedor, OC..." class="w-full px-4 py-2 rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Proveedor</label>
-                <select name="id_supplier" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Proveedor</label>
+                <select name="id_supplier" class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     <option value="">Todos los proveedores</option>
                     @foreach($suppliers as $sup)
                         <option value="{{ $sup->id_supplier }}" {{ request('id_supplier') == $sup->id_supplier ? 'selected' : '' }}>
@@ -104,8 +89,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Estado</label>
-                <select name="status" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Estado</label>
+                <select name="status" class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     <option value="">Todos los estados</option>
                     <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Borrador</option>
                     <option value="received" {{ request('status') === 'received' ? 'selected' : '' }}>Recibida</option>
@@ -127,10 +112,10 @@
     </div>
 
     <!-- Tabla de Compras -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs overflow-hidden">
+    <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-line dark:border-slate-700">
                     <tr>
                         <th class="py-4 px-6">Código / Factura</th>
                         <th class="py-4 px-6">Orden de Compra</th>
@@ -146,7 +131,7 @@
                     @forelse($purchases as $purchase)
                         <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors">
                             <td class="py-4 px-6">
-                                <span class="font-extrabold text-[#005e66] dark:text-teal-400 block font-mono">
+                                <span class="font-extrabold text-primary dark:text-accent dark:text-teal-400 block font-mono">
                                     {{ $purchase->purchase_code }}
                                 </span>
                                 @if($purchase->supplier_invoice_number)
@@ -192,7 +177,7 @@
                             <td class="py-4 px-6 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
                                     @can('purchases.ver')
-                                        <a href="{{ route('purchases.show', $purchase->id_purchase) }}" class="p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-950/50 text-[#005e66] dark:text-teal-300 transition-colors" title="Ver Detalle">
+                                        <a href="{{ route('purchases.show', $purchase->id_purchase) }}" class="p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-950/50 text-primary dark:text-accent dark:text-teal-300 transition-colors" title="Ver Detalle">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                     @endcan
@@ -225,7 +210,7 @@
         </div>
 
         @if($purchases->hasPages())
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="p-4 border-t border-line dark:border-slate-700">
                 {{ $purchases->links() }}
             </div>
         @endif
@@ -236,11 +221,11 @@
 <!-- MODAL DE CREACIÓN / EDICIÓN DE COMPRA      -->
 <!-- ========================================== -->
 <div id="purchaseModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto transform transition-all animate-scale-up">
+    <div class="bg-surface dark:bg-slate-800 rounded-3xl border border-line dark:border-slate-700 shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto transform transition-all animate-scale-up">
         <!-- Modal Header -->
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/80">
+        <div class="px-6 py-4 border-b border-line dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/80">
             <div>
-                <span id="purchaseModalBadge" class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-md">Nueva Compra</span>
+                <span id="purchaseModalBadge" class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-md">Nueva Compra</span>
                 <h2 id="purchaseModalTitle" class="text-lg font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">
                     Registrar Factura / Recepción de Compra
                 </h2>
@@ -268,7 +253,7 @@
                         </label>
                         <span class="text-[11px] text-indigo-600 dark:text-indigo-400">Solo órdenes emitidas o recibidas parciales</span>
                     </div>
-                    <select id="modalOrderSelect" class="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                    <select id="modalOrderSelect" class="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden">
                         <option value="">-- Seleccione una orden de compra aprobada --</option>
                         @foreach($orders as $ord)
                             <option value="{{ $ord->id_purchase_order }}">
@@ -279,9 +264,9 @@
                 </div>
 
                 <!-- Resumen de Orden (Modo Editar) -->
-                <div id="modalOrderInfoBox" class="hidden bg-slate-100 dark:bg-slate-900/50 rounded-xl p-3 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div id="modalOrderInfoBox" class="hidden bg-slate-100 dark:bg-slate-900/50 rounded-xl p-3 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-line dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        Orden de Compra: <strong id="lblModalOrderCode" class="font-mono text-sm text-[#005e66] dark:text-teal-400"></strong>
+                        Orden de Compra: <strong id="lblModalOrderCode" class="font-mono text-sm text-primary dark:text-accent dark:text-teal-400"></strong>
                     </div>
                     <div>
                         Código de Factura: <strong id="lblModalPurchaseCode" class="font-mono text-sm text-slate-800 dark:text-slate-100"></strong>
@@ -291,20 +276,20 @@
                 <!-- Cabecera de Compra -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">No. Factura Proveedor</label>
-                        <input type="text" name="supplier_invoice_number" id="modal_supplier_invoice_number" placeholder="Ej: FAC-001-987" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">No. Factura Proveedor</label>
+                        <input type="text" name="supplier_invoice_number" id="modal_supplier_invoice_number" placeholder="Ej: FAC-001-987" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fecha Factura Proveedor</label>
-                        <input type="date" name="supplier_invoice_date" id="modal_supplier_invoice_date" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Fecha Factura Proveedor</label>
+                        <input type="date" name="supplier_invoice_date" id="modal_supplier_invoice_date" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fecha Recepción *</label>
-                        <input type="datetime-local" name="purchase_date" id="modal_purchase_date" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Fecha Recepción *</label>
+                        <input type="datetime-local" name="purchase_date" id="modal_purchase_date" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Estado *</label>
-                        <select name="status" id="modal_status" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Estado *</label>
+                        <select name="status" id="modal_status" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="completed">Completada</option>
                             <option value="received">Recibida</option>
                             <option value="draft">Borrador</option>
@@ -314,8 +299,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Proveedor *</label>
-                        <select name="id_supplier" id="modal_id_supplier" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Proveedor *</label>
+                        <select name="id_supplier" id="modal_id_supplier" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Seleccione proveedor --</option>
                             @foreach($suppliers as $sup)
                                 <option value="{{ $sup->id_supplier }}">{{ $sup->name }}</option>
@@ -323,8 +308,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Sucursal</label>
-                        <select name="id_branch" id="modal_id_branch" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Sucursal</label>
+                        <select name="id_branch" id="modal_id_branch" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Sucursal --</option>
                             @foreach($branches as $br)
                                 <option value="{{ $br->id_branch }}">{{ $br->name }}</option>
@@ -332,8 +317,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Bodega Destino (Casa Matriz)</label>
-                        <select name="id_warehouse" id="modal_id_warehouse" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Bodega Destino (Casa Matriz)</label>
+                        <select name="id_warehouse" id="modal_id_warehouse" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Bodega --</option>
                             @foreach($warehouses as $wh)
                                 <option value="{{ $wh->id_warehouse }}">{{ $wh->name }}</option>
@@ -341,9 +326,9 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Moneda</label>
+                        <label class="ui-label">Moneda</label>
                         {{-- Al elegir la orden toma su moneda --}}
-                        <select name="currency" id="modal_currency" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <select name="currency" id="modal_currency" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
                                 <option value="{{ $codigo }}" @selected($codigo === \App\Support\Moneda::PREDETERMINADA)>{{ $etiqueta }}</option>
                             @endforeach
@@ -352,19 +337,19 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Notas u Observaciones</label>
-                    <textarea name="notes" id="modal_notes" rows="2" placeholder="Observaciones sobre la recepción física o factura..." class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]"></textarea>
+                    <label class="ui-label">Notas u Observaciones</label>
+                    <textarea name="notes" id="modal_notes" rows="2" placeholder="Observaciones sobre la recepción física o factura..." class="w-full px-3 py-2 text-sm rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]"></textarea>
                 </div>
 
                 <!-- Tabla de Líneas -->
-                <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-                    <div class="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div class="border border-line dark:border-slate-700 rounded-2xl overflow-hidden">
+                    <div class="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-line dark:border-slate-700 flex items-center justify-between">
                         <span class="text-xs font-extrabold uppercase text-slate-600 dark:text-slate-300">Líneas de Productos a Recibir</span>
                         <span class="text-[11px] text-slate-400">Verifique cantidades y montos antes de guardar</span>
                     </div>
                     <div class="overflow-x-auto max-h-60">
                         <table class="w-full text-left text-xs" id="modalItemsTable">
-                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase font-bold tracking-wider border-b border-line dark:border-slate-700 sticky top-0 z-10">
                                 <tr>
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-2 text-center w-20">Pedida</th>
@@ -386,7 +371,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/60 p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                    <div class="bg-slate-50 dark:bg-slate-900/60 p-4 border-t border-line dark:border-slate-700 flex justify-end">
                         <div class="w-full sm:w-72 space-y-1.5 text-xs font-semibold">
                             <div class="flex justify-between text-slate-500">
                                 <span>Subtotal:</span>
@@ -400,9 +385,9 @@
                                 <span>Impuestos (IVA):</span>
                                 <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="modalLblTax">$0.00</span>
                             </div>
-                            <div class="flex justify-between text-sm font-extrabold text-slate-800 dark:text-slate-100 pt-1.5 border-t border-slate-200 dark:border-slate-700">
+                            <div class="flex justify-between text-sm font-extrabold text-slate-800 dark:text-slate-100 pt-1.5 border-t border-line dark:border-slate-700">
                                 <span>Total General:</span>
-                                <span class="font-mono text-[#005e66] dark:text-teal-400 text-base" id="modalLblTotal">$0.00</span>
+                                <span class="font-mono text-primary dark:text-accent dark:text-teal-400 text-base" id="modalLblTotal">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -410,8 +395,8 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-3">
-                <button type="button" onclick="closePurchaseModal()" class="px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-line dark:border-slate-700 flex items-center justify-end gap-3">
+                <button type="button" onclick="closePurchaseModal()" class="px-5 py-2 rounded-xl border border-line dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Cancelar
                 </button>
                 <button type="submit" id="btnSubmitPurchaseModal" class="px-6 py-2 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-xs shadow-md transition-all">
@@ -426,7 +411,7 @@
 <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN       -->
 <!-- ========================================== -->
 <div id="deletePurchaseModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl max-w-md w-full p-6 text-center animate-scale-up">
+    <div class="bg-surface dark:bg-slate-800 rounded-3xl border border-line dark:border-slate-700 shadow-2xl max-w-md w-full p-6 text-center animate-scale-up">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 flex items-center justify-center text-2xl mb-4">
             ⚠️
         </div>
@@ -440,7 +425,7 @@
             @csrf
             @method('DELETE')
             <div class="flex items-center justify-center gap-3">
-                <button type="button" onclick="closeDeletePurchaseModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                <button type="button" onclick="closeDeletePurchaseModal()" class="px-5 py-2.5 rounded-xl border border-line dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-colors">
@@ -471,7 +456,7 @@
     // Apertura en modo Creación
     function openCreatePurchaseModal() {
         purchaseModalBadge.textContent    = 'Nueva Compra';
-        purchaseModalBadge.className      = 'px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-md';
+        purchaseModalBadge.className      = 'px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-md';
         purchaseModalTitle.textContent    = 'Registrar Factura / Recepción de Compra';
         purchaseModalSubtitle.textContent = 'Seleccione una Orden de Compra aprobada para importar los productos a recibir.';
         btnSubmitPurchaseModal.textContent= 'Registrar Compra';
@@ -612,16 +597,16 @@
                     ${parseFloat(d.quantity_ordered).toFixed(2)}
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity_received]" value="${qtyVal}" required class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 m-qty-input focus:ring-1 focus:ring-[#005e66]">
+                    <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity_received]" value="${qtyVal}" required class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 m-qty-input focus:ring-1 focus:ring-[#005e66]">
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${d.unit_price}" required class="w-full px-2 py-1 text-right font-mono rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 m-price-input focus:ring-1 focus:ring-[#005e66]">
+                    <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${d.unit_price}" required class="w-full px-2 py-1 text-right font-mono rounded-lg border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 m-price-input focus:ring-1 focus:ring-[#005e66]">
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0" name="details[${idx}][discount]" value="${d.discount || 0}" class="w-full px-2 py-1 text-right font-mono rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 m-discount-input focus:ring-1 focus:ring-[#005e66]">
+                    <input type="number" step="0.0001" min="0" name="details[${idx}][discount]" value="${d.discount || 0}" class="w-full px-2 py-1 text-right font-mono rounded-lg border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 m-discount-input focus:ring-1 focus:ring-[#005e66]">
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.01" min="0" max="100" name="details[${idx}][tax_rate]" value="${d.tax_rate || 0}" class="w-full px-2 py-1 text-center font-mono rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 m-tax-input focus:ring-1 focus:ring-[#005e66]">
+                    <input type="number" step="0.01" min="0" max="100" name="details[${idx}][tax_rate]" value="${d.tax_rate || 0}" class="w-full px-2 py-1 text-center font-mono rounded-lg border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 m-tax-input focus:ring-1 focus:ring-[#005e66]">
                 </td>
                 <td class="py-2.5 px-3 text-right font-mono m-row-subtotal">$0.00</td>
                 <td class="py-2.5 px-3 text-right font-mono m-row-tax">$0.00</td>

@@ -3,31 +3,19 @@
 @section('content')
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado -->
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-4xl font-bold text-slate-800">
-                Ubicaciones
-            </h1>
-            <p class="text-gray-500 mt-2">
-                Gestione la distribución y capacidad de las ubicaciones en el almacén.
-            </p>
-        </div>
-        <div class="flex items-center gap-3">
-            @can('locations.crear')
-            <button type="button" onclick="openModal('batch-location-modal')"class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
-                <span>⚡ Generación Masiva</span>
-            </button>
-            <button type="button" onclick="openModal('create-location-modal')"class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2">
-                <span>+ Nueva Ubicación</span>
-            </button>
-            @endcan
-        </div>
-    </div>
+    <x-ui.page-header eyebrow="Inventario" module="Ubicaciones"
+        title="Ubicaciones" subtitle="Gestione la distribución y capacidad de las ubicaciones en el almacén.">
+        @can('locations.crear')
+            <x-slot:actions>
+                <x-ui.button type="button" variant="secondary" onclick="openModal('batch-location-modal')">⚡ Generación Masiva</x-ui.button>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-location-modal')">Nueva Ubicación</x-ui.button>
+            </x-slot:actions>
+        @endcan
+    </x-ui.page-header>
 
     <!-- Tarjeta / Tabla -->
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 pl-10">ID</th>
@@ -45,7 +33,7 @@
             <tbody>
                 @forelse($locations as $location)
                     <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$location->is_active ? 'opacity-50 grayscale-35' : '' }}">
-                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm text-slate-400 font-bold">
+                        <td class="px-6 py-4 bg-surface rounded-l-2xl border-l border-y border-line text-sm text-slate-400 font-bold">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,40 +44,40 @@
                                 <span>#{{ $location->id_location }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100">
-                            <span class="font-mono bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg text-sm font-semibold border border-slate-200">
+                        <td class="px-6 py-4 bg-surface border-y border-line">
+                            <span class="font-mono bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg text-sm font-semibold border border-line">
                                 {{ $location->code }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm font-bold text-slate-700">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-sm font-bold text-slate-700">
                             {{ $location->warehouse->name ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center text-slate-600 font-medium">
                             {{ $location->aisle ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center text-slate-600 font-medium">
                             {{ $location->rack ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center text-slate-600 font-medium">
                             {{ $location->level ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-600 font-medium">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center text-slate-600 font-medium">
                             {{ $location->position ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center text-slate-700 font-bold">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center text-slate-700 font-bold">
                             {{ number_format($location->capacity) }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $location->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100' }}">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $location->is_active ? 'bg-success-soft text-success border border-success-line' : 'bg-danger-soft text-danger border border-danger-line' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $location->is_active ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
                                 {{ $location->is_active ? 'Activo' : 'Inactivo' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
+                        <td class="px-6 py-4 bg-surface rounded-r-2xl border-r border-y border-line text-center">
                             <div class="flex justify-center items-center gap-2">
                                 <!-- Ver -->
                                 @can('locations.ver')
-                                <a href="{{ route('locations.show', $location->id_location) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="Ver Detalles">
+                                <a href="{{ route('locations.show', $location->id_location) }}" class="p-2.5 rounded-xl bg-info-soft text-info hover:brightness-95 transition-colors" title="Ver Detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -99,7 +87,7 @@
 
                                 <!-- Editar -->
                                 @can('locations.editar')
-                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id_location) }}', {{ json_encode($location) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Ubicación">
+                                <button type="button" onclick="openEditLocationModal('{{ route('locations.update', $location->id_location) }}', {{ json_encode($location) }})" class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 transition-colors" title="Editar Ubicación">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -109,13 +97,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('locations.eliminar')
                                     @if($location->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id_location) }}', '{{ addslashes($location->code) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Inactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id_location) }}', '{{ addslashes($location->code) }}', false)" class="p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 transition-colors" title="Inactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id_location) }}', '{{ addslashes($location->code) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="Reactivar Ubicación">
+                                        <button type="button" onclick="confirmDelete('{{ route('locations.destroy', $location->id_location) }}', '{{ addslashes($location->code) }}', true)" class="p-2.5 rounded-xl bg-success-soft text-success hover:brightness-95 transition-colors" title="Reactivar Ubicación">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -127,7 +115,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="py-12 bg-white rounded-2xl border border-slate-100 text-center text-slate-400 font-semibold shadow-xs">
+                        <td colspan="10" class="py-12 ui-surface text-center text-slate-400 font-semibold shadow-xs">
                             No hay ubicaciones registradas en el sistema.
                         </td>
                     </tr>
@@ -139,7 +127,7 @@
 
 <!-- MODAL DE REGISTRO DE UBICACIÓN -->
 <div id="create-location-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+    <div class="bg-surface rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -161,7 +149,7 @@
             <!-- Almacén / Bodega -->
             <div>
                 <label for="id_warehouse" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
-                <select name="id_warehouse" id="id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_warehouse" id="id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id_warehouse }}" {{ (old('modal_type') === 'create' && old('id_warehouse') == $warehouse->id_warehouse) ? 'selected' : '' }}>
@@ -179,7 +167,7 @@
             <!-- Código de Ubicación -->
             <div>
                 <label for="code" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Código de Ubicación *</label>
-                <input type="text" name="code" id="code" value="{{ old('modal_type') === 'create' ? old('code') : '' }}" placeholder="Ej: UB-A1" class="w-full bg-slate-50 border @error('code') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
+                <input type="text" name="code" id="code" value="{{ old('modal_type') === 'create' ? old('code') : '' }}" placeholder="Ej: UB-A1" class="w-full bg-slate-50 border @error('code') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
                 @error('code')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -191,13 +179,13 @@
                 <!-- Pasillo -->
                 <div>
                     <label for="aisle" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
-                    <input type="text" name="aisle" id="aisle" value="{{ old('modal_type') === 'create' ? old('aisle') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="aisle" id="aisle" value="{{ old('modal_type') === 'create' ? old('aisle') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
 
                 <!-- Estante -->
                 <div>
                     <label for="rack" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estante (Rack)</label>
-                    <input type="text" name="rack" id="rack" value="{{ old('modal_type') === 'create' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="rack" id="rack" value="{{ old('modal_type') === 'create' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
             </div>
 
@@ -205,20 +193,20 @@
                 <!-- Nivel -->
                 <div>
                     <label for="level" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nivel (Level)</label>
-                    <input type="text" name="level" id="level" value="{{ old('modal_type') === 'create' ? old('level') : '' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="level" id="level" value="{{ old('modal_type') === 'create' ? old('level') : '' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
 
                 <!-- Posición -->
                 <div>
                     <label for="position" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Posición (Position)</label>
-                    <input type="text" name="position" id="position" value="{{ old('modal_type') === 'create' ? old('position') : '' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="position" id="position" value="{{ old('modal_type') === 'create' ? old('position') : '' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Capacidad -->
             <div>
                 <label for="capacity" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacidad Máxima *</label>
-                <input type="number" name="capacity" id="capacity" min="0" value="{{ old('modal_type') === 'create' ? old('capacity') : '' }}" placeholder="Ej: 50" class="w-full bg-slate-50 border @error('capacity') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
+                <input type="number" name="capacity" id="capacity" min="0" value="{{ old('modal_type') === 'create' ? old('capacity') : '' }}" placeholder="Ej: 50" class="w-full bg-slate-50 border @error('capacity') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
                 @error('capacity')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -229,11 +217,11 @@
             <!-- Notas -->
             <div>
                 <label for="notes" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas adicionales</label>
-                <textarea name="notes" id="notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-[#005e66] text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('notes') : '' }}</textarea>
+                <textarea name="notes" id="notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-accent text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('notes') : '' }}</textarea>
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
                 <button type="button" onclick="closeModal('create-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
@@ -248,7 +236,7 @@
 
 <!-- MODAL DE EDICIÓN DE UBICACIÓN -->
 <div id="edit-location-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+    <div class="bg-surface rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -273,7 +261,7 @@
             <!-- Almacén / Bodega -->
             <div>
                 <label for="edit-id_warehouse" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
-                <select name="id_warehouse" id="edit-id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_warehouse" id="edit-id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id_warehouse }}" {{ (old('modal_type') === 'edit' && old('id_warehouse') == $warehouse->id_warehouse) ? 'selected' : '' }}>
@@ -291,7 +279,7 @@
             <!-- Código de Ubicación -->
             <div>
                 <label for="edit-code" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Código de Ubicación *</label>
-                <input type="text" name="code" id="edit-code" value="{{ old('modal_type') === 'edit' ? old('code') : '' }}" placeholder="Ej: UB-A1" class="w-full bg-slate-50 border @error('code') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
+                <input type="text" name="code" id="edit-code" value="{{ old('modal_type') === 'edit' ? old('code') : '' }}" placeholder="Ej: UB-A1" class="w-full bg-slate-50 border @error('code') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
                 @error('code')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -302,33 +290,33 @@
                 <!-- Pasillo -->
                 <div>
                     <label for="edit-aisle" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo (Aisle)</label>
-                    <input type="text" name="aisle" id="edit-aisle" value="{{ old('modal_type') === 'edit' ? old('aisle') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="aisle" id="edit-aisle" value="{{ old('modal_type') === 'edit' ? old('aisle') : '' }}" placeholder="Ej: 2" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
 
                 <!-- Estante -->
                 <div>
                     <label for="edit-rack" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estante (Rack)</label>
-                    <input type="text" name="rack" id="edit-rack" value="{{ old('modal_type') === 'edit' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="rack" id="edit-rack" value="{{ old('modal_type') === 'edit' ? old('rack') : '' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <!-- Nivel -->
                 <div>
                     <label for="edit-level" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nivel (Level)</label>
-                    <input type="text" name="level" id="edit-level" value="{{ old('modal_type') === 'edit' ? old('level') : '' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="level" id="edit-level" value="{{ old('modal_type') === 'edit' ? old('level') : '' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
 
                 <!-- Posición -->
                 <div>
                     <label for="edit-position" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Posición (Position)</label>
-                    <input type="text" name="position" id="edit-position" value="{{ old('modal_type') === 'edit' ? old('position') : '' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
+                    <input type="text" name="position" id="edit-position" value="{{ old('modal_type') === 'edit' ? old('position') : '' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Capacidad -->
             <div>
                 <label for="edit-capacity" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacidad Máxima *</label>
-                <input type="number" name="capacity" id="edit-capacity" min="0" value="{{ old('modal_type') === 'edit' ? old('capacity') : '' }}" placeholder="Ej: 50" class="w-full bg-slate-50 border @error('capacity') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
+                <input type="number" name="capacity" id="edit-capacity" min="0" value="{{ old('modal_type') === 'edit' ? old('capacity') : '' }}" placeholder="Ej: 50" class="w-full bg-slate-50 border @error('capacity') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:bg-white text-slate-700 font-semibold" required>
                 @error('capacity')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -339,7 +327,7 @@
             <!-- Notas -->
             <div>
                 <label for="edit-notes" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas adicionales</label>
-                <textarea name="notes" id="edit-notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-[#005e66] text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('notes') : '' }}</textarea>
+                <textarea name="notes" id="edit-notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-accent text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('notes') : '' }}</textarea>
             </div>
 
             <!-- Estado -->
@@ -354,7 +342,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
                 <button type="button" onclick="closeModal('edit-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
@@ -369,7 +357,7 @@
 
 <!-- MODAL DE GENERACIÓN MASIVA DE UBICACIONES -->
 <div id="batch-location-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+    <div class="bg-surface rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('batch-location-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -391,7 +379,7 @@
             <!-- Almacén / Bodega -->
             <div>
                 <label for="batch_id_warehouse" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Almacén / Bodega *</label>
-                <select name="id_warehouse" id="batch_id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                <select name="id_warehouse" id="batch_id_warehouse" class="w-full bg-slate-50 border @error('id_warehouse') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     <option value="">Seleccione un almacén...</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id_warehouse }}" {{ (old('modal_type') === 'batch' && old('id_warehouse') == $warehouse->id_warehouse) ? 'selected' : '' }}>
@@ -405,14 +393,14 @@
                 <!-- Pasillo Hasta -->
                 <div>
                     <label for="pasillo_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pasillo Final *</label>
-                    <input type="text" name="pasillo_hasta" id="pasillo_hasta" value="{{ old('modal_type') === 'batch' ? old('pasillo_hasta') : 'B' }}" placeholder="Ej: B o 2" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold uppercase" required>
+                    <input type="text" name="pasillo_hasta" id="pasillo_hasta" value="{{ old('modal_type') === 'batch' ? old('pasillo_hasta') : 'B' }}" placeholder="Ej: B o 2" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold uppercase" required>
                     <p class="text-[10px] text-slate-400 mt-1">Letra (ej. B) o Número (ej. 2)</p>
                 </div>
 
                 <!-- Estante Hasta -->
                 <div>
                     <label for="rack_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Estante Final *</label>
-                    <input type="number" name="rack_hasta" id="rack_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('rack_hasta') : '3' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
+                    <input type="number" name="rack_hasta" id="rack_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('rack_hasta') : '3' }}" placeholder="Ej: 3" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
                     <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
                 </div>
             </div>
@@ -420,14 +408,14 @@
                 <!-- Nivel Hasta -->
                 <div>
                     <label for="level_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nivel Final *</label>
-                    <input type="number" name="level_hasta" id="level_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('level_hasta') : '4' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
+                    <input type="number" name="level_hasta" id="level_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('level_hasta') : '4' }}" placeholder="Ej: 4" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
                     <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
                 </div>
 
                 <!-- Posición Hasta -->
                 <div>
                     <label for="position_hasta" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Posición Final *</label>
-                    <input type="number" name="position_hasta" id="position_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('position_hasta') : '1' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
+                    <input type="number" name="position_hasta" id="position_hasta" min="1" value="{{ old('modal_type') === 'batch' ? old('position_hasta') : '1' }}" placeholder="Ej: 1" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
                     <p class="text-[10px] text-slate-400 mt-1">Generará del 1 hasta N</p>
                 </div>
             </div>
@@ -435,17 +423,17 @@
             <!-- Capacidad -->
             <div>
                 <label for="batch_capacity" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capacidad por Ubicación *</label>
-                <input type="number" name="capacity" id="batch_capacity" min="0" value="{{ old('modal_type') === 'batch' ? old('capacity') : '10' }}" placeholder="Ej: 10" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
+                <input type="number" name="capacity" id="batch_capacity" min="0" value="{{ old('modal_type') === 'batch' ? old('capacity') : '10' }}" placeholder="Ej: 10" class="w-full bg-slate-50 border border-line focus:border-accent rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-700 font-semibold" required>
             </div>
 
             <!-- Notas -->
             <div>
                 <label for="batch_notes" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notas adicionales</label>
-                <textarea name="notes" id="batch_notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-[#005e66] text-slate-700 font-semibold">{{ old('modal_type') === 'batch' ? old('notes') : '' }}</textarea>
+                <textarea name="notes" id="batch_notes" rows="2" placeholder="Comentarios..." class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-accent text-slate-700 font-semibold">{{ old('modal_type') === 'batch' ? old('notes') : '' }}</textarea>
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
                 <button type="button" onclick="closeModal('batch-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>

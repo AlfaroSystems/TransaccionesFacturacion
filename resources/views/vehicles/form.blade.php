@@ -2,8 +2,8 @@
 @section('title', $vehicle ? 'Editar Vehículo' : 'Nuevo Vehículo')
 
 @php
-    $inputClass = 'w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
-    $labelClass = 'block text-xs font-bold text-slate-400 uppercase mb-1';
+    $inputClass = 'w-full px-3 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
+    $labelClass = 'ui-label';
     $activo = old('is_active', $vehicle?->is_active ?? true);
     // Espacios de carga: los enviados (si volvió con errores) o los que ya tiene
     $espacios = old('locations', $vehicle
@@ -25,11 +25,11 @@
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Vehículos</span>
+                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Vehículos</span>
                 <span class="text-slate-400 dark:text-slate-600">•</span>
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $vehicle ? $vehicle->license_plate : 'Nuevo' }}</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">{{ $vehicle ? 'Editar Vehículo' : 'Nuevo Vehículo' }}</h1>
+            <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight mt-1">{{ $vehicle ? 'Editar Vehículo' : 'Nuevo Vehículo' }}</h1>
         </div>
         <a href="{{ route('vehicles.index') }}" class="text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">← Volver</a>
     </div>
@@ -40,7 +40,7 @@
             @method('PUT')
         @endif
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label for="license_plate" class="{{ $labelClass }}">Placa *</label>
                 <input type="text" id="license_plate" name="license_plate" required maxlength="20" value="{{ old('license_plate', $vehicle?->license_plate) }}" placeholder="P123-456" class="{{ $inputClass }} font-mono uppercase @error('license_plate') border-rose-400 @enderror">
@@ -84,15 +84,15 @@
             <div class="flex items-end">
                 <label class="flex items-center gap-3 cursor-pointer py-2.5">
                     <input type="hidden" name="is_active" value="0">
-                    <input type="checkbox" name="is_active" value="1" @checked($activo) class="w-4 h-4 rounded border-slate-300 text-[#005e66]">
+                    <input type="checkbox" name="is_active" value="1" @checked($activo) class="w-4 h-4 rounded border-slate-300 text-primary dark:text-accent">
                     <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">Vehículo activo</span>
                 </label>
             </div>
         </div>
 
         <!-- Espacios de carga -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Espacios de carga</h2>
                 <p class="text-xs text-slate-400">Cada espacio (cajón, plataforma, compartimento) pertenece a una bodega y es una ubicación de inventario. Capacidad 0 es sin límite.</p>
                 @error('locations')
@@ -101,7 +101,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4 w-40">Código *</th>
                             <th class="py-3 px-4">Bodega *</th>
@@ -142,7 +142,7 @@
                                 </td>
                                 <td class="py-3 px-4 text-center">
                                     <input type="hidden" name="locations[{{ $i }}][is_active]" value="0">
-                                    <input type="checkbox" name="locations[{{ $i }}][is_active]" value="1" @checked($espacio['is_active'] ?? true) class="w-4 h-4 rounded border-slate-300 text-[#005e66]">
+                                    <input type="checkbox" name="locations[{{ $i }}][is_active]" value="1" @checked($espacio['is_active'] ?? true) class="w-4 h-4 rounded border-slate-300 text-primary dark:text-accent">
                                 </td>
                                 <td class="py-3 px-4 text-right">
                                     <button type="button" class="espacio-quitar text-slate-400 hover:text-rose-500 font-bold" title="Quitar espacio">✕</button>
@@ -152,8 +152,8 @@
                     </tbody>
                 </table>
             </div>
-            <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800">
-                <button type="button" id="espacioAgregar" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline">+ Agregar espacio</button>
+            <div class="px-6 py-4 border-t border-line dark:border-slate-800">
+                <button type="button" id="espacioAgregar" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">+ Agregar espacio</button>
             </div>
 
             <template id="espacioPlantilla">
@@ -177,7 +177,7 @@
                     </td>
                     <td class="py-3 px-4 text-center">
                         <input type="hidden" name="locations[__i__][is_active]" value="0">
-                        <input type="checkbox" name="locations[__i__][is_active]" value="1" checked class="w-4 h-4 rounded border-slate-300 text-[#005e66]">
+                        <input type="checkbox" name="locations[__i__][is_active]" value="1" checked class="w-4 h-4 rounded border-slate-300 text-primary dark:text-accent">
                     </td>
                     <td class="py-3 px-4 text-right">
                         <button type="button" class="espacio-quitar text-slate-400 hover:text-rose-500 font-bold" title="Quitar espacio">✕</button>
@@ -187,7 +187,7 @@
         </div>
 
         <div class="flex justify-end gap-3">
-            <a href="{{ route('vehicles.index') }}" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Cancelar</a>
+            <a href="{{ route('vehicles.index') }}" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 border border-line dark:border-slate-700">Cancelar</a>
             <button type="submit" class="bg-[#005e66] hover:bg-[#004d54] text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-xs">{{ $vehicle ? 'Guardar cambios' : 'Registrar vehículo' }}</button>
         </div>
     </form>

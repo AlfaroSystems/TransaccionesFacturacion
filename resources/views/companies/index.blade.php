@@ -30,21 +30,14 @@
 >
 
     <!-- Encabezado de pagina -->
-    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight transition-colors duration-300">Gestión de Empresas</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-semibold mt-1">Registra y administra la información fiscal, giros comerciales, ubicaciones geográficas y logos de las empresas.</p>
-        </div>
-
+    <x-ui.page-header eyebrow="Empresa" module="Empresas"
+        title="Gestión de Empresas" subtitle="Registra y administra la información fiscal, giros comerciales, ubicaciones geográficas y logos de las empresas.">
         @can('admin')
-        <button type="button" onclick="openModal('create-company-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Crear Nueva Empresa</span>
-        </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-company-modal')">Crear Nueva Empresa</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </header>
+    </x-ui.page-header>
 
     <form method="GET" action="{{ route('companies.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3">
         <label for="search" class="sr-only">Buscar empresas</label>
@@ -52,7 +45,7 @@
             <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
             </svg>
-            <input id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por empresa, NIT, NRC, teléfono o correo..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-[#005e66] dark:focus:border-sky-500 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-hidden transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold shadow-xs">
+            <input id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por empresa, NIT, NRC, teléfono o correo..." class="w-full bg-surface dark:bg-slate-800 border border-line dark:border-slate-700 focus:border-accent dark:focus:border-sky-500 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-hidden transition-all text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-semibold shadow-xs">
         </div>
         <div class="flex gap-2">
             <button type="submit" class="px-5 py-3 bg-customTeal-800 dark:bg-sky-600 hover:bg-customTeal-500 dark:hover:bg-sky-500 text-white rounded-full font-bold text-sm transition-all">Buscar</button>
@@ -64,7 +57,7 @@
 
     <!-- Listado de Empresas -->
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                     <th class="py-3 px-6 pl-10">Empresa</th>
@@ -79,10 +72,10 @@
             <tbody>
                 @forelse($companies as $company)
                     <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$company->is_active ? 'opacity-50 grayscale-35' : '' }}">
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-l-2xl border-l border-y border-slate-100 dark:border-slate-700/80 text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 rounded-l-2xl border-l border-y border-line dark:border-slate-700/80 text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-300">
                             <div class="flex items-center gap-3">
                                 @if($company->logo)
-                                    <div class="w-10 h-10 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+                                    <div class="w-10 h-10 rounded-xl overflow-hidden border border-line dark:border-slate-700 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
                                         <img src="{{ asset('storage/' . $company->logo) }}" alt="Logo" class="w-full h-full object-cover">
                                     </div>
                                 @else
@@ -98,11 +91,11 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 border-y border-line dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
                             <div><span class="font-bold text-[10px] text-slate-400 dark:text-slate-500">NIT:</span> {{ $company->nit ?? 'N/A' }}</div>
                             <div class="text-xs mt-0.5"><span class="font-bold text-[10px] text-slate-400 dark:text-slate-500">NRC:</span> {{ $company->nrc ?? 'N/A' }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 border-y border-line dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
                             <span class="text-xs block text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title="{{ $company->address }}">{{ $company->address ?? 'N/A' }}</span>
                             @if($company->department || $company->municipality || $company->district)
                                 <span class="text-[10px] bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-300 font-bold px-2 py-0.5 rounded-sm mt-1 inline-block">
@@ -110,7 +103,7 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-xs text-slate-500 dark:text-slate-400 max-w-xs transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 border-y border-line dark:border-slate-700/80 text-xs text-slate-500 dark:text-slate-400 max-w-xs transition-colors duration-300">
                             @if($company->commercial_line_1)
                                 <div class="truncate" title="{{ $company->commercial_line_1 }}"><span class="font-bold text-slate-400 dark:text-slate-500">1:</span> {{ $company->commercial_line_1 }}</div>
                             @endif
@@ -124,17 +117,17 @@
                                 <span class="text-slate-400 dark:text-slate-500 italic">No registrados</span>
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 border-y border-line dark:border-slate-700/80 text-sm text-slate-600 dark:text-slate-300 transition-colors duration-300">
                             <div class="font-semibold text-slate-800 dark:text-slate-200">{{ $company->phone ?? 'N/A' }}</div>
                             <div class="text-xs text-slate-400 dark:text-slate-400 mt-0.5">{{ $company->email ?? 'N/A' }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 border-y border-slate-100 dark:border-slate-700/80 text-center transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 border-y border-line dark:border-slate-700/80 text-center transition-colors duration-300">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $company->is_active ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/60' : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-100 dark:border-rose-800/60' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $company->is_active ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-rose-500 dark:bg-rose-400' }}"></span>
                                 {{ $company->is_active ? 'Activa' : 'Inactiva' }}
                             </span>
                         </td>
-                        <td class="py-4 px-6 bg-white dark:bg-slate-800 rounded-r-2xl border-r border-y border-slate-100 dark:border-slate-700/80 text-center transition-colors duration-300">
+                        <td class="py-4 px-6 bg-surface dark:bg-slate-800 rounded-r-2xl border-r border-y border-line dark:border-slate-700/80 text-center transition-colors duration-300">
                             <div class="flex items-center justify-center gap-2">
                                 <!-- Editar -->
                                 @can('admin')
@@ -148,7 +141,7 @@
                                         'id_department', 'id_municipality', 'id_district', 'is_active',
                                     ]), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
                                     onclick="openEditCompanyModal(this)"
-                                    class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"
+                                    class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 transition-colors"
                                     title="Editar Empresa"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +158,7 @@
                                             data-action="{{ route('companies.destroy', $company) }}"
                                             data-company-name="{{ $company->name }}"
                                             onclick="confirmDelete(this.dataset.action, this.dataset.companyName, false)"
-                                            class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                                            class="p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 transition-colors"
                                             title="Inactivar Empresa"
                                         >
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +171,7 @@
                                             data-action="{{ route('companies.destroy', $company) }}"
                                             data-company-name="{{ $company->name }}"
                                             onclick="confirmDelete(this.dataset.action, this.dataset.companyName, true)"
-                                            class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                                            class="p-2.5 rounded-xl bg-success-soft text-success hover:brightness-95 transition-colors"
                                             title="Reactivar Empresa"
                                         >
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +185,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-12 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-xs transition-colors duration-300">
+                        <td colspan="7" class="py-12 bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700/80 text-center text-slate-400 dark:text-slate-500 font-semibold shadow-xs transition-colors duration-300">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />

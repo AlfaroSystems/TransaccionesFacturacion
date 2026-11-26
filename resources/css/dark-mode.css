@@ -1,21 +1,76 @@
 /* =========================================================================
-    REGLAS GLOBALES Y AUTOMÁTICAS PARA MODO OSCURO (.dark)
+    MODO OSCURO
+    -------------------------------------------------------------------------
+    Dos partes:
+        1) FLIP DE TOKENS (el sistema de verdad): reasigna los tokens semánticos
+            bajo `.dark`. Las utilidades del sistema (bg-surface, text-muted,
+            border-line, bg-primary, badges...) cambian de tema solas, sin
+            `!important` ni overrides por nombre de clase.
+        2) SHIM DE COMPATIBILIDAD (temporal): mantiene con vida las vistas que
+            todavía NO se han migrado al sistema de tokens. Está acotado a las
+            clases crudas de Tailwind (bg-white, text-slate-*, etc.) que las
+            vistas migradas ya NO usan, así que no interfiere con el sistema.
+        >>> BORRAR este bloque cuando todas las vistas estén migradas. <<<
     ========================================================================= */
 
-.dark body {
-    background-color: #0f172a !important; /* Slate 900 */
-    color: #f8fafc !important;
+/* ============================ 1) FLIP DE TOKENS ========================== */
+.dark {
+    /* Superficies */
+    --color-canvas: #0b1120;
+    --color-surface: #1e293b;
+    --color-raised: #273548;
+    --color-sunken: #0f172a;
+    --color-sidebar: #0f172a;
+    --color-sidebar-fg: #cbd5e1;
+
+    /* Texto */
+    --color-body: #f1f5f9;
+    --color-muted: #9fb0c3;
+    --color-subtle: #6b7a8f;
+
+    /* Bordes */
+    --color-line: #334155;
+    --color-line-strong: #475569;
+
+    /* Marca / acción primaria (teal más vivo sobre fondo oscuro) */
+    --color-primary: #0d9488;
+    --color-primary-hover: #0f766e;
+    --color-primary-soft: #0c2f2d;
+    --color-on-primary-soft: #5eead4;
+    --color-on-primary: #ffffff;
+    --color-accent: #2dd4bf;
+    --color-ring: #2dd4bf;
+
+    /* Estados */
+    --color-success: #6ee7b7;
+    --color-success-soft: rgba(6, 78, 59, 0.55);
+    --color-success-line: rgba(6, 95, 70, 0.6);
+    --color-warning: #fcd34d;
+    --color-warning-soft: rgba(120, 53, 15, 0.55);
+    --color-warning-line: rgba(146, 64, 14, 0.6);
+    --color-danger: #fda4af;
+    --color-danger-soft: rgba(136, 19, 55, 0.5);
+    --color-danger-line: rgba(159, 18, 57, 0.6);
+    --color-info: #7dd3fc;
+    --color-info-soft: rgba(12, 74, 110, 0.5);
+    --color-info-line: rgba(14, 116, 144, 0.6);
 }
 
-/* Modales, tarjetas y contenedores */
-.dark .bg-white,
-.dark [class*="bg-white"] {
-    background-color: #1e293b !important; /* Slate 800 */
-    border-color: #334155 !important;    /* Slate 700 */
-    color: #f8fafc !important;
+/* La superficie base de la página la pinta el layout con bg-canvas/text-body,
+   pero fijamos color-scheme para formularios nativos, scrollbars, etc. */
+.dark {
+    color-scheme: dark;
 }
 
-/* Etiquetas de formularios (Labels), Leyendas, Encabezados de Tabla y Títulos */
+
+/* ==================== 2) SHIM DE COMPATIBILIDAD (temporal) ================
+    Solo afecta a vistas NO migradas. Las vistas migradas usan utilidades de
+    token (bg-surface, text-body, ...) que no aparecen aquí.
+    ========================================================================= */
+
+/* (bg-white ya migrado a bg-surface en todas las vistas; regla retirada) */
+
+/* Etiquetas, encabezados de tabla y títulos */
 .dark label,
 .dark legend,
 .dark th,
@@ -25,10 +80,10 @@
 .dark h2,
 .dark h3,
 .dark h4 {
-    color: #ffffff !important; /* Blanco impoluto para lectura clara y visible */
+    color: #ffffff !important;
 }
 
-/* Adaptación de clases de texto gris/oscuro a blanco brillante en modo oscuro */
+/* Clases de texto gris/oscuro a claro */
 .dark .text-slate-950,
 .dark .text-slate-900,
 .dark .text-slate-800,
@@ -47,27 +102,26 @@
     color: #f8fafc !important;
 }
 
-/* Subtítulos o párrafos explicativos con alto contraste */
 .dark p.text-slate-400,
 .dark span.text-slate-400,
 .dark p.text-slate-500,
 .dark span.text-slate-500 {
-    color: #cbd5e1 !important; /* Slate 300 claro y legible */
+    color: #cbd5e1 !important;
 }
 
-/* Títulos de sección con color marca */
+/* Títulos de sección con color de marca hardcodeado */
 .dark .text-\[\#005e66\],
 .dark [class*="text-[#005e66]"] {
-    color: #2dd4bf !important; /* Teal turquesa brillante en modo oscuro */
+    color: #2dd4bf !important;
 }
 
-/* Entradas de texto, selects, opciones y textareas */
+/* Entradas, selects y textareas */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 .dark select,
 .dark textarea {
-    background-color: #0f172a !important; /* Slate 900 */
-    border-color: #475569 !important;    /* Slate 600 */
-    color: #ffffff !important;           /* Texto blanco brillante */
+    background-color: #0f172a !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
 }
 
 .dark select option {
@@ -77,10 +131,10 @@
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-    color: #94a3b8 !important;           /* Placeholder claro y legible */
+    color: #94a3b8 !important;
 }
 
-/* EFECTOS HOVER EN TABLAS Y LISTAS PARA MODO OSCURO */
+/* Hover en tablas y listas */
 .dark tbody tr:hover,
 .dark tr:hover,
 .dark table tbody tr:hover,
@@ -88,7 +142,7 @@
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-slate-100:hover,
 .dark .hover\:bg-white:hover {
-    background-color: #334155 !important; /* Slate 700 sutil y visible */
+    background-color: #334155 !important;
     color: #ffffff !important;
 }
 
@@ -97,15 +151,9 @@
     color: #ffffff !important;
 }
 
-/* Bordes y separadores tenues */
-.dark .border-slate-100,
-.dark .border-slate-200,
-.dark .border-gray-100,
-.dark .border-gray-200 {
-    border-color: #334155 !important;
-}
+/* (border-slate/gray-100/200 migrados a border-line; regla retirada) */
 
-/* Fondos secundarios de filas, contenedores internos e iconos */
+/* Fondos secundarios */
 .dark .bg-slate-50:not(a):not(button),
 .dark .bg-gray-50:not(a):not(button),
 .dark .bg-slate-100:not(a):not(button):not(span),
@@ -113,11 +161,7 @@
     background-color: #0f172a !important;
 }
 
-/* =========================================================================
-    ESTILOS MODO OSCURO PARA BOTONES DE ACCIÓN Y BADGES DE ESTADO
-    ========================================================================= */
-
-/* Botón Ver / Sky */
+/* Botones de acción y badges (vistas no migradas) */
 .dark a.bg-sky-50,
 .dark button.bg-sky-50,
 .dark .bg-sky-50 {
@@ -125,6 +169,7 @@
     color: #38bdf8 !important;
     border: 1px solid rgba(7, 89, 133, 0.6) !important;
 }
+
 .dark a.bg-sky-50:hover,
 .dark button.bg-sky-50:hover,
 .dark .bg-sky-50:hover {
@@ -132,7 +177,6 @@
     color: #ffffff !important;
 }
 
-/* Botón Editar / Amber */
 .dark a.bg-amber-50,
 .dark button.bg-amber-50,
 .dark .bg-amber-50 {
@@ -140,6 +184,7 @@
     color: #fbbf24 !important;
     border: 1px solid rgba(146, 64, 14, 0.6) !important;
 }
+
 .dark a.bg-amber-50:hover,
 .dark button.bg-amber-50:hover,
 .dark .bg-amber-50:hover {
@@ -147,7 +192,6 @@
     color: #ffffff !important;
 }
 
-/* Botón Eliminar / Rose */
 .dark a.bg-rose-50,
 .dark button.bg-rose-50,
 .dark .bg-rose-50 {
@@ -155,6 +199,7 @@
     color: #fb7185 !important;
     border: 1px solid rgba(159, 18, 57, 0.6) !important;
 }
+
 .dark a.bg-rose-50:hover,
 .dark button.bg-rose-50:hover,
 .dark .bg-rose-50:hover {
@@ -162,7 +207,6 @@
     color: #ffffff !important;
 }
 
-/* Botón PDF / Imprimir / Teal */
 .dark a.bg-teal-50,
 .dark button.bg-teal-50,
 .dark .bg-teal-50 {
@@ -170,6 +214,7 @@
     color: #2dd4bf !important;
     border: 1px solid rgba(17, 94, 89, 0.6) !important;
 }
+
 .dark a.bg-teal-50:hover,
 .dark button.bg-teal-50:hover,
 .dark .bg-teal-50:hover {
@@ -177,7 +222,6 @@
     color: #ffffff !important;
 }
 
-/* Badges de estado en Modo Oscuro */
 .dark span.bg-green-100,
 .dark span.bg-emerald-100,
 .dark .bg-green-100,

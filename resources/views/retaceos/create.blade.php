@@ -12,13 +12,13 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('retaceos.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg hover:bg-teal-200 transition-colors">
+                <a href="{{ route('retaceos.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-lg hover:bg-teal-200 transition-colors">
                     Retaceos
                 </a>
                 <span class="text-slate-400">•</span>
                 <span class="text-xs font-semibold text-slate-500 uppercase">{{ $isEdit ? 'Editar Retaceo' : 'Nueva Liquidación de Importación' }}</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
+            <h1 class="text-3xl font-extrabold text-primary dark:text-accent tracking-tight mt-1">
                 {{ $isEdit ? 'Editar Retaceo: ' . $retaceo->retaceo_code : 'Calcular Retaceo' }}
             </h1>
             <p class="text-slate-500 text-xs mt-1">
@@ -49,7 +49,7 @@
                     </p>
                 </div>
                 <div>
-                    <select id="purchaseSelect" name="id_purchase" required class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden shadow-xs">
+                    <select id="purchaseSelect" name="id_purchase" required class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden shadow-xs">
                         <option value="">-- Seleccione una compra --</option>
                         @foreach($purchases as $pur)
                             <option value="{{ $pur->id_purchase }}" {{ (string)$selectedPurchaseId === (string)$pur->id_purchase ? 'selected' : '' }}>
@@ -61,15 +61,15 @@
             </div>
         @else
             <input type="hidden" name="id_purchase" value="{{ $retaceo->id_purchase }}">
-            <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-4 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <span>Factura de Compra Vinculada: <strong class="font-mono text-sm text-[#005e66] dark:text-teal-400">{{ $retaceo->purchase->purchase_code ?? 'CMP-'.$retaceo->id_purchase }}</strong></span>
+            <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-4 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-line dark:border-slate-700 flex items-center justify-between">
+                <span>Factura de Compra Vinculada: <strong class="font-mono text-sm text-primary dark:text-accent dark:text-teal-400">{{ $retaceo->purchase->purchase_code ?? 'CMP-'.$retaceo->id_purchase }}</strong></span>
                 <span>Proveedor: <strong>{{ $retaceo->supplier->name ?? 'N/A' }}</strong></span>
             </div>
         @endif
 
         {{-- Datos de la Liquidación y Póliza Aduanera --}}
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-5">
-            <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-6 space-y-5">
+            <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 border-b border-line dark:border-slate-700 pb-3 flex items-center gap-2">
                 <span>📑 Datos de Importación y Póliza Aduanera</span>
             </h3>
 
@@ -77,7 +77,7 @@
                 {{-- PROVEEDOR --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Proveedor *</label>
-                    <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Proveedor --</option>
                         @foreach($suppliers as $sup)
                             <option value="{{ $sup->id_supplier }}" {{ (string)old('id_supplier', $retaceo->id_supplier ?? '') === (string)$sup->id_supplier ? 'selected' : '' }}>
@@ -90,19 +90,19 @@
                 {{-- PAÍS ORIGEN --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">País de Origen</label>
-                    <input type="text" name="origin_country" id="origin_country" value="{{ old('origin_country', $retaceo->origin_country ?? '') }}" placeholder="Ej: Estados Unidos, China, México" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="text" name="origin_country" id="origin_country" value="{{ old('origin_country', $retaceo->origin_country ?? '') }}" placeholder="Ej: Estados Unidos, China, México" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- FECHA DEL RETACEO --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Liquidación *</label>
-                    <input type="datetime-local" name="retaceo_date" id="retaceo_date" required value="{{ old('retaceo_date', isset($retaceo->retaceo_date) ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" min="{{ isset($retaceo) ? $retaceo->purchase?->purchase_date?->format('Y-m-d\T00:00') : '' }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="datetime-local" name="retaceo_date" id="retaceo_date" required value="{{ old('retaceo_date', isset($retaceo->retaceo_date) ? $retaceo->retaceo_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" min="{{ isset($retaceo) ? $retaceo->purchase?->purchase_date?->format('Y-m-d\T00:00') : '' }}" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- ESTADO --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Estado *</label>
-                    <select name="status" id="status" required class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="status" id="status" required class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         <option value="calculated" {{ old('status', $retaceo->status ?? 'calculated') === 'calculated' ? 'selected' : '' }}>Liquidado / Calculado</option>
                         <option value="draft" {{ old('status', $retaceo->status ?? '') === 'draft' ? 'selected' : '' }}>Borrador</option>
                         <option value="applied" {{ old('status', $retaceo->status ?? '') === 'applied' ? 'selected' : '' }}>Aplicado a Inventario</option>
@@ -114,23 +114,23 @@
                 {{-- FACTURA EXTERIOR --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. Factura Exterior</label>
-                    <input type="text" name="import_invoice_number" id="import_invoice_number" value="{{ old('import_invoice_number', $retaceo->import_invoice_number ?? '') }}" placeholder="Ej: INV-2026-99" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="text" name="import_invoice_number" id="import_invoice_number" value="{{ old('import_invoice_number', $retaceo->import_invoice_number ?? '') }}" placeholder="Ej: INV-2026-99" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Factura Exterior</label>
-                    <input type="date" name="import_invoice_date" id="import_invoice_date" value="{{ old('import_invoice_date', isset($retaceo->import_invoice_date) ? $retaceo->import_invoice_date->format('Y-m-d') : '') }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="date" name="import_invoice_date" id="import_invoice_date" value="{{ old('import_invoice_date', isset($retaceo->import_invoice_date) ? $retaceo->import_invoice_date->format('Y-m-d') : '') }}" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- PÓLIZA ADUANAL / DECLARACIÓN --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. Póliza / DM Aduana</label>
-                    <input type="text" name="import_policy_number" id="import_policy_number" value="{{ old('import_policy_number', $retaceo->import_policy_number ?? '') }}" placeholder="Ej: POL-2026-4482" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="text" name="import_policy_number" id="import_policy_number" value="{{ old('import_policy_number', $retaceo->import_policy_number ?? '') }}" placeholder="Ej: POL-2026-4482" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Póliza Aduana</label>
-                    <input type="date" name="import_policy_date" id="import_policy_date" value="{{ old('import_policy_date', isset($retaceo->import_policy_date) ? $retaceo->import_policy_date->format('Y-m-d') : '') }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="date" name="import_policy_date" id="import_policy_date" value="{{ old('import_policy_date', isset($retaceo->import_policy_date) ? $retaceo->import_policy_date->format('Y-m-d') : '') }}" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
             </div>
 
@@ -142,11 +142,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Flete Internacional ($) *</label>
-                        <input type="number" step="0.0001" min="0" name="total_freight" id="total_freight" value="{{ old('total_freight', (float)($retaceo->total_freight ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
+                        <input type="number" step="0.0001" min="0" name="total_freight" id="total_freight" value="{{ old('total_freight', (float)($retaceo->total_freight ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-surface dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-accent focus:ring-[#005e66]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total DAI / Aranceles de la Póliza ($)</label>
-                        <input type="number" step="0.0001" min="0" name="total_dai" id="total_dai" value="{{ old('total_dai', (float)($retaceo->total_dai ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-[#005e66] focus:ring-[#005e66]">
+                        <input type="number" step="0.0001" min="0" name="total_dai" id="total_dai" value="{{ old('total_dai', (float)($retaceo->total_dai ?? 0)) }}" placeholder="0.00" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-surface dark:bg-slate-700 text-base font-bold font-mono text-slate-800 dark:text-slate-100 focus:border-accent focus:ring-[#005e66]">
                     </div>
                 </div>
             </div>
@@ -155,13 +155,13 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Notas del Retaceo</label>
-                <textarea name="notes" id="notes" rows="2" placeholder="Observaciones de la liquidación o agente aduanal..." class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">{{ old('notes', $retaceo->notes ?? '') }}</textarea>
+                <textarea name="notes" id="notes" rows="2" placeholder="Observaciones de la liquidación o agente aduanal..." class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">{{ old('notes', $retaceo->notes ?? '') }}</textarea>
             </div>
         </div>
 
         {{-- Tabla de Productos y Prorrateo --}}
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-line dark:border-slate-700 pb-3">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                         <span>📦 Productos y Distribución de Costos</span>
@@ -172,7 +172,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs" id="retaceoTable">
-                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-line dark:border-slate-700">
                         <tr>
                             <th class="py-3 px-3 w-1/4">Producto</th>
                             <th class="py-3 px-3 text-center w-24">Cantidad</th>
@@ -195,16 +195,16 @@
                                         <div class="text-[11px] text-slate-400 font-mono">{{ $detail->product->code ?? '' }}</div>
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ (float) ($detail->purchaseDetail?->quantity_received ?? $detail->quantity) }}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed qty-input">
+                                        <input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ (float) ($detail->purchaseDetail?->quantity_received ?? $detail->quantity) }}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-line dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed qty-input">
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][cost_fob]" value="{{ old('details.'.$index.'.cost_fob', (float)$detail->cost_fob) }}" required class="w-full px-2 py-1.5 text-right font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 fob-input">
+                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][cost_fob]" value="{{ old('details.'.$index.'.cost_fob', (float)$detail->cost_fob) }}" required class="w-full px-2 py-1.5 text-right font-mono font-bold rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 fob-input">
                                     </td>
                                     <td class="py-3 px-3 font-mono text-right row-freight text-slate-600 dark:text-slate-400">$0.00</td>
                                     <td class="py-3 px-3 font-mono text-right row-expense text-slate-600 dark:text-slate-400">$0.00</td>
                                     <td class="py-3 px-3 font-mono text-right row-dai text-slate-600 dark:text-slate-400">$0.00</td>
                                     <td class="py-3 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 row-total">$0.00</td>
-                                    <td class="py-3 px-3 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 text-sm row-unit">$0.00</td>
+                                    <td class="py-3 px-3 text-right font-mono font-extrabold text-primary dark:text-accent dark:text-teal-400 text-sm row-unit">$0.00</td>
                                 </tr>
                             @endforeach
                         @else
@@ -219,8 +219,8 @@
             </div>
 
             <!-- Resumen Total Consolidado -->
-            <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
-                <div class="w-full md:w-80 space-y-2 text-sm bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div class="flex justify-end pt-4 border-t border-line dark:border-slate-700">
+                <div class="w-full md:w-80 space-y-2 text-sm bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-line dark:border-slate-700">
                     <div class="flex justify-between text-slate-600 dark:text-slate-400">
                         <span>Total FOB:</span>
                         <span class="font-mono font-bold" id="lblFob">$0.00</span>
@@ -237,9 +237,9 @@
                         <span>Total DAI / Aranceles:</span>
                         <span class="font-mono font-bold" id="lblDai">$0.00</span>
                     </div>
-                    <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-line dark:border-slate-700">
                         <span>Costo Total Liquidado:</span>
-                        <span class="font-mono text-[#005e66] dark:text-teal-400 text-xl" id="lblGrandTotal">$0.00</span>
+                        <span class="font-mono text-primary dark:text-accent dark:text-teal-400 text-xl" id="lblGrandTotal">$0.00</span>
                     </div>
                 </div>
             </div>
@@ -247,7 +247,7 @@
 
         <!-- Botones de Acción -->
         <div class="flex items-center justify-end gap-3">
-            <a href="{{ route('retaceos.index') }}" class="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+            <a href="{{ route('retaceos.index') }}" class="px-6 py-2.5 rounded-xl border border-line dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 Cancelar
             </a>
             <button type="submit" class="px-8 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm shadow-md transition-all transform hover:-translate-y-0.5">
@@ -318,16 +318,16 @@
                                 <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed qty-input">
+                                <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-line dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed qty-input">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" name="details[${idx}][cost_fob]" value="${d.cost_fob}" required class="w-full px-2 py-1.5 text-right font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 fob-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" name="details[${idx}][cost_fob]" value="${d.cost_fob}" required class="w-full px-2 py-1.5 text-right font-mono font-bold rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 fob-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3 font-mono text-right row-freight text-slate-600 dark:text-slate-400">$0.00</td>
                             <td class="py-3 px-3 font-mono text-right row-expense text-slate-600 dark:text-slate-400">$0.00</td>
                             <td class="py-3 px-3 font-mono text-right row-dai text-slate-600 dark:text-slate-400">$0.00</td>
                             <td class="py-3 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 row-total">$0.00</td>
-                            <td class="py-3 px-3 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 text-sm row-unit">$0.00</td>
+                            <td class="py-3 px-3 text-right font-mono font-extrabold text-primary dark:text-accent dark:text-teal-400 text-sm row-unit">$0.00</td>
                         `;
                         retaceoBody.appendChild(tr);
                     });

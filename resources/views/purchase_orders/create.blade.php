@@ -11,11 +11,11 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('purchase_orders.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg hover:bg-teal-200 transition-colors">Órdenes de Compra</a>
+                <a href="{{ route('purchase_orders.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-lg hover:bg-teal-200 transition-colors">Órdenes de Compra</a>
                 <span class="text-slate-400">•</span>
                 <span class="text-xs font-semibold text-slate-500 uppercase">{{ $isEdit ? 'Editar Orden' : 'Nueva Orden' }}</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
+            <h1 class="text-3xl font-extrabold text-primary dark:text-accent tracking-tight mt-1">
                 {{ $isEdit ? 'Editar Orden: ' . ($purchase_order->purchase_order_code ?? 'OC-'.$purchase_order->id_purchase_order) : 'Nueva Orden de Compra' }}
             </h1>
             <p class="text-slate-500 text-xs mt-1">
@@ -35,8 +35,8 @@
         @endif
 
         <!-- Datos de Encabezado -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-5">
-            <h3 class="text-base font-extrabold text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-2">
+        <div class="ui-surface p-6 space-y-5">
+            <h3 class="text-base font-extrabold text-slate-800 border-b border-line pb-3 flex items-center gap-2">
                 <span>📋 Datos Principales de la Orden</span>
             </h3>
             
@@ -44,7 +44,7 @@
                 {{-- PROVEEDOR --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Proveedor *</label>
-                    <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Seleccione proveedor --</option>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id_supplier }}" {{ old('id_supplier', $purchase_order->id_supplier ?? '') == ($supplier->id_supplier) ? 'selected' : '' }}>
@@ -57,7 +57,7 @@
                 {{-- SUCURSAL --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Sucursal Destino *</label>
-                    <select name="id_branch" id="id_branch" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_branch" id="id_branch" required class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Seleccione sucursal --</option>
                         @foreach($branches as $branch)
                             <option value="{{ $branch->id_branch }}" {{ old('id_branch', $purchase_order->id_branch ?? '') == $branch->id_branch ? 'selected' : '' }}>
@@ -70,7 +70,7 @@
                 {{-- BODEGA --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bodega Recepción *</label>
-                    <select name="id_warehouse" id="id_warehouse" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_warehouse" id="id_warehouse" required class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Seleccione bodega --</option>
                         @foreach($warehouses as $warehouse)
                             <option value="{{ $warehouse->id_warehouse }}" {{ old('id_warehouse', $purchase_order->id_warehouse ?? '') == $warehouse->id_warehouse ? 'selected' : '' }}>
@@ -83,19 +83,19 @@
                 {{-- FECHA ORDEN --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha de Orden *</label>
-                    <input type="datetime-local" name="order_date" value="{{ old('order_date', isset($purchase_order->order_date) ? $purchase_order->order_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="datetime-local" name="order_date" value="{{ old('order_date', isset($purchase_order->order_date) ? $purchase_order->order_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" required class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- FECHA ESPERADA --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Esperada de Entrega *</label>
-                    <input type="datetime-local" name="expected_date" id="expected_date" value="{{ old('expected_date', isset($purchase_order->expected_date) ? $purchase_order->expected_date->format('Y-m-d\TH:i') : now()->addDays(7)->format('Y-m-d\TH:i')) }}" required class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="datetime-local" name="expected_date" id="expected_date" value="{{ old('expected_date', isset($purchase_order->expected_date) ? $purchase_order->expected_date->format('Y-m-d\TH:i') : now()->addDays(7)->format('Y-m-d\TH:i')) }}" required class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- MONEDA --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Moneda *</label>
-                    <select name="currency" id="currency" class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="currency" id="currency" class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                         @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
                             <option value="{{ $codigo }}" @selected(old('currency', $purchase_order->currency ?? \App\Support\Moneda::PREDETERMINADA) === $codigo)>{{ $etiqueta }}</option>
                         @endforeach
@@ -105,20 +105,20 @@
                 {{-- CONDICIONES DE PAGO --}}
                 <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Condiciones de Pago *</label>
-                    <input type="text" name="payment_terms" id="payment_terms" value="{{ old('payment_terms', $purchase_order->payment_terms ?? 'Contrapago a 15 días netos') }}" required placeholder="Ejemplo: Crédito 30 días, Contado..." class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="text" name="payment_terms" id="payment_terms" value="{{ old('payment_terms', $purchase_order->payment_terms ?? 'Contrapago a 15 días netos') }}" required placeholder="Ejemplo: Crédito 30 días, Contado..." class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- NOTAS / OBSERVACIONES --}}
                 <div class="md:col-span-3">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Notas / Observaciones</label>
-                    <textarea name="notes" rows="2" placeholder="Escriba información logística o instrucciones de entrega adicionales..." class="w-full rounded-xl border-slate-200 text-sm font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">{{ old('notes', $purchase_order->notes ?? '') }}</textarea>
+                    <textarea name="notes" rows="2" placeholder="Escriba información logística o instrucciones de entrega adicionales..." class="w-full rounded-xl border-line text-sm font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">{{ old('notes', $purchase_order->notes ?? '') }}</textarea>
                 </div>
             </div>
         </div>
 
         <!-- Tabla de Productos -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="ui-surface p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-line pb-4">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Productos de la Orden</h3>
                     <p class="text-xs text-slate-400">Especifique los artículos, cantidades y precios acordados.</p>
@@ -132,7 +132,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left border-collapse" id="productsTable">
                     <thead>
-                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-line">
                             <th class="py-3 px-3">Producto</th>
                             <th class="py-3 px-3 text-center w-28">Cantidad</th>
                             <th class="py-3 px-3 text-center w-36">Unidad</th>
@@ -151,8 +151,8 @@
         </div>
 
         <!-- Tabla de Gastos Adicionales -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div class="ui-surface p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-line pb-4">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-800">Gastos Adicionales (Opcional)</h3>
                     <p class="text-xs text-slate-400">Registre fletes, seguros o aranceles asociados.</p>
@@ -166,7 +166,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left border-collapse" id="expensesTable">
                     <thead>
-                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-line">
                             <th class="py-3 px-3">Tipo de Gasto</th>
                             <th class="py-3 px-3">Descripción</th>
                             <th class="py-3 px-3 text-right w-36">Monto ($)</th>
@@ -184,8 +184,8 @@
         <!-- Resumen de Totales y Botones de Envío -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <div class="lg:col-span-2"></div>
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-3 text-sm">
-                <h4 class="font-extrabold text-slate-800 text-sm border-b border-slate-100 pb-2">Resumen Financiero</h4>
+            <div class="ui-surface p-6 space-y-3 text-sm">
+                <h4 class="font-extrabold text-slate-800 text-sm border-b border-line pb-2">Resumen Financiero</h4>
                 <div class="flex justify-between text-slate-600">
                     <span>Subtotal:</span>
                     <span class="font-bold text-slate-800" id="resumenSubtotal">$0.00</span>
@@ -202,9 +202,9 @@
                     <span>Gastos Adicionales:</span>
                     <span class="font-bold text-amber-600" id="resumenGastos">+$0.00</span>
                 </div>
-                <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                <div class="pt-3 border-t border-line flex justify-between items-center">
                     <span class="text-base font-extrabold text-slate-800">Total General:</span>
-                    <span class="text-xl font-extrabold text-[#005e66]" id="resumenTotal">$0.00</span>
+                    <span class="text-xl font-extrabold text-primary dark:text-accent" id="resumenTotal">$0.00</span>
                 </div>
 
                 <div class="pt-4 flex flex-col gap-2">
@@ -283,32 +283,32 @@
 
         tr.innerHTML = `
             <td class="py-2.5 px-3">
-                <select name="products[${index}][id_product]" required onchange="onProductSelectChange(this, ${index})" class="w-full rounded-xl border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#005e66] focus:ring-[#005e66]">
+                <select name="products[${index}][id_product]" required onchange="onProductSelectChange(this, ${index})" class="w-full rounded-xl border-line text-xs font-semibold text-slate-800 focus:border-accent focus:ring-[#005e66]">
                     ${pOptions}
                 </select>
             </td>
             <td class="py-2.5 px-3">
-                <input type="number" step="0.01" min="0.01" name="products[${index}][quantity]" value="${qty}" required oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-center font-bold text-slate-800 focus:border-[#005e66]">
+                <input type="number" step="0.01" min="0.01" name="products[${index}][quantity]" value="${qty}" required oninput="recalcularTotales()" class="w-full rounded-xl border-line text-xs text-center font-bold text-slate-800 focus:border-accent">
             </td>
             <td class="py-2.5 px-3">
-                <select name="products[${index}][id_unit]" required class="w-full rounded-xl border-slate-200 text-xs font-semibold text-slate-700">
+                <select name="products[${index}][id_unit]" required class="w-full rounded-xl border-line text-xs font-semibold text-slate-700">
                     ${uOptions}
                 </select>
             </td>
             <td class="py-2.5 px-3">
-                <input type="number" step="0.0001" min="0" name="products[${index}][unit_price]" value="${price}" required oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-right font-semibold text-slate-800 focus:border-[#005e66]">
+                <input type="number" step="0.0001" min="0" name="products[${index}][unit_price]" value="${price}" required oninput="recalcularTotales()" class="w-full rounded-xl border-line text-xs text-right font-semibold text-slate-800 focus:border-accent">
             </td>
             <td class="py-2.5 px-3">
-                <input type="number" step="0.0001" min="0" name="products[${index}][discount]" value="${disc}" oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-right font-semibold text-rose-600 focus:border-[#005e66]">
+                <input type="number" step="0.0001" min="0" name="products[${index}][discount]" value="${disc}" oninput="recalcularTotales()" class="w-full rounded-xl border-line text-xs text-right font-semibold text-rose-600 focus:border-accent">
             </td>
             <td class="py-2.5 px-3">
-                <input type="number" step="0.01" min="0" name="products[${index}][tax_rate]" value="${taxRate}" oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-center font-semibold text-slate-700 focus:border-[#005e66]">
+                <input type="number" step="0.01" min="0" name="products[${index}][tax_rate]" value="${taxRate}" oninput="recalcularTotales()" class="w-full rounded-xl border-line text-xs text-center font-semibold text-slate-700 focus:border-accent">
             </td>
-            <td class="py-2.5 px-3 text-right font-extrabold text-[#005e66] text-xs" id="lineTotal_${index}">
+            <td class="py-2.5 px-3 text-right font-extrabold text-primary dark:text-accent text-xs" id="lineTotal_${index}">
                 $0.00
             </td>
             <td class="py-2.5 px-3 text-center">
-                <button type="button" onclick="eliminarFila('productRow_${index}')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar fila">
+                <button type="button" onclick="eliminarFila('productRow_${index}')" class="p-1.5 rounded-lg bg-danger-soft text-danger hover:brightness-95 transition-colors" title="Eliminar fila">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
                 </button>
             </td>
@@ -360,22 +360,22 @@
 
         tr.innerHTML = `
             <td class="py-2.5 px-3">
-                <select name="expenses[${index}][id_expense_type]" required onchange="onExpenseTypeChange(this, ${index})" class="w-full rounded-xl border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#005e66]">
+                <select name="expenses[${index}][id_expense_type]" required onchange="onExpenseTypeChange(this, ${index})" class="w-full rounded-xl border-line text-xs font-semibold text-slate-800 focus:border-accent">
                     ${eOptions}
                 </select>
             </td>
             <td class="py-2.5 px-3">
-                <input type="text" name="expenses[${index}][description]" id="expenseDesc_${index}" value="${escapeHtml(desc)}" required placeholder="Descripción del gasto..." class="w-full rounded-xl border-slate-200 text-xs font-semibold text-slate-800 focus:border-[#005e66]">
+                <input type="text" name="expenses[${index}][description]" id="expenseDesc_${index}" value="${escapeHtml(desc)}" required placeholder="Descripción del gasto..." class="w-full rounded-xl border-line text-xs font-semibold text-slate-800 focus:border-accent">
             </td>
             <td class="py-2.5 px-3">
-                <input type="number" step="0.0001" min="0" name="expenses[${index}][amount]" value="${amt}" required oninput="recalcularTotales()" class="w-full rounded-xl border-slate-200 text-xs text-right font-semibold text-amber-600 focus:border-[#005e66]">
+                <input type="number" step="0.0001" min="0" name="expenses[${index}][amount]" value="${amt}" required oninput="recalcularTotales()" class="w-full rounded-xl border-line text-xs text-right font-semibold text-amber-600 focus:border-accent">
             </td>
             <td class="py-2.5 px-3 text-center">
                 <input type="hidden" name="expenses[${index}][is_costable]" value="0">
-                <input type="checkbox" name="expenses[${index}][is_costable]" value="1" ${isCostable ? 'checked' : ''} title="Forma parte del costo de los productos" class="w-4 h-4 rounded border-slate-300 text-[#005e66] focus:ring-[#005e66]">
+                <input type="checkbox" name="expenses[${index}][is_costable]" value="1" ${isCostable ? 'checked' : ''} title="Forma parte del costo de los productos" class="w-4 h-4 rounded border-slate-300 text-primary dark:text-accent focus:ring-[#005e66]">
             </td>
             <td class="py-2.5 px-3 text-center">
-                <button type="button" onclick="eliminarFila('expenseRow_${index}')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar gasto">
+                <button type="button" onclick="eliminarFila('expenseRow_${index}')" class="p-1.5 rounded-lg bg-danger-soft text-danger hover:brightness-95 transition-colors" title="Eliminar gasto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
                 </button>
             </td>

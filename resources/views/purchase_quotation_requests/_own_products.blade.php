@@ -19,15 +19,15 @@
         <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Productos sin Solicitud de Compra
         </label>
-        <button type="button" onclick="addOwnProductRow(null, true)" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline">
+        <button type="button" onclick="addOwnProductRow(null, true)" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">
             + Agregar Producto
         </button>
     </div>
     <p class="text-xs text-slate-400">Productos que compras necesita cotizar aunque ninguna sucursal los haya pedido.</p>
 
-    <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-x-auto">
+    <div class="border border-line dark:border-slate-700 rounded-xl overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[480px]">
-            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-line dark:border-slate-700">
                 <tr>
                     <th class="py-2.5 px-3">Producto</th>
                     <th class="py-2.5 px-3 w-28">Cantidad</th>
@@ -43,7 +43,7 @@
     <div id="own-products-destination" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 {{ count($ownRows) ? '' : 'hidden' }}">
         <div class="space-y-1">
             <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sucursal Destino <span class="text-rose-500">*</span></label>
-            <select name="id_branch" id="own-destination-branch" onchange="filterOwnWarehouses()" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white">
+            <select name="id_branch" id="own-destination-branch" onchange="filterOwnWarehouses()" class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white">
                 <option value="">Seleccione sucursal...</option>
                 @foreach($branches as $branch)
                     <option value="{{ $branch->id_branch }}" @selected($branch->id_branch == $destinationBranch)>{{ $branch->name }}</option>
@@ -52,7 +52,7 @@
         </div>
         <div class="space-y-1">
             <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bodega Destino <span class="text-rose-500">*</span></label>
-            <select name="id_warehouse" id="own-destination-warehouse" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white">
+            <select name="id_warehouse" id="own-destination-warehouse" class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white">
                 <option value="">Seleccione bodega...</option>
                 @foreach($warehouses as $warehouse)
                     <option value="{{ $warehouse->id_warehouse }}" data-branch="{{ $warehouse->id_branch }}" @selected($warehouse->id_warehouse == $destinationWarehouse)>{{ $warehouse->name }}</option>
@@ -71,14 +71,14 @@
                 <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="text" required autocomplete="off" placeholder="Buscar por nombre o SKU..."
                     onfocus="openOwnProductPicker(this)" oninput="searchOwnProductPicker(this)" onkeydown="navigateOwnProductPicker(event, this)" onblur="leaveOwnProductPicker(this)"
-                    class="own-product-search w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-800 dark:text-white placeholder:text-slate-400">
+                    class="own-product-search w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-xs font-medium text-slate-800 dark:text-white placeholder:text-slate-400">
             </div>
         </td>
         <td class="p-2">
-            <input type="number" data-field="quantity" step="0.0001" min="0.0001" required placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-xs font-bold text-slate-800 dark:text-white">
+            <input type="number" data-field="quantity" step="0.0001" min="0.0001" required placeholder="0" class="w-full px-2 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-center text-xs font-bold text-slate-800 dark:text-white">
         </td>
         <td class="p-2">
-            <select data-field="id_unit" required class="own-unit-select w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-medium text-slate-800 dark:text-white">
+            <select data-field="id_unit" required class="own-unit-select w-full px-2.5 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-xs font-medium text-slate-800 dark:text-white">
                 @foreach($units as $unit)
                     <option value="{{ $unit->id_unit }}">{{ $unit->abbreviation ?: $unit->name }}</option>
                 @endforeach
@@ -140,7 +140,7 @@ function normalizeOwnProductText(text) {
 function ownProductPickerElement() {
     if (!ownProductPicker.element) {
         const element = document.createElement('div');
-        element.className = 'hidden fixed z-[70] max-h-64 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl py-1 text-xs';
+        element.className = 'hidden fixed z-[70] max-h-64 overflow-y-auto rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 shadow-2xl py-1 text-xs';
         document.body.appendChild(element);
         ownProductPicker.element = element;
     }
@@ -210,7 +210,7 @@ function renderOwnProductPicker() {
     });
     if (matches.length > OWN_PRODUCT_PICKER_LIMIT) {
         const more = document.createElement('p');
-        more.className = 'px-3 py-2 text-slate-400 border-t border-slate-100 dark:border-slate-700';
+        more.className = 'px-3 py-2 text-slate-400 border-t border-line dark:border-slate-700';
         more.textContent = 'Escriba más para ver otros productos...';
         element.appendChild(more);
     }

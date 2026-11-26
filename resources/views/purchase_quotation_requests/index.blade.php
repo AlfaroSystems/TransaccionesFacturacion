@@ -3,29 +3,18 @@
 
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Compras</span>
-                <span class="text-slate-400 dark:text-slate-600">•</span>
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Cotizaciones</span>
-            </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Solicitudes de Cotización</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Gestione las solicitudes de cotización de las solicitudes de compra que envían las sucursales y de los productos que necesita compras.</p>
-        </div>
-        <div class="flex items-center gap-3 w-full md:w-auto">
-            <button type="button" onclick="openQuotationRequestModal()" class="w-full md:w-auto bg-customTeal-800 hover:bg-navy-800 text-white font-bold px-5 py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                <span>Nueva Solicitud de Cotización</span>
-            </button>
-        </div>
-    </div>
+    <x-ui.page-header eyebrow="Compras" module="Cotizaciones"
+        title="Solicitudes de Cotización"
+        subtitle="Gestione las solicitudes de cotización de las solicitudes de compra que envían las sucursales y de los productos que necesita compras.">
+        <x-slot:actions>
+            <x-ui.button type="button" icon="plus" onclick="openQuotationRequestModal()">Nueva Solicitud de Cotización</x-ui.button>
+        </x-slot:actions>
+    </x-ui.page-header>
 
     <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-[#005e66] dark:text-teal-300 flex items-center justify-center text-xl font-bold">
+        <div class="bg-surface dark:bg-slate-900 p-4 rounded-2xl border border-line dark:border-slate-800 shadow-xs flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-primary dark:text-accent dark:text-teal-300 flex items-center justify-center text-xl font-bold">
                 📨
             </div>
             <div>
@@ -36,20 +25,20 @@
     </div>
 
     <!-- Filtros y Búsqueda -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-4">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-4">
         <form method="GET" action="{{ route('purchase-quotation-requests.index') }}" class="flex gap-3 items-center">
             <div class="flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por código o justificación de solicitud de compra..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-hidden">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por código o justificación de solicitud de compra..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-transparent transition-all outline-hidden">
             </div>
             <button type="submit" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white font-semibold py-2.5 px-5 rounded-xl text-sm transition-all shadow-xs flex items-center justify-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                 <span>Filtrar</span>
             </button>
             @if($search)
-                <a href="{{ route('purchase-quotation-requests.index') }}" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" title="Limpiar filtro">
+                <a href="{{ route('purchase-quotation-requests.index') }}" class="p-2.5 rounded-xl border border-line dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all" title="Limpiar filtro">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </a>
             @endif
@@ -57,10 +46,10 @@
     </div>
 
     <!-- Listado Principal -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                     <tr>
                         <th class="py-4 px-6">ID</th>
                         <th class="py-4 px-6">Solicitudes de Compra</th>
@@ -80,7 +69,7 @@
                             <td class="py-4 px-6">
                                 <div class="flex flex-wrap items-center gap-1.5">
                                     @forelse($originRequests as $originRequest)
-                                        <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 text-xs font-mono font-extrabold border border-teal-200 dark:border-teal-800" title="{{ $originRequest->justification }}">
+                                        <span class="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950 text-primary dark:text-accent dark:text-teal-300 text-xs font-mono font-extrabold border border-teal-200 dark:border-teal-800" title="{{ $originRequest->justification }}">
                                             {{ $originRequest->purchase_request_code }}
                                         </span>
                                     @empty
@@ -115,7 +104,7 @@
                             </td>
                             <td class="py-4 px-6 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('purchase-quotation-requests.show', $quotation->id_purchase_quotation_request) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-all flex items-center justify-center inline-flex" title="Ver Detalle">
+                                    <a href="{{ route('purchase-quotation-requests.show', $quotation->id_purchase_quotation_request) }}" class="p-2.5 rounded-xl bg-info-soft text-info hover:brightness-95 transition-all flex items-center justify-center inline-flex" title="Ver Detalle">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>
                                 </div>
@@ -147,7 +136,7 @@
         </div>
 
         @if($quotationRequests->hasPages())
-            <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+            <div class="p-4 border-t border-line dark:border-slate-800">
                 {{ $quotationRequests->links() }}
             </div>
         @endif
@@ -156,8 +145,8 @@
 
 {{-- MODAL CREAR SOLICITUD DE COTIZACIÓN --}}
 <div id="quotation-request-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div id="quotation-request-card" class="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+    <div id="quotation-request-card" class="w-full max-w-3xl bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-line dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Nueva Solicitud de Cotización</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Reúna solicitudes de compra aprobadas y/o agregue los productos que necesita. Sus productos se pueden cambiar hasta registrar la primera oferta.</p>
@@ -177,7 +166,7 @@
                         </label>
                         <span id="modal-requests-counter" class="text-xs font-extrabold text-slate-400">0 seleccionadas</span>
                     </div>
-                    <div id="modal-requests-list" class="border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-56 overflow-y-auto">
+                    <div id="modal-requests-list" class="border border-line dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-56 overflow-y-auto">
                         <p class="p-4 text-center text-xs text-slate-400">Cargando solicitudes aprobadas...</p>
                     </div>
                     <p id="modal-requests-error" class="hidden text-xs font-semibold text-rose-500">Seleccione al menos una solicitud de compra o agregue productos.</p>
@@ -192,7 +181,7 @@
                     </div>
                     <p class="text-xs text-slate-400">Si varias solicitudes piden el mismo producto, se cotiza en una sola línea con la cantidad total.</p>
 
-                    <div id="modal-items-wrapper" class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden min-h-[140px] flex items-center justify-center p-3">
+                    <div id="modal-items-wrapper" class="border border-line dark:border-slate-700 rounded-xl overflow-hidden min-h-[140px] flex items-center justify-center p-3">
                         <div id="modal-items-placeholder" class="text-center text-slate-400 text-xs space-y-1">
                             <p class="font-semibold text-slate-500 dark:text-slate-400">Seleccione una o varias solicitudes de compra</p>
                             <p>Sus productos se mostrarán aquí.</p>
@@ -202,7 +191,7 @@
                             <p>Cargando productos...</p>
                         </div>
                         <table id="modal-items-table" class="hidden w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-line dark:border-slate-700">
                                 <tr>
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-3">Unidad</th>
@@ -223,7 +212,7 @@
                 ])
             </div>
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                 <button type="button" onclick="closeQuotationRequestModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
                     Cancelar
                 </button>
@@ -307,7 +296,7 @@ function loadApprovedRequestsModal() {
             checkbox.type = 'checkbox';
             checkbox.name = 'purchase_requests[]';
             checkbox.value = item.id_purchase_request;
-            checkbox.className = 'mt-0.5 rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer';
+            checkbox.className = 'mt-0.5 rounded-sm text-primary dark:text-accent border-slate-300 w-4 h-4 cursor-pointer';
             checkbox.addEventListener('change', refreshQuotationPreview);
 
             const text = document.createElement('span');

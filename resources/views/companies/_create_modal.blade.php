@@ -1,6 +1,6 @@
 <!-- MODAL DE REGISTRO DE EMPRESA -->
 <div id="create-company-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-3xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
+    <div class="bg-surface rounded-3xl p-8 max-w-3xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-company-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -27,7 +27,7 @@
                 <!-- Nombre Razón Social -->
                 <div>
                     <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Razón Social <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Corporación ABC S.A. de C.V." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Corporación ABC S.A. de C.V." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -38,7 +38,7 @@
                 <!-- Nombre Comercial -->
                 <div>
                     <label for="commercial_name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre Comercial</label>
-                    <input type="text" name="commercial_name" id="commercial_name" value="{{ old('modal_type') === 'create' ? old('commercial_name') : '' }}" placeholder="Ej. Tiendas ABC" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="commercial_name" id="commercial_name" value="{{ old('modal_type') === 'create' ? old('commercial_name') : '' }}" placeholder="Ej. Tiendas ABC" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
@@ -47,31 +47,31 @@
                 <!-- NIT -->
                 <div>
                     <label for="nit" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">NIT</label>
-                    <input type="text" name="nit" id="nit" value="{{ old('modal_type') === 'create' ? old('nit') : '' }}" placeholder="Ej. 0614-123456-101-9" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="nit" id="nit" value="{{ old('modal_type') === 'create' ? old('nit') : '' }}" placeholder="Ej. 0614-123456-101-9" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
 
                 <!-- NRC -->
                 <div>
                     <label for="nrc" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">NRC</label>
-                    <input type="text" name="nrc" id="nrc" value="{{ old('modal_type') === 'create' ? old('nrc') : '' }}" placeholder="Ej. 123456-7" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="nrc" id="nrc" value="{{ old('modal_type') === 'create' ? old('nrc') : '' }}" placeholder="Ej. 123456-7" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Fila 3: Giros Comerciales -->
-            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Actividades o Giros Comerciales</h4>
+            <div class="p-4 bg-slate-50/50 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">Actividades o Giros Comerciales</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label for="commercial_line_1" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Giro Principal</label>
-                        <input type="text" name="commercial_line_1" id="commercial_line_1" value="{{ old('modal_type') === 'create' ? old('commercial_line_1') : '' }}" placeholder="Giro 1" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
+                        <input type="text" name="commercial_line_1" id="commercial_line_1" value="{{ old('modal_type') === 'create' ? old('commercial_line_1') : '' }}" placeholder="Giro 1" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
                     </div>
                     <div>
                         <label for="commercial_line_2" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Giro Secundario</label>
-                        <input type="text" name="commercial_line_2" id="commercial_line_2" value="{{ old('modal_type') === 'create' ? old('commercial_line_2') : '' }}" placeholder="Giro 2" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
+                        <input type="text" name="commercial_line_2" id="commercial_line_2" value="{{ old('modal_type') === 'create' ? old('commercial_line_2') : '' }}" placeholder="Giro 2" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
                     </div>
                     <div>
                         <label for="commercial_line_3" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Giro Adicional</label>
-                        <input type="text" name="commercial_line_3" id="commercial_line_3" value="{{ old('modal_type') === 'create' ? old('commercial_line_3') : '' }}" placeholder="Giro 3" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
+                        <input type="text" name="commercial_line_3" id="commercial_line_3" value="{{ old('modal_type') === 'create' ? old('commercial_line_3') : '' }}" placeholder="Giro 3" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
                     </div>
                 </div>
             </div>
@@ -81,29 +81,29 @@
                 <!-- Teléfono -->
                 <div>
                     <label for="phone" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Teléfono</label>
-                    <input type="text" name="phone" id="phone" value="{{ old('modal_type') === 'create' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="phone" id="phone" value="{{ old('modal_type') === 'create' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
 
                 <!-- Correo -->
                 <div>
                     <label for="email" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Correo electrónico</label>
-                    <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="Ej. contacto@empresa.com" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="email" name="email" id="email" value="{{ old('modal_type') === 'create' ? old('email') : '' }}" placeholder="Ej. contacto@empresa.com" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
 
                 <!-- Sitio Web -->
                 <div>
                     <label for="web_site" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sitio Web</label>
-                    <input type="url" name="web_site" id="web_site" value="{{ old('modal_type') === 'create' ? old('web_site') : '' }}" placeholder="Ej. https://www.empresa.com" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="url" name="web_site" id="web_site" value="{{ old('modal_type') === 'create' ? old('web_site') : '' }}" placeholder="Ej. https://www.empresa.com" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Fila 5: Ubicación Geográfica (El Salvador) -->
-            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
+            <div class="p-4 bg-slate-50/50 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label for="create_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="id_department" id="create_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                        <select name="id_department" id="create_id_department" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id_department }}" @selected(old('modal_type') === 'create' && (int) old('id_department') === $dept->id_department)>{{ $dept->name }}</option>
@@ -112,7 +112,7 @@
                     </div>
                     <div>
                         <label for="create_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="id_municipality" id="create_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                        <select name="id_municipality" id="create_id_municipality" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
                                 <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}">{{ $muni->name }}</option>
@@ -121,7 +121,7 @@
                     </div>
                     <div>
                         <label for="create_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="id_district" id="create_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                        <select name="id_district" id="create_id_district" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
                                 <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}">{{ $dist->name }}</option>
@@ -136,13 +136,13 @@
                 <!-- Dirección -->
                 <div>
                     <label for="address" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dirección de la Empresa</label>
-                    <textarea name="address" id="address" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('address') : '' }}</textarea>
+                    <textarea name="address" id="address" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('address') : '' }}</textarea>
                 </div>
 
                 <!-- Logo -->
                 <div>
                     <label for="logo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Logo</label>
-                    <input type="file" name="logo" id="logo" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-500 font-semibold">
+                    <input type="file" name="logo" id="logo" accept="image/*" class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-500 font-semibold">
                     <p class="text-[10px] text-slate-400 mt-1">Formatos: JPG, PNG, GIF, WEBP. Máx 2MB.</p>
                 </div>
             </div>
@@ -154,7 +154,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-line">
                 <button
                     type="button"
                     onclick="closeModal('create-company-modal')"

@@ -27,24 +27,24 @@
     <!-- Encabezado -->
     <div>
         <div class="flex items-center gap-2">
-            <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Inventario</span>
+            <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Inventario</span>
             <span class="text-slate-400 dark:text-slate-600">•</span>
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Kardex</span>
         </div>
-        <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Movimientos de Inventario</h1>
+        <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight mt-1">Movimientos de Inventario</h1>
         <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Cada entrada, salida y ajuste de costo de los lotes, con su documento de origen.</p>
     </div>
 
     <!-- Filtros -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-4">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-4">
         <form method="GET" action="{{ route('inventory.movements') }}" class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
             <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Buscar</label>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Producto, SKU o lote..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm outline-hidden focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Buscar</label>
+                <input type="text" name="search" value="{{ $search }}" placeholder="Producto, SKU o lote..." class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm outline-hidden focus:ring-2 focus:ring-[#005e66]">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Bodega</label>
-                <select name="id_warehouse" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
+                <label class="ui-label">Bodega</label>
+                <select name="id_warehouse" class="w-full px-3 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
                     <option value="">Todas</option>
                     @foreach($warehouses as $warehouse)
                         <option value="{{ $warehouse->id_warehouse }}" @selected($warehouse->id_warehouse == $warehouseId)>{{ $warehouse->name }}</option>
@@ -52,8 +52,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Tipo</label>
-                <select name="type" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
+                <label class="ui-label">Tipo</label>
+                <select name="type" class="w-full px-3 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
                     <option value="">Todos</option>
                     @foreach(\App\Models\InventoryMovement::TYPE_LABELS as $value => $label)
                         <option value="{{ $value }}" @selected($value === $type)>{{ $label }}</option>
@@ -61,12 +61,12 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Desde</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
+                <label class="ui-label">Desde</label>
+                <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Hasta</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
+                <label class="ui-label">Hasta</label>
+                <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm">
             </div>
             <div class="md:col-span-6 flex justify-end gap-3">
                 @if(request()->hasAny(['search', 'id_warehouse', 'type', 'date_from', 'date_to']))
@@ -78,10 +78,10 @@
     </div>
 
     <!-- Listado -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                     <tr>
                         <th class="py-4 px-5">Fecha</th>
                         <th class="py-4 px-5">Tipo</th>
@@ -127,13 +127,13 @@
                             <td class="py-3.5 px-5 text-right font-mono">{{ $saldo > 0 ? '$'.number_format((float) $movement->running_value / $saldo, 4) : '—' }}</td>
                             <td class="py-3.5 px-5 text-xs whitespace-nowrap">
                                 @if($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_PURCHASE && isset($purchaseCodes[$movement->reference_id]))
-                                    <a href="{{ route('purchases.show', $movement->reference_id) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $purchaseCodes[$movement->reference_id] }}</a>
+                                    <a href="{{ route('purchases.show', $movement->reference_id) }}" class="font-mono font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">{{ $purchaseCodes[$movement->reference_id] }}</a>
                                 @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_TRANSFER && isset($transferCodes[$movement->reference_id]))
-                                    <a href="{{ route('inventory-transfers.show', $movement->reference_id) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $transferCodes[$movement->reference_id] }}</a>
+                                    <a href="{{ route('inventory-transfers.show', $movement->reference_id) }}" class="font-mono font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">{{ $transferCodes[$movement->reference_id] }}</a>
                                 @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_ADJUSTMENT && isset($adjustmentCodes[$movement->reference_id]))
-                                    <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}#ajustes" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $adjustmentCodes[$movement->reference_id] }}</a>
+                                    <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}#ajustes" class="font-mono font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">{{ $adjustmentCodes[$movement->reference_id] }}</a>
                                 @elseif($movement->reference_type === \App\Models\InventoryMovement::REFERENCE_RELOCATION && $movement->lot)
-                                    <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}" class="font-mono font-bold text-[#005e66] dark:text-teal-400 hover:underline">{{ $movement->lot->lot_code }}</a>
+                                    <a href="{{ route('inventory.lots.show', $movement->id_inventory_lot) }}" class="font-mono font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">{{ $movement->lot->lot_code }}</a>
                                 @endif
                                 <span class="block text-slate-400">{{ $movement->user?->username }}</span>
                             </td>
@@ -150,7 +150,7 @@
         </div>
 
         @if($movements->hasPages())
-            <div class="p-4 border-t border-slate-100 dark:border-slate-800">
+            <div class="p-4 border-t border-line dark:border-slate-800">
                 {{ $movements->links() }}
             </div>
         @endif

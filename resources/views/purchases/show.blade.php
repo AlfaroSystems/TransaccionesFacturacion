@@ -22,14 +22,14 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('purchases.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg hover:bg-teal-200 transition-colors">
+                <a href="{{ route('purchases.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-lg hover:bg-teal-200 transition-colors">
                     Compras
                 </a>
                 <span class="text-slate-400">•</span>
                 <span class="text-xs font-semibold text-slate-500 uppercase">Detalle de Compra</span>
             </div>
             <div class="flex items-center gap-3 mt-1">
-                <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight font-mono">
+                <h1 class="text-3xl font-extrabold text-primary dark:text-accent tracking-tight font-mono">
                     {{ $purchase->purchase_code }}
                 </h1>
                 <span class="px-3 py-1 rounded-full text-xs font-extrabold border {{ $statusClasses[$purchase->status] ?? 'bg-slate-100 text-slate-700' }}">
@@ -102,8 +102,8 @@
     <!-- Tarjetas de Información General -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Tarjeta Factura y Recepción -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
-            <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-line dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">🧾</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Datos de Factura</h3>
             </div>
@@ -128,8 +128,8 @@
         </div>
 
         <!-- Tarjeta Proveedor -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
-            <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-line dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">🏢</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Proveedor</h3>
             </div>
@@ -150,8 +150,8 @@
         </div>
 
         <!-- Tarjeta Orden de Compra y Destino -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
-            <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-line dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">📦</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Orden y Destino</h3>
             </div>
@@ -179,8 +179,8 @@
     </div>
 
     <!-- Tabla de Productos de la Compra -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+    <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-line dark:border-slate-700 pb-3">
             <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <span>📋 Productos Recibidos</span>
             </h3>
@@ -189,7 +189,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-line dark:border-slate-700">
                     <tr>
                         <th class="py-3 px-4">Producto</th>
                         <th class="py-3 px-4 text-center">Cant. Pedida</th>
@@ -218,7 +218,7 @@
                                         @foreach($item->inventoryLots as $lot)
                                             @php
                                                 $loteClass = match ($lot->status) {
-                                                    'active' => 'bg-teal-50 text-[#005e66] dark:bg-teal-950 dark:text-teal-300',
+                                                    'active' => 'bg-teal-50 text-primary dark:text-accent dark:bg-teal-950 dark:text-teal-300',
                                                     'pending_placement' => 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
                                                     default => 'bg-slate-100 text-slate-400 line-through dark:bg-slate-800',
                                                 };
@@ -262,16 +262,16 @@
         </div>
 
         <!-- Desglose y Resumen Financiero -->
-        <div class="flex flex-col md:flex-row justify-between items-start pt-4 border-t border-slate-100 dark:border-slate-700 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start pt-4 border-t border-line dark:border-slate-700 gap-4">
             <div class="w-full md:w-1/2">
                 @if($purchase->notes)
-                    <div class="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-slate-200 dark:border-slate-700 text-xs">
+                    <div class="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-line dark:border-slate-700 text-xs">
                         <span class="font-bold text-slate-500 dark:text-slate-400 block mb-1">Notas de la compra:</span>
                         <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ $purchase->notes }}</p>
                     </div>
                 @endif
             </div>
-            <div class="w-full md:w-80 space-y-2 text-sm bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div class="w-full md:w-80 space-y-2 text-sm bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-line dark:border-slate-700">
                 <div class="flex justify-between text-slate-600 dark:text-slate-400">
                     <span>Subtotal:</span>
                     <span class="font-mono font-bold">${{ number_format($purchase->subtotal, 2) }}</span>
@@ -284,9 +284,9 @@
                     <span>Impuestos (IVA):</span>
                     <span class="font-mono font-bold">${{ number_format($purchase->tax, 2) }}</span>
                 </div>
-                <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-line dark:border-slate-700">
                     <span>Total Factura:</span>
-                    <span class="font-mono text-[#005e66] dark:text-teal-400 text-xl">${{ number_format($purchase->total, 2) }} {{ $purchase->currency }}</span>
+                    <span class="font-mono text-primary dark:text-accent dark:text-teal-400 text-xl">${{ number_format($purchase->total, 2) }} {{ $purchase->currency }}</span>
                 </div>
             </div>
         </div>
@@ -295,7 +295,7 @@
 
 <!-- Modal de Cambio de Estado -->
 <div id="statusModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center relative mx-4">
+    <div class="bg-surface dark:bg-slate-800 border border-line dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center relative mx-4">
         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="statusModalTitle">¿Cambiar Estado?</h3>
         <p class="text-slate-500 dark:text-slate-400 text-xs mb-6" id="statusModalDesc"></p>
         <form id="statusModalForm" method="POST" action="">

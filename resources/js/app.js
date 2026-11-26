@@ -12,3 +12,6 @@ Alpine.start();
 // antes de DOMContentLoaded, que es cuando el layout lo inicializa
 flatpickr.l10ns.es = Spanish;
 window.flatpickr = flatpickr;
+
+// Lógica de UI (tema, modales, confirmaciones, calendarios)
+import './ui.js';

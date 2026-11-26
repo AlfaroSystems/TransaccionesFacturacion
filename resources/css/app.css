@@ -7,6 +7,8 @@
 @import './dark-mode.css';
 @import './components/theme-toggle.css';
 @import './components/auth.css';
+@import './components/ui.css';
+@import './components/app-shell.css';
 
 /* Solo se buscan clases en las vistas y el JS (como en Tailwind 3), no en todo el proyecto */
 @import 'tailwindcss' source(none);
@@ -45,6 +47,67 @@
   --color-darkBg-border: #334155;
   --color-darkBg-hover: #334155;
 
+  /* ===================================================================
+    TOKENS SEMÁNTICOS DEL SISTEMA DE DISEÑO
+    Una sola fuente de verdad. Estos valores son los de modo claro;
+    se reasignan bajo `.dark` en dark-mode.css, así que utilidades como
+    `bg-surface`, `text-muted` o `border-line` cambian de tema solas.
+     =================================================================== */
+
+  /* Superficies */
+  --color-canvas: #f6f8fa;
+  /* Fondo de la página / main */
+  --color-surface: #ffffff;
+  /* Tarjetas, tablas, modales */
+  --color-raised: #ffffff;
+  /* Popovers, menús flotantes */
+  --color-sunken: #f1f5f9;
+  /* Rellenos sutiles, filas alternas, inputs */
+  --color-sidebar: #005e66;
+  /* Barra lateral */
+  --color-sidebar-fg: #e2f1f0;
+  /* Texto del sidebar */
+
+  /* Texto (todos ≥ AA sobre su superficie) */
+  --color-body: #1e293b;
+  /* Texto principal */
+  --color-muted: #5b6b7f;
+  /* Texto secundario (AA sobre blanco) */
+  --color-subtle: #8a97a8;
+  /* Texto terciario / decorativo */
+
+  /* Bordes */
+  --color-line: #e2e8f0;
+  /* Borde por defecto */
+  --color-line-strong: #cbd5e1;
+  /* Borde con más presencia */
+
+  /* Marca / acción primaria */
+  --color-primary: #005e66;
+  --color-primary-hover: #00474f;
+  --color-primary-soft: #e4f3f1;
+  /* Fondo tenue de marca (chips, iconos) */
+  --color-on-primary-soft: #005e66;
+  /* Texto/icono sobre primary-soft */
+  --color-on-primary: #ffffff;
+  --color-accent: #3cb0a4;
+  --color-ring: #3cb0a4;
+  /* Anillo de foco */
+
+  /* Estados — pares fondo/texto/borde para badges y alertas */
+  --color-success: #047857;
+  --color-success-soft: #ecfdf5;
+  --color-success-line: #a7f3d0;
+  --color-warning: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-warning-line: #fde68a;
+  --color-danger: #be123c;
+  --color-danger-soft: #fff1f2;
+  --color-danger-line: #fecdd3;
+  --color-info: #0369a1;
+  --color-info-soft: #f0f9ff;
+  --color-info-line: #bae6fd;
+
   /*
     Interlineado de Tailwind 3: medida fija (rem) en lugar de proporción. Con proporción,
     un hijo con otro tamaño de letra (p. ej. text-[10px]) hereda un interlineado distinto.
@@ -70,6 +133,7 @@
   Para quitar estas reglas, cada elemento que dependa de ellas necesita su propia clase.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -94,6 +158,7 @@
 }
 
 @layer utilities {
+
   [type='checkbox']:where(:checked),
   [type='radio']:where(:checked) {
     border-color: transparent;
@@ -106,10 +171,12 @@
   Va sin capa, como en v3, para que el <style> de layouts/app.blade.php la pueda sobrescribir.
 */
 .dark .bg-navy-sidebar {
-  background-color: #0b1120 !important; /* Sidebar carbón oscuro */
+  background-color: #0b1120 !important;
+  /* Sidebar carbón oscuro */
   border-right: 1px solid #1e293b;
 }
 
 .dark .bg-navy-active {
-  background-color: #0284c7 !important; /* Azul sutil para enlaces activos */
+  background-color: #0284c7 !important;
+  /* Azul sutil para enlaces activos */
 }

@@ -22,7 +22,7 @@
             }
 
             html.dark .bg-white,
-            html.dark [class*="bg-white"] {
+            html.dark [class*="bg-surface"] {
                 background-color: #1e293b !important;
                 border-color: #334155 !important;
                 color: #f1f5f9 !important;
@@ -65,7 +65,7 @@
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500 dark:text-gray-400" />
                 </a>
             </div>
-            <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md overflow-hidden sm:rounded-2xl transition-colors duration-300">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-surface dark:bg-slate-800 border border-line dark:border-slate-700 shadow-md overflow-hidden sm:rounded-2xl transition-colors duration-300">
                 {{ $slot }}
             </div>
         </div>

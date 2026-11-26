@@ -1,8 +1,8 @@
 {{-- Permisos agrupados por módulo (App\Support\PermissionGroups); $prefix: create | edit --}}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     @foreach($permissionGroups as $group)
-        <div class="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-            <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100 flex items-center gap-2">
+        <div class="bg-slate-50/50 p-4 rounded-2xl border border-line">
+            <h4 class="text-[10px] font-extrabold text-navy-800 uppercase tracking-wider mb-3 pb-1 border-b border-line flex items-center gap-2">
                 <span class="w-1.5 h-1.5 rounded-full {{ $group['color'] }}"></span>
                 {{ $group['title'] }}
             </h4>

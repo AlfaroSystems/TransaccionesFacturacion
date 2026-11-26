@@ -3,18 +3,16 @@
 @section('content')
 <div class="animate-fade-in duration-300">
     {{-- ENCABEZADO --}}
-    <header class="mb-8">
-        <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight">Asignación de Precios</h1>
-        <p class="text-slate-400 text-sm font-semibold mt-1">Precio de venta vigente de cada producto y su historial de cambios.</p>
-    </header>
+    <x-ui.page-header eyebrow="Precios" title="Asignación de Precios"
+        subtitle="Precio de venta vigente de cada producto y su historial de cambios." />
 
     {{-- BUSCADOR --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4 mb-6">
+    <div class="ui-surface p-4 mb-6">
         <form method="GET" action="{{ route('prices.index') }}" class="flex flex-col sm:flex-row gap-4">
             <div class="relative flex-1">
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por nombre, SKU o código interno..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-line text-sm focus:border-accent">
                 <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -30,7 +28,7 @@
 
     {{-- LISTADO --}}
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="py-3 px-6 pl-10">Producto</th>
@@ -44,22 +42,22 @@
                 @forelse($products as $product)
                     @php $current = $product->currentPrice; @endphp
                     <tr class="group hover:shadow-md transition-all duration-200">
-                        <td class="py-4 px-6 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm">
-                            <span class="font-bold text-[#005e66] text-xs">{{ $product->sku }}</span>
+                        <td class="py-4 px-6 bg-surface rounded-l-2xl border-l border-y border-line text-sm">
+                            <span class="font-bold text-primary dark:text-accent text-xs">{{ $product->sku }}</span>
                             <span class="font-extrabold text-slate-800 block">{{ $product->name }}</span>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-slate-600 font-semibold">{{ $product->category->name ?? '-' }}</td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-right">
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-600 font-semibold">{{ $product->category->name ?? '-' }}</td>
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-right">
                             @if($current)
                                 <span class="font-extrabold text-slate-800">$ {{ number_format($current->price, 2) }}</span>
                             @else
-                                <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-amber-100 text-amber-700 border border-amber-200 uppercase tracking-wider">Sin precio</span>
+                                <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-warning-soft text-warning border border-amber-200 uppercase tracking-wider">Sin precio</span>
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-slate-500">
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-500">
                             {{ $current ? $current->valid_from->format('d/m/Y H:i') : '-' }}
                         </td>
-                        <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
+                        <td class="py-4 px-6 bg-surface rounded-r-2xl border-r border-y border-line text-center">
                             <div class="flex items-center justify-center gap-2">
                                 @can('prices.cambiar')
                                     <button type="button" onclick="openModal('change-price-modal-{{ $product->id_product }}')"
@@ -69,7 +67,7 @@
                                 @endcan
                                 @can('prices.historial')
                                     <button type="button" onclick="openModal('history-price-modal-{{ $product->id_product }}')"
-                                        class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold text-xs transition-all flex items-center justify-center" title="Historial">
+                                        class="p-2.5 rounded-xl bg-info-soft text-info hover:brightness-95 font-semibold text-xs transition-all flex items-center justify-center" title="Historial">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
@@ -97,7 +95,7 @@
     {{-- Cambiar / Asignar precio --}}
     @can('prices.cambiar')
         <div id="change-price-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl mx-4">
+            <div class="bg-surface rounded-3xl p-6 max-w-md w-full shadow-2xl mx-4">
                 <div class="flex items-center justify-between border-b pb-4 mb-5">
                     <h3 class="text-lg font-extrabold text-slate-800">{{ $current ? 'Cambiar precio' : 'Asignar precio' }}</h3>
                     <button type="button" onclick="closeModal('change-price-modal-{{ $product->id_product }}')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
@@ -108,14 +106,14 @@
                 <form action="{{ route('prices.change', $product) }}" method="POST" class="space-y-4">
                     @csrf
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nuevo precio *</label>
+                        <label class="ui-label">Nuevo precio *</label>
                         <input type="number" step="0.01" min="0" name="price" value="{{ old('price', $current->price ?? '') }}" required
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                            class="ui-input">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Motivo / Observación</label>
+                        <label class="ui-label">Motivo / Observación</label>
                         <input type="text" name="notes" maxlength="255" value="{{ old('notes') }}"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                            class="ui-input">
                     </div>
                     <div class="flex justify-end gap-3 pt-4 border-t">
                         <button type="button" onclick="closeModal('change-price-modal-{{ $product->id_product }}')" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
@@ -129,7 +127,7 @@
     {{-- Historial --}}
     @can('prices.historial')
         <div id="history-price-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="bg-surface rounded-3xl p-6 max-w-2xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between border-b pb-4 mb-5">
                     <h3 class="text-lg font-extrabold text-slate-800">Historial de precios — {{ $product->name }}</h3>
                     <button type="button" onclick="closeModal('history-price-modal-{{ $product->id_product }}')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
@@ -153,7 +151,7 @@
                                     @if($price->valid_until)
                                         <span class="text-slate-500">{{ $price->valid_until->format('d/m/Y H:i') }}</span>
                                     @else
-                                        <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase">Vigente</span>
+                                        <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-success-soft text-success border border-emerald-200 uppercase">Vigente</span>
                                     @endif
                                 </td>
                                 <td class="py-2 px-4 text-slate-600">{{ $price->user->name ?? '-' }}</td>

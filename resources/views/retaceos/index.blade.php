@@ -18,45 +18,30 @@
 @endphp
 
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg">Compras</span>
-                <span class="text-slate-400">•</span>
-                <span class="text-xs font-semibold text-slate-500">Módulo de Retaceos e Importaciones</span>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
-                Retaceos de Importación
-            </h1>
-            <p class="text-sm text-slate-500 mt-0.5">
-                Liquidación y prorrateo de costos de importación (FOB, flete internacional, seguro, gastos aduanales y DAI).
-            </p>
-        </div>
+    <x-ui.page-header eyebrow="Compras" module="Módulo de Retaceos e Importaciones"
+        title="Retaceos de Importación"
+        subtitle="Liquidación y prorrateo de costos de importación (FOB, flete internacional, seguro, gastos aduanales y DAI).">
         @can('retaceos.crear')
-            <button type="button" onclick="openCreateRetaceoModal()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Nuevo Retaceo</span>
-            </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openCreateRetaceoModal()">Nuevo Retaceo</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </div>
+    </x-ui.page-header>
 
 
 
     <!-- Tarjetas de Métricas -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Retaceos</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $totalCount }}</p>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/40 text-[#005e66] dark:text-teal-300 flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/40 text-primary dark:text-accent dark:text-teal-300 flex items-center justify-center text-xl font-bold">
                 📊
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Borradores</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $draftCount }}</p>
@@ -65,7 +50,7 @@
                 ✎
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Liquidados</p>
                 <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-1">{{ $calculatedCount }}</p>
@@ -74,10 +59,10 @@
                 ✓
             </div>
         </div>
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-between">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl p-5 border border-line dark:border-slate-700 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Costo Total Liquidado</p>
-                <p class="text-2xl font-extrabold text-[#005e66] dark:text-teal-400 mt-1">${{ number_format($totalCostAmount, 2) }}</p>
+                <p class="text-2xl font-extrabold text-primary dark:text-accent dark:text-teal-400 mt-1">${{ number_format($totalCostAmount, 2) }}</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-xl font-bold">
                 🚢
@@ -86,15 +71,15 @@
     </div>
 
     <!-- Barra de Búsqueda y Filtros -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-xs">
+    <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 p-5 shadow-xs">
         <form method="GET" action="{{ route('retaceos.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div class="md:col-span-2">
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Buscar</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Código, factura exterior, póliza DM..." class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Buscar</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Código, factura exterior, póliza DM..." class="w-full px-4 py-2 rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Proveedor</label>
-                <select name="id_supplier" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Proveedor</label>
+                <select name="id_supplier" class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     <option value="">Todos los proveedores</option>
                     @foreach($suppliers as $sup)
                         <option value="{{ $sup->id_supplier }}" {{ request('id_supplier') == $sup->id_supplier ? 'selected' : '' }}>
@@ -104,8 +89,8 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Estado</label>
-                <select name="status" class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                <label class="ui-label">Estado</label>
+                <select name="status" class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     <option value="">Todos los estados</option>
                     <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Borrador</option>
                     <option value="calculated" {{ request('status') === 'calculated' ? 'selected' : '' }}>Liquidado</option>
@@ -127,10 +112,10 @@
     </div>
 
     <!-- Tabla de Retaceos -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs overflow-hidden">
+    <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-line dark:border-slate-700">
                     <tr>
                         <th class="py-4 px-6">Código / Liquidación</th>
                         <th class="py-4 px-6">Factura de Compra</th>
@@ -146,7 +131,7 @@
                     @forelse($retaceos as $retaceo)
                         <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition-colors">
                             <td class="py-4 px-6">
-                                <span class="font-extrabold text-[#005e66] dark:text-teal-400 block font-mono">
+                                <span class="font-extrabold text-primary dark:text-accent dark:text-teal-400 block font-mono">
                                     {{ $retaceo->retaceo_code }}
                                 </span>
                                 <span class="text-xs text-slate-400">
@@ -189,7 +174,7 @@
                                 </span>
                             </td>
                             <td class="py-4 px-6 text-right">
-                                <span class="font-extrabold text-[#005e66] dark:text-teal-400 font-mono text-sm block">
+                                <span class="font-extrabold text-primary dark:text-accent dark:text-teal-400 font-mono text-sm block">
                                     ${{ number_format($retaceo->total_cost, 2) }}
                                 </span>
                                 <span class="text-[11px] text-slate-400">
@@ -204,7 +189,7 @@
                             <td class="py-4 px-6 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
                                     @can('retaceos.ver')
-                                        <a href="{{ route('retaceos.show', $retaceo->id_retaceo) }}" class="p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-950/50 text-[#005e66] dark:text-teal-300 transition-colors" title="Ver Detalle Liquidado">
+                                        <a href="{{ route('retaceos.show', $retaceo->id_retaceo) }}" class="p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-950/50 text-primary dark:text-accent dark:text-teal-300 transition-colors" title="Ver Detalle Liquidado">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
                                     @endcan
@@ -237,7 +222,7 @@
         </div>
 
         @if($retaceos->hasPages())
-            <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="p-4 border-t border-line dark:border-slate-700">
                 {{ $retaceos->links() }}
             </div>
         @endif
@@ -248,11 +233,11 @@
 <!-- MODAL DE CREACIÓN / EDICIÓN DE RETACEO     -->
 <!-- ========================================== -->
 <div id="retaceoModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto transform transition-all animate-scale-up">
+    <div class="bg-surface dark:bg-slate-800 rounded-3xl border border-line dark:border-slate-700 shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden my-auto transform transition-all animate-scale-up">
         <!-- Modal Header -->
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/80">
+        <div class="px-6 py-4 border-b border-line dark:border-slate-700 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/80">
             <div>
-                <span id="retaceoModalBadge" class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-md">Nuevo Retaceo</span>
+                <span id="retaceoModalBadge" class="px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-md">Nuevo Retaceo</span>
                 <h2 id="retaceoModalTitle" class="text-lg font-extrabold text-slate-800 dark:text-slate-100 mt-0.5">
                     Calcular y Liquidar Retaceo de Importación
                 </h2>
@@ -280,7 +265,7 @@
                         </label>
                         <span class="text-[11px] text-indigo-600 dark:text-indigo-400">Compras registradas no canceladas</span>
                     </div>
-                    <select id="modalPurchaseSelect" class="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                    <select id="modalPurchaseSelect" class="w-full px-3.5 py-2 rounded-xl border border-indigo-200 dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden">
                         <option value="">-- Seleccione una compra exterior --</option>
                         @foreach($purchasesForModal as $pur)
                             <option value="{{ $pur->id_purchase }}">
@@ -291,9 +276,9 @@
                 </div>
 
                 <!-- Resumen de Compra (Modo Editar) -->
-                <div id="modalPurchaseInfoBox" class="hidden bg-slate-100 dark:bg-slate-900/50 rounded-xl p-3 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div id="modalPurchaseInfoBox" class="hidden bg-slate-100 dark:bg-slate-900/50 rounded-xl p-3 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-line dark:border-slate-700 flex items-center justify-between">
                     <div>
-                        Factura de Compra: <strong id="lblModalPurchaseCodeRef" class="font-mono text-sm text-[#005e66] dark:text-teal-400"></strong>
+                        Factura de Compra: <strong id="lblModalPurchaseCodeRef" class="font-mono text-sm text-primary dark:text-accent dark:text-teal-400"></strong>
                     </div>
                     <div>
                         Código de Retaceo: <strong id="lblModalRetaceoCode" class="font-mono text-sm text-slate-800 dark:text-slate-100"></strong>
@@ -303,8 +288,8 @@
                 <!-- Cabecera de Importación -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Proveedor *</label>
-                        <select name="id_supplier" id="modal_r_id_supplier" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Proveedor *</label>
+                        <select name="id_supplier" id="modal_r_id_supplier" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="">-- Proveedor --</option>
                             @foreach($suppliers as $sup)
                                 <option value="{{ $sup->id_supplier }}">{{ $sup->name }}</option>
@@ -312,16 +297,16 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">País de Origen</label>
-                        <input type="text" name="origin_country" id="modal_r_origin_country" placeholder="Ej: Estados Unidos, China" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">País de Origen</label>
+                        <input type="text" name="origin_country" id="modal_r_origin_country" placeholder="Ej: Estados Unidos, China" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fecha Liquidación *</label>
-                        <input type="datetime-local" name="retaceo_date" id="modal_r_retaceo_date" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Fecha Liquidación *</label>
+                        <input type="datetime-local" name="retaceo_date" id="modal_r_retaceo_date" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Estado *</label>
-                        <select name="status" id="modal_r_status" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Estado *</label>
+                        <select name="status" id="modal_r_status" required class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                             <option value="calculated">Liquidado / Calculado</option>
                             <option value="draft">Borrador</option>
                             <option value="applied">Aplicado a Inventario</option>
@@ -331,20 +316,20 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">No. Factura Exterior</label>
-                        <input type="text" name="import_invoice_number" id="modal_r_import_invoice_number" placeholder="Ej: INV-2026-99" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">No. Factura Exterior</label>
+                        <input type="text" name="import_invoice_number" id="modal_r_import_invoice_number" placeholder="Ej: INV-2026-99" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fecha Factura Exterior</label>
-                        <input type="date" name="import_invoice_date" id="modal_r_import_invoice_date" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Fecha Factura Exterior</label>
+                        <input type="date" name="import_invoice_date" id="modal_r_import_invoice_date" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">No. Póliza / DM Aduana</label>
-                        <input type="text" name="import_policy_number" id="modal_r_import_policy_number" placeholder="Ej: POL-2026-4482" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">No. Póliza / DM Aduana</label>
+                        <input type="text" name="import_policy_number" id="modal_r_import_policy_number" placeholder="Ej: POL-2026-4482" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Fecha Póliza Aduana</label>
-                        <input type="date" name="import_policy_date" id="modal_r_import_policy_date" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
+                        <label class="ui-label">Fecha Póliza Aduana</label>
+                        <input type="date" name="import_policy_date" id="modal_r_import_policy_date" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]">
                     </div>
                 </div>
 
@@ -356,11 +341,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total Flete Internacional ($) *</label>
-                            <input type="number" step="0.0001" min="0" name="total_freight" id="modal_r_total_freight" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
+                            <input type="number" step="0.0001" min="0" name="total_freight" id="modal_r_total_freight" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Total DAI / Aranceles de la Póliza ($)</label>
-                            <input type="number" step="0.0001" min="0" name="total_dai" id="modal_r_total_dai" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
+                            <input type="number" step="0.0001" min="0" name="total_dai" id="modal_r_total_dai" value="0.00" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-bold font-mono text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#005e66]">
                         </div>
                     </div>
                 </div>
@@ -368,19 +353,19 @@
                 @include('retaceos._expenses', ['totalId' => 'modal_r_total_expenses', 'lineas' => old('expenses', [])])
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Notas u Observaciones</label>
-                    <textarea name="notes" id="modal_r_notes" rows="2" placeholder="Observaciones de la liquidación o agente aduanal..." class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]"></textarea>
+                    <label class="ui-label">Notas u Observaciones</label>
+                    <textarea name="notes" id="modal_r_notes" rows="2" placeholder="Observaciones de la liquidación o agente aduanal..." class="w-full px-3 py-2 text-sm rounded-xl border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66]"></textarea>
                 </div>
 
                 <!-- Tabla de Productos y Prorrateo -->
-                <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
-                    <div class="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div class="border border-line dark:border-slate-700 rounded-2xl overflow-hidden">
+                    <div class="bg-slate-50 dark:bg-slate-900/60 px-4 py-2.5 border-b border-line dark:border-slate-700 flex items-center justify-between">
                         <span class="text-xs font-extrabold uppercase text-slate-600 dark:text-slate-300">Distribución y Prorrateo de Costos</span>
                         <span class="text-[11px] text-slate-400">Prorrateo ponderado según el valor FOB</span>
                     </div>
                     <div class="overflow-x-auto max-h-60">
                         <table class="w-full text-left text-xs" id="modalRetaceoTable">
-                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+                            <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase font-bold tracking-wider border-b border-line dark:border-slate-700 sticky top-0 z-10">
                                 <tr>
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-2 text-center w-20">Cantidad</th>
@@ -401,7 +386,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-900/60 p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                    <div class="bg-slate-50 dark:bg-slate-900/60 p-4 border-t border-line dark:border-slate-700 flex justify-end">
                         <div class="w-full sm:w-72 space-y-1.5 text-xs font-semibold">
                             <div class="flex justify-between text-slate-500">
                                 <span>Total FOB:</span>
@@ -419,9 +404,9 @@
                                 <span>Total DAI / Aranceles:</span>
                                 <span class="font-mono font-bold text-slate-800 dark:text-slate-200" id="modalLblDai">$0.00</span>
                             </div>
-                            <div class="flex justify-between text-sm font-extrabold text-slate-800 dark:text-slate-100 pt-1.5 border-t border-slate-200 dark:border-slate-700">
+                            <div class="flex justify-between text-sm font-extrabold text-slate-800 dark:text-slate-100 pt-1.5 border-t border-line dark:border-slate-700">
                                 <span>Costo Total Liquidado:</span>
-                                <span class="font-mono text-[#005e66] dark:text-teal-400 text-base" id="modalLblGrandTotal">$0.00</span>
+                                <span class="font-mono text-primary dark:text-accent dark:text-teal-400 text-base" id="modalLblGrandTotal">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -429,8 +414,8 @@
             </div>
 
             <!-- Modal Footer -->
-            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-700 flex items-center justify-end gap-3">
-                <button type="button" onclick="closeRetaceoModal()" class="px-5 py-2 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-line dark:border-slate-700 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeRetaceoModal()" class="px-5 py-2 rounded-xl border border-line dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Cancelar
                 </button>
                 <button type="submit" id="btnSubmitRetaceoModal" class="px-6 py-2 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-xs shadow-md transition-all">
@@ -445,7 +430,7 @@
 <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN       -->
 <!-- ========================================== -->
 <div id="deleteRetaceoModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-2xl max-w-md w-full p-6 text-center animate-scale-up">
+    <div class="bg-surface dark:bg-slate-800 rounded-3xl border border-line dark:border-slate-700 shadow-2xl max-w-md w-full p-6 text-center animate-scale-up">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-300 flex items-center justify-center text-2xl mb-4">
             ⚠️
         </div>
@@ -459,7 +444,7 @@
             @csrf
             @method('DELETE')
             <div class="flex items-center justify-center gap-3">
-                <button type="button" onclick="closeDeleteRetaceoModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                <button type="button" onclick="closeDeleteRetaceoModal()" class="px-5 py-2.5 rounded-xl border border-line dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-colors">
@@ -495,7 +480,7 @@
     // Apertura en modo Creación
     function openCreateRetaceoModal() {
         retaceoModalBadge.textContent    = 'Nuevo Retaceo';
-        retaceoModalBadge.className      = 'px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-md';
+        retaceoModalBadge.className      = 'px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-md';
         retaceoModalTitle.textContent    = 'Calcular y Liquidar Retaceo de Importación';
         retaceoModalSubtitle.textContent = 'Seleccione una compra exterior e ingrese los gastos para prorratear los costos unitarios.';
         btnSubmitRetaceoModal.textContent= 'Guardar Retaceo';
@@ -642,16 +627,16 @@
                     <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed mr-qty-input">
+                    <input type="number" step="0.0001" min="0.0001" name="details[${idx}][quantity]" value="${d.quantity}" required readonly title="Cantidad recibida en la compra" class="w-full px-2 py-1 text-center font-mono font-bold rounded-lg border border-line dark:border-slate-600 bg-slate-100 dark:bg-slate-800 cursor-not-allowed mr-qty-input">
                 </td>
                 <td class="py-2.5 px-2">
-                    <input type="number" step="0.0001" min="0" name="details[${idx}][cost_fob]" value="${d.cost_fob}" required class="w-full px-2 py-1 text-right font-mono font-bold rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 mr-fob-input focus:ring-1 focus:ring-[#005e66]">
+                    <input type="number" step="0.0001" min="0" name="details[${idx}][cost_fob]" value="${d.cost_fob}" required class="w-full px-2 py-1 text-right font-mono font-bold rounded-lg border border-line dark:border-slate-600 bg-surface dark:bg-slate-700 mr-fob-input focus:ring-1 focus:ring-[#005e66]">
                 </td>
                 <td class="py-2.5 px-2 text-right font-mono text-slate-500 dark:text-slate-400 mr-row-freight">$0.00</td>
                 <td class="py-2.5 px-2 text-right font-mono text-slate-500 dark:text-slate-400 mr-row-expense">$0.00</td>
                 <td class="py-2.5 px-2 text-right font-mono text-slate-500 dark:text-slate-400 mr-row-dai">$0.00</td>
                 <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 mr-row-total">$0.00</td>
-                <td class="py-2.5 px-3 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 mr-row-unit">$0.00</td>
+                <td class="py-2.5 px-3 text-right font-mono font-extrabold text-primary dark:text-accent dark:text-teal-400 mr-row-unit">$0.00</td>
             `;
             modalRetaceoBody.appendChild(tr);
         });

@@ -2,9 +2,9 @@
 @section('title', 'Mi Perfil')
 
 @php
-    $inputClass = 'w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
-    $labelClass = 'block text-xs font-bold text-slate-400 uppercase mb-1';
-    $cardClass = 'bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6 space-y-4';
+    $inputClass = 'w-full px-3 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
+    $labelClass = 'ui-label';
+    $cardClass = 'bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-6 space-y-4';
     $buttonClass = 'px-5 py-2.5 rounded-xl text-sm font-bold bg-[#005e66] hover:bg-[#004d54] text-white';
 @endphp
 
@@ -12,11 +12,11 @@
 <div class="w-full max-w-3xl space-y-6 animate-fade-in duration-300">
     <div>
         <div class="flex items-center gap-2">
-            <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Cuenta</span>
+            <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Cuenta</span>
             <span class="text-slate-400 dark:text-slate-600">•</span>
             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ $user->username }}</span>
         </div>
-        <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">Mi Perfil</h1>
+        <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight mt-1">Mi Perfil</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Su nombre, correo y contraseña. La sucursal y el rol los asigna el administrador en Usuarios.
         </p>

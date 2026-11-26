@@ -6,7 +6,7 @@
     <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <div class="flex items-center gap-3">
-                <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-primary dark:text-accent tracking-tight">
                     {{ $supplier->name }}
                 </h1>
                 @if($supplier->is_active)
@@ -38,14 +38,14 @@
     </header>
 
     {{-- Datos Generales --}}
-    <div class="bg-white rounded-3xl shadow-xs border border-slate-100 p-8 mb-6">
-        <h3 class="text-sm font-extrabold text-[#005e66] uppercase tracking-wider mb-5">
+    <div class="bg-surface rounded-3xl shadow-xs border border-line p-8 mb-6">
+        <h3 class="text-sm font-extrabold text-primary dark:text-accent uppercase tracking-wider mb-5">
             Datos Generales
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Código</p>
-                <p class="text-sm font-extrabold text-[#005e66] font-mono">{{ $supplier->code ?? '-' }}</p>
+                <p class="text-sm font-extrabold text-primary dark:text-accent font-mono">{{ $supplier->code ?? '-' }}</p>
             </div>
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Nombre del Proveedor</p>
@@ -69,7 +69,7 @@
                     <a href="{{ $supplier->website }}"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-sm font-semibold text-[#005e66] hover:underline break-all">
+                        class="text-sm font-semibold text-primary dark:text-accent hover:underline break-all">
                         {{ $supplier->website }}
                     </a>
                 @else
@@ -89,7 +89,7 @@
         </div>
 
         @if($supplier->address)
-            <div class="mt-6 pt-6 border-t border-slate-100">
+            <div class="mt-6 pt-6 border-t border-line">
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Dirección</p>
                 <p class="text-sm font-semibold text-slate-700 leading-relaxed">{{ $supplier->address }}</p>
             </div>
@@ -97,9 +97,9 @@
     </div>
 
     {{-- Contactos Asociados --}}
-    <div class="bg-white rounded-3xl shadow-xs border border-slate-100 p-8">
+    <div class="bg-surface rounded-3xl shadow-xs border border-line p-8">
         <div class="flex items-center justify-between mb-5">
-            <h3 class="text-sm font-extrabold text-[#005e66] uppercase tracking-wider">
+            <h3 class="text-sm font-extrabold text-primary dark:text-accent uppercase tracking-wider">
                 Contactos Asociados
             </h3>
             <span class="inline-flex items-center px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-bold">
@@ -114,7 +114,7 @@
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($supplier->contacts as $contact)
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+                    <div class="bg-slate-50 border border-line rounded-2xl p-5">
                         <div class="flex items-center gap-3 mb-3">
                             <div class="w-10 h-10 rounded-full bg-customTeal-800 text-white flex items-center justify-center font-bold text-sm">
                                 {{ strtoupper(substr($contact->full_name, 0, 1)) }}
@@ -153,7 +153,7 @@
         $supplierId = $supplier->id_supplier;
     @endphp
     <div id="edit-supplier-modal-{{ $supplierId }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl p-6 max-w-4xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-surface rounded-3xl p-6 max-w-4xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b pb-4 mb-6">
                 <div>
                     <h3 class="text-xl font-extrabold text-slate-800">
@@ -171,12 +171,12 @@
                 @csrf
                 @method('PUT')
                 <div class="space-y-4 relative z-30">
-                    <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">
+                    <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">
                         Datos Generales
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                            <label class="ui-label">
                                 Código *
                             </label>
                             <input
@@ -185,10 +185,10 @@
                                 value="{{ old('code', $supplier->code) }}"
                                 required
                                 maxlength="20"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                class="ui-input">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                            <label class="ui-label">
                                 Nombre del Proveedor *
                             </label>
                             <input
@@ -196,12 +196,12 @@
                                 name="name"
                                 value="{{ old('name', $supplier->name) }}"
                                 required
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                class="ui-input">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                            <label class="ui-label">
                                 Correo Electrónico *
                             </label>
                             <input
@@ -209,10 +209,10 @@
                                 name="email"
                                 value="{{ old('email', $supplier->email) }}"
                                 required
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                class="ui-input">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                            <label class="ui-label">
                                 Teléfono
                             </label>
                             <input
@@ -220,10 +220,10 @@
                                 name="phone"
                                 value="{{ old('phone', $supplier->phone) }}"
                                 maxlength="20"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                class="ui-input">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                            <label class="ui-label">
                                 Sitio Web
                             </label>
                             <input
@@ -231,7 +231,7 @@
                                 name="website"
                                 value="{{ old('website', $supplier->website) }}"
                                 maxlength="255"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                class="ui-input">
                         </div>
                     </div>
 
@@ -262,7 +262,7 @@
                                     });
                                 }
                             }" class="relative z-50">
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                                <label class="ui-label">
                                     País *
                                 </label>
 
@@ -276,7 +276,7 @@
                                 <button type="button" 
                                         @click="open = !open; if(open) $nextTick(() => $refs.searchInput.focus())"
                                         @click.away="open = false"
-                                        class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-100 focus:outline-hidden focus:border-[#005e66] transition-all">
+                                        class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-100 focus:outline-hidden focus:border-accent transition-all">
                                     <span x-text="selected || 'Seleccionar país'" :class="!selected ? 'text-slate-400 dark:text-slate-500' : ''"></span>
                                     <svg class="w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -290,15 +290,15 @@
                                     x-transition:leave="transition ease-in duration-100"
                                     x-transition:leave-start="opacity-100 scale-100"
                                     x-transition:leave-end="opacity-0 scale-95"
-                                    class="absolute z-100 left-0 right-0 top-full mt-1.5 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden"
+                                    class="absolute z-100 left-0 right-0 top-full mt-1.5 w-full rounded-2xl bg-surface dark:bg-slate-900 border border-line dark:border-slate-700 shadow-2xl overflow-hidden"
                                     style="display: none; max-height: 230px;">
 
-                                    <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60">
+                                    <div class="p-2 border-b border-line dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60">
                                         <input type="text" 
                                                 x-ref="searchInput"
                                                 x-model="search" 
                                                 placeholder="Buscar país..." 
-                                                class="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs focus:outline-hidden focus:border-[#005e66] bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-100 placeholder-slate-400">
+                                                class="w-full px-3 py-1.5 rounded-xl border border-line dark:border-slate-700 text-xs focus:outline-hidden focus:border-accent bg-surface dark:bg-slate-900 text-slate-700 dark:text-slate-100 placeholder-slate-400">
                                     </div>
 
                                     <div style="max-height: 180px; overflow-y: auto;" class="p-2 pb-4 space-y-1 custom-scrollbar">
@@ -307,9 +307,9 @@
                                                     @click="selectCountry(c)"
                                                     style="padding-left: 1.25rem; padding-right: 1rem; padding-top: 0.6rem; padding-bottom: 0.6rem;"
                                                     class="w-full text-left px-5 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-between"
-                                                    :class="selected === c ? 'bg-customTeal-800/15 text-[#005e66] dark:bg-teal-500/20 dark:text-teal-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
+                                                    :class="selected === c ? 'bg-customTeal-800/15 text-primary dark:text-accent dark:bg-teal-500/20 dark:text-teal-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'">
                                                 <span x-text="c" class="truncate pr-2"></span>
-                                                <svg x-show="selected === c" class="w-4 h-4 text-[#005e66] dark:text-teal-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg x-show="selected === c" class="w-4 h-4 text-primary dark:text-accent dark:text-teal-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                                                 </svg>
                                             </button>
@@ -322,10 +322,10 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                            <label class="ui-label">
                                 Estado
                             </label>
-                            <select name="is_active" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                            <select name="is_active" class="ui-input">
                                 <option value="1" {{ old('is_active', $supplier->is_active) ? 'selected' : '' }}>Activo</option>
                                 <option value="0" {{ !old('is_active', $supplier->is_active) ? 'selected' : '' }}>Inactivo</option>
                             </select>
@@ -337,12 +337,12 @@
                         $editSelectedCountry = old('country', $supplier->country);
                         $editShowGeo = trim($editSelectedCountry) === 'El Salvador';
                     @endphp
-                    <div id="edit_supplier_geo_section_{{ $supplierId }}" class="{{ $editShowGeo ? '' : 'hidden' }} p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
-                        <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
+                    <div id="edit_supplier_geo_section_{{ $supplierId }}" class="{{ $editShowGeo ? '' : 'hidden' }} p-4 bg-slate-50/50 rounded-2xl border border-line space-y-3">
+                        <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                                 <label for="edit_supplier_{{ $supplierId }}_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                                <select name="id_department" id="edit_supplier_{{ $supplierId }}_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                                <select name="id_department" id="edit_supplier_{{ $supplierId }}_id_department" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                     <option value="">Seleccione departamento</option>
                                     @foreach($departments as $dept)
                                         <option value="{{ $dept->id_department }}" {{ old('id_department', $supplier->id_department) == $dept->id_department ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -351,7 +351,7 @@
                             </div>
                             <div>
                                 <label for="edit_supplier_{{ $supplierId }}_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                                <select name="id_municipality" id="edit_supplier_{{ $supplierId }}_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                                <select name="id_municipality" id="edit_supplier_{{ $supplierId }}_id_municipality" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                     <option value="">Seleccione municipio</option>
                                     @foreach($municipalities as $muni)
                                         <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}" {{ old('id_municipality', $supplier->id_municipality) == $muni->id_municipality ? 'selected' : '' }}>{{ $muni->name }}</option>
@@ -360,7 +360,7 @@
                             </div>
                             <div>
                                 <label for="edit_supplier_{{ $supplierId }}_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                                <select name="id_district" id="edit_supplier_{{ $supplierId }}_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                                <select name="id_district" id="edit_supplier_{{ $supplierId }}_id_district" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                                     <option value="">Seleccione distrito</option>
                                     @foreach($districts as $dist)
                                         <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}" {{ old('id_district', $supplier->id_district) == $dist->id_district ? 'selected' : '' }}>{{ $dist->name }}</option>
@@ -371,10 +371,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">
+                        <label class="ui-label">
                             Dirección
                         </label>
-                        <textarea name="address" rows="2" maxlength="255" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('address', $supplier->address) }}</textarea>
+                        <textarea name="address" rows="2" maxlength="255" class="ui-input">{{ old('address', $supplier->address) }}</textarea>
                     </div>
                 </div>
 
@@ -382,7 +382,7 @@
                 <div class="space-y-4 pt-5 border-t relative z-10">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
-                            <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">
+                            <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">
                                 Contactos del Proveedor
                             </h4>
                             <p class="text-xs text-slate-400 mt-1">
@@ -402,7 +402,7 @@
                         data-next-index="{{ $supplier->contacts->count() }}"
                         class="space-y-3">
                         @forelse($supplier->contacts as $index => $contact)
-                            <div class="edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <div class="edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-line">
                                 <input type="hidden" name="contacts[{{ $index }}][id_supplier_contact]" value="{{ $contact->id_supplier_contact }}">
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
@@ -414,7 +414,7 @@
                                         value="{{ old('contacts.' . $index . '.full_name', $contact->full_name) }}"
                                         required
                                         placeholder="Nombre completo"
-                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
+                                        class="w-full px-3 py-2 rounded-lg border border-line text-sm focus:border-accent">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
@@ -426,7 +426,7 @@
                                         value="{{ old('contacts.' . $index . '.phone', $contact->phone) }}"
                                         required
                                         placeholder="Teléfono"
-                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
+                                        class="w-full px-3 py-2 rounded-lg border border-line text-sm focus:border-accent">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
@@ -437,13 +437,13 @@
                                         name="contacts[{{ $index }}][email]"
                                         value="{{ old('contacts.' . $index . '.email', $contact->email) }}"
                                         placeholder="Correo electrónico"
-                                        class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
+                                        class="w-full px-3 py-2 rounded-lg border border-line text-sm focus:border-accent">
                                 </div>
                                 <div class="flex items-end">
                                     <button
                                         type="button"
                                         onclick="removeEditContactRow(this)"
-                                        class="w-full px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs font-bold transition-all">
+                                        class="w-full px-3 py-2 bg-danger-soft text-danger hover:brightness-95 rounded-lg text-xs font-bold transition-all">
                                         Eliminar
                                     </button>
                                 </div>
@@ -532,24 +532,24 @@
 
             let nextIndex = parseInt(container.dataset.nextIndex || '0', 10);
             const row = document.createElement('div');
-            row.className = 'edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100';
+            row.className = 'edit-contact-row grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-slate-50 rounded-xl border border-line';
 
             row.innerHTML = `
                 <input type="hidden" name="contacts[${nextIndex}][id_supplier_contact]" value="">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nombre completo *</label>
-                    <input type="text" name="contacts[${nextIndex}][full_name]" required placeholder="Nombre completo" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
+                    <input type="text" name="contacts[${nextIndex}][full_name]" required placeholder="Nombre completo" class="w-full px-3 py-2 rounded-lg border border-line text-sm focus:border-accent">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Teléfono *</label>
-                    <input type="text" name="contacts[${nextIndex}][phone]" required placeholder="Teléfono" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
+                    <input type="text" name="contacts[${nextIndex}][phone]" required placeholder="Teléfono" class="w-full px-3 py-2 rounded-lg border border-line text-sm focus:border-accent">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Correo</label>
-                    <input type="email" name="contacts[${nextIndex}][email]" placeholder="Correo electrónico" class="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:border-[#005e66]">
+                    <input type="email" name="contacts[${nextIndex}][email]" placeholder="Correo electrónico" class="w-full px-3 py-2 rounded-lg border border-line text-sm focus:border-accent">
                 </div>
                 <div class="flex items-end">
-                    <button type="button" onclick="removeEditContactRow(this)" class="w-full px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs font-bold transition-all">Eliminar</button>
+                    <button type="button" onclick="removeEditContactRow(this)" class="w-full px-3 py-2 bg-danger-soft text-danger hover:brightness-95 rounded-lg text-xs font-bold transition-all">Eliminar</button>
                 </div>
             `;
 

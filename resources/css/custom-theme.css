@@ -17,16 +17,118 @@
 }
 
 /* Clases de utilidad personalizadas */
-.bg-custom-teal-50 { background-color: var(--custom-teal-50); }
-.bg-custom-teal-100 { background-color: var(--custom-teal-100); }
-.bg-custom-teal-500 { background-color: var(--custom-teal-500); }
-.bg-custom-teal-600 { background-color: var(--custom-teal-600); }
+.bg-custom-teal-50 {
+    background-color: var(--custom-teal-50);
+}
 
-.text-custom-teal-500 { color: var(--custom-teal-500); }
-.text-custom-teal-600 { color: var(--custom-teal-600); }
-.text-custom-teal-700 { color: var(--custom-teal-700); }
-.text-custom-teal-800 { color: var(--custom-teal-800); }
+.bg-custom-teal-100 {
+    background-color: var(--custom-teal-100);
+}
 
-.border-custom-teal-100 { border-color: var(--custom-teal-100); }
-.border-custom-teal-400 { border-color: var(--custom-teal-400); }
-.border-custom-teal-500 { border-color: var(--custom-teal-500); }
+.bg-custom-teal-500 {
+    background-color: var(--custom-teal-500);
+}
+
+.bg-custom-teal-600 {
+    background-color: var(--custom-teal-600);
+}
+
+.text-custom-teal-500 {
+    color: var(--custom-teal-500);
+}
+
+.text-custom-teal-600 {
+    color: var(--custom-teal-600);
+}
+
+.text-custom-teal-700 {
+    color: var(--custom-teal-700);
+}
+
+.text-custom-teal-800 {
+    color: var(--custom-teal-800);
+}
+
+.border-custom-teal-100 {
+    border-color: var(--custom-teal-100);
+}
+
+.border-custom-teal-400 {
+    border-color: var(--custom-teal-400);
+}
+
+.border-custom-teal-500 {
+    border-color: var(--custom-teal-500);
+}
+
+/* =========================================================================
+    CAPA BASE DEL SISTEMA DE DISEÑO
+    Elevaciones, animaciones y foco accesible. Van sin @layer (como el resto
+    del CSS propio) para resolverse por orden/especificidad junto al layout.
+    ========================================================================= */
+
+:root {
+    /* Elevaciones (sombra) — una escala pequeña y consistente */
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px rgba(15, 23, 42, 0.05);
+    --shadow-pop: 0 10px 30px rgba(15, 23, 42, 0.12);
+    --radius-card: 1rem;
+}
+
+.dark {
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.35);
+    --shadow-pop: 0 14px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Elevación reutilizable de tarjetas (reemplaza el .card-shadow del layout) */
+.card-shadow {
+    box-shadow: var(--shadow-card);
+}
+
+.pop-shadow {
+    box-shadow: var(--shadow-pop);
+}
+
+/* Entrada suave de las vistas (la clase ya se usa en el markup) */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in {
+        animation: none;
+    }
+}
+
+/* Foco visible accesible y consistente en toda la app */
+:where(a, button, [role="button"], input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--color-ring, #3cb0a4);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+}
+
+/* Selección de texto con tinte de marca */
+::selection {
+    background-color: color-mix(in srgb, var(--color-primary, #005e66) 22%, transparent);
+}
+
+/* Scrollbar discreta coherente con el tema */
+* {
+    scrollbar-color: var(--color-line-strong, #cbd5e1) transparent;
+}
+
+/* Oculta nodos de Alpine hasta que el framework arranca */
+[x-cloak] {
+    display: none !important;
+}

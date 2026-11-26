@@ -20,13 +20,13 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('purchases.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg hover:bg-teal-200 transition-colors">
+                <a href="{{ route('purchases.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-lg hover:bg-teal-200 transition-colors">
                     Compras
                 </a>
                 <span class="text-slate-400">•</span>
                 <span class="text-xs font-semibold text-slate-500 uppercase">{{ $isEdit ? 'Editar Compra' : 'Nueva Factura / Recepción' }}</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
+            <h1 class="text-3xl font-extrabold text-primary dark:text-accent tracking-tight mt-1">
                 {{ $isEdit ? 'Editar Compra: ' . $purchase->purchase_code : 'Registrar Compra' }}
             </h1>
             <p class="text-slate-500 text-xs mt-1">
@@ -57,7 +57,7 @@
                     </p>
                 </div>
                 <div>
-                    <select id="orderSelect" name="id_purchase_order" required class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden shadow-xs">
+                    <select id="orderSelect" name="id_purchase_order" required class="w-full px-3.5 py-2.5 rounded-xl border border-indigo-200 dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#005e66] outline-hidden shadow-xs">
                         <option value="">-- Seleccione una orden de compra --</option>
                         @foreach($orders as $ord)
                             <option value="{{ $ord->id_purchase_order }}" {{ (string)$selectedOrderId === (string)$ord->id_purchase_order ? 'selected' : '' }}>
@@ -69,15 +69,15 @@
             </div>
         @else
             <input type="hidden" name="id_purchase_order" value="{{ $purchase->id_purchase_order }}">
-            <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-4 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <span>Orden de Compra Vinculada: <strong class="font-mono text-sm text-[#005e66] dark:text-teal-400">{{ $purchase->purchaseOrder->purchase_order_code ?? 'OC-'.$purchase->id_purchase_order }}</strong></span>
+            <div class="bg-slate-100 dark:bg-slate-800 rounded-xl p-4 text-xs font-semibold text-slate-700 dark:text-slate-300 border border-line dark:border-slate-700 flex items-center justify-between">
+                <span>Orden de Compra Vinculada: <strong class="font-mono text-sm text-primary dark:text-accent dark:text-teal-400">{{ $purchase->purchaseOrder->purchase_order_code ?? 'OC-'.$purchase->id_purchase_order }}</strong></span>
                 <span>Proveedor: <strong>{{ $purchase->supplier->name ?? 'N/A' }}</strong></span>
             </div>
         @endif
 
         {{-- Datos de Cabecera de Compra --}}
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-5">
-            <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-3 flex items-center gap-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-6 space-y-5">
+            <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 border-b border-line dark:border-slate-700 pb-3 flex items-center gap-2">
                 <span>🧾 Datos de la Factura y Recepción</span>
             </h3>
 
@@ -85,25 +85,25 @@
                 {{-- NÚMERO DE FACTURA COMERCIAL --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">No. Factura Proveedor</label>
-                    <input type="text" name="supplier_invoice_number" id="supplier_invoice_number" value="{{ old('supplier_invoice_number', $purchase->supplier_invoice_number ?? '') }}" placeholder="Ej: FAC-001-987" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="text" name="supplier_invoice_number" id="supplier_invoice_number" value="{{ old('supplier_invoice_number', $purchase->supplier_invoice_number ?? '') }}" placeholder="Ej: FAC-001-987" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- FECHA DE LA FACTURA PROVEEDOR --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha Emisión Factura</label>
-                    <input type="date" name="supplier_invoice_date" id="supplier_invoice_date" value="{{ old('supplier_invoice_date', isset($purchase->supplier_invoice_date) ? $purchase->supplier_invoice_date->format('Y-m-d') : '') }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="date" name="supplier_invoice_date" id="supplier_invoice_date" value="{{ old('supplier_invoice_date', isset($purchase->supplier_invoice_date) ? $purchase->supplier_invoice_date->format('Y-m-d') : '') }}" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- FECHA DE RECEPCIÓN / COMPRA --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Fecha de Recepción *</label>
-                    <input type="datetime-local" name="purchase_date" id="purchase_date" required value="{{ old('purchase_date', isset($purchase->purchase_date) ? $purchase->purchase_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <input type="datetime-local" name="purchase_date" id="purchase_date" required value="{{ old('purchase_date', isset($purchase->purchase_date) ? $purchase->purchase_date->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                 </div>
 
                 {{-- ESTADO --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Estado Inicial *</label>
-                    <select name="status" id="status" required class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="status" id="status" required class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         <option value="completed" {{ old('status', $purchase->status ?? 'completed') === 'completed' ? 'selected' : '' }}>Completada</option>
                         <option value="received" {{ old('status', $purchase->status ?? '') === 'received' ? 'selected' : '' }}>Recibida</option>
                         <option value="draft" {{ old('status', $purchase->status ?? '') === 'draft' ? 'selected' : '' }}>Borrador</option>
@@ -115,7 +115,7 @@
                 {{-- PROVEEDOR (HEREDADO / CONFIRMADO) --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Proveedor *</label>
-                    <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_supplier" id="id_supplier" required class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Seleccione proveedor --</option>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id_supplier }}" {{ (string)old('id_supplier', $purchase->id_supplier ?? '') === (string)$supplier->id_supplier ? 'selected' : '' }}>
@@ -128,7 +128,7 @@
                 {{-- SUCURSAL --}}
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Sucursal</label>
-                    <select name="id_branch" id="id_branch" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_branch" id="id_branch" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Sucursal --</option>
                         @foreach($branches as $branch)
                             <option value="{{ $branch->id_branch }}" {{ (string)old('id_branch', $purchase->id_branch ?? '') === (string)$branch->id_branch ? 'selected' : '' }}>
@@ -142,7 +142,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bodega Destino (Casa Matriz)</label>
                     {{-- La mercadería entra a Casa Matriz, que luego la reparte; con una sola bodega, viene elegida --}}
-                    <select name="id_warehouse" id="id_warehouse" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="id_warehouse" id="id_warehouse" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         <option value="">-- Bodega --</option>
                         @foreach($warehouses as $wh)
                             <option value="{{ $wh->id_warehouse }}" {{ (string)old('id_warehouse', $purchase->id_warehouse ?? ($warehouses->count() === 1 ? $wh->id_warehouse : '')) === (string)$wh->id_warehouse ? 'selected' : '' }}>
@@ -156,7 +156,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Moneda</label>
                     {{-- Al elegir la orden toma su moneda --}}
-                    <select name="currency" id="currency" class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">
+                    <select name="currency" id="currency" class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm font-semibold text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">
                         @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
                             <option value="{{ $codigo }}" @selected(old('currency', $purchase->currency ?? \App\Support\Moneda::PREDETERMINADA) === $codigo)>{{ $etiqueta }}</option>
                         @endforeach
@@ -166,13 +166,13 @@
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Notas u Observaciones</label>
-                <textarea name="notes" id="notes" rows="2" placeholder="Observaciones sobre la recepción física o factura..." class="w-full rounded-xl border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:border-[#005e66] focus:ring-[#005e66]">{{ old('notes', $purchase->notes ?? '') }}</textarea>
+                <textarea name="notes" id="notes" rows="2" placeholder="Observaciones sobre la recepción física o factura..." class="w-full rounded-xl border-line dark:border-slate-600 bg-surface dark:bg-slate-700 text-sm text-slate-800 dark:text-slate-200 focus:border-accent focus:ring-[#005e66]">{{ old('notes', $purchase->notes ?? '') }}</textarea>
             </div>
         </div>
 
         {{-- Tabla de Productos Recibidos --}}
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-line dark:border-slate-700 pb-3">
                 <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <span>📦 Líneas de Productos a Recibir</span>
                 </h3>
@@ -184,7 +184,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs" id="itemsTable">
-                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-line dark:border-slate-700">
                         <tr>
                             <th class="py-3 px-3 w-1/4">Producto</th>
                             <th class="py-3 px-3 text-center">Cant. Pedida</th>
@@ -213,19 +213,19 @@
                                         {{ number_format($detail->quantity_ordered, 2) }}
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][quantity_received]" value="{{ old('details.'.$index.'.quantity_received', (float)$detail->quantity_received) }}" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input">
+                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][quantity_received]" value="{{ old('details.'.$index.'.quantity_received', (float)$detail->quantity_received) }}" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 qty-input">
                                         @foreach($erroresLineas->filter(fn ($m, $campo) => str_starts_with($campo, 'details.'.$index.'.')) as $mensaje)
                                             <p class="mt-1 text-[11px] font-semibold text-rose-600">{{ $mensaje }}</p>
                                         @endforeach
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][unit_price]" value="{{ old('details.'.$index.'.unit_price', (float)$detail->unit_price) }}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input">
+                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][unit_price]" value="{{ old('details.'.$index.'.unit_price', (float)$detail->unit_price) }}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 price-input">
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][discount]" value="{{ old('details.'.$index.'.discount', (float)$detail->discount) }}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 discount-input">
+                                        <input type="number" step="0.0001" min="0" name="details[{{ $index }}][discount]" value="{{ old('details.'.$index.'.discount', (float)$detail->discount) }}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 discount-input">
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" step="0.01" min="0" max="100" name="details[{{ $index }}][tax_rate]" value="{{ old('details.'.$index.'.tax_rate', (float)$detail->tax_rate) }}" class="w-full px-2 py-1.5 text-center font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 tax-input">
+                                        <input type="number" step="0.01" min="0" max="100" name="details[{{ $index }}][tax_rate]" value="{{ old('details.'.$index.'.tax_rate', (float)$detail->tax_rate) }}" class="w-full px-2 py-1.5 text-center font-mono rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 tax-input">
                                     </td>
                                     <td class="py-3 px-3 text-right font-mono row-subtotal">$0.00</td>
                                     <td class="py-3 px-3 text-right font-mono row-tax">$0.00</td>
@@ -244,7 +244,7 @@
             </div>
 
             <!-- Resumen Financiero Total -->
-            <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex justify-end pt-4 border-t border-line dark:border-slate-700">
                 <div class="w-full md:w-80 space-y-2 text-sm">
                     <div class="flex justify-between text-slate-600 dark:text-slate-400">
                         <span>Subtotal:</span>
@@ -258,9 +258,9 @@
                         <span>Impuestos (IVA):</span>
                         <span class="font-mono font-bold" id="lblTax">$0.00</span>
                     </div>
-                    <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-slate-200 dark:border-slate-700">
+                    <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-line dark:border-slate-700">
                         <span>Total a Pagar:</span>
-                        <span class="font-mono text-[#005e66] dark:text-teal-400 text-lg" id="lblTotal">$0.00</span>
+                        <span class="font-mono text-primary dark:text-accent dark:text-teal-400 text-lg" id="lblTotal">$0.00</span>
                     </div>
                 </div>
             </div>
@@ -268,7 +268,7 @@
 
         <!-- Botones de Acción -->
         <div class="flex items-center justify-end gap-3">
-            <a href="{{ route('purchases.index') }}" class="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+            <a href="{{ route('purchases.index') }}" class="px-6 py-2.5 rounded-xl border border-line dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
                 Cancelar
             </a>
             <button type="submit" id="btnGuardar" class="px-8 py-2.5 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white font-bold text-sm shadow-md transition-all transform hover:-translate-y-0.5">
@@ -347,16 +347,16 @@
                                 ${d.quantity_ordered}
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" max="${d.pending_quantity}" name="details[${idx}][quantity_received]" value="${escapeHtml(valor('quantity_received', d.pending_quantity))}" title="Falta recibir ${d.pending_quantity}; 0 si no llegó" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" max="${d.pending_quantity}" name="details[${idx}][quantity_received]" value="${escapeHtml(valor('quantity_received', d.pending_quantity))}" title="Falta recibir ${d.pending_quantity}; 0 si no llegó" class="w-full px-2 py-1.5 text-center font-mono font-bold rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 qty-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${escapeHtml(valor('unit_price', d.unit_price))}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 price-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" name="details[${idx}][unit_price]" value="${escapeHtml(valor('unit_price', d.unit_price))}" required class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 price-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.0001" min="0" name="details[${idx}][discount]" value="${escapeHtml(valor('discount', d.discount || 0))}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 discount-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.0001" min="0" name="details[${idx}][discount]" value="${escapeHtml(valor('discount', d.discount || 0))}" class="w-full px-2 py-1.5 text-right font-mono rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 discount-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3">
-                                <input type="number" step="0.01" min="0" max="100" name="details[${idx}][tax_rate]" value="${escapeHtml(valor('tax_rate', d.tax_rate || 0))}" class="w-full px-2 py-1.5 text-center font-mono rounded-lg border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 tax-input focus:ring-2 focus:ring-[#005e66]">
+                                <input type="number" step="0.01" min="0" max="100" name="details[${idx}][tax_rate]" value="${escapeHtml(valor('tax_rate', d.tax_rate || 0))}" class="w-full px-2 py-1.5 text-center font-mono rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700 tax-input focus:ring-2 focus:ring-[#005e66]">
                             </td>
                             <td class="py-3 px-3 text-right font-mono row-subtotal">$0.00</td>
                             <td class="py-3 px-3 text-right font-mono row-tax">$0.00</td>

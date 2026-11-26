@@ -1,0 +1,102 @@
+/* =========================================================================
+    CLASES DE COMPONENTE DEL SISTEMA DE DISEÑO
+    Patrones difíciles de expresar solo con utilidades (p. ej. la tabla de
+    "filas-tarjeta" con esquinas redondeadas en la primera/última celda).
+    Todo usa tokens, así que el modo oscuro es automático.
+    ========================================================================= */
+
+/* ------------------------------- Tabla ---------------------------------- */
+.ui-table {
+    width: 100%;
+    text-align: left;
+    border-collapse: separate;
+    border-spacing: 0 0.6rem;
+}
+
+.ui-table thead th {
+    font-size: 0.6875rem;
+    /* 11px */
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding: 0.5rem 1.25rem;
+    white-space: nowrap;
+}
+
+.ui-table tbody td {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    padding: 0.9rem 1.25rem;
+    vertical-align: middle;
+    color: var(--color-body);
+}
+
+.ui-table tbody td:first-child {
+    border-left: 1px solid var(--color-line);
+    border-top-left-radius: var(--radius-card);
+    border-bottom-left-radius: var(--radius-card);
+}
+
+.ui-table tbody td:last-child {
+    border-right: 1px solid var(--color-line);
+    border-top-right-radius: var(--radius-card);
+    border-bottom-right-radius: var(--radius-card);
+}
+
+.ui-table tbody tr {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ui-table tbody tr:hover {
+    box-shadow: var(--shadow-card);
+}
+
+.ui-table tbody tr.is-inactive {
+    opacity: 0.55;
+}
+
+/* --------------------------- Superficie base ---------------------------- */
+.ui-surface {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+}
+
+/* Campo de formulario (input/select/textarea) coherente y accesible */
+.ui-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    color: var(--color-body);
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ui-input::placeholder {
+    color: var(--color-subtle);
+}
+
+.ui-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 30%, transparent);
+}
+
+.ui-input.has-error {
+    border-color: var(--color-danger);
+}
+
+.ui-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 0.35rem;
+}

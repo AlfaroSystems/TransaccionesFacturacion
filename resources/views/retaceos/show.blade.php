@@ -33,14 +33,14 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('retaceos.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg hover:bg-teal-200 transition-colors">
+                <a href="{{ route('retaceos.index') }}" class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft rounded-lg hover:bg-teal-200 transition-colors">
                     Retaceos
                 </a>
                 <span class="text-slate-400">•</span>
                 <span class="text-xs font-semibold text-slate-500 uppercase">Liquidación de Costos</span>
             </div>
             <div class="flex items-center gap-3 mt-1">
-                <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight font-mono">
+                <h1 class="text-3xl font-extrabold text-primary dark:text-accent tracking-tight font-mono">
                     {{ $retaceo->retaceo_code }}
                 </h1>
                 <span class="px-3 py-1 rounded-full text-xs font-extrabold border {{ $statusClasses[$retaceo->status] ?? 'bg-slate-100 text-slate-700' }}">
@@ -105,11 +105,11 @@
 
     {{-- Lotes que creó el retaceo: se ubican en bodega y al confirmar entran al inventario --}}
     @if($lotes->isNotEmpty())
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs px-5 py-4 flex flex-col md:flex-row md:items-center gap-3">
+        <div class="bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-xs px-5 py-4 flex flex-col md:flex-row md:items-center gap-3">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lotes de la compra</span>
             <div class="flex flex-wrap gap-2">
                 @foreach($lotes as $lot)
-                    <a href="{{ route('inventory.lots.show', $lot->id_inventory_lot) }}" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold hover:underline {{ $lot->isPending() ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300' : 'bg-teal-50 text-[#005e66] dark:bg-teal-950 dark:text-teal-300' }}">
+                    <a href="{{ route('inventory.lots.show', $lot->id_inventory_lot) }}" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold hover:underline {{ $lot->isPending() ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300' : 'bg-teal-50 text-primary dark:text-accent dark:bg-teal-950 dark:text-teal-300' }}">
                         {{ $lot->lot_code }} · {{ $lot->statusLabel() }}
                     </a>
                 @endforeach
@@ -120,8 +120,8 @@
     <!-- Tarjetas de Información de Importación -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Póliza y Documentos Aduanales -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
-            <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-line dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">📑</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Póliza y Documentos</h3>
             </div>
@@ -146,8 +146,8 @@
         </div>
 
         <!-- Proveedor -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
-            <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-line dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">🏢</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Proveedor Exterior</h3>
             </div>
@@ -168,8 +168,8 @@
         </div>
 
         <!-- Compra Origen -->
-        <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-5 space-y-3">
-            <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2">
+        <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b border-line dark:border-slate-700 pb-2">
                 <span class="text-teal-600 text-lg">🧾</span>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Compra de Origen</h3>
             </div>
@@ -197,8 +197,8 @@
     </div>
 
     <!-- Tabla Detallada de Liquidación de Costos -->
-    <div class="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-xs p-6 space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
+    <div class="bg-surface dark:bg-slate-800/80 rounded-2xl border border-line dark:border-slate-700 shadow-xs p-6 space-y-4">
+        <div class="flex items-center justify-between border-b border-line dark:border-slate-700 pb-3">
             <h3 class="text-base font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <span>📦 Desglose de Prorrateo por Producto</span>
             </h3>
@@ -207,7 +207,7 @@
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-slate-100 dark:border-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider border-b border-line dark:border-slate-700">
                     <tr>
                         <th class="py-3 px-4">Producto</th>
                         <th class="py-3 px-4 text-center">Cantidad</th>
@@ -244,7 +244,7 @@
                             <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-800 dark:text-slate-100">
                                 ${{ number_format($item->total_cost, 2) }}
                             </td>
-                            <td class="py-3.5 px-4 text-right font-mono font-extrabold text-[#005e66] dark:text-teal-400 text-sm">
+                            <td class="py-3.5 px-4 text-right font-mono font-extrabold text-primary dark:text-accent dark:text-teal-400 text-sm">
                                 ${{ number_format($item->unit_cost, 4) }}
                             </td>
                         </tr>
@@ -254,7 +254,7 @@
         </div>
 
         <!-- Desglose y Resumen Financiero -->
-        <div class="flex flex-col md:flex-row justify-between items-start pt-4 border-t border-slate-100 dark:border-slate-700 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-start pt-4 border-t border-line dark:border-slate-700 gap-4">
             <div class="w-full md:w-1/2 space-y-3">
                 <div class="bg-indigo-50/70 dark:bg-slate-900/50 rounded-xl p-4 border border-indigo-100 dark:border-slate-700">
                     <span class="font-extrabold text-xs uppercase tracking-wider text-indigo-900 dark:text-indigo-300 block mb-1">
@@ -265,13 +265,13 @@
                     </p>
                 </div>
                 @if($retaceo->notes)
-                    <div class="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-slate-200 dark:border-slate-700 text-xs">
+                    <div class="bg-slate-50 dark:bg-slate-900/40 rounded-xl p-4 border border-line dark:border-slate-700 text-xs">
                         <span class="font-bold text-slate-500 dark:text-slate-400 block mb-1">Notas:</span>
                         <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ $retaceo->notes }}</p>
                     </div>
                 @endif
             </div>
-            <div class="w-full md:w-80 space-y-2 text-sm bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div class="w-full md:w-80 space-y-2 text-sm bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-line dark:border-slate-700">
                 <div class="flex justify-between text-slate-600 dark:text-slate-400">
                     <span>Total FOB Mercancía:</span>
                     <span class="font-mono font-bold">${{ number_format($retaceo->total_fob, 2) }}</span>
@@ -295,9 +295,9 @@
                     <span>Aranceles DAI:</span>
                     <span class="font-mono font-bold">${{ number_format($retaceo->total_dai, 2) }}</span>
                 </div>
-                <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div class="flex justify-between text-base font-extrabold text-slate-800 dark:text-slate-100 pt-2 border-t border-line dark:border-slate-700">
                     <span>Costo Total Liquidado:</span>
-                    <span class="font-mono text-[#005e66] dark:text-teal-400 text-xl">${{ number_format($retaceo->total_cost, 2) }}</span>
+                    <span class="font-mono text-primary dark:text-accent dark:text-teal-400 text-xl">${{ number_format($retaceo->total_cost, 2) }}</span>
                 </div>
             </div>
         </div>
@@ -306,7 +306,7 @@
 
 <!-- Modal de Cambio de Estado -->
 <div id="retaceoStatusModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center relative mx-4">
+    <div class="bg-surface dark:bg-slate-800 border border-line dark:border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center relative mx-4">
         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2" id="retaceoStatusModalTitle">¿Cambiar Estado?</h3>
         <p class="text-slate-500 dark:text-slate-400 text-xs mb-6" id="retaceoStatusModalDesc"></p>
         <form id="retaceoStatusModalForm" method="POST" action="">

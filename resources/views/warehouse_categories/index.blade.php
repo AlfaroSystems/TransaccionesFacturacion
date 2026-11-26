@@ -3,27 +3,18 @@
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
 
-    <!-- Encabezado -->
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-4xl font-bold text-slate-800">
-                Categorías de Bodega
-            </h1>
-            <p class="text-gray-500 mt-2">
-                Administración de categorías registradas.
-            </p>
-        </div>
-
+    <x-ui.page-header eyebrow="Inventario" module="Categorías de Bodega"
+        title="Categorías de Bodega" subtitle="Administración de categorías registradas.">
         @can('warehouse_categories.crear')
-        <button type="button" onclick="openModal('create-category-modal')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg transition">
-            + Nueva Categoría
-        </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-category-modal')">Nueva Categoría</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </div>
+    </x-ui.page-header>
 
     <!-- Tarjeta -->
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 pl-10">ID</th>
@@ -36,7 +27,7 @@
             <tbody>
                 @forelse($categories as $category)
                     <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$category->is_active ? 'opacity-50 grayscale-35' : '' }}">
-                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm text-slate-400 font-bold">
+                        <td class="px-6 py-4 bg-surface rounded-l-2xl border-l border-y border-line text-sm text-slate-400 font-bold">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center text-pink-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,23 +37,23 @@
                                 <span>#{{ $category->id_warehouse_category }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm font-bold text-slate-900">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-sm font-bold text-slate-900">
                             {{ $category->name }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm text-slate-600 max-w-xs truncate">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-sm text-slate-600 max-w-xs truncate">
                             {{ $category->description ?? 'Sin descripción' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $category->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100' }}">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $category->is_active ? 'bg-success-soft text-success border border-success-line' : 'bg-danger-soft text-danger border border-danger-line' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $category->is_active ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
                                 {{ $category->is_active ? 'Activa' : 'Inactiva' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
+                        <td class="px-6 py-4 bg-surface rounded-r-2xl border-r border-y border-line text-center">
                             <div class="flex justify-center gap-2">
                                 <!-- Editar -->
                                 @can('warehouse_categories.editar')
-                                <button type="button" onclick="openEditCategoryModal('{{ route('warehouse_categories.update', $category->id_warehouse_category) }}', {{ json_encode($category) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Categoría">
+                                <button type="button" onclick="openEditCategoryModal('{{ route('warehouse_categories.update', $category->id_warehouse_category) }}', {{ json_encode($category) }})" class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 transition-colors" title="Editar Categoría">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -72,13 +63,13 @@
                                 <!-- Eliminar / Inactivar -->
                                 @can('warehouse_categories.eliminar')
                                     @if($category->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('warehouse_categories.destroy', $category->id_warehouse_category) }}', '{{ addslashes($category->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Inactivar Categoría">
+                                        <button type="button" onclick="confirmDelete('{{ route('warehouse_categories.destroy', $category->id_warehouse_category) }}', '{{ addslashes($category->name) }}', false)" class="p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 transition-colors" title="Inactivar Categoría">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                             </svg>
                                         </button>
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('warehouse_categories.destroy', $category->id_warehouse_category) }}', '{{ addslashes($category->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors" title="Reactivar Categoría">
+                                        <button type="button" onclick="confirmDelete('{{ route('warehouse_categories.destroy', $category->id_warehouse_category) }}', '{{ addslashes($category->name) }}', true)" class="p-2.5 rounded-xl bg-success-soft text-success hover:brightness-95 transition-colors" title="Reactivar Categoría">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -90,7 +81,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="py-12 bg-white rounded-2xl border border-slate-100 text-center text-slate-400 font-semibold shadow-xs">
+                        <td colspan="5" class="py-12 ui-surface text-center text-slate-400 font-semibold shadow-xs">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -107,7 +98,7 @@
 
 <!-- MODAL DE REGISTRO DE CATEGORÍA -->
 <div id="create-category-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+    <div class="bg-surface rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-category-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -133,7 +124,7 @@
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2zM9 16h6M9 12h6" /></svg>
                     </span>
-                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Refrigerado, Secos, etc." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Refrigerado, Secos, etc." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                 </div>
                 @error('name')
                     @if(old('modal_type') === 'create')
@@ -145,7 +136,7 @@
             <!-- Descripción -->
             <div>
                 <label for="description" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción</label>
-                <textarea name="description" id="description" rows="3" placeholder="Escribe detalles adicionales..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('description') : '' }}</textarea>
+                <textarea name="description" id="description" rows="3" placeholder="Escribe detalles adicionales..." class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'create' ? old('description') : '' }}</textarea>
                 @error('description')
                     @if(old('modal_type') === 'create')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -154,7 +145,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-line">
                 <button type="button" onclick="closeModal('create-category-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
@@ -169,7 +160,7 @@
 
 <!-- MODAL DE EDICIÓN DE CATEGORÍA -->
 <div id="edit-category-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
+    <div class="bg-surface rounded-3xl p-8 max-w-lg w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-category-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -198,7 +189,7 @@
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2zM9 16h6M9 12h6" /></svg>
                     </span>
-                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Refrigerado, Secos, etc." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Refrigerado, Secos, etc." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                 </div>
                 @error('name')
                     @if(old('modal_type') === 'edit')
@@ -210,7 +201,7 @@
             <!-- Descripción -->
             <div>
                 <label for="edit-description" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción</label>
-                <textarea name="description" id="edit-description" rows="3" placeholder="Escribe detalles adicionales..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('description') : '' }}</textarea>
+                <textarea name="description" id="edit-description" rows="3" placeholder="Escribe detalles adicionales..." class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('description') : '' }}</textarea>
                 @error('description')
                     @if(old('modal_type') === 'edit')
                         <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -230,7 +221,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-line">
                 <button type="button" onclick="closeModal('edit-category-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>

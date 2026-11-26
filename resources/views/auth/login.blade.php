@@ -50,7 +50,7 @@
             <!-- Form Wrapper -->
             <div class="w-full max-w-sm mx-auto my-auto py-4">
                 <!-- Tab Headers -->
-                <div class="flex border-b border-gray-100 dark:border-slate-700 mb-8">
+                <div class="flex border-b border-line dark:border-slate-700 mb-8">
                     <button class="flex-1 text-center pb-3 text-sm font-bold border-b-2 border-[#3cb0a4] text-customTeal-700 dark:text-customTeal-400">
                         Iniciar sesión
                     </button>
@@ -66,7 +66,7 @@
                     @csrf
                     <!-- Email Address -->
                     <div>
-                        <div class="relative flex items-center shadow-xs border border-gray-200 dark:border-slate-700 rounded-full bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
+                        <div class="relative flex items-center shadow-xs border border-line dark:border-slate-700 rounded-full bg-surface dark:bg-slate-900 focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
                             <span class="absolute left-1 w-9 h-9 rounded-full bg-customTeal-50 dark:bg-slate-800 flex items-center justify-center text-[#3cb0a4]">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -79,7 +79,7 @@
 
                     <!-- Password -->
                     <div>
-                        <div class="relative flex items-center shadow-xs border border-gray-200 dark:border-slate-700 rounded-full bg-white dark:bg-slate-900 focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
+                        <div class="relative flex items-center shadow-xs border border-line dark:border-slate-700 rounded-full bg-surface dark:bg-slate-900 focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
                             <span class="absolute left-1 w-9 h-9 rounded-full bg-customTeal-50 dark:bg-slate-800 flex items-center justify-center text-[#3cb0a4]">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

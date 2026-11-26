@@ -17,11 +17,11 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Solicitudes de Cotización</span>
+                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Solicitudes de Cotización</span>
                 <span class="text-slate-400 dark:text-slate-600">•</span>
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Detalle</span>
             </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight mt-1">
+            <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight mt-1">
                 Solicitud de Cotización #{{ str_pad($purchaseQuotationRequest->id_purchase_quotation_request, 4, '0', STR_PAD_LEFT) }}
             </h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 flex flex-wrap items-center gap-2">
@@ -41,7 +41,7 @@
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
             @can('purchase_quotation_requests.pdf')
                 @if($lines->isNotEmpty())
-                    <button type="button" onclick="openModal('pdf-modal')" class="flex-1 md:flex-none bg-white dark:bg-slate-800 border border-[#005e66] dark:border-teal-700 text-[#005e66] dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-700 font-bold px-5 py-2.5 rounded-full shadow-xs transition-all flex items-center justify-center gap-2 text-xs">
+                    <button type="button" onclick="openModal('pdf-modal')" class="flex-1 md:flex-none bg-surface dark:bg-slate-800 border border-[#005e66] dark:border-teal-700 text-primary dark:text-accent dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-slate-700 font-bold px-5 py-2.5 rounded-full shadow-xs transition-all flex items-center justify-center gap-2 text-xs">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Generar PDF</span>
                     </button>
@@ -69,9 +69,9 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Tarjeta de Solicitudes de Compra Origen -->
         @php $originRequests = $purchaseQuotationRequest->purchaseRequests; @endphp
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6 space-y-4 md:col-span-2">
-            <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-[#005e66] dark:text-teal-400 flex items-center justify-center text-lg font-bold">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-6 space-y-4 md:col-span-2">
+            <div class="flex items-center gap-3 border-b border-line dark:border-slate-800 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-primary dark:text-accent dark:text-teal-400 flex items-center justify-center text-lg font-bold">
                     📋
                 </div>
                 <div>
@@ -81,9 +81,9 @@
             </div>
             <div class="space-y-3">
                 @forelse($originRequests as $originRequest)
-                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-sm">
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-line dark:border-slate-800 text-sm">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="font-mono font-extrabold text-[#005e66] dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-2.5 py-0.5 rounded-lg border border-teal-200 dark:border-teal-800">
+                            <span class="font-mono font-extrabold text-primary dark:text-accent dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-2.5 py-0.5 rounded-lg border border-teal-200 dark:border-teal-800">
                                 {{ $originRequest->purchase_request_code }}
                             </span>
                             <span class="text-xs font-bold text-slate-500 dark:text-slate-400">
@@ -101,7 +101,7 @@
                     <p class="text-xs text-slate-400">Sin solicitudes de compra: la solicitud reúne productos que agregó el departamento de compras.</p>
                 @endforelse
                 @if($purchaseQuotationRequest->id_branch)
-                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 text-xs">
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-line dark:border-slate-700 text-xs">
                         <span class="font-extrabold text-slate-700 dark:text-slate-200">Productos sin solicitud de compra</span>
                         <span class="block mt-1 text-slate-500 dark:text-slate-400">
                             <span class="font-bold uppercase text-slate-400">Destino:</span>
@@ -113,9 +113,9 @@
         </div>
 
         <!-- Tarjeta de Adjudicación -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6 space-y-4">
-            <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-[#005e66] dark:text-teal-400 flex items-center justify-center text-lg font-bold">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-6 space-y-4">
+            <div class="flex items-center gap-3 border-b border-line dark:border-slate-800 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-primary dark:text-accent dark:text-teal-400 flex items-center justify-center text-lg font-bold">
                     🏆
                 </div>
                 <div>
@@ -137,7 +137,7 @@
                             </div>
                         @endif
                     @endforeach
-                    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                    <div class="pt-2 border-t border-line dark:border-slate-800 space-y-2">
                         @if($generatedOrders->isEmpty())
                             @can('purchase_orders.crear')
                                 <form method="POST" action="{{ route('purchase-quotation-requests.generate-orders', $purchaseQuotationRequest->id_purchase_quotation_request) }}">
@@ -154,9 +154,9 @@
                             @endphp
                             <span class="text-xs font-bold text-slate-400 uppercase block">Órdenes de compra</span>
                             @foreach($generatedOrders as $order)
-                                <a href="{{ route('purchase_orders.show', $order) }}" class="block p-2 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
+                                <a href="{{ route('purchase_orders.show', $order) }}" class="block p-2 rounded-lg border border-line dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
                                     <span class="flex justify-between items-center gap-2">
-                                        <span class="font-mono font-extrabold text-xs text-[#005e66] dark:text-teal-300">{{ $order->purchase_order_code }}</span>
+                                        <span class="font-mono font-extrabold text-xs text-primary dark:text-accent dark:text-teal-300">{{ $order->purchase_order_code }}</span>
                                         <span class="text-[10px] font-bold uppercase text-slate-400">{{ $orderStatusLabels[$order->status] ?? $order->status }}</span>
                                     </span>
                                     <span class="block text-xs text-slate-500 dark:text-slate-400">{{ $order->supplier?->name }} → {{ $order->branch?->name }} / {{ $order->warehouse?->name }}</span>
@@ -171,7 +171,7 @@
                             Pendiente de adjudicar
                         </span>
                     </div>
-                    <p class="text-xs text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <p class="text-xs text-slate-400 pt-2 border-t border-line dark:border-slate-800">
                         Elija en <strong>"Adjudicación por Producto"</strong>, debajo de las ofertas, qué proveedor gana cada producto.
                     </p>
                 @endif
@@ -180,8 +180,8 @@
     </div>
 
     <!-- Tabla de Ítems Solicitados a Cotizar -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center gap-4">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
+        <div class="p-6 border-b border-line dark:border-slate-800 flex justify-between items-center gap-4">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-white">Productos a Cotizar</h2>
                 <p class="text-xs text-slate-400">
@@ -205,7 +205,7 @@
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                     <tr>
                         <th class="py-3.5 px-6">PRODUCTO</th>
                         <th class="py-3.5 px-6">UNIDAD</th>
@@ -262,10 +262,10 @@
     </div>
 
     <!-- Ofertas de Proveedores Registradas -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden p-6">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden p-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-extrabold text-slate-800 dark:text-white">Ofertas Recibidas de Proveedores</h3>
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-customTeal-800/10 text-[#005e66] dark:bg-teal-900/30 dark:text-teal-300">
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-customTeal-800/10 text-primary dark:text-accent dark:bg-teal-900/30 dark:text-teal-300">
                 {{ count($supplierQuotations ?? []) }} {{ count($supplierQuotations ?? []) === 1 ? 'Oferta' : 'Ofertas' }}
             </span>
         </div>
@@ -273,8 +273,8 @@
         @if(isset($supplierQuotations) && count($supplierQuotations) > 0)
             <div class="space-y-4">
                 @foreach($supplierQuotations as $quotation)
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-3 bg-slate-50/50 dark:bg-slate-800/40">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
+                    <div class="border border-line dark:border-slate-700 rounded-xl p-4 space-y-3 bg-slate-50/50 dark:bg-slate-800/40">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-line dark:border-slate-700 pb-3">
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-extrabold text-slate-800 dark:text-white text-base">
@@ -291,7 +291,7 @@
                                                 ✓ Adjudicada: {{ $wonCount }} de {{ $quotation->details->count() }} productos
                                             </span>
                                         @else
-                                            <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700">
+                                            <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs font-semibold rounded-lg border border-line dark:border-slate-700">
                                                 No adjudicada
                                             </span>
                                         @endif
@@ -307,7 +307,7 @@
                             <div class="text-right flex items-center gap-3">
                                 <div>
                                     <span class="text-xs uppercase text-slate-400 block font-extrabold">Total General</span>
-                                    <span class="text-xl font-extrabold text-[#005e66] dark:text-teal-400">
+                                    <span class="text-xl font-extrabold text-primary dark:text-accent dark:text-teal-400">
                                         {{ $quotation->currency ?? 'USD' }} ${{ number_format($quotation->total, 2) }}
                                     </span>
                                 </div>
@@ -322,7 +322,7 @@
                         <!-- Detalle Ítems Cotizados -->
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                                <thead class="bg-slate-100 dark:bg-slate-800 text-[#005e66] dark:text-teal-400 font-extrabold uppercase">
+                                <thead class="bg-slate-100 dark:bg-slate-800 text-primary dark:text-accent dark:text-teal-400 font-extrabold uppercase">
                                     <tr>
                                         <th class="py-2 px-3">Producto</th>
                                         <th class="py-2 px-3 text-center">Cant.</th>
@@ -357,7 +357,7 @@
                                 <span class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Gastos Adicionales:</span>
                                 <div class="flex flex-wrap gap-3">
                                     @foreach($quotation->expenses as $qExpense)
-                                        <span class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300">
+                                        <span class="bg-surface dark:bg-slate-900 border border-line dark:border-slate-700 px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300">
                                             <strong>{{ $qExpense->expenseType->name ?? 'Gasto' }}:</strong> ${{ number_format($qExpense->amount, 2) }} {{ $qExpense->description ? "({$qExpense->description})" : '' }}
                                         </span>
                                     @endforeach
@@ -377,16 +377,16 @@
     @if(! $awarded && count($supplierQuotations) > 0)
         @can('purchase_quotation_requests.seleccionar_cotizacion')
         <!-- Adjudicación por Producto -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6 space-y-4">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-6 space-y-4">
             <div>
                 <h3 class="text-base font-extrabold text-slate-800 dark:text-white">Adjudicación por Producto</h3>
                 <p class="text-xs text-slate-400">Elija qué proveedor gana cada producto: todo a uno solo o repartido entre varios. El menor total de cada producto está resaltado. Los productos que ningún proveedor cotizó quedan sin adjudicar.</p>
             </div>
             <form id="award-form" method="POST" action="{{ route('purchase-quotation-requests.award', $purchaseQuotationRequest->id_purchase_quotation_request) }}">
                 @csrf
-                <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div class="overflow-x-auto border border-line dark:border-slate-700 rounded-xl">
                     <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                        <thead class="bg-slate-50 dark:bg-slate-800/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-800/80 font-extrabold text-slate-400 uppercase border-b border-line dark:border-slate-700">
                             <tr>
                                 <th class="py-3 px-4">Producto</th>
                                 <th class="py-3 px-4 text-center">Cantidad</th>
@@ -394,7 +394,7 @@
                                     <th class="py-3 px-4 text-center normal-case">
                                         <span class="block font-extrabold text-slate-700 dark:text-slate-200">{{ $quotation->supplier->name ?? 'Proveedor' }}</span>
                                         <span class="block font-mono text-slate-400">{{ $quotation->purchase_quotation_code }}</span>
-                                        <button type="button" onclick="awardAllTo({{ $quotation->id_purchase_quotation }})" class="mt-1.5 px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950 text-[#005e66] dark:text-teal-300 hover:bg-customTeal-800 hover:text-white border border-teal-200 dark:border-teal-800 text-[10px] font-extrabold transition-all">Todo de este proveedor</button>
+                                        <button type="button" onclick="awardAllTo({{ $quotation->id_purchase_quotation }})" class="mt-1.5 px-2.5 py-1 rounded-lg bg-teal-50 dark:bg-teal-950 text-primary dark:text-accent dark:text-teal-300 hover:bg-customTeal-800 hover:text-white border border-teal-200 dark:border-teal-800 text-[10px] font-extrabold transition-all">Todo de este proveedor</button>
                                     </th>
                                 @endforeach
                             </tr>
@@ -425,7 +425,7 @@
                                                 <label class="inline-flex flex-col items-center gap-1 cursor-pointer px-3 py-2 rounded-lg {{ (float) $offer->total === (float) $bestTotal ? 'bg-emerald-50 dark:bg-emerald-950/40 ring-1 ring-emerald-200 dark:ring-emerald-800' : '' }}">
                                                     <input type="radio" name="awards[{{ $line->key }}]" value="{{ $offer->id_purchase_quotation_detail }}" required
                                                         data-quotation="{{ $quotation->id_purchase_quotation }}" data-supplier="{{ $quotation->supplier->name ?? 'Proveedor' }}" data-total="{{ $offer->total }}"
-                                                        class="award-option w-4 h-4 text-[#005e66] border-slate-300 cursor-pointer">
+                                                        class="award-option w-4 h-4 text-primary dark:text-accent border-slate-300 cursor-pointer">
                                                     <span class="font-mono">${{ number_format($offer->unit_price, 2) }} c/u</span>
                                                     <span class="font-mono font-extrabold text-slate-800 dark:text-white">${{ number_format($offer->total, 2) }}</span>
                                                 </label>
@@ -441,7 +441,7 @@
                 </div>
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4">
                     <p class="text-sm text-slate-600 dark:text-slate-300">
-                        Total adjudicado: <strong id="award-total" class="font-mono text-[#005e66] dark:text-teal-400">$0.00</strong>
+                        Total adjudicado: <strong id="award-total" class="font-mono text-primary dark:text-accent dark:text-teal-400">$0.00</strong>
                         <span class="block text-xs text-slate-400">Productos con impuesto; los gastos adicionales se revisan en cada orden de compra.</span>
                     </p>
                     <button type="button" onclick="confirmAward()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition shadow-md">Guardar Adjudicación</button>
@@ -451,7 +451,7 @@
 
         <!-- MODAL CONFIRMAR ADJUDICACIÓN -->
         <div id="award-confirm-modal" class="hidden fixed inset-0 z-60 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
-            <div id="award-confirm-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200">
+            <div id="award-confirm-card" class="bg-surface dark:bg-slate-800 border border-line dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200">
                 <div class="w-14 h-14 rounded-full border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-500 dark:text-emerald-400 mb-5">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
@@ -471,8 +471,8 @@
 @can('purchase_quotation_requests.pdf')
 {{-- MODAL GENERAR PDF PARA PROVEEDORES --}}
 <div id="pdf-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+    <div class="w-full max-w-2xl bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-line dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Generar PDF para Proveedores</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Elija los productos que llevará el PDF. Sale sin precios, para que el proveedor los cotice.</p>
@@ -487,15 +487,15 @@
             <div class="p-6 space-y-3 overflow-y-auto flex-1">
                 <div class="flex items-center justify-between">
                     <label class="inline-flex items-center gap-2 text-xs font-extrabold text-slate-600 dark:text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="pdf-select-all" checked onchange="toggleAllPdfLines(this.checked)" class="rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                        <input type="checkbox" id="pdf-select-all" checked onchange="toggleAllPdfLines(this.checked)" class="rounded-sm text-primary dark:text-accent border-slate-300 w-4 h-4 cursor-pointer">
                         Todos los productos
                     </label>
                     <span id="pdf-counter" class="text-xs font-extrabold text-slate-400">{{ $lines->count() }} de {{ $lines->count() }} productos</span>
                 </div>
-                <div class="border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-80 overflow-y-auto">
+                <div class="border border-line dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 max-h-80 overflow-y-auto">
                     @foreach($lines as $line)
                         <label class="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-colors">
-                            <input type="checkbox" name="lines[]" value="{{ $line->key }}" checked onchange="updatePdfCounter()" class="pdf-line rounded-sm text-[#005e66] border-slate-300 w-4 h-4 cursor-pointer">
+                            <input type="checkbox" name="lines[]" value="{{ $line->key }}" checked onchange="updatePdfCounter()" class="pdf-line rounded-sm text-primary dark:text-accent border-slate-300 w-4 h-4 cursor-pointer">
                             <span class="flex-1 min-w-0">
                                 <span class="block text-sm font-bold text-slate-800 dark:text-white">{{ $line->product?->name ?? 'Producto' }}</span>
                                 @if($line->product?->sku)
@@ -511,7 +511,7 @@
                 <p id="pdf-error" class="hidden text-xs font-semibold text-rose-500">Elija al menos un producto.</p>
             </div>
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                 <button type="button" onclick="closeModal('pdf-modal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
                     Cancelar
                 </button>
@@ -535,8 +535,8 @@
 @endphp
 {{-- MODAL EDITAR PRODUCTOS (SOLO EN BORRADOR) --}}
 <div id="edit-products-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div class="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+    <div class="w-full max-w-3xl bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-line dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Editar Productos</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cambie cantidades, quite productos o agregue otros mientras la solicitud está en borrador.</p>
@@ -554,9 +554,9 @@
                     <div class="space-y-2">
                         <label class="block text-xs font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">De Solicitudes de Compra</label>
                         <p class="text-xs text-slate-400">Si un producto viene de varias solicitudes de compra, la cantidad nueva se reparte en proporción a lo que pidió cada una. Una solicitud de compra que se queda sin productos vuelve a quedar aprobada para cotizarla en otra solicitud.</p>
-                        <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-x-auto">
+                        <div class="border border-line dark:border-slate-700 rounded-xl overflow-x-auto">
                             <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[420px]">
-                                <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                                <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-line dark:border-slate-700">
                                     <tr>
                                         <th class="py-2.5 px-3">Producto</th>
                                         <th class="py-2.5 px-3 w-32">Cantidad Total</th>
@@ -570,7 +570,7 @@
                                         <tr class="request-line-row">
                                             <td class="p-2 font-bold text-slate-800 dark:text-white">{{ $detail->product?->name ?? 'Producto' }}</td>
                                             <td class="p-2">
-                                                <input type="number" name="lines[{{ $key }}][quantity]" value="{{ $productLines->sum(fn ($line) => (float) $line->quantity) }}" step="0.0001" min="0.0001" required class="w-full px-2 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-xs font-bold text-slate-800 dark:text-white">
+                                                <input type="number" name="lines[{{ $key }}][quantity]" value="{{ $productLines->sum(fn ($line) => (float) $line->quantity) }}" step="0.0001" min="0.0001" required class="w-full px-2 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-center text-xs font-bold text-slate-800 dark:text-white">
                                             </td>
                                             <td class="p-2">{{ $detail->unit?->abbreviation ?: $detail->unit?->name }}</td>
                                             <td class="p-2 text-center">
@@ -598,7 +598,7 @@
                 <p id="edit-products-error" class="hidden text-xs font-semibold text-rose-500">La solicitud debe tener al menos un producto.</p>
             </div>
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                 <button type="button" onclick="closeModal('edit-products-modal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
                     Cancelar
                 </button>
@@ -613,8 +613,8 @@
 
 {{-- MODAL PARA REGISTRAR OFERTA DE PROVEEDOR --}}
 <div id="provider-offer-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div id="provider-offer-card" class="w-full max-w-4xl bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
+    <div id="provider-offer-card" class="w-full max-w-4xl bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200 overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-line dark:border-slate-700 shrink-0">
             <div>
                 <h2 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Registrar Oferta de Proveedor</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ingrese precios unitarios, descuentos, impuestos, condiciones y gastos adicionales del proveedor.</p>
@@ -633,7 +633,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="space-y-1 md:col-span-2">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Proveedor <span class="text-rose-500">*</span></label>
-                        <select name="id_supplier" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                        <select name="id_supplier" required class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
                             <option value="">-- Seleccionar Proveedor --</option>
                             @foreach($suppliers ?? [] as $supplier)
                                 <option value="{{ $supplier->id_supplier }}">{{ $supplier->name }} {{ $supplier->code ? "({$supplier->code})" : '' }}</option>
@@ -643,7 +643,7 @@
 
                     <div class="space-y-1">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Moneda <span class="text-rose-500">*</span></label>
-                        <select name="currency" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                        <select name="currency" required class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
                             @foreach(\App\Support\Moneda::OPCIONES as $codigo => $etiqueta)
                                 <option value="{{ $codigo }}" @selected($codigo === \App\Support\Moneda::PREDETERMINADA)>{{ $etiqueta }}</option>
                             @endforeach
@@ -652,22 +652,22 @@
 
                     <div class="space-y-1">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Fecha Cotización <span class="text-rose-500">*</span></label>
-                        <input type="date" name="quotation_date" value="{{ date('Y-m-d') }}" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                        <input type="date" name="quotation_date" value="{{ date('Y-m-d') }}" required class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
                     </div>
 
                     <div class="space-y-1">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Válida Hasta</label>
-                        <input type="date" name="valid_until" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                        <input type="date" name="valid_until" class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
                     </div>
 
                     <div class="space-y-1">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Días de Entrega Global</label>
-                        <input type="number" min="0" name="delivery_days" placeholder="Ej. 7" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                        <input type="number" min="0" name="delivery_days" placeholder="Ej. 7" class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
                     </div>
 
                     <div class="space-y-1 md:col-span-3">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Condiciones de Pago</label>
-                        <input type="text" name="payment_terms" placeholder="Ej. Crédito a 30 días, 50% anticipo 50% contra entrega..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
+                        <input type="text" name="payment_terms" placeholder="Ej. Crédito a 30 días, 50% anticipo 50% contra entrega..." class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden">
                     </div>
                 </div>
 
@@ -676,9 +676,9 @@
                     <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Detalle de Ítems Cotizados</label>
                     <p class="text-xs text-slate-400">Deje el precio en blanco en los productos que el proveedor no cotizó.</p>
                     <p id="offer-prices-error" class="hidden text-xs font-semibold text-rose-500">Indique el precio de al menos un producto.</p>
-                    <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden overflow-x-auto">
+                    <div class="border border-line dark:border-slate-700 rounded-xl overflow-hidden overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300 min-w-[700px]">
-                            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-slate-200 dark:border-slate-700">
+                            <thead class="bg-slate-50 dark:bg-slate-900/80 font-extrabold text-slate-400 uppercase border-b border-line dark:border-slate-700">
                                 <tr>
                                     <th class="py-2.5 px-3">Producto</th>
                                     <th class="py-2.5 px-3 text-center">Cant. Solicitada</th>
@@ -705,16 +705,16 @@
                                             {{ number_format($line->quantity, 2) }}
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <input type="number" step="0.0001" min="0" name="items[{{ $index }}][unit_price]" placeholder="No cotizó" class="offer-price w-28 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+                                            <input type="number" step="0.0001" min="0" name="items[{{ $index }}][unit_price]" placeholder="No cotizó" class="offer-price w-28 px-2 py-1 rounded-sm border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-center font-bold text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <input type="number" step="0.01" min="0" name="items[{{ $index }}][discount]" value="0.00" class="w-24 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+                                            <input type="number" step="0.01" min="0" name="items[{{ $index }}][discount]" value="0.00" class="w-24 px-2 py-1 rounded-sm border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <input type="number" step="0.01" min="0" name="items[{{ $index }}][tax_rate]" value="13.00" class="w-20 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+                                            <input type="number" step="0.01" min="0" name="items[{{ $index }}][tax_rate]" value="13.00" class="w-20 px-2 py-1 rounded-sm border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <input type="number" min="0" name="items[{{ $index }}][delivery_days]" placeholder="Días" class="w-20 px-2 py-1 rounded-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+                                            <input type="number" min="0" name="items[{{ $index }}][delivery_days]" placeholder="Días" class="w-20 px-2 py-1 rounded-sm border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-center text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                                         </td>
                                     </tr>
                                 @endforeach
@@ -727,7 +727,7 @@
                 <div class="space-y-2 pt-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Gastos Adicionales</label>
-                        <button type="button" onclick="addExpenseRow()" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline flex items-center gap-1">
+                        <button type="button" onclick="addExpenseRow()" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline flex items-center gap-1">
                             + Agregar Gasto
                         </button>
                     </div>
@@ -740,11 +740,11 @@
                 <!-- Sección 4: Notas de la oferta -->
                 <div class="space-y-1 pt-1">
                     <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Notas Adicionales de la Oferta</label>
-                    <textarea name="notes" rows="2" placeholder="Observaciones o aclaraciones de la cotización..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden"></textarea>
+                    <textarea name="notes" rows="2" placeholder="Observaciones o aclaraciones de la cotización..." class="w-full px-3.5 py-2.5 rounded-xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-sm font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden"></textarea>
                 </div>
             </div>
 
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+            <div class="flex justify-end gap-3 px-6 py-4 border-t border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
                 <button type="button" onclick="closeProviderOfferModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
                     Cancelar
                 </button>
@@ -785,7 +785,7 @@ function closeProviderOfferModal() {
 function addExpenseRow() {
     const container = document.getElementById('expenses-container');
     const div = document.createElement('div');
-    div.className = 'flex flex-row items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 w-full';
+    div.className = 'flex flex-row items-center gap-2 border border-line dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 w-full';
     div.style.cssText = 'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important;';
 
     let selectOptions = '<option value="">-- Tipo de Gasto --</option>';
@@ -798,15 +798,15 @@ function addExpenseRow() {
 
     div.innerHTML = `
         <div style="flex: 1 1 35%; min-width: 0;">
-            <select name="expenses[${currentIndex}][id_expense_type]" required onchange="updateExpenseDescription(this, ${currentIndex})" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+            <select name="expenses[${currentIndex}][id_expense_type]" required onchange="updateExpenseDescription(this, ${currentIndex})" class="w-full px-2.5 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
                 ${selectOptions}
             </select>
         </div>
         <div style="flex: 1 1 40%; min-width: 0;">
-            <input type="text" name="expenses[${currentIndex}][description]" id="expense_desc_${currentIndex}" placeholder="Descripción del gasto (ej. flete)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
+            <input type="text" name="expenses[${currentIndex}][description]" id="expense_desc_${currentIndex}" placeholder="Descripción del gasto (ej. flete)" class="w-full px-2.5 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-1 focus:ring-[#005e66] outline-hidden">
         </div>
         <div style="flex: 0 0 20%; min-width: 0;">
-            <input type="number" step="0.01" min="0" name="expenses[${currentIndex}][amount]" required placeholder="Monto $" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-1 focus:ring-[#005e66] outline-hidden">
+            <input type="number" step="0.01" min="0" name="expenses[${currentIndex}][amount]" required placeholder="Monto $" class="w-full px-2.5 py-1.5 rounded-lg border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-1 focus:ring-[#005e66] outline-hidden">
         </div>
         <div style="flex: 0 0 auto;" class="text-center">
             <button type="button" onclick="this.closest('.flex').remove()" class="text-rose-500 hover:text-rose-700 p-1" title="Eliminar gasto">

@@ -4,36 +4,17 @@
 <div class="w-full space-y-6 animate-fade-in duration-300">
 
     {{-- ENCABEZADO --}}
-    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 tracking-tight">
-                Gestión de Unidades
-            </h1>
-            <p class="text-slate-400 text-sm font-semibold mt-1">
-                Administra las unidades de medida utilizadas en el sistema.
-            </p>
-        </div>
-
+    <x-ui.page-header eyebrow="Productos" module="Unidades de Medida"
+        title="Gestión de Unidades" subtitle="Administra las unidades de medida utilizadas en el sistema.">
         @can('units.crear')
-            <button type="button"
-                    onclick="openModal('create-unit-modal')"
-                    class="flex items-center justify-center gap-2 px-5 py-3 bg-navy-sidebar text-white rounded-full font-bold text-sm hover:bg-navy-active shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                <svg class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Crear Nueva Unidad</span>
-            </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-unit-modal')">Crear Nueva Unidad</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </header>
+    </x-ui.page-header>
 
     {{-- BÚSQUEDA Y FILTROS --}}
-    <section class="bg-white p-6 rounded-2xl border border-slate-100 card-shadow">
+    <section class="bg-surface p-6 rounded-2xl border border-line card-shadow">
         <form action="{{ route('units.index') }}"
                 method="GET"
                 class="flex flex-col md:flex-row gap-4 items-end">
@@ -49,7 +30,7 @@
                         id="search"
                         value="{{ request('search') }}"
                         placeholder="Buscar por nombre o tipo..."
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pl-10 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                        class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2.5 pl-10 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <div class="absolute left-3.5 top-3.5 text-slate-400">
                         <svg class="w-4 h-4"
                             fill="none"
@@ -71,7 +52,7 @@
                 </label>
                 <select name="type"
                         id="type"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                        class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">
                         Todos los Tipos
                     </option>
@@ -94,7 +75,7 @@
                 </label>
                 <select name="status"
                         id="status"
-                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
+                        class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-navy-sidebar focus:bg-white transition-all text-slate-700">
                     <option value="">
                         Todos los Estados
                     </option>
@@ -131,7 +112,7 @@
 
     {{-- LISTADO --}}
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 pl-10">
@@ -155,7 +136,7 @@
                 @forelse($units as $unit)
                     <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200 {{ !$unit->is_active ? 'opacity-50 grayscale-35' : '' }}">
                         {{-- UNIDAD --}}
-                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100">
+                        <td class="px-6 py-4 bg-surface rounded-l-2xl border-l border-y border-line">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm text-navy-sidebar bg-slate-100 uppercase select-none group-hover:bg-customTeal-800 group-hover:text-white transition-all">
                                     <svg class="w-5 h-5"
@@ -176,30 +157,30 @@
                             </div>
                         </td>
                         {{-- TIPO --}}
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm font-semibold text-slate-600 capitalize">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-sm font-semibold text-slate-600 capitalize">
                             {{ $unit->type }}
                         </td>
 
                         {{-- ESTADO --}}
-                        <td class="px-6 py-4 bg-white border-y border-slate-100">
+                        <td class="px-6 py-4 bg-surface border-y border-line">
                             @if($unit->is_active)
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-success-soft text-success border border-success-line">
                                     ● Activa
                                 </span>
                             @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-danger-soft text-danger border border-danger-line">
                                     ● Inactiva
                                 </span>
                             @endif
                         </td>
 
                         {{-- FECHA --}}
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-sm text-slate-400 font-semibold">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-sm text-slate-400 font-semibold">
                             {{ $unit->created_at ? $unit->created_at->format('d/m/Y H:i') : 'N/D' }}
                         </td>
 
                         {{-- ACCIONES --}}
-                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
+                        <td class="px-6 py-4 bg-surface rounded-r-2xl border-r border-y border-line text-right">
                             <div class="flex items-center justify-end gap-2">
                                 {{-- EDITAR --}}
                                 @can('units.editar')
@@ -207,7 +188,7 @@
                                                 '{{ route('units.update', $unit) }}',
                                                 {{ json_encode($unit) }}
                                             )"
-                                            class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center"
+                                            class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 font-semibold text-xs transition-all flex items-center justify-center"
                                             title="Editar Unidad">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -220,7 +201,7 @@
                                     @if($unit->is_active)
                                         <button type="button"
                                                 onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}', false)"
-                                                class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center"
+                                                class="p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 font-semibold text-xs transition-all flex items-center justify-center"
                                                 title="Desactivar Unidad">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -229,7 +210,7 @@
                                     @else
                                         <button type="button"
                                                 onclick="confirmDelete('{{ route('units.destroy', $unit) }}', '{{ addslashes($unit->name) }}', true)"
-                                                class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center"
+                                                class="p-2.5 rounded-xl bg-success-soft text-success hover:brightness-95 font-semibold text-xs transition-all flex items-center justify-center"
                                                 title="Reactivar Unidad">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -243,7 +224,7 @@
                 @empty
                     <tr>
                         <td colspan="5"
-                            class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-xs">
+                            class="text-center py-12 ui-surface">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +247,7 @@
 
     {{-- PAGINACIÓN --}}
     @if($units->hasPages())
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 mt-4">
+        <div class="px-6 py-4 border-t border-line bg-slate-50/50 mt-4">
             {{ $units->links() }}
         </div>
     @endif
@@ -279,7 +260,7 @@
 @can('units.crear')
 <div id="create-unit-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto"
     onclick="if(event.target === this) closeModal('create-unit-modal')">
-    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 transform scale-95 transition-all">
+    <div class="relative w-full max-w-2xl bg-surface rounded-2xl shadow-2xl p-8 transform scale-95 transition-all">
             {{-- ENCABEZADO --}}
             <div class="flex items-center gap-4 mb-6">
                 <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white">
@@ -306,7 +287,7 @@
                     <label for="unit-name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                         Nombre de la Unidad
                     </label>
-                    <input type="text" name="name" id="unit-name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Kilogramo" class="w-full bg-slate-50 border @error('name') border-rose-300 @else border-slate-200 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="unit-name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej. Kilogramo" class="w-full bg-slate-50 border @error('name') border-rose-300 @else border-line @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">
@@ -322,7 +303,7 @@
                         Tipo
                     </label>
                     <select name="type" id="unit-type"
-                            class="w-full bg-slate-50 border @error('type') border-rose-300 @else border-slate-200 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold"
+                            class="w-full bg-slate-50 border @error('type') border-rose-300 @else border-line @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold"
                             required>
                         <option value="">Seleccionar tipo</option>
                         <option value="unidad" {{ old('modal_type') === 'create' && old('type') === 'unidad' ? 'selected' : '' }}>Unidad / Conteo (ud, cja, paq, doc, bot)</option>
@@ -344,7 +325,7 @@
                     @enderror
                 </div>
                 {{-- Estado --}}
-                <div class="border-t border-slate-100 pt-5">
+                <div class="border-t border-line pt-5">
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                         Estado de la Unidad
                     </label>
@@ -361,7 +342,7 @@
                 </div>
 
                 {{-- BOTONES --}}
-                <div class="flex items-center justify-end gap-3 pt-5 border-t border-slate-100">
+                <div class="flex items-center justify-end gap-3 pt-5 border-t border-line">
                     <button type="button"
                             onclick="closeModal('create-unit-modal')"
                             class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all">
@@ -388,7 +369,7 @@
 <div id="edit-unit-modal"
     class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto"
     onclick="if(event.target === this) closeModal('edit-unit-modal')">
-    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl p-8 transform scale-95 transition-all">
+    <div class="relative w-full max-w-2xl bg-surface rounded-2xl shadow-2xl p-8 transform scale-95 transition-all">
             {{-- ENCABEZADO --}}
             <div class="flex items-center gap-4 mb-6">
                 <div class="w-12 h-12 rounded-2xl bg-customTeal-800 flex items-center justify-center text-white">
@@ -417,7 +398,7 @@
                     <label for="edit-unit-name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                         Nombre de la Unidad
                     </label>
-                    <input type="text" name="name" id="edit-unit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Kilogramo" class="w-full bg-slate-50 border @error('name') border-rose-300 @else border-slate-200 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="edit-unit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Kilogramo" class="w-full bg-slate-50 border @error('name') border-rose-300 @else border-line @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold" required>
 
                     @error('name')
                         @if(old('modal_type') === 'edit')
@@ -433,7 +414,7 @@
                     <label for="edit-unit-type" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                         Tipo
                     </label>
-                    <select name="type" id="edit-unit-type" class="w-full bg-slate-50 border @error('type') border-rose-300 @else border-slate-200 @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <select name="type" id="edit-unit-type" class="w-full bg-slate-50 border @error('type') border-rose-300 @else border-line @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold" required>
                         <option value="">Seleccionar tipo</option>
                         <option value="unidad">Unidad / Conteo (ud, cja, paq, doc, bot)</option>
                         <option value="peso">Peso / Masa (kg, g, lb, oz, qq)</option>
@@ -455,7 +436,7 @@
                 </div>
 
                 {{-- Estado --}}
-                <div class="border-t border-slate-100 pt-5">
+                <div class="border-t border-line pt-5">
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                         Estado de la Unidad
                     </label>
@@ -482,7 +463,7 @@
                 </div>
 
                 {{-- BOTONES --}}
-                <div class="flex items-center justify-end gap-3 pt-5 border-t border-slate-100">
+                <div class="flex items-center justify-end gap-3 pt-5 border-t border-line">
                     <button type="button"
                             onclick="closeModal('edit-unit-modal')"
                             class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all">

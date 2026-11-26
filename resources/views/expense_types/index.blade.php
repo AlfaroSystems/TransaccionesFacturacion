@@ -5,46 +5,19 @@
 <div class="animate-fade-in duration-300">
 
     {{-- ENCABEZADO --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-            <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">
-                Tipos de Gastos
-            </h1>
-
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Gestiona el catálogo de tipos de gastos.
-            </p>
-        </div>
-
+    <x-ui.page-header title="Tipos de Gastos" subtitle="Gestiona el catálogo de tipos de gastos.">
         @can('expense_types.crear')
-            <button
-                type="button"
-                onclick="openExpenseTypeModal('create')"
-                class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-customTeal-800 hover:bg-navy-800 text-white text-sm font-bold shadow-xs transition-all"
-            >
-                <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 4v16m8-8H4"
-                    />
-                </svg>
-                Nuevo tipo de gasto
-            </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openExpenseTypeModal('create')">Nuevo tipo de gasto</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </div>
+    </x-ui.page-header>
 
     {{-- TABLA --}}
-    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 card-shadow overflow-hidden">
+    <div class="bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 card-shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+                <thead class="bg-slate-50 dark:bg-slate-900/60 border-b border-line dark:border-slate-700">
                     <tr>
                         <th class="px-6 py-4 text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             ID
@@ -101,7 +74,7 @@
                                     @can('expense_types.editar')
                                         <button
                                             type="button"
-                                            class="edit-expense-type-btn p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center"
+                                            class="edit-expense-type-btn p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 transition-all flex items-center justify-center"
                                             title="Editar"
                                             data-id="{{ $expenseType->id_expense_type }}"
                                             data-name="{{ $expenseType->name }}"
@@ -119,7 +92,7 @@
                                         @if($expenseType->is_active)
                                             <button
                                                 type="button"
-                                                class="deactivate-expense-type-btn p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center"
+                                                class="deactivate-expense-type-btn p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 transition-all flex items-center justify-center"
                                                 title="Inactivar"
                                                 data-id="{{ $expenseType->id_expense_type }}"
                                                 data-name="{{ $expenseType->name }}"
@@ -131,7 +104,7 @@
                                         @else
                                             <button
                                                 type="button"
-                                                class="reactivate-expense-type-btn p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all flex items-center justify-center"
+                                                class="reactivate-expense-type-btn p-2.5 rounded-xl bg-success-soft text-success hover:brightness-95 transition-all flex items-center justify-center"
                                                 title="Reactivar"
                                                 data-id="{{ $expenseType->id_expense_type }}"
                                                 data-name="{{ $expenseType->name }}"
@@ -179,9 +152,9 @@
 {{-- MODAL CREAR / EDITAR --}}
 {{-- ========================================================= --}}
 <div id="expense-type-form-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div id="expense-type-form-card" class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200">
+    <div id="expense-type-form-card" class="w-full max-w-lg bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200">
         {{-- CABECERA --}}
-        <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-line dark:border-slate-700">
             <div>
                 <h2
                     id="expense-type-form-title"
@@ -241,7 +214,7 @@
                         name="name"
                         required
                         maxlength="150"
-                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-[#005e66] outline-hidden"
+                        class="w-full rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-accent outline-hidden"
                         placeholder="Ej. Gastos de envío"
                     >
                 </div>
@@ -259,7 +232,7 @@
                         rows="4"
                         maxlength="1000"
                         required
-                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-[#005e66] outline-hidden resize-none"
+                        class="w-full rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-900 text-slate-800 dark:text-slate-100 px-4 py-3 text-sm focus:ring-2 focus:ring-[#005e66] focus:border-accent outline-hidden resize-none"
                         placeholder="Describe el tipo de gasto..."
                     ></textarea>
                 </div>
@@ -277,7 +250,7 @@
                             name="is_active"
                             value="1"
                             checked
-                            class="w-4 h-4 rounded-sm border-slate-300 text-[#005e66] focus:ring-[#005e66]"
+                            class="w-4 h-4 rounded-sm border-slate-300 text-primary dark:text-accent focus:ring-[#005e66]"
                         >
                         <span class="text-sm font-bold text-slate-700 dark:text-slate-200">
                             Tipo de gasto activo
@@ -287,7 +260,7 @@
             </div>
 
             {{-- BOTONES --}}
-            <div class="flex justify-end gap-3 px-6 py-5 border-t border-slate-200 dark:border-slate-700">
+            <div class="flex justify-end gap-3 px-6 py-5 border-t border-line dark:border-slate-700">
                 <button
                     type="button"
                     onclick="closeExpenseTypeFormModal()"
@@ -309,7 +282,7 @@
 
 {{-- MODAL INACTIVAR / REACTIVAR --}}
 <div id="expense-type-status-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs p-4">
-    <div id="expense-type-status-card" class="w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200">
+    <div id="expense-type-status-card" class="w-full max-w-md bg-surface dark:bg-slate-800 rounded-2xl border border-line dark:border-slate-700 shadow-2xl transform scale-95 transition-all duration-200">
         <div class="p-6 text-center">
             {{-- ICONO --}}
             <div id="expense-type-status-icon" class="w-14 h-14 rounded-full border-2 border-amber-400 flex items-center justify-center mx-auto text-amber-500 mb-5">

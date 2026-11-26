@@ -13,7 +13,7 @@
             x-transition:leave="transition ease-in duration-200 transform"
             x-transition:leave-start="opacity-100 translate-x-0 scale-100"
             x-transition:leave-end="opacity-0 translate-x-10 scale-95"
-            class="pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl border bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-800 backdrop-blur-md transition-all duration-300 min-w-[320px]"
+            class="pointer-events-auto relative overflow-hidden rounded-2xl p-4 shadow-2xl border bg-surface dark:bg-slate-900 text-slate-800 dark:text-slate-100 border-line dark:border-slate-800 backdrop-blur-md transition-all duration-300 min-w-[320px]"
             style="z-index: 999999;"
         >
             <div class="flex items-start gap-3.5">

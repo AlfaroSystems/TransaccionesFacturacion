@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+    <div class="bg-surface rounded-3xl shadow-xl border border-line overflow-hidden">
         <!-- Encabezado -->
         <div class="bg-customTeal-800 px-8 py-7 text-white flex justify-between items-center">
             <div>
@@ -26,11 +26,11 @@
         </div>
         <div class="p-8">
             <!-- Datos generales -->
-            <h2 class="text-xl font-extrabold text-slate-800 mb-5 border-b border-slate-100 pb-3">
+            <h2 class="text-xl font-extrabold text-slate-800 mb-5 border-b border-line pb-3">
                 Datos Generales
             </h2>
             <div class="grid md:grid-cols-2 gap-6 mb-10">
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line">
                     <label class="text-xs font-bold text-slate-400 uppercase">
                         Almacén / Bodega
                     </label>
@@ -38,7 +38,7 @@
                         {{ $location->warehouse->name ?? 'Bodega '.$location->id_warehouse }}
                     </p>
                 </div>
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line">
                     <label class="text-xs font-bold text-slate-400 uppercase">
                         Capacidad Máxima
                     </label>
@@ -49,42 +49,42 @@
             </div>
 
             <!-- Distribución física -->
-            <h2 class="text-xl font-extrabold text-slate-800 mb-5 border-b border-slate-100 pb-3">
+            <h2 class="text-xl font-extrabold text-slate-800 mb-5 border-b border-line pb-3">
                 Distribución Física
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-center">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line text-center">
                     <span class="text-xs font-bold text-slate-400 uppercase">
                         Pasillo
                     </span>
-                    <p class="text-2xl font-extrabold text-[#005e66] mt-2">
+                    <p class="text-2xl font-extrabold text-primary dark:text-accent mt-2">
                         {{ $location->aisle ?? '-' }}
                     </p>
                 </div>
 
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-center">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line text-center">
                     <span class="text-xs font-bold text-slate-400 uppercase">
                         Estante
                     </span>
-                    <p class="text-2xl font-extrabold text-[#005e66] mt-2">
+                    <p class="text-2xl font-extrabold text-primary dark:text-accent mt-2">
                         {{ $location->rack ?? '-' }}
                     </p>
                 </div>
 
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-center">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line text-center">
                     <span class="text-xs font-bold text-slate-400 uppercase">
                         Nivel
                     </span>
-                    <p class="text-2xl font-extrabold text-[#005e66] mt-2">
+                    <p class="text-2xl font-extrabold text-primary dark:text-accent mt-2">
                         {{ $location->level ?? '-' }}
                     </p>
                 </div>
 
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-center">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line text-center">
                     <span class="text-xs font-bold text-slate-400 uppercase">
                         Posición
                     </span>
-                    <p class="text-2xl font-extrabold text-[#005e66] mt-2">
+                    <p class="text-2xl font-extrabold text-primary dark:text-accent mt-2">
                         {{ $location->position ?? '-' }}
                     </p>
                 </div>
@@ -95,14 +95,14 @@
                 <h2 class="text-xl font-extrabold text-slate-800 mb-3">
                     Notas
                 </h2>
-                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 text-slate-700">
+                <div class="bg-slate-50 rounded-2xl p-5 border border-line text-slate-700">
                     {{ $location->notes }}
                 </div>
             </div>
             @endif
 
             <!-- Auditoria -->
-            <div class="border-t border-slate-100 pt-6 grid md:grid-cols-2 gap-4 text-sm">
+            <div class="border-t border-line pt-6 grid md:grid-cols-2 gap-4 text-sm">
                 <p class="text-slate-400 font-semibold">
                     Fecha de registro:
                     <span class="text-slate-700">

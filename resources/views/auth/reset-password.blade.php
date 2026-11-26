@@ -24,7 +24,7 @@
     <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-[#d2ebe6] opacity-60"></div>
     <div class="absolute -bottom-45 -right-20 w-[500px] h-[500px] rounded-full bg-[#d6eee9] opacity-60"></div>
     <div class="absolute top-[20%] right-[10%] w-72 h-72 rounded-full bg-[#d9f1ed] opacity-40"></div>
-    <div class="w-full max-w-5xl bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[580px] relative z-10 m-4 border border-teal-50">
+    <div class="w-full max-w-5xl bg-surface rounded-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[580px] relative z-10 m-4 border border-teal-50">
         <!-- LEFT SIDE: Form & Navbar -->
         <div class="w-full md:w-3/5 p-8 flex flex-col justify-between">
             <!-- Form Wrapper -->
@@ -41,7 +41,7 @@
 
                     <!-- Email Address -->
                     <div>
-                        <div class="relative flex items-center shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-gray-100 rounded-full bg-white focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
+                        <div class="relative flex items-center shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-line rounded-full bg-surface focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
                             <span class="absolute left-1 w-9 h-9 rounded-full bg-customTeal-50 flex items-center justify-center text-customTeal-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -54,7 +54,7 @@
 
                     <!-- Password -->
                     <div>
-                        <div class="relative flex items-center shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-gray-100 rounded-full bg-white focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
+                        <div class="relative flex items-center shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-line rounded-full bg-surface focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
                             <span class="absolute left-1 w-9 h-9 rounded-full bg-customTeal-50 flex items-center justify-center text-customTeal-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -67,7 +67,7 @@
 
                     <!-- Confirm Password -->
                     <div>
-                        <div class="relative flex items-center shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-gray-100 rounded-full bg-white focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
+                        <div class="relative flex items-center shadow-[0_4px_15px_rgba(0,0,0,0.02)] border border-line rounded-full bg-surface focus-within:ring-2 focus-within:ring-customTeal-400 transition-all">
                             <span class="absolute left-1 w-9 h-9 rounded-full bg-customTeal-50 flex items-center justify-center text-customTeal-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

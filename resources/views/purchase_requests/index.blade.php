@@ -2,56 +2,30 @@
 @section('title', 'Solicitudes de Compra')
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg">Compras</span>
-                <span class="text-slate-400">•</span>
-                <span class="text-xs font-semibold text-slate-500">Módulo de Solicitudes</span>
-            </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">Solicitudes de Compra</h1>
-            <p class="text-slate-500 text-sm mt-0.5">Cada sucursal registra sus solicitudes y las envía al departamento de compras para su aprobación.</p>
-        </div>
-        <div class="flex items-center gap-3 w-full md:w-auto">
-            <button type="button" onclick="openModal('create-purchase-request-modal')" class="w-full md:w-auto bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                <span>Nueva Solicitud</span>
-            </button>
-        </div>
-    </div>
+    <x-ui.page-header eyebrow="Compras" module="Módulo de Solicitudes"
+        title="Solicitudes de Compra"
+        subtitle="Cada sucursal registra sus solicitudes y las envía al departamento de compras para su aprobación.">
+        <x-slot:actions>
+            <x-ui.button type="button" icon="plus" onclick="openModal('create-purchase-request-modal')">Nueva Solicitud</x-ui.button>
+        </x-slot:actions>
+    </x-ui.page-header>
 
     <!-- Métricas -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#005e66] flex items-center justify-center text-xl font-bold">📋</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts->sum() }}</span></div>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl font-bold">✎</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Borradores y devueltas</span><span class="text-xl font-extrabold text-slate-800">{{ ($statusCounts['draft'] ?? 0) + ($statusCounts['returned'] ?? 0) }}</span></div>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">⏳</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Enviadas a compras</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['sent'] ?? 0 }}</span></div>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">✓</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Aprobadas</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['approved'] ?? 0 }}</span></div>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">🗂</div>
-            <div><span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">En cotización</span><span class="text-xl font-extrabold text-slate-800">{{ $statusCounts['quoted'] ?? 0 }}</span></div>
-        </div>
+        <x-ui.metric-card icon="document" tone="primary" label="Total" :value="$statusCounts->sum()" />
+        <x-ui.metric-card icon="pencil" tone="neutral" label="Borradores y devueltas" :value="($statusCounts['draft'] ?? 0) + ($statusCounts['returned'] ?? 0)" />
+        <x-ui.metric-card icon="bag" tone="warning" label="Enviadas a compras" :value="$statusCounts['sent'] ?? 0" />
+        <x-ui.metric-card icon="check-circle" tone="success" label="Aprobadas" :value="$statusCounts['approved'] ?? 0" />
+        <x-ui.metric-card icon="document" tone="info" label="En cotización" :value="$statusCounts['quoted'] ?? 0" />
     </div>
     <!-- Filtros -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4">
+    <div class="ui-surface p-4">
         <form method="GET" action="{{ route('purchase-requests.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="md:col-span-2">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por código o justificación..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por código o justificación..." class="ui-input">
             </div>
             <div>
-                <select name="status" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                <select name="status" class="ui-input">
                     <option value="">Todos los estados</option>
                     @foreach(\App\Models\PurchaseRequest::STATUS_LABELS as $statusValue => $statusLabel)
                         <option value="{{ $statusValue }}" {{ request('status') === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
@@ -68,7 +42,7 @@
     </div>
     <!-- Listado -->
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="py-3 px-6">Código</th>
@@ -83,36 +57,36 @@
             <tbody>
                 @forelse($purchaseRequests as $purchaseRequest)
                     <tr class="group hover:scale-[1.001] hover:shadow-md transition-all duration-200">
-                        <td class="py-4 px-6 bg-white rounded-l-2xl border-l border-y border-slate-100">
-                            <div class="font-extrabold text-[#005e66] text-sm">{{ $purchaseRequest->purchase_request_code }}</div>
+                        <td class="py-4 px-6 bg-surface rounded-l-2xl border-l border-y border-line">
+                            <div class="font-extrabold text-primary dark:text-accent text-sm">{{ $purchaseRequest->purchase_request_code }}</div>
                             <div class="text-xs text-slate-400 mt-0.5">{{ $purchaseRequest->created_at?->format('d/m/Y H:i') }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm">
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm">
                             <div class="font-bold text-slate-700">{{ $purchaseRequest->request_date?->format('d/m/Y') }}</div>
                             <div class="text-xs text-slate-400">Requerida: {{ $purchaseRequest->required_date?->format('d/m/Y') }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm">
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm">
                             <div class="font-bold text-slate-700">{{ $purchaseRequest->branch?->name ?? 'Sin sucursal' }}</div>
                             <div class="text-xs text-slate-400 font-semibold">{{ $purchaseRequest->warehouse?->name ?? 'Sin bodega' }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100"><div class="font-semibold text-slate-700 text-sm">{{ $purchaseRequest->user?->username ?? 'Usuario no disponible' }}</div></td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-center"><span class="inline-flex items-center justify-center min-w-8 px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-extrabold">{{ $purchaseRequest->details->count() }}</span></td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-center">
+                        <td class="py-4 px-6 bg-surface border-y border-line"><div class="font-semibold text-slate-700 text-sm">{{ $purchaseRequest->user?->username ?? 'Usuario no disponible' }}</div></td>
+                        <td class="py-4 px-6 bg-surface border-y border-line text-center"><span class="inline-flex items-center justify-center min-w-8 px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-extrabold">{{ $purchaseRequest->details->count() }}</span></td>
+                        <td class="py-4 px-6 bg-surface border-y border-line text-center">
                             @include('purchase_requests._status_badge')
                         </td>
-                        <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
+                        <td class="py-4 px-6 bg-surface rounded-r-2xl border-r border-y border-line text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <button type="button" onclick="openModal('show-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors" title="Ver detalles">
+                                <button type="button" onclick="openModal('show-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2.5 rounded-xl bg-info-soft text-info hover:brightness-95 transition-colors" title="Ver detalles">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 </button>
                                 @if($purchaseRequest->isEditable())
                                     @can('purchase_requests.editar')
-                                    <button type="button" onclick="openModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar">
+                                    <button type="button" onclick="openModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 transition-colors" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </button>
                                     @endcan
                                     @can('purchase_requests.eliminar')
-                                    <button type="button" onclick="confirmDelete('{{ route('purchase-requests.destroy', $purchaseRequest) }}', 'Solicitud {{ addslashes($purchaseRequest->purchase_request_code) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar Solicitud">
+                                    <button type="button" onclick="confirmDelete('{{ route('purchase-requests.destroy', $purchaseRequest) }}', 'Solicitud {{ addslashes($purchaseRequest->purchase_request_code) }}', 'delete')" class="p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 transition-colors" title="Eliminar Solicitud">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
                                     </button>
                                     @endcan
@@ -133,8 +107,8 @@
 
 <!-- MODAL CREAR -->
 <div id="create-purchase-request-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-6xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-slate-100 relative">
-        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
+    <div class="bg-surface rounded-3xl p-6 sm:p-8 max-w-6xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-line relative">
+        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-surface z-20 border-b border-line flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
             <div>
                 <h3 class="text-xl font-extrabold text-slate-800">Nueva Solicitud de Compra</h3>
                 <p class="text-xs text-slate-400">Complete los datos generales y agregue los productos requeridos.</p>
@@ -143,12 +117,12 @@
         </div>
         <form action="{{ route('purchase-requests.store') }}" method="POST" class="space-y-6">
             @csrf
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-4">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">1. Información General</h4>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-4">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">1. Información General</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sucursal *</label>
-                        <select name="id_branch" id="create_id_branch" required onchange="filterWarehouses(this, document.getElementById('create_id_warehouse')); updateDraftButton()" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Sucursal *</label>
+                        <select name="id_branch" id="create_id_branch" required onchange="filterWarehouses(this, document.getElementById('create_id_warehouse')); updateDraftButton()" class="ui-input">
                             <option value="">Seleccione sucursal...</option>
                             @foreach($branches as $branch)
                                 {{-- Por defecto, la sucursal del usuario (el administrador no tiene una) --}}
@@ -157,8 +131,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Bodega *</label>
-                        <select name="id_warehouse" id="create_id_warehouse" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Bodega *</label>
+                        <select name="id_warehouse" id="create_id_warehouse" required class="ui-input">
                             <option value="">Seleccione bodega...</option>
                             @foreach($warehouses as $warehouse)
                                 <option value="{{ $warehouse->id_warehouse }}" data-branch="{{ $warehouse->id_branch }}" {{ old('id_warehouse') == $warehouse->id_warehouse ? 'selected' : '' }}>{{ $warehouse->name }}</option>
@@ -168,27 +142,27 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha de Solicitud *</label>
-                        <input type="datetime-local" name="request_date" value="{{ old('request_date', now()->format('Y-m-d\TH:i')) }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Fecha de Solicitud *</label>
+                        <input type="datetime-local" name="request_date" value="{{ old('request_date', now()->format('Y-m-d\TH:i')) }}" required class="ui-input">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha Requerida *</label>
-                        <input type="datetime-local" name="required_date" value="{{ old('required_date') }}" data-min-date="today" min="{{ today()->format('Y-m-d\TH:i') }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Fecha Requerida *</label>
+                        <input type="datetime-local" name="required_date" value="{{ old('required_date') }}" data-min-date="today" min="{{ today()->format('Y-m-d\TH:i') }}" required class="ui-input">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Justificación *</label>
-                    <textarea name="justification" rows="3" required placeholder="Explique el motivo de la solicitud..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('justification') }}</textarea>
+                    <label class="ui-label">Justificación *</label>
+                    <textarea name="justification" rows="3" required placeholder="Explique el motivo de la solicitud..." class="ui-input">{{ old('justification') }}</textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Notas</label>
-                    <textarea name="notes" rows="2" placeholder="Observaciones adicionales..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('notes') }}</textarea>
+                    <label class="ui-label">Notas</label>
+                    <textarea name="notes" rows="2" placeholder="Observaciones adicionales..." class="ui-input">{{ old('notes') }}</textarea>
                 </div>
             </div>
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-4">
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                        <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">2. Detalle de Productos</h4>
+                        <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">2. Detalle de Productos</h4>
                         <p class="text-xs text-slate-400 mt-1">Agregue uno o varios productos a la solicitud.</p>
                     </div>
                     <button type="button" onclick="addPurchaseRequestRow()" class="bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all">+ Agregar Producto</button>
@@ -196,7 +170,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[1050px]">
                         <thead>
-                            <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                            <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider border-b border-line">
                                 <th class="text-left py-3 px-2">Producto</th>
                                 <th class="text-left py-3 px-2 w-24">Cantidad</th>
                                 <th class="text-left py-3 px-2 w-36">Unidad</th>
@@ -209,10 +183,10 @@
                     </table>
                 </div>
             </div>
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
-                <button type="button" onclick="closeModal('create-purchase-request-modal')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-line">
+                <button type="button" onclick="closeModal('create-purchase-request-modal')" class="px-6 py-2.5 rounded-xl bg-surface border border-line text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
                 <span id="create-other-branch-hint" class="hidden text-xs font-semibold text-slate-500 mr-auto">Las solicitudes para otra sucursal se envían a compras al guardarlas.</span>
-                <button type="submit" name="send" value="0" id="create-draft-button" class="px-6 py-2.5 rounded-xl bg-white border border-[#005e66] text-[#005e66] font-bold text-sm hover:bg-teal-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">Guardar Borrador</button>
+                <button type="submit" name="send" value="0" id="create-draft-button" class="px-6 py-2.5 rounded-xl bg-surface border border-[#005e66] text-primary dark:text-accent font-bold text-sm hover:bg-teal-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">Guardar Borrador</button>
                 @can('purchase_requests.enviar')
                     <button type="submit" name="send" value="1" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar y Enviar a Compras</button>
                 @endcan
@@ -224,8 +198,8 @@
 <!-- MODALES VER -->
 @foreach($purchaseRequests as $purchaseRequest)
 <div id="show-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-slate-100 relative">
-        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
+    <div class="bg-surface rounded-3xl p-6 sm:p-8 max-w-5xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-line relative">
+        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-surface z-20 border-b border-line flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
             <div>
                 <div class="flex items-center gap-2">
                     <h3 class="text-xl font-extrabold text-slate-800">{{ $purchaseRequest->purchase_request_code }}</h3>
@@ -254,13 +228,13 @@
             <span class="text-[10px] uppercase font-bold text-slate-400">Justificación</span>
             <p class="text-sm text-slate-700 mt-2">{{ $purchaseRequest->justification }}</p>
             @if($purchaseRequest->notes)
-                <div class="mt-4 pt-4 border-t border-slate-200"><span class="text-[10px] uppercase font-bold text-slate-400">Notas</span><p class="text-sm text-slate-700 mt-1">{{ $purchaseRequest->notes }}</p></div>
+                <div class="mt-4 pt-4 border-t border-line"><span class="text-[10px] uppercase font-bold text-slate-400">Notas</span><p class="text-sm text-slate-700 mt-1">{{ $purchaseRequest->notes }}</p></div>
             @endif
         </div>
         <div class="overflow-x-auto mb-6">
             <table class="w-full">
                 <thead>
-                    <tr class="text-[10px] font-extrabold text-slate-400 uppercase border-b border-slate-200">
+                    <tr class="text-[10px] font-extrabold text-slate-400 uppercase border-b border-line">
                         <th class="text-left py-3 px-3">Producto</th>
                         <th class="text-center py-3 px-3">Cantidad</th>
                         <th class="text-left py-3 px-3">Unidad</th>
@@ -270,7 +244,7 @@
                 </thead>
                 <tbody>
                     @foreach($purchaseRequest->details as $detail)
-                        <tr class="border-b border-slate-100">
+                        <tr class="border-b border-line">
                             <td class="py-3 px-3 text-sm font-bold text-slate-700">{{ $detail->product?->name ?? 'Producto no disponible' }}</td>
                             <td class="py-3 px-3 text-sm text-center text-slate-700">{{ rtrim(rtrim($detail->quantity, '0'), '.') }}</td>
                             <td class="py-3 px-3 text-sm text-slate-600">{{ $detail->unit?->abbreviation ?: ($detail->unit?->name ?? 'N/A') }}</td>
@@ -281,7 +255,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="flex flex-wrap items-end justify-end gap-3 pt-5 border-t border-slate-200">
+        <div class="flex flex-wrap items-end justify-end gap-3 pt-5 border-t border-line">
             @if($purchaseRequest->isEditable())
                 @can('purchase_requests.enviar')
                     <form method="POST" action="{{ route('purchase-requests.send', $purchaseRequest) }}">
@@ -295,7 +269,7 @@
                     <form method="POST" action="{{ route('purchase-requests.return', $purchaseRequest) }}" class="flex-1 min-w-[260px] flex flex-col gap-2">
                         @csrf
                         <label class="text-[10px] uppercase font-bold text-slate-400">Motivo para devolver o rechazar *</label>
-                        <textarea name="reason" rows="2" required maxlength="1000" placeholder="Explique qué debe corregir la sucursal o por qué se rechaza..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></textarea>
+                        <textarea name="reason" rows="2" required maxlength="1000" placeholder="Explique qué debe corregir la sucursal o por qué se rechaza..." class="ui-input"></textarea>
                         <div class="flex flex-wrap justify-end gap-3">
                             <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition">Devolver a la Sucursal</button>
                             <button type="button" onclick="confirmReject(this, '{{ route('purchase-requests.reject', $purchaseRequest) }}', '{{ $purchaseRequest->purchase_request_code }}')" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm transition">Rechazar</button>
@@ -318,8 +292,8 @@
 @foreach($purchaseRequests as $purchaseRequest)
 @if($purchaseRequest->isEditable())
 <div id="edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-6xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-slate-100 relative">
-        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
+    <div class="bg-surface rounded-3xl p-6 sm:p-8 max-w-6xl w-full shadow-2xl mx-4 my-auto max-h-[90vh] overflow-y-auto border border-line relative">
+        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-surface z-20 border-b border-line flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
             <div><h3 class="text-xl font-extrabold text-slate-800">Editar {{ $purchaseRequest->purchase_request_code }}</h3><p class="text-xs text-slate-400">Modifique los datos antes de enviarla al departamento de compras.</p></div>
             <button type="button" onclick="closeModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">✕</button>
         </div>
@@ -332,17 +306,17 @@
         <form action="{{ route('purchase-requests.update', $purchaseRequest) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-4">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">1. Información General</h4>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-4">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">1. Información General</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Sucursal</label>
+                        <label class="ui-label">Sucursal</label>
                         <input type="hidden" name="id_branch" value="{{ $purchaseRequest->id_branch }}">
-                        <p class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-sm font-semibold text-slate-600">{{ $purchaseRequest->branch?->name ?? 'Sin sucursal' }}</p>
+                        <p class="w-full px-4 py-2.5 rounded-xl border border-line bg-slate-100 text-sm font-semibold text-slate-600">{{ $purchaseRequest->branch?->name ?? 'Sin sucursal' }}</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Bodega *</label>
-                        <select name="id_warehouse" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Bodega *</label>
+                        <select name="id_warehouse" required class="ui-input">
                             @foreach($warehouses->where('id_branch', $purchaseRequest->id_branch) as $warehouse)
                                 <option value="{{ $warehouse->id_warehouse }}" {{ $purchaseRequest->id_warehouse == $warehouse->id_warehouse ? 'selected' : '' }}>{{ $warehouse->name }}</option>
                             @endforeach
@@ -351,32 +325,32 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha de Solicitud *</label>
-                        <input type="datetime-local" name="request_date" value="{{ $purchaseRequest->request_date?->format('Y-m-d\TH:i') }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Fecha de Solicitud *</label>
+                        <input type="datetime-local" name="request_date" value="{{ $purchaseRequest->request_date?->format('Y-m-d\TH:i') }}" required class="ui-input">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha Requerida *</label>
-                        <input type="datetime-local" name="required_date" value="{{ $purchaseRequest->required_date?->format('Y-m-d\TH:i') }}" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Fecha Requerida *</label>
+                        <input type="datetime-local" name="required_date" value="{{ $purchaseRequest->required_date?->format('Y-m-d\TH:i') }}" required class="ui-input">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Justificación *</label>
-                    <textarea name="justification" rows="3" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ $purchaseRequest->justification }}</textarea>
+                    <label class="ui-label">Justificación *</label>
+                    <textarea name="justification" rows="3" required class="ui-input">{{ $purchaseRequest->justification }}</textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Notas</label>
-                    <textarea name="notes" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ $purchaseRequest->notes }}</textarea>
+                    <label class="ui-label">Notas</label>
+                    <textarea name="notes" rows="2" class="ui-input">{{ $purchaseRequest->notes }}</textarea>
                 </div>
             </div>
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-4">
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-4">
                 <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">2. Detalle de Productos</h4>
+                    <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">2. Detalle de Productos</h4>
                     <button type="button" onclick="addPurchaseRequestRow('edit-details-{{ $purchaseRequest->id_purchase_request }}')" class="bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition">+ Agregar Producto</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[1050px]">
                         <thead>
-                            <tr class="text-[10px] font-extrabold text-slate-400 uppercase border-b border-slate-200">
+                            <tr class="text-[10px] font-extrabold text-slate-400 uppercase border-b border-line">
                                 <th class="text-left py-3 px-2">Producto</th>
                                 <th class="text-left py-3 px-2 w-24">Cantidad</th>
                                 <th class="text-left py-3 px-2 w-36">Unidad</th>
@@ -389,32 +363,32 @@
                             @foreach($purchaseRequest->details as $index => $detail)
                                 <tr class="purchase-detail-row">
                                     <td class="p-2">
-                                        <select name="details[{{ $index }}][id_product]" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm">
+                                        <select name="details[{{ $index }}][id_product]" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-line text-sm">
                                             <option value="">Producto...</option>
                                             @foreach($products as $product)
                                                 <option value="{{ $product->id_product }}" data-unit="{{ $product->id_purchase_unit }}" {{ $detail->id_product == $product->id_product ? 'selected' : '' }}>{{ $product->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td class="p-2"><input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ $detail->quantity }}" required class="w-full min-w-[70px] px-2.5 py-2 text-center rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
+                                    <td class="p-2"><input type="number" step="0.0001" min="0.0001" name="details[{{ $index }}][quantity]" value="{{ $detail->quantity }}" required class="w-full min-w-[70px] px-2.5 py-2 text-center rounded-xl border border-line text-sm focus:border-accent"></td>
                                     <td class="p-2">
-                                        <select name="details[{{ $index }}][id_unit]" required class="unit-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:border-[#005e66]">
+                                        <select name="details[{{ $index }}][id_unit]" required class="unit-select w-full px-3 py-2 rounded-xl border border-line text-sm bg-surface focus:border-accent">
                                             @foreach($units as $unit)
                                                 <option value="{{ $unit->id_unit }}" {{ $detail->id_unit == $unit->id_unit ? 'selected' : '' }}>{{ $unit->abbreviation ?: $unit->name }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td class="p-2"><input type="text" name="details[{{ $index }}][description]" value="{{ $detail->description }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"></td>
-                                    <td class="p-2"><input type="text" name="details[{{ $index }}][notes]" value="{{ $detail->notes }}" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm"></td>
-                                    <td class="p-2 text-center"><button type="button" onclick="removePurchaseRequestRow(this)" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg">✕</button></td>
+                                    <td class="p-2"><input type="text" name="details[{{ $index }}][description]" value="{{ $detail->description }}" class="w-full px-3 py-2 rounded-xl border border-line text-sm"></td>
+                                    <td class="p-2"><input type="text" name="details[{{ $index }}][notes]" value="{{ $detail->notes }}" class="w-full px-3 py-2 rounded-xl border border-line text-sm"></td>
+                                    <td class="p-2 text-center"><button type="button" onclick="removePurchaseRequestRow(this)" class="p-2 bg-danger-soft text-danger hover:brightness-95 rounded-lg">✕</button></td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="flex justify-end gap-3 pt-6 border-t border-slate-200">
-                <button type="button" onclick="closeModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100">Cancelar</button>
+            <div class="flex justify-end gap-3 pt-6 border-t border-line">
+                <button type="button" onclick="closeModal('edit-purchase-request-modal-{{ $purchaseRequest->id_purchase_request }}')" class="px-6 py-2.5 rounded-xl bg-surface border border-line text-slate-600 font-bold text-sm hover:bg-slate-100">Cancelar</button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm shadow-md">Guardar Cambios</button>
             </div>
         </form>
@@ -425,7 +399,7 @@
 
 <!-- MODAL CONFIRMAR RECHAZO (por encima del modal de detalle) -->
 <div id="reject-confirm-modal" class="hidden fixed inset-0 z-60 items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs transition-all duration-200">
-    <div id="reject-confirm-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200">
+    <div id="reject-confirm-card" class="bg-surface dark:bg-slate-800 border border-line dark:border-slate-700 rounded-2xl p-8 max-w-md w-full shadow-2xl text-center relative mx-4 transform scale-95 transition-all duration-200">
         <div class="w-14 h-14 rounded-full border-2 border-rose-400 flex items-center justify-center mx-auto text-rose-500 dark:text-rose-400 mb-5">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
@@ -442,24 +416,24 @@
 <template id="purchase-request-row-template">
     <tr class="purchase-detail-row">
         <td class="p-2">
-            <select data-field="id_product" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+            <select data-field="id_product" onchange="setPurchaseUnit(this)" required class="product-select w-full px-3 py-2 rounded-xl border border-line text-sm focus:border-accent">
                 <option value="">Seleccione producto...</option>
                 @foreach($products as $product)
                     <option value="{{ $product->id_product }}" data-unit="{{ $product->id_purchase_unit }}">{{ $product->name }}</option>
                 @endforeach
             </select>
         </td>
-        <td class="p-2"><input type="number" data-field="quantity" step="0.0001" min="0.0001" required placeholder="0" class="w-full min-w-[70px] px-2.5 py-2 text-center rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
+        <td class="p-2"><input type="number" data-field="quantity" step="0.0001" min="0.0001" required placeholder="0" class="w-full min-w-[70px] px-2.5 py-2 text-center rounded-xl border border-line text-sm focus:border-accent"></td>
         <td class="p-2">
-            <select data-field="id_unit" required class="unit-select w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66] bg-white">
+            <select data-field="id_unit" required class="unit-select w-full px-3 py-2 rounded-xl border border-line text-sm focus:border-accent bg-surface">
                 @foreach($units as $unit)
                     <option value="{{ $unit->id_unit }}">{{ $unit->abbreviation ?: $unit->name }}</option>
                 @endforeach
             </select>
         </td>
-        <td class="p-2"><input type="text" data-field="description" placeholder="Descripción..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
-        <td class="p-2"><input type="text" data-field="notes" placeholder="Notas..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]"></td>
-        <td class="p-2 text-center"><button type="button" onclick="removePurchaseRequestRow(this)" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Eliminar producto">✕</button></td>
+        <td class="p-2"><input type="text" data-field="description" placeholder="Descripción..." class="w-full px-3 py-2 rounded-xl border border-line text-sm focus:border-accent"></td>
+        <td class="p-2"><input type="text" data-field="notes" placeholder="Notas..." class="w-full px-3 py-2 rounded-xl border border-line text-sm focus:border-accent"></td>
+        <td class="p-2 text-center"><button type="button" onclick="removePurchaseRequestRow(this)" class="p-2 bg-danger-soft text-danger hover:brightness-95 rounded-lg transition" title="Eliminar producto">✕</button></td>
     </tr>
 </template>
 

@@ -4,10 +4,10 @@
 @section('content')
 @php
     $qty = fn ($value) => rtrim(rtrim(number_format((float) $value, 4, '.', ''), '0'), '.');
-    $inputClass = 'w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
+    $inputClass = 'w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
     $unidad = $lot->purchaseDetail?->unit?->name ?? $lot->product?->purchaseUnit?->name;
     $statusClass = match ($lot->status) {
-        'active' => 'bg-teal-100 text-[#005e66] border-teal-300 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800',
+        'active' => 'bg-primary-soft text-on-primary-soft border-teal-300 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800',
         'pending_placement' => 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800',
         default => 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800',
     };
@@ -41,12 +41,12 @@
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Inventario</span>
+                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Inventario</span>
                 <span class="text-slate-400 dark:text-slate-600">•</span>
                 <a href="{{ route('inventory.lots.index') }}" class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:underline">Lotes</a>
             </div>
             <div class="flex flex-wrap items-center gap-3 mt-1">
-                <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight font-mono">{{ $lot->lot_code }}</h1>
+                <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight font-mono">{{ $lot->lot_code }}</h1>
                 <span class="px-3 py-1 rounded-full text-xs font-extrabold border {{ $statusClass }}">● {{ $lot->statusLabel() }}</span>
             </div>
             <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">{{ $lot->product?->name }} · <span class="font-mono">{{ $lot->product?->sku }}</span></p>
@@ -63,7 +63,7 @@
 
     <!-- Datos del lote -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs">
+        <div class="bg-surface dark:bg-slate-900 p-4 rounded-2xl border border-line dark:border-slate-800 shadow-xs">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Cantidad</span>
             <span class="text-xl font-extrabold text-slate-800 dark:text-white font-mono">{{ $qty($lot->quantity_received) }}</span>
             <span class="text-xs font-semibold text-slate-400">{{ $unidad }}</span>
@@ -73,20 +73,20 @@
                 </span>
             @endif
         </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs">
+        <div class="bg-surface dark:bg-slate-900 p-4 rounded-2xl border border-line dark:border-slate-800 shadow-xs">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Costo unitario</span>
             <span class="text-xl font-extrabold text-slate-800 dark:text-white font-mono">${{ number_format((float) $lot->unit_cost, 4) }}</span>
             <span class="text-xs font-semibold text-slate-400 block">Total ${{ number_format((float) $lot->total_cost, 2) }}</span>
         </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs">
+        <div class="bg-surface dark:bg-slate-900 p-4 rounded-2xl border border-line dark:border-slate-800 shadow-xs">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Bodega</span>
             <span class="text-sm font-extrabold text-slate-800 dark:text-white block">{{ $lot->warehouseAllBranches?->name ?? 'N/A' }}</span>
             <span class="text-xs font-semibold text-slate-400">Recibido el {{ $lot->received_at?->format('d/m/Y') }}</span>
         </div>
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs">
+        <div class="bg-surface dark:bg-slate-900 p-4 rounded-2xl border border-line dark:border-slate-800 shadow-xs">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Compra</span>
             @if($compra)
-                <a href="{{ route('purchases.show', $compra) }}" class="text-sm font-extrabold font-mono text-[#005e66] dark:text-teal-400 hover:underline block">{{ $compra->purchase_code }}</a>
+                <a href="{{ route('purchases.show', $compra) }}" class="text-sm font-extrabold font-mono text-primary dark:text-accent dark:text-teal-400 hover:underline block">{{ $compra->purchase_code }}</a>
             @else
                 <span class="text-sm font-extrabold text-slate-400 block">—</span>
             @endif
@@ -98,7 +98,7 @@
     @if($lot->status !== 'cancelled')
         <ol class="grid grid-cols-2 md:grid-cols-4 gap-3">
             @foreach($pasos as $i => [$paso, $hecho])
-                <li class="flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold {{ $hecho ? 'bg-teal-50 border-teal-200 text-[#005e66] dark:bg-teal-950/40 dark:border-teal-800 dark:text-teal-300' : 'bg-white border-slate-200 text-slate-400 dark:bg-slate-900 dark:border-slate-700' }}">
+                <li class="flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold {{ $hecho ? 'bg-teal-50 border-teal-200 text-primary dark:text-accent dark:bg-teal-950/40 dark:border-teal-800 dark:text-teal-300' : 'bg-surface border-line text-slate-400 dark:bg-slate-900 dark:border-slate-700' }}">
                     <span class="w-6 h-6 rounded-full flex items-center justify-center {{ $hecho ? 'bg-[#005e66] text-white' : 'bg-slate-100 dark:bg-slate-800' }}">{{ $hecho ? '✓' : $i + 1 }}</span>
                     {{ $paso }}
                 </li>
@@ -117,7 +117,7 @@
             @endphp
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Datos del proveedor -->
-                <form method="POST" action="{{ route('inventory.lots.update', $lot) }}" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-4">
+                <form method="POST" action="{{ route('inventory.lots.update', $lot) }}" class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-5 space-y-4">
                     @csrf
                     @method('PUT')
                     <div>
@@ -125,25 +125,25 @@
                         <p class="text-xs text-slate-400">El lote del fabricante y su vencimiento, si los trae.</p>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Lote del proveedor</label>
+                        <label class="ui-label">Lote del proveedor</label>
                         <input type="text" name="supplier_lot_number" maxlength="100" value="{{ old('supplier_lot_number', $lot->supplier_lot_number) }}" placeholder="Ej.: B2026-0412" class="{{ $inputClass }}">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Fecha de vencimiento</label>
+                        <label class="ui-label">Fecha de vencimiento</label>
                         <input type="date" name="expiration_date" value="{{ old('expiration_date', $lot->expiration_date?->format('Y-m-d')) }}" class="{{ $inputClass }}">
                     </div>
-                    <button type="submit" class="w-full px-5 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Guardar datos</button>
+                    <button type="submit" class="w-full px-5 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 border border-line dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Guardar datos</button>
                 </form>
 
                 <!-- Dividir el lote -->
-                <form method="POST" action="{{ route('inventory.lots.split', $lot) }}" class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+                <form method="POST" action="{{ route('inventory.lots.split', $lot) }}" class="lg:col-span-2 bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
                     @csrf
-                    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                    <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                         <h2 class="font-extrabold text-slate-800 dark:text-white">Dividir el lote</h2>
                         <p class="text-xs text-slate-400">Si llegó en tandas o con lotes distintos del fabricante. La primera parte se queda con {{ $lot->lot_code }}; cada otra es un lote nuevo con el mismo costo. Deben sumar {{ $qty($lot->quantity_received) }}.</p>
                     </div>
                     <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                        <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                        <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                             <tr>
                                 <th class="py-3 px-4">Parte</th>
                                 <th class="py-3 px-4 w-32 text-right">Cantidad</th>
@@ -170,9 +170,9 @@
                             @endforeach
                         </tbody>
                     </table>
-                    <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div class="px-6 py-4 border-t border-line dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div class="flex items-center gap-4">
-                            <button type="button" id="parteAgregar" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline">+ Agregar parte</button>
+                            <button type="button" id="parteAgregar" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">+ Agregar parte</button>
                             <span class="text-xs font-semibold text-slate-500">Suma: <span id="partesTotal" class="font-mono font-extrabold">0</span> de <span class="font-mono font-extrabold">{{ $qty($lot->quantity_received) }}</span></span>
                         </div>
                         <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-xs">Dividir lote</button>
@@ -192,10 +192,10 @@
         @endcan
 
         <!-- Reparto en ubicaciones -->
-        <form method="POST" action="{{ route('inventory.lots.placements', $lot) }}" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden" id="repartoForm">
+        <form method="POST" action="{{ route('inventory.lots.placements', $lot) }}" class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden" id="repartoForm">
             @csrf
             @method('PUT')
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Ubicación en {{ $lot->warehouseAllBranches?->name }}</h2>
                 <p class="text-xs text-slate-400">Reparta el lote en una o varias ubicaciones. Puede guardarlo y corregirlo; al confirmar la colocación entra al inventario y ya no se edita.</p>
             </div>
@@ -203,7 +203,7 @@
                 <p class="px-6 py-10 text-center text-sm text-slate-400">La bodega no tiene ubicaciones activas: créelas en Ubicaciones para poder colocar el lote.</p>
             @else
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4">Ubicación</th>
                             <th class="py-3 px-4 w-44 text-right">Cantidad ({{ $unidad }})</th>
@@ -237,14 +237,14 @@
                         @endforeach
                     </tbody>
                 </table>
-                <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="px-6 py-4 border-t border-line dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div class="flex items-center gap-4">
-                        <button type="button" id="repartoAgregar" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline">+ Agregar ubicación</button>
+                        <button type="button" id="repartoAgregar" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">+ Agregar ubicación</button>
                         <span class="text-xs font-semibold text-slate-500">Asignado: <span id="repartoTotal" class="font-mono font-extrabold">{{ $qty($asignado) }}</span> de <span class="font-mono font-extrabold">{{ $qty($lot->quantity_received) }}</span></span>
                     </div>
                     @can('inventory.ubicar')
                         <div class="flex gap-3">
-                            <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Guardar reparto</button>
+                            <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 border border-line dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Guardar reparto</button>
                             <button type="submit" name="confirmar" value="1" class="bg-[#005e66] hover:bg-[#004d54] text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-xs">Confirmar colocación</button>
                         </div>
                     @endcan
@@ -274,13 +274,13 @@
 
     @if($lot->status === 'active')
         <!-- Dónde está y cambio de ubicación -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Existencia por ubicación</h2>
                 <p class="text-xs text-slate-400">Para moverlo dentro de la bodega, registre un cambio de ubicación: queda en el kardex.</p>
             </div>
             <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                     <tr>
                         <th class="py-3 px-4">Bodega / Ubicación</th>
                         <th class="py-3 px-4 text-right">Existencia</th>
@@ -336,8 +336,8 @@
 
     <!-- Ajustes por conteo físico -->
     @if($lot->status === 'active' && (auth()->user()->can('inventory.ajustar') || $ajustes->isNotEmpty()))
-        <div id="ajustes" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div id="ajustes" class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Ajustes de inventario</h2>
                 <p class="text-xs text-slate-400">
                     Por conteo físico: indique lo que contó del lote en una ubicación. La diferencia con lo que dice el sistema entra o sale
@@ -345,7 +345,7 @@
                 </p>
             </div>
             @can('inventory.ajustar')
-                <form method="POST" action="{{ route('inventory.lots.adjust', $lot) }}" class="px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start border-b border-slate-100 dark:border-slate-800">
+                <form method="POST" action="{{ route('inventory.lots.adjust', $lot) }}" class="px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-3 items-start border-b border-line dark:border-slate-800">
                     @csrf
                     <div class="md:col-span-3">
                         <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Ubicación contada *</label>
@@ -399,7 +399,7 @@
             @endcan
             @if($ajustes->isNotEmpty())
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4">Ajuste</th>
                             <th class="py-3 px-4">Bodega / Ubicación</th>
@@ -412,7 +412,7 @@
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         @foreach($ajustes as $ajuste)
                             <tr>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">{{ $ajuste->adjustment_code }}</td>
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-primary dark:text-accent dark:text-teal-400">{{ $ajuste->adjustment_code }}</td>
                                 <td class="py-3 px-4">
                                     <span class="font-semibold text-slate-700 dark:text-slate-200 block">{{ $ajuste->warehouse?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $ajuste->inventoryLocation?->location?->code }}</span>
@@ -438,13 +438,13 @@
     @endif
 
     <!-- Movimientos del lote -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
+        <div class="px-6 py-4 border-b border-line dark:border-slate-800 flex items-center justify-between">
             <h2 class="font-extrabold text-slate-800 dark:text-white">Movimientos del lote</h2>
-            <a href="{{ route('inventory.movements', ['search' => $lot->lot_code]) }}" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline">Ver en el kardex</a>
+            <a href="{{ route('inventory.movements', ['search' => $lot->lot_code]) }}" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">Ver en el kardex</a>
         </div>
         <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-            <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+            <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                 <tr>
                     <th class="py-3 px-4">Fecha</th>
                     <th class="py-3 px-4">Tipo</th>

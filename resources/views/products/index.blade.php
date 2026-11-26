@@ -1,100 +1,61 @@
 @extends('layouts.app')
 @section('title', 'Catálogo de Productos')
 @section('content')
-<div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado Principal -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] rounded-lg">Catálogo General</span>
-                <span class="text-slate-400">•</span>
-                <span class="text-xs font-semibold text-slate-500">Módulo de Productos</span>
-            </div>
-            <h1 class="text-3xl font-extrabold text-[#005e66] tracking-tight mt-1">
-                Catálogo General de Productos
-            </h1>
-            <p class="text-slate-500 text-sm mt-0.5">
-                Consulte, filtre y gestione el catálogo general, imágenes, especificaciones y niveles de existencias.
-            </p>
-        </div>
+<div class="w-full space-y-6 animate-fade-in">
+    <x-ui.page-header
+        eyebrow="Catálogo General"
+        module="Módulo de Productos"
+        title="Catálogo General de Productos"
+        subtitle="Consulte, filtre y gestione el catálogo general, imágenes, especificaciones y niveles de existencias.">
         @can('products.crear')
-        <div class="flex items-center gap-3 w-full md:w-auto">
-            <button type="button" onclick="openModal('create-product-modal')" class="w-full md:w-auto bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold px-5 py-3 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Nuevo Producto</span>
-            </button>
-        </div>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-product-modal')">Nuevo Producto</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </div>
+    </x-ui.page-header>
 
-    <!-- Tarjetas de Métricas Rápidas -->
+    <!-- Métricas rápidas -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#005e66] flex items-center justify-center text-xl font-bold">
-                📦
-            </div>
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Catálogo</span>
-                <span class="text-xl font-extrabold text-slate-800">{{ $products->total() }}</span>
-            </div>
-        </div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
-                ●
-            </div>
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Activos</span>
-                <span class="text-xl font-extrabold text-slate-800">{{ $products->where('is_active', true)->count() }}</span>
-            </div>
-        </div>
+        <x-ui.metric-card icon="inventory" tone="primary" label="Total Catálogo" :value="$products->total()" />
+        <x-ui.metric-card icon="check-circle" tone="success" label="Activos" :value="$products->where('is_active', true)->count()" />
     </div>
 
-    <!-- Buscador y Filtros -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4">
-        <form method="GET" action="{{ route('products.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="md:col-span-2">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre, SKU, códigos de fábrica o barras..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-            </div>
-            <div>
-                <select name="id_category" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
-                    <option value="">Todas las Categorías</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id_category }}" {{ request('id_category') == $category->id_category ? 'selected' : '' }}>{{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="flex gap-2">
-                <button type="submit" class="w-full bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Filtrar</button>
-                @if(request('search') || request('id_category'))
-                    <a href="{{ route('products.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Limpiar</a>
-                @endif
-            </div>
-        </form>
-    </div>
+    <!-- Buscador y filtros -->
+    <x-ui.filter-bar :action="route('products.index')" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="md:col-span-2">
+            <x-ui.input name="search" :value="request('search')" placeholder="Buscar por nombre, SKU, códigos de fábrica o barras..." />
+        </div>
+        <x-ui.select name="id_category">
+            <option value="">Todas las Categorías</option>
+            @foreach($categories as $category)
+                <option value="{{ $category->id_category }}" {{ request('id_category') == $category->id_category ? 'selected' : '' }}>{{ $category->name }}</option>
+            @endforeach
+        </x-ui.select>
+        <div class="flex gap-2">
+            <x-ui.button type="submit" icon="filter" class="flex-1 !rounded-xl">Filtrar</x-ui.button>
+            @if(request('search') || request('id_category'))
+                <x-ui.button :href="route('products.index')" variant="secondary" class="!rounded-xl">Limpiar</x-ui.button>
+            @endif
+        </div>
+    </x-ui.filter-bar>
 
-    <!-- Listado de Productos -->
-    <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
-            <thead>
-                <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                    <th class="py-3 px-4 text-center">Imagen</th>
-                    <th class="py-3 px-6">Producto / Códigos</th>
-                    <th class="py-3 px-6">Categoría / Subcat.</th>
-                    <th class="py-3 px-6">Presentación & Medidas</th>
-                    <th class="py-3 px-6 text-right" title="Costo de la compra más reciente: con descuento, sin IVA, más gastos que forman parte del costo; o el del retaceo aplicado">Último Costo</th>
-                    <th class="py-3 px-6 text-center">Estado</th>
-                    <th class="py-3 px-6 text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
+    <!-- Listado de productos -->
+    <x-ui.table>
+        <x-slot:head>
+            <x-ui.th align="center">Imagen</x-ui.th>
+            <x-ui.th>Producto / Códigos</x-ui.th>
+            <x-ui.th>Categoría / Subcat.</x-ui.th>
+            <x-ui.th>Presentación &amp; Medidas</x-ui.th>
+            <x-ui.th align="right">Último Costo</x-ui.th>
+            <x-ui.th align="center">Estado</x-ui.th>
+            <x-ui.th align="center">Acciones</x-ui.th>
+        </x-slot:head>
                 @forelse($products as $product)
-                    <tr class="group hover:scale-[1.001] hover:shadow-md transition-all duration-200 {{ !$product->is_active ? 'opacity-50 grayscale-35' : '' }}">
+                    <tr @class(['group', 'is-inactive' => !$product->is_active])>
                         <!-- Imagen de producto -->
-                        <td class="py-4 px-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-center">
+                        <td class="text-center">
                             @if($product->images->count() > 0)
-                                <div class="relative w-12 h-12 mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-xs group-hover:scale-105 transition-all cursor-pointer" onclick="openGlobalImageModal('{{ asset('storage/' . $product->images->first()->path) }}', '{{ addslashes($product->name) }}')" title="Ampliar imagen de {{ addslashes($product->name) }}">
+                                <div class="relative w-12 h-12 mx-auto rounded-xl overflow-hidden border border-line shadow-xs group-hover:scale-105 transition-all cursor-pointer" onclick="openGlobalImageModal('{{ asset('storage/' . $product->images->first()->path) }}', '{{ addslashes($product->name) }}')" title="Ampliar imagen de {{ addslashes($product->name) }}">
                                     <img src="{{ asset('storage/' . $product->images->first()->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                                     @if($product->images->count() > 1)
                                         <span class="absolute bottom-0 right-0 bg-slate-900/80 text-white text-[9px] font-extrabold px-1 rounded-tl">
@@ -103,14 +64,14 @@
                                     @endif
                                 </div>
                             @else
-                                <div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-lg font-bold border border-slate-200">
+                                <div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-lg font-bold border border-line">
                                     🖼️
                                 </div>
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100">
-                            <div class="font-extrabold text-slate-800 text-sm">{{ $product->name }}</div>
-                            <div class="flex items-center gap-2 text-xs text-slate-400 font-mono mt-0.5 flex-wrap">
+                        <td>
+                            <div class="font-extrabold text-body text-sm">{{ $product->name }}</div>
+                            <div class="flex items-center gap-2 text-xs text-subtle font-mono mt-0.5 flex-wrap">
                                 <span>SKU: {{ $product->sku }}</span>
                                 @if($product->original_code)
                                     <span>• Orig: {{ $product->original_code }}</span>
@@ -120,70 +81,60 @@
                                 @endif
                             </div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm">
-                            <div class="font-bold text-slate-700">{{ $product->category?->name ?? 'Sin Categoría' }}</div>
-                            <div class="text-xs text-slate-400 font-semibold">{{ $product->subCategory?->name ?? 'Sin Subcategoría' }}</div>
+                        <td class="text-sm">
+                            <div class="font-bold text-body">{{ $product->category?->name ?? 'Sin Categoría' }}</div>
+                            <div class="text-xs text-muted font-semibold">{{ $product->subCategory?->name ?? 'Sin Subcategoría' }}</div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-xs">
-                            <div class="font-semibold text-slate-700">{{ $product->presentation ?: 'N/A' }}</div>
-                            <div class="text-slate-400">
+                        <td class="text-xs">
+                            <div class="font-semibold text-body">{{ $product->presentation ?: 'N/A' }}</div>
+                            <div class="text-muted">
                                 {{ $product->size ? 'Talla/Tam: '.$product->size : '' }} 
                                 {{ $product->dimensions ? '('.$product->dimensions.')' : '' }}
                             </div>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-xs text-right whitespace-nowrap">
+                        <td class="text-xs text-right whitespace-nowrap">
                             @if($product->last_cost !== null)
-                                <div class="font-mono font-bold text-slate-800">${{ number_format($product->last_cost, 4) }}</div>
-                                <div class="text-slate-400">
+                                <div class="font-mono font-bold text-body">${{ number_format($product->last_cost, 4) }}</div>
+                                <div class="text-muted">
                                     {{ $product->lastCostPurchaseDetail?->unit?->name ? 'por '.$product->lastCostPurchaseDetail->unit->name.' · ' : '' }}{{ $product->last_cost_date?->format('d/m/Y') }}
                                 </div>
                             @else
-                                <span class="text-slate-400">Sin compras</span>
+                                <span class="text-subtle">Sin compras</span>
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-center">
+                        <td class="text-center">
                             @if($product->is_active)
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">● Activo</span>
+                                <x-ui.badge tone="success">Activo</x-ui.badge>
                             @else
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700">● Inactivo</span>
+                                <x-ui.badge tone="danger">Inactivo</x-ui.badge>
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
+                        <td class="text-center">
                             <div class="flex items-center justify-center gap-2">
                                 @can('products.ver')
-                                <a href="{{ route('products.show', $product) }}" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 font-semibold text-xs transition-all flex items-center justify-center" title="Ver Detalles">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                </a>
+                                    <x-ui.icon-button icon="eye" tone="info" :href="route('products.show', $product)" label="Ver detalles" />
                                 @endcan
-
                                 @can('products.editar')
-                                <button type="button" onclick="openModal('edit-product-modal-{{ $product->id_product }}')" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                </button>
+                                    <x-ui.icon-button icon="pencil" tone="warning" label="Editar"
+                                        onclick="openModal('edit-product-modal-{{ $product->id_product }}')" />
                                 @endcan
-
                                 @can('products.eliminar')
                                     @if($product->is_active)
-                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', false)" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-all flex items-center justify-center" title="Inactivar Producto">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                                        </button>
+                                        <x-ui.icon-button icon="x-circle" tone="danger" label="Inactivar producto"
+                                            onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', false)" />
                                     @else
-                                        <button type="button" onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', true)" class="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-xs transition-all flex items-center justify-center" title="Reactivar Producto">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        </button>
+                                        <x-ui.icon-button icon="check-circle" tone="success" label="Reactivar producto"
+                                            onclick="confirmDelete('{{ route('products.destroy', $product) }}', '{{ addslashes($product->name) }}', true)" />
                                     @endif
                                 @endcan
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-slate-400 font-semibold">No hay productos registrados en el catálogo.</td>
-                    </tr>
+                    <x-ui.empty-state :colspan="7" icon="inventory" title="Sin productos"
+                        message="No hay productos registrados en el catálogo." />
                 @endforelse
-            </tbody>
-        </table>
-    </section>
+    </x-ui.table>
 
     <!-- Paginación -->
     @if($products->hasPages())
@@ -197,15 +148,15 @@
 @foreach($products as $product)
     @can('products.editar')
         <div id="edit-product-modal-{{ $product->id_product }}" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
-            <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl mx-4 my-auto max-h-[85vh] overflow-y-auto border border-slate-100 relative transform scale-95 transition-all duration-200">
+            <div class="bg-surface rounded-3xl p-6 sm:p-8 max-w-4xl w-full pop-shadow mx-4 my-auto max-h-[85vh] overflow-y-auto border border-line relative transform scale-95 transition-all duration-200">
                 
                 <!-- Encabezado Sticky (Fijo al hacer scroll dentro del modal) -->
-                <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
+                <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-surface z-20 border-b border-line flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
                     <div>
-                        <h3 class="text-xl font-extrabold text-slate-800">Editar Producto: {{ $product->name }}</h3>
+                        <h3 class="text-xl font-extrabold text-body">Editar Producto: {{ $product->name }}</h3>
                         <p class="text-xs text-slate-400">Actualiza los datos del producto, precios e imágenes asociadas.</p>
                     </div>
-                    <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">✕</button>
+                    <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="p-2 rounded-xl text-muted hover:text-body hover:bg-sunken transition">✕</button>
                 </div>
 
                 <!-- Formulario Principal -->
@@ -214,22 +165,22 @@
                     @method('PUT')
 
                     <!-- 1. Información General -->
-                    <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                        <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">1. Información General</h4>
+                    <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                        <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">1. Información General</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre del Producto *</label>
-                                <input type="text" name="name" value="{{ old('name', $product->name) }}" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <label class="ui-label">Nombre del Producto *</label>
+                                <input type="text" name="name" value="{{ old('name', $product->name) }}" required class="ui-input">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">SKU *</label>
-                                <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <label class="ui-label">SKU *</label>
+                                <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" required class="ui-input">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Categoría *</label>
-                                <select name="id_category" id="edit_id_category_{{ $product->id_product }}" required onchange="filterSubcategories(this, document.getElementById('edit_id_sub_category_{{ $product->id_product }}'))" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <label class="ui-label">Categoría *</label>
+                                <select name="id_category" id="edit_id_category_{{ $product->id_product }}" required onchange="filterSubcategories(this, document.getElementById('edit_id_sub_category_{{ $product->id_product }}'))" class="ui-input">
                                     <option value="">Selecciona categoría...</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->id_category }}" {{ old('id_category', $product->id_category) == $cat->id_category ? 'selected' : '' }}>{{ $cat->name }}</option>
@@ -237,8 +188,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Subcategoría</label>
-                                <select name="id_sub_category" id="edit_id_sub_category_{{ $product->id_product }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <label class="ui-label">Subcategoría</label>
+                                <select name="id_sub_category" id="edit_id_sub_category_{{ $product->id_product }}" class="ui-input">
                                     <option value="">Selecciona subcategoría...</option>
                                     @foreach($subCategories as $sub)
                                         <option value="{{ $sub->id_sub_category }}" data-category="{{ $sub->id_category }}" {{ old('id_sub_category', $product->id_sub_category) == $sub->id_sub_category ? 'selected' : '' }}>{{ $sub->name }}</option>
@@ -249,41 +200,41 @@
                     </div>
 
                     <!-- 2. Códigos de Identificación -->
-                    <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                        <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">2. Códigos de Identificación</h4>
+                    <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                        <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">2. Códigos de Identificación</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Código Original / Fábrica</label>
-                                <input type="text" name="original_code" value="{{ old('original_code', $product->original_code) }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. ORG-9843">
+                                <label class="ui-label">Código Original / Fábrica</label>
+                                <input type="text" name="original_code" value="{{ old('original_code', $product->original_code) }}" class="ui-input" placeholder="Ej. ORG-9843">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Código Interno</label>
-                                <input type="text" name="internal_code" value="{{ old('internal_code', $product->internal_code) }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. INT-0042">
+                                <label class="ui-label">Código Interno</label>
+                                <input type="text" name="internal_code" value="{{ old('internal_code', $product->internal_code) }}" class="ui-input" placeholder="Ej. INT-0042">
                             </div>
                         </div>
                     </div>
 
                     <!-- 3. Presentación & Medidas -->
-                    <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                        <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">3. Presentación & Especificaciones Técnicas</h4>
+                    <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                        <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">3. Presentación & Especificaciones Técnicas</h4>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Presentación</label>
-                                <input type="text" name="presentation" value="{{ old('presentation', $product->presentation) }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. Caja por 12 unidades">
+                                <label class="ui-label">Presentación</label>
+                                <input type="text" name="presentation" value="{{ old('presentation', $product->presentation) }}" class="ui-input" placeholder="Ej. Caja por 12 unidades">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Talla / Tamaño</label>
-                                <input type="text" name="size" value="{{ old('size', $product->size) }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. Grande / 500ml">
+                                <label class="ui-label">Talla / Tamaño</label>
+                                <input type="text" name="size" value="{{ old('size', $product->size) }}" class="ui-input" placeholder="Ej. Grande / 500ml">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Dimensiones</label>
-                                <input type="text" name="dimensions" value="{{ old('dimensions', $product->dimensions) }}" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. 10x5x2 cm">
+                                <label class="ui-label">Dimensiones</label>
+                                <input type="text" name="dimensions" value="{{ old('dimensions', $product->dimensions) }}" class="ui-input" placeholder="Ej. 10x5x2 cm">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Compra</label>
-                                <select name="id_purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <label class="ui-label">Unidad de Compra</label>
+                                <select name="id_purchase_unit" class="ui-input">
                                     <option value="">Selecciona unidad...</option>
                                     @foreach($units as $u)
                                         <option value="{{ $u->id_unit }}" {{ old('id_purchase_unit', $product->id_purchase_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
@@ -291,8 +242,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Venta</label>
-                                <select name="id_sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                                <label class="ui-label">Unidad de Venta</label>
+                                <select name="id_sale_unit" class="ui-input">
                                     <option value="">Selecciona unidad...</option>
                                     @foreach($units as $u)
                                         <option value="{{ $u->id_unit }}" {{ old('id_sale_unit', $product->id_sale_unit) == $u->id_unit ? 'selected' : '' }}>{{ $u->name }}</option>
@@ -303,14 +254,14 @@
                     </div>
 
                     <!-- 4. Descripción -->
-                    <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-2">
-                        <label class="block text-xs font-bold text-[#005e66] uppercase tracking-wider">4. Descripción / Notas</label>
-                        <textarea name="description" rows="2" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">{{ old('description', $product->description) }}</textarea>
+                    <div class="bg-sunken p-4 rounded-2xl border border-line space-y-2">
+                        <label class="block text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">4. Descripción / Notas</label>
+                        <textarea name="description" rows="2" class="ui-input">{{ old('description', $product->description) }}</textarea>
                     </div>
 
                     <!-- 5. Imágenes del Producto -->
-                    <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                        <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">5. Imágenes del Producto (Permite múltiples archivos)</h4>
+                    <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                        <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">5. Imágenes del Producto (Permite múltiples archivos)</h4>
                         
                         <!-- Imágenes Existentes -->
                         @if($product->images->count() > 0)
@@ -318,7 +269,7 @@
                                 <span class="text-xs font-bold text-slate-500 block mb-2">Imágenes Actuales:</span>
                                 <div class="flex flex-wrap gap-3">
                                     @foreach($product->images as $img)
-                                        <div class="relative group/img rounded-xl overflow-hidden border border-slate-200 shadow-xs bg-white cursor-pointer" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;" onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" title="Haz clic para ampliar">
+                                        <div class="relative group/img rounded-xl overflow-hidden border border-line shadow-xs bg-surface cursor-pointer" style="width: 80px; height: 80px; min-width: 80px; min-height: 80px; max-width: 80px; max-height: 80px;" onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" title="Haz clic para ampliar">
                                             <img src="{{ asset('storage/' . $img->path) }}" style="width: 100%; height: 100%; object-fit: cover;" class="hover:opacity-90 transition-opacity">
                                             <div class="absolute inset-0 bg-slate-900/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all">
                                                 <button type="button" onclick="event.stopPropagation(); deleteProductImage('{{ route('product-images.destroy', $img->id_product_image) }}')" class="p-1.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition cursor-pointer" title="Eliminar imagen">
@@ -344,13 +295,13 @@
 
                     <!-- Checkbox Activo -->
                     <div class="flex items-center gap-2 pt-2">
-                        <input type="checkbox" name="is_active" id="edit_prod_active_{{ $product->id_product }}" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }} class="rounded-sm text-[#005e66]">
+                        <input type="checkbox" name="is_active" id="edit_prod_active_{{ $product->id_product }}" value="1" {{ old('is_active', $product->is_active) ? 'checked' : '' }} class="rounded-sm text-primary dark:text-accent">
                         <label for="edit_prod_active_{{ $product->id_product }}" class="text-sm font-semibold text-slate-700">Producto Activo para Operaciones</label>
                     </div>
 
                     <!-- Acciones del Formulario al final -->
-                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
-                        <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
+                    <div class="flex items-center justify-end gap-3 pt-6 border-t border-line">
+                        <button type="button" onclick="closeModal('edit-product-modal-{{ $product->id_product }}')" class="px-6 py-2.5 rounded-xl bg-surface border border-line text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
                         <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar Cambios</button>
                     </div>
                 </form>
@@ -361,15 +312,15 @@
 
 <!-- MODAL DE CREACIÓN DE PRODUCTO -->
 <div id="create-product-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 flex items-start sm:items-center justify-center">
-    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl mx-4 my-auto max-h-[85vh] overflow-y-auto border border-slate-100 relative transform scale-95 transition-all duration-200">
+    <div class="bg-surface rounded-3xl p-6 sm:p-8 max-w-4xl w-full pop-shadow mx-4 my-auto max-h-[85vh] overflow-y-auto border border-line relative transform scale-95 transition-all duration-200">
         
         <!-- Encabezado Sticky (Fijo al hacer scroll dentro del modal) -->
-        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-white z-20 border-b border-slate-100 flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
+        <div class="sticky -top-6 -mx-6 -mt-6 sm:-top-8 sm:-mx-8 sm:-mt-8 p-6 bg-surface z-20 border-b border-line flex items-center justify-between mb-6 shadow-xs rounded-t-3xl">
             <div>
-                <h3 class="text-xl font-extrabold text-slate-800">Registrar Nuevo Producto</h3>
+                <h3 class="text-xl font-extrabold text-body">Registrar Nuevo Producto</h3>
                 <p class="text-xs text-slate-400">Complete la información requerida, especificaciones e imágenes del producto.</p>
             </div>
-            <button type="button" onclick="closeModal('create-product-modal')" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">✕</button>
+            <button type="button" onclick="closeModal('create-product-modal')" class="p-2 rounded-xl text-muted hover:text-body hover:bg-sunken transition">✕</button>
         </div>
 
         <!-- Formulario Completo -->
@@ -377,22 +328,22 @@
             @csrf
 
             <!-- 1. Información General -->
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">1. Información General</h4>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">1. Información General</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre del Producto *</label>
-                        <input type="text" name="name" required class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. Laptop Pro 15 pulgadas">
+                        <label class="ui-label">Nombre del Producto *</label>
+                        <input type="text" name="name" required class="ui-input" placeholder="Ej. Laptop Pro 15 pulgadas">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">SKU (Opcional - Se autogenera si está vacío)</label>
-                        <input type="text" name="sku" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. PRD-2026-X9A3B">
+                        <label class="ui-label">SKU (Opcional - Se autogenera si está vacío)</label>
+                        <input type="text" name="sku" class="ui-input" placeholder="Ej. PRD-2026-X9A3B">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Categoría *</label>
-                        <select name="id_category" id="create_id_category" required onchange="filterSubcategories(this, document.getElementById('create_id_sub_category'))" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Categoría *</label>
+                        <select name="id_category" id="create_id_category" required onchange="filterSubcategories(this, document.getElementById('create_id_sub_category'))" class="ui-input">
                             <option value="">Selecciona categoría...</option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id_category }}">{{ $cat->name }}</option>
@@ -400,8 +351,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Subcategoría</label>
-                        <select name="id_sub_category" id="create_id_sub_category" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Subcategoría</label>
+                        <select name="id_sub_category" id="create_id_sub_category" class="ui-input">
                             <option value="">Selecciona subcategoría...</option>
                             @foreach($subCategories as $sub)
                                 <option value="{{ $sub->id_sub_category }}" data-category="{{ $sub->id_category }}">{{ $sub->name }}</option>
@@ -412,41 +363,41 @@
             </div>
 
             <!-- 2. Códigos de Identificación -->
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">2. Códigos de Identificación</h4>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">2. Códigos de Identificación</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Código Original / Fábrica</label>
-                        <input type="text" name="original_code" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. FAB-8834">
+                        <label class="ui-label">Código Original / Fábrica</label>
+                        <input type="text" name="original_code" class="ui-input" placeholder="Ej. FAB-8834">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Código Interno</label>
-                        <input type="text" name="internal_code" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. INT-0021">
+                        <label class="ui-label">Código Interno</label>
+                        <input type="text" name="internal_code" class="ui-input" placeholder="Ej. INT-0021">
                     </div>
                 </div>
             </div>
 
             <!-- 3. Presentación & Medidas -->
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">3. Presentación & Especificaciones Técnicas</h4>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">3. Presentación & Especificaciones Técnicas</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Presentación</label>
-                        <input type="text" name="presentation" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. Caja por 12 unidades">
+                        <label class="ui-label">Presentación</label>
+                        <input type="text" name="presentation" class="ui-input" placeholder="Ej. Caja por 12 unidades">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Talla / Tamaño</label>
-                        <input type="text" name="size" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. Mediano / 250ml">
+                        <label class="ui-label">Talla / Tamaño</label>
+                        <input type="text" name="size" class="ui-input" placeholder="Ej. Mediano / 250ml">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Dimensiones</label>
-                        <input type="text" name="dimensions" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Ej. 12x4x2 cm">
+                        <label class="ui-label">Dimensiones</label>
+                        <input type="text" name="dimensions" class="ui-input" placeholder="Ej. 12x4x2 cm">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Compra</label>
-                        <select name="id_purchase_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Unidad de Compra</label>
+                        <select name="id_purchase_unit" class="ui-input">
                             <option value="">Selecciona unidad...</option>
                             @foreach($units as $u)
                                 <option value="{{ $u->id_unit }}">{{ $u->name }}</option>
@@ -454,8 +405,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Unidad de Venta</label>
-                        <select name="id_sale_unit" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                        <label class="ui-label">Unidad de Venta</label>
+                        <select name="id_sale_unit" class="ui-input">
                             <option value="">Selecciona unidad...</option>
                             @foreach($units as $u)
                                 <option value="{{ $u->id_unit }}">{{ $u->name }}</option>
@@ -466,14 +417,14 @@
             </div>
 
             <!-- 4. Descripción -->
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-2">
-                <label class="block text-xs font-bold text-[#005e66] uppercase tracking-wider">4. Descripción / Notas</label>
-                <textarea name="description" rows="2" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]" placeholder="Indicaciones, componentes o detalles adicionales del producto..."></textarea>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-2">
+                <label class="block text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">4. Descripción / Notas</label>
+                <textarea name="description" rows="2" class="ui-input" placeholder="Indicaciones, componentes o detalles adicionales del producto..."></textarea>
             </div>
 
             <!-- 5. Galería de Imágenes (Selección Acumulativa) -->
-            <div class="bg-slate-50/70 p-4 rounded-2xl border border-slate-100 space-y-3">
-                <label class="block text-xs font-bold text-[#005e66] uppercase tracking-wider">5. Imágenes del Producto (Selección Acumulativa)</label>
+            <div class="bg-sunken p-4 rounded-2xl border border-line space-y-3">
+                <label class="block text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">5. Imágenes del Producto (Selección Acumulativa)</label>
                 <input type="file" id="create_product_images_input" name="images[]" multiple accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-customTeal-800 file:text-white hover:file:bg-customTeal-500 cursor-pointer">
                 <p class="text-[11px] text-slate-400">Puedes seleccionar imágenes de una en una o varias a la vez. Se irán acumulando abajo en la vista previa.</p>
 
@@ -483,13 +434,13 @@
 
             <!-- Checkbox Activo -->
             <div class="flex items-center gap-2 pt-2">
-                <input type="checkbox" name="is_active" id="create_prod_active" value="1" checked class="rounded-sm text-[#005e66]">
+                <input type="checkbox" name="is_active" id="create_prod_active" value="1" checked class="rounded-sm text-primary dark:text-accent">
                 <label for="create_prod_active" class="text-sm font-semibold text-slate-700">Producto Activo para Operaciones</label>
             </div>
 
             <!-- Acciones del Formulario al final -->
-            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200">
-                <button type="button" onclick="closeModal('create-product-modal')" class="px-6 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-line">
+                <button type="button" onclick="closeModal('create-product-modal')" class="px-6 py-2.5 rounded-xl bg-surface border border-line text-slate-600 font-bold text-sm hover:bg-slate-100 transition">Cancelar</button>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-customTeal-800 text-white font-bold text-sm hover:bg-customTeal-500 transition-all shadow-md">Guardar Producto</button>
             </div>
         </form>

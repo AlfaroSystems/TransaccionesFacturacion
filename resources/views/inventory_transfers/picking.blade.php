@@ -25,7 +25,7 @@
         <button type="button" onclick="window.print()" class="bg-slate-800 text-white font-bold py-2 px-5 rounded-xl text-sm">Imprimir</button>
     </div>
 
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm print:shadow-none print:rounded-none print:p-0">
+    <div class="max-w-4xl mx-auto bg-surface p-8 rounded-2xl shadow-sm print:shadow-none print:rounded-none print:p-0">
         <div class="flex items-start justify-between gap-6 border-b border-slate-300 pb-4">
             <div>
                 <h1 class="text-2xl font-extrabold">Lista de preparación</h1>

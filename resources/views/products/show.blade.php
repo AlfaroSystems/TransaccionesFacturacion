@@ -1,33 +1,20 @@
 @extends('layouts.app')
 @section('title', 'Ficha de Producto: ' . $product->name)
 @section('content')
-<div class="w-full space-y-6 animate-fade-in duration-300">
-    <!-- Encabezado de Navegación y Acciones -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-1">
-                <a href="{{ route('products.index') }}" class="hover:text-blue-600 transition">Catálogo</a>
-                <span>/</span>
-                <span class="text-slate-700">Ficha Técnica</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-3">
-                <span>{{ $product->name }}</span>
-            </h1>
-        </div>
-        <div class="flex items-center gap-2.5 w-full sm:w-auto">
-            <a href="{{ route('products.index') }}"
-                class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold px-4 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-xs">
-                ← Volver
-            </a>
-            <a href="{{ route('products.index', ['edit' => $product->id_product]) }}"
-                class="bg-customTeal-800 hover:bg-customTeal-500 text-white font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center gap-2 shadow-lg">
-                ✏️ Editar Producto
-            </a>
-        </div>
-    </div>
+<div class="w-full space-y-6 animate-fade-in">
+    <x-ui.page-header
+        eyebrow="Catálogo"
+        module="Ficha Técnica"
+        :back="route('products.index')"
+        :title="$product->name">
+        <x-slot:actions>
+            <x-ui.button :href="route('products.index')" variant="secondary" icon="arrow-left">Volver</x-ui.button>
+            <x-ui.button :href="route('products.index', ['edit' => $product->id_product])" icon="pencil">Editar Producto</x-ui.button>
+        </x-slot:actions>
+    </x-ui.page-header>
 
     <!-- TARJETA PRINCIPAL: FICHA TÉCNICA -->
-    <div class="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
+    <div class="ui-surface overflow-hidden">
         
         <!-- Header de la Ficha -->
         <div class="p-6 md:p-8 bg-linear-to-r/srgb from-slate-900 to-navy-sidebar text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -69,15 +56,15 @@
         </div>
 
         <!-- Identificador UUID Global -->
-        <div class="px-6 md:px-8 py-3 bg-slate-50 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div class="px-6 md:px-8 py-3 bg-slate-50 border-b border-line flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div class="flex items-center gap-2">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Identificador Global (UUID):</span>
-                <span id="uuid-text" class="font-mono text-xs text-slate-700 font-semibold bg-white px-2.5 py-1 rounded-sm border border-slate-200 select-all">
+                <span id="uuid-text" class="font-mono text-xs text-slate-700 font-semibold bg-surface px-2.5 py-1 rounded-sm border border-line select-all">
                     {{ $product->uuid }}
                 </span>
             </div>
             <button onclick="navigator.clipboard.writeText('{{ $product->uuid }}'); if(window.sileo) { window.sileo.success('Identificador UUID copiado al portapapeles.', '¡Copiado!'); }"
-                    class="text-xs text-[#005e66] hover:text-[#3cb0a4] font-bold flex items-center gap-1 transition-all cursor-pointer">
+                    class="text-xs text-primary dark:text-accent hover:text-[#3cb0a4] font-bold flex items-center gap-1 transition-all cursor-pointer">
                 📋 Copiar UUID
             </button>
         </div>
@@ -86,15 +73,15 @@
         <div class="p-6 md:p-8 space-y-8">
 
             <!-- Galería de Imágenes -->
-            <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
-                <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
+            <div class="bg-sunken p-5 rounded-2xl border border-line">
+                <div class="flex items-center gap-2.5 text-body font-bold text-sm mb-4 pb-2 border-b border-line">
                     <span class="text-base">🖼️</span>
                     <h3>Galería de Imágenes</h3>
                 </div>
                 @if($product->images->count() > 0)
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                         @foreach($product->images as $img)
-                            <div onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" class="group relative block aspect-square rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs hover:shadow-md transition-all cursor-pointer" title="Ampliar imagen de {{ addslashes($product->name) }}">
+                            <div onclick="openGlobalImageModal('{{ asset('storage/' . $img->path) }}', 'Imagen de {{ addslashes($product->name) }}')" class="group relative block aspect-square rounded-2xl overflow-hidden border border-line bg-surface shadow-xs hover:shadow-md transition-all cursor-pointer" title="Ampliar imagen de {{ addslashes($product->name) }}">
                                 <img src="{{ asset('storage/' . $img->path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-all">
                                 <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white text-xs font-bold">
                                     🔍 Ampliar
@@ -112,21 +99,21 @@
             <!-- Grid de Bloques Clave -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- 1. Clasificación Comercial -->
-                <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
-                    <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
+                <div class="bg-sunken p-5 rounded-2xl border border-line">
+                    <div class="flex items-center gap-2.5 text-body font-bold text-sm mb-4 pb-2 border-b border-line">
                         <span class="text-base">🏷️</span>
                         <h3>Clasificación & Categoría</h3>
                     </div>
                     <dl class="space-y-3 text-sm">
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Categoría Principal:</dt>
-                            <dd class="font-bold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                            <dt class="text-muted font-medium">Categoría Principal:</dt>
+                            <dd class="font-bold text-slate-800 bg-surface px-3 py-1 rounded-lg border border-line">
                                 {{ $product->category->name ?? 'No asignada' }}
                             </dd>
                         </div>
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Subcategoría:</dt>
-                            <dd class="font-semibold text-slate-700 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                            <dt class="text-muted font-medium">Subcategoría:</dt>
+                            <dd class="font-semibold text-slate-700 bg-surface px-3 py-1 rounded-lg border border-line">
                                 {{ $product->subCategory->name ?? 'No asignada' }}
                             </dd>
                         </div>
@@ -134,33 +121,33 @@
                 </div>
 
                 <!-- 2. Especificaciones Técnicas y Unidades -->
-                <div class="bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
-                    <div class="flex items-center gap-2.5 text-slate-800 font-bold text-sm mb-4 pb-2 border-b border-slate-200/60">
+                <div class="bg-sunken p-5 rounded-2xl border border-line">
+                    <div class="flex items-center gap-2.5 text-body font-bold text-sm mb-4 pb-2 border-b border-line">
                         <span class="text-base">📐</span>
                         <h3>Especificaciones & Unidades</h3>
                     </div>
                     <dl class="space-y-3 text-sm">
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Presentación:</dt>
-                            <dd class="font-semibold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                            <dt class="text-muted font-medium">Presentación:</dt>
+                            <dd class="font-semibold text-slate-800 bg-surface px-3 py-1 rounded-lg border border-line">
                                 {{ $product->presentation ?: 'N/A' }}
                             </dd>
                         </div>
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Talla / Tamaño / Dim.:</dt>
-                            <dd class="font-semibold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                            <dt class="text-muted font-medium">Talla / Tamaño / Dim.:</dt>
+                            <dd class="font-semibold text-slate-800 bg-surface px-3 py-1 rounded-lg border border-line">
                                 {{ $product->size ?: 'N/A' }} {{ $product->dimensions ? '('.$product->dimensions.')' : '' }}
                             </dd>
                         </div>
                         <div class="flex justify-between items-center">
-                            <dt class="text-slate-500 font-medium">Unidad de Compra / Venta:</dt>
-                            <dd class="font-bold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200">
+                            <dt class="text-muted font-medium">Unidad de Compra / Venta:</dt>
+                            <dd class="font-bold text-slate-800 bg-surface px-3 py-1 rounded-lg border border-line">
                                 {{ $product->purchaseUnit->name ?? 'N/A' }} / {{ $product->saleUnit->name ?? 'N/A' }}
                             </dd>
                         </div>
                         <div class="flex justify-between items-center gap-3">
-                            <dt class="text-slate-500 font-medium" title="Costo de la compra más reciente: con descuento, sin IVA, más gastos que forman parte del costo; o el del retaceo aplicado">Último Costo:</dt>
-                            <dd class="font-bold text-slate-800 bg-white px-3 py-1 rounded-lg border border-slate-200 text-right">
+                            <dt class="text-muted font-medium" title="Costo de la compra más reciente: con descuento, sin IVA, más gastos que forman parte del costo; o el del retaceo aplicado">Último Costo:</dt>
+                            <dd class="font-bold text-slate-800 bg-surface px-3 py-1 rounded-lg border border-line text-right">
                                 @if($product->last_cost !== null)
                                     <span class="font-mono">${{ number_format($product->last_cost, 4) }}</span>
                                     @php($origen = $product->lastCostPurchaseDetail)
@@ -189,7 +176,7 @@
             @endif
 
             <!-- 4. Información de Auditoría -->
-            <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 pt-6 border-t border-slate-100 gap-2 px-1">
+            <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 pt-6 border-t border-line gap-2 px-1">
                 <span>Registrado en el sistema: <strong class="text-slate-600">{{ $product->created_at ? $product->created_at->format('d/m/Y H:i') : '-' }}</strong></span>
                 <span>Última actualización: <strong class="text-slate-600">{{ $product->updated_at ? $product->updated_at->format('d/m/Y H:i') : '-' }}</strong></span>
             </div>

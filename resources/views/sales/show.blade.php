@@ -5,7 +5,7 @@
 <div class="animate-fade-in duration-300 max-w-4xl mx-auto">
     <header class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight">Venta {{ $sale->sale_code }}</h1>
+            <h1 class="text-2xl md:text-3xl font-extrabold text-primary dark:text-accent tracking-tight">Venta {{ $sale->sale_code }}</h1>
             <p class="text-slate-400 text-sm font-semibold mt-1">{{ $sale->sale_date?->format('d/m/Y H:i') }} · {{ $sale->statusLabel() }}</p>
         </div>
         <div class="flex items-center gap-2">
@@ -13,7 +13,7 @@
             @can('sales.crear')
                 <form action="{{ route('sales.send-receipt', $sale) }}" method="POST">
                     @csrf
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 font-bold text-sm">
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-info-soft text-info hover:brightness-95 font-bold text-sm">
                         {{ $sale->emailed_at ? 'Reenviar comprobante' : 'Enviar comprobante' }}
                     </button>
                 </form>
@@ -32,14 +32,14 @@
         <div class="mb-4 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold">{{ session('success') }}</div>
     @endif
 
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-5 mb-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+    <div class="ui-surface p-5 mb-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div><span class="block text-[10px] font-bold text-slate-400 uppercase">Cliente</span><span class="font-semibold text-slate-700">{{ $sale->customer->name ?? '-' }}</span></div>
         <div><span class="block text-[10px] font-bold text-slate-400 uppercase">Sucursal</span><span class="font-semibold text-slate-700">{{ $sale->branch->name ?? '-' }}</span></div>
         <div><span class="block text-[10px] font-bold text-slate-400 uppercase">Documento</span><span class="font-semibold text-slate-700">{{ $sale->documentLabel() }}</span></div>
         <div><span class="block text-[10px] font-bold text-slate-400 uppercase">Forma de pago</span><span class="font-semibold text-slate-700">{{ $sale->paymentLabel() }}</span></div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden mb-5">
+    <div class="ui-surface overflow-hidden mb-5">
         <table class="w-full text-left text-sm">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider bg-slate-50">
@@ -54,7 +54,7 @@
             </thead>
             <tbody>
                 @foreach($sale->details as $detail)
-                    <tr class="border-t border-slate-100">
+                    <tr class="border-t border-line">
                         <td class="py-2 px-4 font-semibold text-slate-700">
                             {{ $detail->product->name ?? '-' }}
                             @if($verCosto && $detail->costDetails->count())
@@ -78,11 +78,11 @@
     </div>
 
     <div class="flex justify-end">
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-5 w-full md:w-80 space-y-2 text-sm">
+        <div class="ui-surface p-5 w-full md:w-80 space-y-2 text-sm">
             <div class="flex justify-between"><span class="text-slate-500 font-semibold">Subtotal</span><span class="font-bold">$ {{ number_format($sale->subtotal, 2) }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500 font-semibold">Descuento</span><span class="font-bold">$ {{ number_format($sale->discount, 2) }}</span></div>
             <div class="flex justify-between"><span class="text-slate-500 font-semibold">IVA</span><span class="font-bold">$ {{ number_format($sale->tax, 2) }}</span></div>
-            <div class="flex justify-between text-base pt-2 border-t"><span class="text-slate-700 font-extrabold">Total</span><span class="font-extrabold text-[#005e66]">$ {{ number_format($sale->total, 2) }}</span></div>
+            <div class="flex justify-between text-base pt-2 border-t"><span class="text-slate-700 font-extrabold">Total</span><span class="font-extrabold text-primary dark:text-accent">$ {{ number_format($sale->total, 2) }}</span></div>
             @if($verCosto)
                 <div class="flex justify-between pt-2 border-t text-xs"><span class="text-slate-400 font-semibold">Costo de venta (PEPS)</span><span class="font-bold text-slate-500">$ {{ number_format($sale->total_cost, 2) }}</span></div>
                 <div class="flex justify-between text-xs"><span class="text-slate-400 font-semibold">Utilidad</span><span class="font-bold text-emerald-600">$ {{ number_format($sale->subtotal - $sale->total_cost, 2) }}</span></div>

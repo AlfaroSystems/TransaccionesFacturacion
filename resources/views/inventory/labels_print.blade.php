@@ -31,7 +31,7 @@
 
     <div class="max-w-5xl mx-auto grid grid-cols-3 gap-3">
         @for($i = 1; $i <= $print->quantity_printed; $i++)
-            <div class="etiqueta bg-white border border-slate-400 rounded-lg p-3 space-y-1">
+            <div class="etiqueta bg-surface border border-slate-400 rounded-lg p-3 space-y-1">
                 <p class="text-[10px] font-bold uppercase text-slate-500">Producto</p>
                 <p class="text-base font-mono font-black leading-tight">{{ $lot->product?->sku }}</p>
                 <p class="text-[10px] font-semibold leading-tight text-slate-700">{{ $lot->product?->name }}</p>

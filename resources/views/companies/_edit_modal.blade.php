@@ -1,6 +1,6 @@
 <!-- MODAL DE EDICIÓN DE EMPRESA -->
 <div id="edit-company-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-3xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
+    <div class="bg-surface rounded-3xl p-8 max-w-3xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-company-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -28,7 +28,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="edit-name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Razón Social <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Corporación ABC S.A. de C.V." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej. Corporación ABC S.A. de C.V." class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -38,7 +38,7 @@
 
                 <div>
                     <label for="edit-commercial_name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre Comercial</label>
-                    <input type="text" name="commercial_name" id="edit-commercial_name" value="{{ old('modal_type') === 'edit' ? old('commercial_name') : '' }}" placeholder="Ej. Tiendas ABC" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="commercial_name" id="edit-commercial_name" value="{{ old('modal_type') === 'edit' ? old('commercial_name') : '' }}" placeholder="Ej. Tiendas ABC" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
@@ -47,31 +47,31 @@
                 <!-- NIT -->
                 <div>
                     <label for="edit-nit" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">NIT</label>
-                    <input type="text" name="nit" id="edit-nit" value="{{ old('modal_type') === 'edit' ? old('nit') : '' }}" placeholder="Ej. 0614-123456-101-9" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="nit" id="edit-nit" value="{{ old('modal_type') === 'edit' ? old('nit') : '' }}" placeholder="Ej. 0614-123456-101-9" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
 
                 <!-- NRC -->
                 <div>
                     <label for="edit-nrc" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">NRC</label>
-                    <input type="text" name="nrc" id="edit-nrc" value="{{ old('modal_type') === 'edit' ? old('nrc') : '' }}" placeholder="Ej. 123456-7" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="nrc" id="edit-nrc" value="{{ old('modal_type') === 'edit' ? old('nrc') : '' }}" placeholder="Ej. 123456-7" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Fila 3: Giros Comerciales -->
-            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Actividades o Giros Comerciales</h4>
+            <div class="p-4 bg-slate-50/50 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">Actividades o Giros Comerciales</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label for="edit-commercial_line_1" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Giro Principal</label>
-                        <input type="text" name="commercial_line_1" id="edit-commercial_line_1" value="{{ old('modal_type') === 'edit' ? old('commercial_line_1') : '' }}" placeholder="Giro 1" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
+                        <input type="text" name="commercial_line_1" id="edit-commercial_line_1" value="{{ old('modal_type') === 'edit' ? old('commercial_line_1') : '' }}" placeholder="Giro 1" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
                     </div>
                     <div>
                         <label for="edit-commercial_line_2" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Giro Secundario</label>
-                        <input type="text" name="commercial_line_2" id="edit-commercial_line_2" value="{{ old('modal_type') === 'edit' ? old('commercial_line_2') : '' }}" placeholder="Giro 2" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
+                        <input type="text" name="commercial_line_2" id="edit-commercial_line_2" value="{{ old('modal_type') === 'edit' ? old('commercial_line_2') : '' }}" placeholder="Giro 2" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
                     </div>
                     <div>
                         <label for="edit-commercial_line_3" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Giro Adicional</label>
-                        <input type="text" name="commercial_line_3" id="edit-commercial_line_3" value="{{ old('modal_type') === 'edit' ? old('commercial_line_3') : '' }}" placeholder="Giro 3" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
+                        <input type="text" name="commercial_line_3" id="edit-commercial_line_3" value="{{ old('modal_type') === 'edit' ? old('commercial_line_3') : '' }}" placeholder="Giro 3" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden transition-all text-slate-700 font-semibold">
                     </div>
                 </div>
             </div>
@@ -81,29 +81,29 @@
                 <!-- Teléfono -->
                 <div>
                     <label for="edit-phone" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Teléfono</label>
-                    <input type="text" name="phone" id="edit-phone" value="{{ old('modal_type') === 'edit' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="phone" id="edit-phone" value="{{ old('modal_type') === 'edit' ? old('phone') : '' }}" placeholder="Ej. 2222-2222" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
 
                 <!-- Correo -->
                 <div>
                     <label for="edit-email" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Correo electrónico</label>
-                    <input type="email" name="email" id="edit-email" value="{{ old('modal_type') === 'edit' ? old('email') : '' }}" placeholder="Ej. contacto@empresa.com" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="email" name="email" id="edit-email" value="{{ old('modal_type') === 'edit' ? old('email') : '' }}" placeholder="Ej. contacto@empresa.com" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
 
                 <!-- Sitio Web -->
                 <div>
                     <label for="edit-web_site" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Sitio Web</label>
-                    <input type="url" name="web_site" id="edit-web_site" value="{{ old('modal_type') === 'edit' ? old('web_site') : '' }}" placeholder="Ej. https://www.empresa.com" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="url" name="web_site" id="edit-web_site" value="{{ old('modal_type') === 'edit' ? old('web_site') : '' }}" placeholder="Ej. https://www.empresa.com" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Fila 5: Ubicación Geográfica (El Salvador) -->
-            <div class="p-4 bg-slate-50/50 rounded-2xl border border-slate-100 space-y-3">
-                <h4 class="text-xs font-bold text-[#005e66] uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
+            <div class="p-4 bg-slate-50/50 rounded-2xl border border-line space-y-3">
+                <h4 class="text-xs font-bold text-primary dark:text-accent uppercase tracking-wider">Ubicación Geográfica (El Salvador)</h4>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label for="edit_id_department" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Departamento</label>
-                        <select name="id_department" id="edit_id_department" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                        <select name="id_department" id="edit_id_department" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                             <option value="">Seleccione departamento</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept->id_department }}">{{ $dept->name }}</option>
@@ -112,7 +112,7 @@
                     </div>
                     <div>
                         <label for="edit_id_municipality" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Municipio</label>
-                        <select name="id_municipality" id="edit_id_municipality" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                        <select name="id_municipality" id="edit_id_municipality" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                             <option value="">Seleccione municipio</option>
                             @foreach($municipalities as $muni)
                                 <option value="{{ $muni->id_municipality }}" data-parent="{{ $muni->id_department }}">{{ $muni->name }}</option>
@@ -121,7 +121,7 @@
                     </div>
                     <div>
                         <label for="edit_id_district" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Distrito</label>
-                        <select name="id_district" id="edit_id_district" class="w-full bg-white border border-slate-200 focus:border-[#005e66] rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
+                        <select name="id_district" id="edit_id_district" class="w-full bg-surface border border-line focus:border-accent rounded-xl px-3 py-2 text-xs focus:outline-hidden text-slate-700 font-semibold">
                             <option value="">Seleccione distrito</option>
                             @foreach($districts as $dist)
                                 <option value="{{ $dist->id_district }}" data-parent="{{ $dist->id_municipality }}">{{ $dist->name }}</option>
@@ -136,13 +136,13 @@
                 <!-- Dirección -->
                 <div>
                     <label for="edit-address" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Dirección de la Empresa</label>
-                    <textarea name="address" id="edit-address" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('address') : '' }}</textarea>
+                    <textarea name="address" id="edit-address" rows="2" placeholder="Ej. Calle y Avenida, San Salvador" class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden focus:border-accent focus:bg-white transition-all text-slate-700 font-semibold">{{ old('modal_type') === 'edit' ? old('address') : '' }}</textarea>
                 </div>
 
                 <!-- Logo -->
                 <div>
                     <label for="edit-logo" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Actualizar Logo</label>
-                    <input type="file" name="logo" id="edit-logo" accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-500 font-semibold">
+                    <input type="file" name="logo" id="edit-logo" accept="image/*" class="w-full bg-slate-50 border border-line rounded-xl px-4 py-2 text-sm focus:outline-hidden text-slate-500 font-semibold">
                     <p class="text-[10px] text-slate-400 mt-1">Dejar en blanco para conservar el actual. Máx 2MB.</p>
                 </div>
             </div>
@@ -154,7 +154,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
                 <button type="button" onclick="closeModal('edit-company-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>

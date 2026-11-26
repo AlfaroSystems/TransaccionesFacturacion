@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/80 transition-colors duration-300">
+<nav x-data="{ open: false }" class="bg-surface dark:bg-slate-800 border-b border-line dark:border-slate-700/80 transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
@@ -18,7 +18,7 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-semibold rounded-xl text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 focus:outline-hidden transition ease-in-out duration-150">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-semibold rounded-xl text-slate-600 dark:text-slate-300 bg-surface dark:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 focus:outline-hidden transition ease-in-out duration-150">
                             <div>{{ Auth::user()->username }}</div>
 
                             <div class="ms-1">
@@ -58,14 +58,14 @@
         </div>
     </div>
 
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700/80 transition-colors duration-300">
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-surface dark:bg-slate-800 border-t border-line dark:border-slate-700/80 transition-colors duration-300">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>
 
-        <div class="pt-4 pb-2 border-t border-slate-100 dark:border-slate-700/80">
+        <div class="pt-4 pb-2 border-t border-line dark:border-slate-700/80">
             <div class="px-4">
                 <div class="font-bold text-base text-slate-800 dark:text-slate-200">{{ Auth::user()->username }}</div>
                 <div class="font-medium text-sm text-slate-500 dark:text-slate-400">{{ Auth::user()->email }}</div>

@@ -3,20 +3,16 @@
 @section('content')
 <div class="animate-fade-in duration-300">
     <!-- Encabezado de Página -->
-    <header class="mb-6">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Bitácora de Auditoría</h1>
-            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Revisa el historial detallado de cambios y actividades del sistema.</p>
-        </div>
-    </header>
+    <x-ui.page-header eyebrow="Administración" module="Bitácora"
+        title="Bitácora de Auditoría" subtitle="Revisa el historial detallado de cambios y actividades del sistema." />
 
     <!-- Barra de Búsqueda y Filtros -->
-    <section class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 card-shadow mb-8">
+    <section class="bg-surface dark:bg-slate-800 p-6 rounded-2xl border border-line dark:border-slate-700 card-shadow mb-8">
         <form action="{{ route('audit-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 items-end">
             <!-- Filtro por Usuario -->
             <div>
                 <label for="id_user" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usuario</label>
-                <select name="id_user" id="id_user" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <select name="id_user" id="id_user" class="w-full bg-slate-50 dark:bg-slate-900 border border-line dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
                     <option value="">Todos los Usuarios</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id_user }}" {{ request('id_user') == $user->id_user ? 'selected' : '' }}>
@@ -29,7 +25,7 @@
             <!-- Filtro por Modelo -->
             <div>
                 <label for="auditable_type" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Modelo</label>
-                <select name="auditable_type" id="auditable_type" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <select name="auditable_type" id="auditable_type" class="w-full bg-slate-50 dark:bg-slate-900 border border-line dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
                     <option value="">Todos los Modelos</option>
                     @foreach($auditableTypes as $type)
                         <option value="{{ $type }}" {{ request('auditable_type') === $type ? 'selected' : '' }}>
@@ -42,13 +38,13 @@
             <!-- Fecha Desde -->
             <div>
                 <label for="date_from" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Desde</label>
-                <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-line dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
             </div>
 
             <!-- Fecha Hasta -->
             <div>
                 <label for="date_to" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Hasta</label>
-                <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-[#005e66] focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
+                <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="w-full bg-slate-50 dark:bg-slate-900 border border-line dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:border-accent focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-700 dark:text-slate-200 font-semibold">
             </div>
 
             <!-- Botones -->
@@ -67,7 +63,7 @@
 
     <!-- Listado de Logs -->
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 pl-10">Fecha y Hora</th>
@@ -82,7 +78,7 @@
                 @forelse($logs as $log)
                     <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
                         <!-- Fecha y Hora -->
-                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100 text-slate-500 font-semibold">
+                        <td class="px-6 py-4 bg-surface rounded-l-2xl border-l border-y border-line text-slate-500 font-semibold">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,10 +90,10 @@
                         </td>
 
                         <!-- Usuario -->
-                        <td class="px-6 py-4 bg-white border-y border-slate-100">
+                        <td class="px-6 py-4 bg-surface border-y border-line">
                             @if($log->user)
                                 <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full bg-slate-100 text-navy-sidebar border border-slate-200 flex items-center justify-center font-bold text-xs uppercase">
+                                    <div class="w-7 h-7 rounded-full bg-slate-100 text-navy-sidebar border border-line flex items-center justify-center font-bold text-xs uppercase">
                                         {{ substr($log->user->username, 0, 2) }}
                                     </div>
                                     <div>
@@ -111,12 +107,12 @@
                         </td>
 
                         <!-- Controlador -->
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-600 font-bold">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-slate-600 font-bold">
                             {{ $log->controller }}
                         </td>
 
                         <!-- Acción -->
-                        <td class="px-6 py-4 bg-white border-y border-slate-100">
+                        <td class="px-6 py-4 bg-surface border-y border-line">
                             @if(in_array($log->action, ['created', 'store', 'assign_role']))
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/10">
                                     {{ $log->action }}
@@ -137,7 +133,7 @@
                         </td>
 
                         <!-- Registro: modelo afectado e ID -->
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-500 font-bold">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-slate-500 font-bold">
                             @if($log->auditable_name)
                                 <span class="block text-slate-700">{{ $log->auditable_name }}</span>
                             @endif
@@ -145,8 +141,8 @@
                         </td>
 
                         <!-- Botón Ver Detalles -->
-                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
-                            <button type="button" onclick="toggleDetails({{ $log->id_log }})" class="p-2.5 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors text-xs font-bold flex items-center gap-1.5 ml-auto" title="Inspeccionar">
+                        <td class="px-6 py-4 bg-surface rounded-r-2xl border-r border-y border-line text-right">
+                            <button type="button" onclick="toggleDetails({{ $log->id_log }})" class="p-2.5 rounded-xl bg-info-soft text-info hover:brightness-95 transition-colors text-xs font-bold flex items-center gap-1.5 ml-auto" title="Inspeccionar">
                                 <span>Inspeccionar</span>
                                 <svg id="icon-{{ $log->id_log }}" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
@@ -157,7 +153,7 @@
 
                     <!-- Fila de Detalles Oculta / Expandible -->
                     <tr id="details-{{ $log->id_log }}" class="hidden">
-                        <td colspan="6" class="px-6 py-5 bg-white border border-slate-100 rounded-2xl shadow-xs">
+                        <td colspan="6" class="px-6 py-5 bg-surface border border-line rounded-2xl shadow-xs">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in duration-200">
                                 <!-- Datos Originales -->
                                 <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-150">
@@ -166,9 +162,9 @@
                                         Estado Original (Antes)
                                     </h4>
                                     @if($log->original_data && count($log->original_data) > 0)
-                                        <pre class="text-xs text-slate-700 bg-white p-3 rounded-lg font-mono overflow-x-auto max-h-56 border border-slate-100 leading-relaxed select-all">@json($log->original_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
+                                        <pre class="text-xs text-slate-700 bg-surface p-3 rounded-lg font-mono overflow-x-auto max-h-56 border border-line leading-relaxed select-all">@json($log->original_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
                                     @else
-                                        <div class="text-xs text-slate-400 font-semibold italic bg-white p-3 rounded-lg border border-dashed border-slate-200 text-center">
+                                        <div class="text-xs text-slate-400 font-semibold italic bg-surface p-3 rounded-lg border border-dashed border-line text-center">
                                             Sin datos anteriores o registro nuevo.
                                         </div>
                                     @endif
@@ -181,9 +177,9 @@
                                         Nuevos Datos Guardados (Después)
                                     </h4>
                                     @if($log->modified_data && count($log->modified_data) > 0)
-                                        <pre class="text-xs text-slate-700 bg-white p-3 rounded-lg font-mono overflow-x-auto max-h-56 border border-slate-100 leading-relaxed select-all">@json($log->modified_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
+                                        <pre class="text-xs text-slate-700 bg-surface p-3 rounded-lg font-mono overflow-x-auto max-h-56 border border-line leading-relaxed select-all">@json($log->modified_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)</pre>
                                     @else
-                                        <div class="text-xs text-slate-400 font-semibold italic bg-white p-3 rounded-lg border border-dashed border-slate-200 text-center">
+                                        <div class="text-xs text-slate-400 font-semibold italic bg-surface p-3 rounded-lg border border-dashed border-line text-center">
                                             Sin datos nuevos (por ejemplo, eliminación).
                                         </div>
                                     @endif
@@ -193,7 +189,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-12 bg-white rounded-2xl border border-slate-100 shadow-xs">
+                        <td colspan="6" class="text-center py-12 ui-surface">
                             <div class="flex flex-col items-center justify-center">
                                 <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,7 +208,7 @@
 
         <!-- Enlaces de Paginación -->
         @if($logs->hasPages())
-            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+            <div class="px-6 py-4 border-t border-line bg-slate-50/50">
                 {{ $logs->links() }}
             </div>
         @endif

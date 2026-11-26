@@ -2,31 +2,19 @@
 @section('title', 'Órdenes de Compra')
 @section('content')
 <div class="w-full space-y-6 animate-fade-in duration-300">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">
-                    Órdenes de Compra
-                </h1>
-                <p class="text-sm text-gray-500 mt-1">
-                    Emita y gestione las órdenes de compra de la empresa.
-                </p>
-            </div>
-            @can('purchase_orders.crear')
-            <button
-                type="button"
-                onclick="mostrarCrear()"
-                class="mt-4 md:mt-0 inline-flex items-center gap-2 px-5 py-2.5 bg-customTeal-800 hover:bg-navy-800 text-white font-bold rounded-xl shadow-md transition-all text-sm transform hover:-translate-y-0.5">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Nueva Orden</span>
-            </button>
-            @endcan
-        </div>
+    <x-ui.page-header eyebrow="Compras" module="Órdenes de Compra"
+        title="Órdenes de Compra"
+        subtitle="Emita y gestione las órdenes de compra de la empresa.">
+        @can('purchase_orders.crear')
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="mostrarCrear()">Nueva Orden</x-ui.button>
+            </x-slot:actions>
+        @endcan
+    </x-ui.page-header>
         <div id="ordersIndex">
             {{-- Tarjetas --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
+                <div class="bg-surface rounded-xl shadow-xs p-5 border border-line">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Total</p>
@@ -39,7 +27,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
+                <div class="bg-surface rounded-xl shadow-xs p-5 border border-line">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Borradores</p>
@@ -52,7 +40,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
+                <div class="bg-surface rounded-xl shadow-xs p-5 border border-line">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Emitidas</p>
@@ -65,7 +53,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-xs p-5 border border-gray-200">
+                <div class="bg-surface rounded-xl shadow-xs p-5 border border-line">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">Completadas</p>
@@ -81,15 +69,15 @@
 
             </div>
             {{-- Tabla --}}
-            <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
+            <div class="bg-surface rounded-xl shadow-xs border border-line overflow-hidden">
+                <div class="px-6 py-4 border-b border-line">
                     <h2 class="text-lg font-semibold text-gray-800">
                         Listado de Órdenes de Compra
                     </h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-200">
+                        <thead class="bg-gray-50 border-b border-line">
                             <tr>
                                 <th class="px-6 py-3 text-left font-semibold text-gray-600">
                                     Código
@@ -198,7 +186,7 @@
                                             <a
                                                 href="{{ route('purchase_orders.pdf', $order->id_purchase_order) }}"
                                                 target="_blank"
-                                                class="p-2.5 rounded-xl bg-teal-50 text-[#005e66] hover:bg-customTeal-800 hover:text-white dark:bg-teal-950/80 dark:text-teal-400 dark:border dark:border-teal-800/80 dark:hover:bg-teal-600 dark:hover:text-white transition-all flex items-center justify-center"
+                                                class="p-2.5 rounded-xl bg-teal-50 text-primary dark:text-accent hover:bg-customTeal-800 hover:text-white dark:bg-teal-950/80 dark:text-teal-400 dark:border dark:border-teal-800/80 dark:hover:bg-teal-600 dark:hover:text-white transition-all flex items-center justify-center"
                                                 title="PDF / Imprimir">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
@@ -230,16 +218,16 @@
                     </table>
                 </div>
                 @if(method_exists($purchase_orders, 'links'))
-                    <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="px-6 py-4 border-t border-line">
                         {{ $purchase_orders->links() }}
                     </div>
                 @endif
             </div>
         </div>
         <div id="orderCreate" class="hidden">
-            <div class="bg-white rounded-xl shadow-xs border border-gray-200">
+            <div class="bg-surface rounded-xl shadow-xs border border-line">
                 {{-- Cabecera --}}
-                <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+                <div class="px-6 py-5 border-b border-line flex items-center justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-800">
                             Nueva Orden de Compra
@@ -401,7 +389,7 @@
                                 <span>Agregar producto</span>
                             </button>
                         </div>
-                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                        <div class="overflow-x-auto border border-line rounded-lg">
                             <table class="w-full text-sm" id="productsTable">
                                 <thead class="bg-gray-50 border-b">
                                     <tr>
@@ -464,7 +452,7 @@
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">{{ old('notes') }}</textarea>
                     </div>
                     <div class="flex justify-end">
-                        <div class="w-full md:w-96 bg-gray-50 rounded-xl border border-gray-200 p-5">
+                        <div class="w-full md:w-96 bg-gray-50 rounded-xl border border-line p-5">
                             <div class="flex justify-between py-2">
                                 <span class="text-gray-600">
                                     Subtotal
@@ -514,7 +502,7 @@
                     <input type="hidden" name="additional_expenses" id="additional_expenses">
                     <input type="hidden" name="total" id="total">
                     {{-- BOTONES --}}
-                    <div class="mt-8 pt-6 border-t border-gray-200 flex justify-end gap-3">
+                    <div class="mt-8 pt-6 border-t border-line flex justify-end gap-3">
                         <button
                             type="button"
                             onclick="mostrarListado()"
@@ -533,9 +521,9 @@
         </div>
         <div id="orderShow" class="hidden">
             @if(isset($purchase_order))
-                <div class="bg-white rounded-xl shadow-xs border border-gray-200">
+                <div class="bg-surface rounded-xl shadow-xs border border-line">
                     {{-- Cabecera --}}
-                    <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="px-6 py-5 border-b border-line flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <p class="text-sm text-gray-500">
                                 Orden de Compra
@@ -635,7 +623,7 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">
                                 Productos
                             </h3>
-                            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                            <div class="overflow-x-auto border border-line rounded-lg">
                                 <table class="w-full text-sm">
                                     <thead class="bg-gray-50">
                                         <tr>
@@ -704,7 +692,7 @@
                                 <h3 class="text-lg font-semibold text-gray-800 mb-4">
                                     Gastos Adicionales
                                 </h3>
-                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="border border-line rounded-lg overflow-hidden">
                                     <table class="w-full text-sm">
                                         <thead class="bg-gray-50">
                                             <tr>
@@ -803,7 +791,7 @@
                     </div>
                 </div>
             @else
-                <div class="bg-white rounded-xl shadow-xs p-8 text-center">
+                <div class="bg-surface rounded-xl shadow-xs p-8 text-center">
                     <p class="text-gray-500">
                         Seleccione una orden para visualizarla.
                     </p>
@@ -1008,7 +996,7 @@
         const index = expenseIndex++;
         const row = document.createElement('div');
         row.className =
-            'expense-row flex flex-row items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 w-full';
+            'expense-row flex flex-row items-center gap-2 border border-line dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900 w-full';
         row.style.cssText =
             'display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important;';
         row.innerHTML = `
@@ -1017,7 +1005,7 @@
                     name="expenses[${index}][id_expense_type]"
                     required
                     onchange="actualizarDescripcionGasto(this)"
-                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
+                    class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
                     ${opcionesDe('poExpenseTypeOptions')}
                 </select>
             </div>
@@ -1028,7 +1016,7 @@
                     value="${escapeHtml(data.description)}"
                     required
                     placeholder="Descripción del gasto (ej. flete)"
-                    class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
+                    class="w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-hidden">
             </div>
             <div style="flex: 0 0 20%; min-width: 0;">
                 <input
@@ -1040,7 +1028,7 @@
                     required
                     placeholder="Monto $"
                     oninput="calcularTotales()"
-                    class="expense-amount w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-2 focus:ring-indigo-500 outline-hidden">
+                    class="expense-amount w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-white text-right focus:ring-2 focus:ring-indigo-500 outline-hidden">
             </div>
             <div style="flex: 0 0 auto;" class="text-center">
                 <button

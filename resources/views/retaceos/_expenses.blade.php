@@ -9,12 +9,12 @@
 <div>
     <div class="flex items-center justify-between mb-2">
         <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Otros Gastos Aduanales / Seguro</span>
-        <button type="button" onclick="retaceoGastos.agregar()" class="text-xs font-bold text-[#005e66] dark:text-teal-400 hover:underline">+ Agregar Gasto</button>
+        <button type="button" onclick="retaceoGastos.agregar()" class="text-xs font-bold text-primary dark:text-accent dark:text-teal-400 hover:underline">+ Agregar Gasto</button>
     </div>
     <div id="retaceoExpenseRows" class="space-y-2"></div>
     <div class="flex items-center justify-end gap-3 mt-2">
         <label for="{{ $totalId }}" class="text-xs font-bold text-slate-500 uppercase">Total otros gastos ($)</label>
-        <input type="number" id="{{ $totalId }}" value="0.00" readonly tabindex="-1" title="Suma de las líneas de gasto" class="w-40 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-sm text-right font-bold font-mono text-slate-800 dark:text-slate-100 cursor-not-allowed">
+        <input type="number" id="{{ $totalId }}" value="0.00" readonly tabindex="-1" title="Suma de las líneas de gasto" class="w-40 px-3 py-2 rounded-xl border border-line dark:border-slate-600 bg-slate-100 dark:bg-slate-800 text-sm text-right font-bold font-mono text-slate-800 dark:text-slate-100 cursor-not-allowed">
     </div>
 </div>
 
@@ -27,7 +27,7 @@
 
 <script>
     const retaceoGastos = (() => {
-        const campoClass = 'w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden';
+        const campoClass = 'w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-surface dark:bg-slate-800 text-xs text-slate-800 dark:text-white focus:ring-2 focus:ring-[#005e66] outline-hidden';
         const filas = () => document.getElementById('retaceoExpenseRows');
         let indice = 0;
 
@@ -49,7 +49,7 @@
         function agregar(gasto = {}, sugerido = false) {
             const i = indice++;
             const fila = document.createElement('div');
-            fila.className = 'retaceo-expense-row flex items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900';
+            fila.className = 'retaceo-expense-row flex items-center gap-2 border border-line dark:border-slate-700 rounded-xl p-2 bg-slate-50 dark:bg-slate-900';
             if (sugerido) fila.dataset.sugerido = '1';
             fila.innerHTML = `
                 <div class="basis-[35%] min-w-0">

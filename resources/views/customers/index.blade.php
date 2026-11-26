@@ -3,30 +3,22 @@
 @section('content')
 <div class="animate-fade-in duration-300">
     {{-- ENCABEZADO --}}
-    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-[#005e66] tracking-tight">Gestión de Clientes</h1>
-            <p class="text-slate-400 text-sm font-semibold mt-1">Administra los clientes para el proceso de ventas.</p>
-        </div>
-
+    <x-ui.page-header eyebrow="Clientes" title="Gestión de Clientes"
+        subtitle="Administra los clientes para el proceso de ventas.">
         @can('customers.crear')
-            <button type="button" onclick="openModal('create-customer-modal')"
-                class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Nuevo Cliente</span>
-            </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-customer-modal')">Nuevo Cliente</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </header>
+    </x-ui.page-header>
 
     {{-- BUSCADOR --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-4 mb-6">
+    <div class="ui-surface p-4 mb-6">
         <form method="GET" action="{{ route('customers.index') }}" class="flex flex-col sm:flex-row gap-4">
             <div class="relative flex-1">
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Buscar por código, nombre, documento, NRC o correo..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-[#005e66]">
+                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-line text-sm focus:border-accent">
                 <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -42,7 +34,7 @@
 
     {{-- LISTADO --}}
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="py-3 px-6 pl-10">Código / Cliente</th>
@@ -56,19 +48,19 @@
             <tbody>
                 @forelse($customers as $customer)
                     <tr class="group hover:scale-[1.002] hover:shadow-md transition-all duration-200 {{ !$customer->is_active ? 'opacity-50 grayscale-35' : '' }}">
-                        <td class="py-4 px-6 bg-white rounded-l-2xl border-l border-y border-slate-100 text-sm">
+                        <td class="py-4 px-6 bg-surface rounded-l-2xl border-l border-y border-line text-sm">
                             <div class="flex items-center gap-2 mb-0.5">
-                                <span class="font-bold text-[#005e66] text-xs">{{ $customer->code }}</span>
+                                <span class="font-bold text-primary dark:text-accent text-xs">{{ $customer->code }}</span>
                                 @if(!$customer->is_active)
-                                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-rose-100 text-rose-700 border border-rose-200 uppercase tracking-wider">Inactivo</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-danger-soft text-danger border border-rose-200 uppercase tracking-wider">Inactivo</span>
                                 @else
-                                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wider">Activo</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-success-soft text-success border border-emerald-200 uppercase tracking-wider">Activo</span>
                                 @endif
                             </div>
                             <span class="font-extrabold text-slate-800 block">{{ $customer->name }}</span>
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-slate-600 font-semibold">{{ $customer->typeLabel() }}</td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-slate-600">
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-600 font-semibold">{{ $customer->typeLabel() }}</td>
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-600">
                             @if($customer->document_number)
                                 <span class="font-mono">{{ strtoupper($customer->document_type ?? '') }} {{ $customer->document_number }}</span>
                                 @if($customer->nrc)<span class="block text-[11px] text-slate-400">NRC {{ $customer->nrc }}</span>@endif
@@ -76,13 +68,13 @@
                                 -
                             @endif
                         </td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-slate-600 font-mono">{{ $customer->email ?? '-' }}</td>
-                        <td class="py-4 px-6 bg-white border-y border-slate-100 text-sm text-slate-600">{{ $customer->phone ?? '-' }}</td>
-                        <td class="py-4 px-6 bg-white rounded-r-2xl border-r border-y border-slate-100 text-center">
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-600 font-mono">{{ $customer->email ?? '-' }}</td>
+                        <td class="py-4 px-6 bg-surface border-y border-line text-sm text-slate-600">{{ $customer->phone ?? '-' }}</td>
+                        <td class="py-4 px-6 bg-surface rounded-r-2xl border-r border-y border-line text-center">
                             <div class="flex items-center justify-center gap-2">
                                 @can('customers.editar')
                                     <button type="button" onclick="openModal('edit-customer-modal-{{ $customer->id_customer }}')"
-                                        class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
+                                        class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 font-semibold text-xs transition-all flex items-center justify-center" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
@@ -90,7 +82,7 @@
                                 @endcan
                                 @can('customers.eliminar')
                                     <button type="button"
-                                        class="delete-customer-btn p-2.5 rounded-xl {{ $customer->is_active ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' }} font-semibold text-xs transition-all flex items-center justify-center"
+                                        class="delete-customer-btn p-2.5 rounded-xl {{ $customer->is_active ? 'bg-danger-soft text-danger hover:brightness-95' : 'bg-success-soft text-success hover:brightness-95' }} font-semibold text-xs transition-all flex items-center justify-center"
                                         title="{{ $customer->is_active ? 'Desactivar' : 'Reactivar' }}"
                                         data-url="{{ route('customers.destroy', $customer) }}"
                                         data-name="{{ $customer->name }}"
@@ -120,7 +112,7 @@
 {{-- MODAL CREAR --}}
 @can('customers.crear')
     <div id="create-customer-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl p-6 max-w-3xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-surface rounded-3xl p-6 max-w-3xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b pb-4 mb-6">
                 <h3 class="text-xl font-extrabold text-slate-800">Registrar Nuevo Cliente</h3>
                 <button type="button" onclick="closeModal('create-customer-modal')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
@@ -141,7 +133,7 @@
 @can('customers.editar')
     @foreach($customers as $customer)
         <div id="edit-customer-modal-{{ $customer->id_customer }}" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl p-6 max-w-3xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="bg-surface rounded-3xl p-6 max-w-3xl w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between border-b pb-4 mb-6">
                     <h3 class="text-xl font-extrabold text-slate-800">Editar Cliente — {{ $customer->code }}</h3>
                     <button type="button" onclick="closeModal('edit-customer-modal-{{ $customer->id_customer }}')" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>

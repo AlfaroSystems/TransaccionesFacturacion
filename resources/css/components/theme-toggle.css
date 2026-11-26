@@ -4,12 +4,17 @@
 
 .theme-toggle-btn {
     position: fixed;
-    top: 1.25rem; /* 20px */
-    right: 1.5rem; /* 24px */
+    top: 1.25rem;
+    /* 20px */
+    right: 1.5rem;
+    /* 24px */
     z-index: 50;
-    width: 2.5rem; /* 40px */
-    height: 2.5rem; /* 40px */
-    border-radius: 0.75rem; /* 12px */
+    width: 2.5rem;
+    /* 40px */
+    height: 2.5rem;
+    /* 40px */
+    border-radius: 0.75rem;
+    /* 12px */
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);

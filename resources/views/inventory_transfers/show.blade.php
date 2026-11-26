@@ -6,7 +6,7 @@
     use App\Models\InventoryTransfer as T;
 
     $qty = fn ($value) => rtrim(rtrim(number_format((float) $value, 4, '.', ''), '0'), '.');
-    $inputClass = 'w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
+    $inputClass = 'w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
     $btn = 'px-4 py-2 rounded-xl text-sm font-bold transition-all';
     $statusClasses = [
         T::STATUS_DRAFT => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
@@ -45,12 +45,12 @@
     <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-teal-100 text-[#005e66] dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Traslados</span>
+                <span class="px-2.5 py-1 text-xs font-extrabold uppercase tracking-wider bg-primary-soft text-on-primary-soft dark:bg-teal-900/40 dark:text-teal-300 rounded-lg">Traslados</span>
                 <span class="text-slate-400 dark:text-slate-600">•</span>
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Detalle</span>
             </div>
             <div class="flex items-center gap-3 mt-1">
-                <h1 class="text-3xl font-extrabold text-[#005e66] dark:text-teal-400 tracking-tight font-mono">{{ $transfer->transfer_code }}</h1>
+                <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight font-mono">{{ $transfer->transfer_code }}</h1>
                 <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold {{ $statusClasses[$estado] ?? '' }}">{{ $transfer->statusLabel() }}</span>
             </div>
             <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Creado el {{ $transfer->created_at?->format('d/m/Y h:i A') }} por {{ $transfer->user?->username ?? 'Sistema' }}</p>
@@ -87,7 +87,7 @@
 
             @if(in_array($estado, [T::STATUS_AUTHORIZED, T::STATUS_PREPARING], true))
                 @can('inventory.trasladar')
-                    <a href="{{ route('inventory-transfers.picking', $transfer) }}" target="_blank" class="{{ $btn }} border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">Lista de preparación</a>
+                    <a href="{{ route('inventory-transfers.picking', $transfer) }}" target="_blank" class="{{ $btn }} border border-line dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800">Lista de preparación</a>
                 @endcan
             @endif
 
@@ -134,14 +134,14 @@
                 @endcan
             @endif
 
-            <a href="{{ route('inventory-transfers.index') }}" class="{{ $btn }} text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">← Volver</a>
+            <a href="{{ route('inventory-transfers.index') }}" class="{{ $btn }} text-slate-600 dark:text-slate-300 border border-line dark:border-slate-700">← Volver</a>
         </div>
     </div>
 
     <!-- Rechazo: el motivo vuelve con el borrador -->
     @if($estado === T::STATUS_PENDING_AUTHORIZATION)
         @can('inventory.autorizar_traslados')
-            <form id="rechazo" method="POST" action="{{ route('inventory-transfers.reject', $transfer) }}" class="{{ $errors->has('status_reason') ? '' : 'hidden' }} bg-white dark:bg-slate-900 rounded-2xl border border-rose-200 dark:border-rose-900 shadow-xs p-5 space-y-3">
+            <form id="rechazo" method="POST" action="{{ route('inventory-transfers.reject', $transfer) }}" class="{{ $errors->has('status_reason') ? '' : 'hidden' }} bg-surface dark:bg-slate-900 rounded-2xl border border-rose-200 dark:border-rose-900 shadow-xs p-5 space-y-3">
                 @csrf
                 <label class="block text-xs font-bold text-slate-400 uppercase">Motivo del rechazo *</label>
                 <textarea name="status_reason" rows="2" required maxlength="500" class="{{ $inputClass }} @error('status_reason') border-rose-400 @enderror" placeholder="Qué debe corregirse antes de volver a enviarlo...">{{ old('status_reason') }}</textarea>
@@ -164,12 +164,12 @@
 
     <!-- Avance del flujo -->
     @if($pasoActual === null)
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 text-sm font-bold text-slate-500">Traslado cancelado antes de despacharse: no movió inventario.</div>
+        <div class="rounded-2xl border border-line dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 text-sm font-bold text-slate-500">Traslado cancelado antes de despacharse: no movió inventario.</div>
     @else
         <ol class="grid grid-cols-3 md:grid-cols-6 gap-2">
             @foreach($pasos as $i => $paso)
                 @php $hecho = $i < $pasoActual || $estado === T::STATUS_RECEIVED; @endphp
-                <li class="rounded-xl px-3 py-2 text-xs font-bold border {{ $hecho ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-300' : ($i === $pasoActual ? 'bg-[#005e66] border-[#005e66] text-white' : 'bg-white border-slate-200 text-slate-400 dark:bg-slate-900 dark:border-slate-800') }}">
+                <li class="rounded-xl px-3 py-2 text-xs font-bold border {{ $hecho ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-300' : ($i === $pasoActual ? 'bg-[#005e66] border-[#005e66] text-white' : 'bg-surface border-line text-slate-400 dark:bg-slate-900 dark:border-slate-800') }}">
                     <span class="font-mono mr-1">{{ $i + 1 }}</span> {{ $paso }}
                 </li>
             @endforeach
@@ -178,19 +178,19 @@
 
     <!-- Datos generales -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Origen</h3>
             <p class="font-bold text-slate-800 dark:text-white">{{ $transfer->sourceWarehouse?->name }}</p>
             <p class="text-xs text-slate-500">{{ $transfer->sourceWarehouse?->branch?->name }}</p>
             <p class="text-xs text-slate-500">Despachado: <strong>{{ $transfer->dispatched_at?->format('d/m/Y h:i A') ?? 'Pendiente' }}</strong></p>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Destino</h3>
             <p class="font-bold text-slate-800 dark:text-white">{{ $transfer->destinationWarehouse?->name }}</p>
             <p class="text-xs text-slate-500">{{ $transfer->destinationWarehouse?->branch?->name }}</p>
             <p class="text-xs text-slate-500">Recibido: <strong>{{ $transfer->received_at?->format('d/m/Y h:i A') ?? 'Pendiente' }}</strong></p>
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Transporte</h3>
             <p class="text-xs text-slate-500">Vehículo: <strong class="text-slate-800 dark:text-white">{{ $transfer->vehicle?->label() ?? 'Sin asignar' }}</strong></p>
             <p class="text-xs text-slate-500">Motorista: <strong class="text-slate-800 dark:text-white">{{ $transfer->driver?->fullName() ?? 'Sin asignar' }}</strong></p>
@@ -201,11 +201,11 @@
                 <p class="text-xs font-bold text-orange-600 dark:text-orange-400">En el vehículo: {{ $textoEnVehiculo }}</p>
             @endif
         </div>
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-5 space-y-1.5 text-sm">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Traslado</h3>
             <p class="text-xs text-slate-500">Fecha: <strong class="text-slate-800 dark:text-white">{{ $transfer->transfer_date?->format('d/m/Y') }}</strong></p>
             <p class="text-xs text-slate-500">Autorizado: <strong class="text-slate-800 dark:text-white">{{ $transfer->authorized_at ? $transfer->authorized_at->format('d/m/Y h:i A').' · '.($transfer->authorizedBy?->username ?? '') : 'Pendiente' }}</strong></p>
-            <p class="text-xs text-slate-500">{{ $antesDeDespachar ? 'Valor solicitado' : 'Valor despachado' }}: <strong class="text-[#005e66] dark:text-teal-400">${{ number_format($valor, 2) }}</strong></p>
+            <p class="text-xs text-slate-500">{{ $antesDeDespachar ? 'Valor solicitado' : 'Valor despachado' }}: <strong class="text-primary dark:text-accent dark:text-teal-400">${{ number_format($valor, 2) }}</strong></p>
             @if($transfer->notes)
                 <p class="text-xs text-slate-500 pt-1">{{ $transfer->notes }}</p>
             @endif
@@ -214,9 +214,9 @@
 
     @if($estado === T::STATUS_PREPARING)
         <!-- Confirmar despacho: lo preparado sale de la bodega origen y entra al vehículo -->
-        <form method="POST" action="{{ route('inventory-transfers.dispatch', $transfer) }}" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+        <form method="POST" action="{{ route('inventory-transfers.dispatch', $transfer) }}" class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
             @csrf
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
                 <div>
                     <h2 class="font-extrabold text-slate-800 dark:text-white">Preparar y confirmar despacho</h2>
                     <p class="text-xs text-slate-400">Indique lo preparado de cada lote (puede ser menos de lo solicitado). Al confirmar, sale de su ubicación y entra al vehículo.</p>
@@ -225,7 +225,7 @@
                     @enderror
                 </div>
                 <div class="md:w-72">
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Espacio del vehículo *</label>
+                    <label class="ui-label">Espacio del vehículo *</label>
                     <select name="id_vehicle_location" required class="{{ $inputClass }} @error('id_vehicle_location') border-rose-400 @enderror">
                         @forelse($espacios as $espacio)
                             <option value="{{ $espacio->id_vehicle_location }}" @selected((string) old('id_vehicle_location') === (string) $espacio->id_vehicle_location)>{{ $espacio->code }}{{ $espacio->capacity > 0 ? ' · capacidad '.$espacio->capacity : '' }}</option>
@@ -240,7 +240,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4">Producto</th>
                             <th class="py-3 px-4">Lote</th>
@@ -257,7 +257,7 @@
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->product?->sku }}</span>
                                 </td>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-primary dark:text-accent dark:text-teal-400">
                                     {{ $detalle->lot?->lot_code }}
                                     @if($detalle->isUnexpected())
                                         <span class="block font-sans text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
@@ -278,16 +278,16 @@
                 </table>
             </div>
             @can('inventory.trasladar')
-                <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <div class="px-6 py-4 border-t border-line dark:border-slate-800 flex justify-end">
                     <button type="submit" onclick="return confirm('¿Confirmar el despacho? Lo preparado sale de {{ addslashes($transfer->sourceWarehouse?->name) }} y queda en el vehículo.')" class="bg-[#005e66] hover:bg-[#004d54] text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-xs">Confirmar despacho</button>
                 </div>
             @endcan
         </form>
     @elseif($transfer->isReceivable() && $enVehiculo > 0)
         <!-- Recepción: lo recibido sale del vehículo y entra a la bodega destino -->
-        <form method="POST" action="{{ route('inventory-transfers.receive', $transfer) }}" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
+        <form method="POST" action="{{ route('inventory-transfers.receive', $transfer) }}" class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
             @csrf
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Verificar y confirmar recepción</h2>
                 <p class="text-xs text-slate-400">Indique lo que llegó de cada lote. Lo que falte sigue en el vehículo (recepción parcial); si llegó de más, el excedente queda como sobrante.</p>
                 @error('received')
@@ -296,7 +296,7 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4">Producto</th>
                             <th class="py-3 px-4">Lote</th>
@@ -318,7 +318,7 @@
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->product?->sku }}</span>
                                 </td>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-primary dark:text-accent dark:text-teal-400">
                                     {{ $detalle->lot?->lot_code }}
                                     @if($detalle->isUnexpected())
                                         <span class="block font-sans text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
@@ -351,20 +351,20 @@
                 </table>
             </div>
             @can('inventory.recibir_traslados')
-                <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <div class="px-6 py-4 border-t border-line dark:border-slate-800 flex justify-end">
                     <button type="submit" onclick="return confirm('¿Confirmar la recepción? Lo recibido entrará a {{ addslashes($transfer->destinationWarehouse?->name) }}.')" class="bg-[#005e66] hover:bg-[#004d54] text-white font-bold py-2.5 px-6 rounded-xl text-sm transition-all shadow-xs">Confirmar recepción</button>
                 </div>
             @endcan
         </form>
     @else
         <!-- Líneas del traslado -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Lotes del traslado</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4">Producto</th>
                             <th class="py-3 px-4">Lote</th>
@@ -383,7 +383,7 @@
                                     <span class="font-bold text-slate-800 dark:text-white block">{{ $detalle->product?->name }}</span>
                                     <span class="text-xs font-mono text-slate-400">{{ $detalle->product?->sku }}</span>
                                 </td>
-                                <td class="py-3 px-4 font-mono text-xs font-bold text-[#005e66] dark:text-teal-400">
+                                <td class="py-3 px-4 font-mono text-xs font-bold text-primary dark:text-accent dark:text-teal-400">
                                     {{ $detalle->lot?->lot_code }}
                                     @if($detalle->isUnexpected())
                                         <span class="block font-sans text-[11px] font-semibold text-amber-600 dark:text-amber-400">No venía en el traslado</span>
@@ -417,14 +417,14 @@
 
     <!-- Discrepancias -->
     @if($discrepancias->isNotEmpty())
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-rose-100 dark:border-rose-900/60 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-rose-100 dark:border-rose-900/60 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-line dark:border-slate-800">
                 <h2 class="font-extrabold text-slate-800 dark:text-white">Discrepancias</h2>
                 <p class="text-xs text-slate-400">Faltantes y daños salen del vehículo como pérdida. Un sobrante salió de la bodega origen sin registrarse: sale del mismo lote en la origen y entra a la destino; lo que la origen ya no tenga entra como ganancia. Se aplican al regularizar.</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
-                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-slate-100 dark:border-slate-800">
+                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 text-xs uppercase font-extrabold text-slate-400 dark:text-slate-500 tracking-wider border-b border-line dark:border-slate-800">
                         <tr>
                             <th class="py-3 px-4">Producto / Lote</th>
                             <th class="py-3 px-4">Tipo</th>
@@ -483,9 +483,9 @@
     @endif
 
     <!-- Seguimiento -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xs p-6">
+    <div class="bg-surface dark:bg-slate-900 rounded-2xl border border-line dark:border-slate-800 shadow-xs p-6">
         <h2 class="font-extrabold text-slate-800 dark:text-white mb-4">Seguimiento</h2>
-        <ol class="relative border-l border-slate-200 dark:border-slate-700 ml-2 space-y-4">
+        <ol class="relative border-l border-line dark:border-slate-700 ml-2 space-y-4">
             @foreach($seguimiento as $paso)
                 <li class="ml-5">
                     <span class="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full bg-[#005e66] dark:bg-teal-400"></span>

@@ -3,24 +3,18 @@
 @section('content')
 <div class="animate-fade-in duration-300">
     <!-- Encabezado de Página -->
-    <header class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-navy-800 dark:text-slate-100 tracking-tight">Roles y Permisos</h1>
-            <p class="text-slate-400 dark:text-slate-400 text-sm font-semibold mt-1">Configura las etiquetas de roles y asóciales permisos del sistema.</p>
-        </div>
+    <x-ui.page-header eyebrow="Administración" module="Roles y Permisos"
+        title="Roles y Permisos" subtitle="Configura las etiquetas de roles y asóciales permisos del sistema.">
         @can('admin')
-            <button type="button" onclick="openModal('create-role-modal')" class="flex items-center justify-center gap-2 px-5 py-3 bg-customTeal-800 dark:bg-sky-600 text-white rounded-full font-bold text-sm hover:bg-customTeal-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Crear Nuevo Rol</span>
-            </button>
+            <x-slot:actions>
+                <x-ui.button type="button" icon="plus" onclick="openModal('create-role-modal')">Crear Nuevo Rol</x-ui.button>
+            </x-slot:actions>
         @endcan
-    </header>
+    </x-ui.page-header>
 
     <!-- Listado de Roles -->
     <section class="overflow-x-auto">
-        <table class="w-full text-left border-separate border-spacing-x-0 border-spacing-y-3">
+        <table class="ui-table">
             <thead>
                 <tr class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                     <th class="px-6 py-3 pl-10">Rol</th>
@@ -33,7 +27,7 @@
             <tbody>
                 @forelse($roles as $role)
                     <tr class="group hover:scale-[1.005] hover:shadow-md transition-all duration-200">
-                        <td class="px-6 py-4 bg-white rounded-l-2xl border-l border-y border-slate-100">
+                        <td class="px-6 py-4 bg-surface rounded-l-2xl border-l border-y border-line">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,25 +39,25 @@
                                 </span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-slate-400 font-semibold max-w-xs truncate">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-slate-400 font-semibold max-w-xs truncate">
                             {{ $role->description ?? 'Sin descripción' }}
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center">
                             <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">
                                 {{ $role->permissions_count }} {{ $role->permissions_count == 1 ? 'permiso' : 'permisos' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 bg-white border-y border-slate-100 text-center">
+                        <td class="px-6 py-4 bg-surface border-y border-line text-center">
                             <span class="px-2.5 py-1 bg-navy-sidebar/10 text-navy-sidebar rounded-full text-xs font-bold">
                                 {{ $role->users_count }} {{ $role->users_count == 1 ? 'usuario' : 'usuarios' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 bg-white rounded-r-2xl border-r border-y border-slate-100 text-right">
+                        <td class="px-6 py-4 bg-surface rounded-r-2xl border-r border-y border-line text-right">
                             <div class="flex items-center justify-end gap-2">
                                 @can('admin')
                                     @if($role->name === 'admin')
                                         <!-- Rol Admin Protegido (No editable ni eliminable) -->
-                                        <span class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-not-allowed border border-slate-200" title="Rol del sistema protegido: posee acceso total permanente y no se puede modificar ni eliminar.">
+                                        <span class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-not-allowed border border-line" title="Rol del sistema protegido: posee acceso total permanente y no se puede modificar ni eliminar.">
                                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                             </svg>
@@ -71,14 +65,14 @@
                                         </span>
                                     @else
                                         <!-- Editar -->
-                                        <button type="button" onclick="openEditRoleModal('{{ route('roles.update', $role) }}', {{ json_encode($role) }}, {{ json_encode($role->permissions->pluck('id_permission')->toArray()) }})" class="p-2.5 rounded-xl bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Editar Rol">
+                                        <button type="button" onclick="openEditRoleModal('{{ route('roles.update', $role) }}', {{ json_encode($role) }}, {{ json_encode($role->permissions->pluck('id_permission')->toArray()) }})" class="p-2.5 rounded-xl bg-warning-soft text-warning hover:brightness-95 transition-colors" title="Editar Rol">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
 
                                         <!-- Eliminar -->
-                                        <button type="button" onclick="confirmDelete('{{ route('roles.destroy', $role) }}', 'Rol {{ addslashes($role->name) }}', 'delete')" class="p-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors" title="Eliminar Rol">
+                                        <button type="button" onclick="confirmDelete('{{ route('roles.destroy', $role) }}', 'Rol {{ addslashes($role->name) }}', 'delete')" class="p-2.5 rounded-xl bg-danger-soft text-danger hover:brightness-95 transition-colors" title="Eliminar Rol">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -92,7 +86,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-10 bg-white rounded-2xl border border-slate-100 text-center text-slate-400 font-semibold shadow-xs animate-pulse">
+                        <td colspan="5" class="px-6 py-10 ui-surface text-center text-slate-400 font-semibold shadow-xs animate-pulse">
                             No hay roles registrados.
                         </td>
                     </tr>
@@ -103,7 +97,7 @@
         
     <!-- Paginación -->
     @if($roles->hasPages())
-        <div class="px-6 py-4 border-t border-slate-100 mt-4">
+        <div class="px-6 py-4 border-t border-line mt-4">
             {{ $roles->links() }}
         </div>
     @endif
@@ -111,7 +105,7 @@
 
 <!-- MODAL DE REGISTRO DE ROL -->
 <div id="create-role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-4xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
+    <div class="bg-surface rounded-3xl p-8 max-w-4xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('create-role-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -135,7 +129,7 @@
                 <!-- Nombre -->
                 <div>
                     <label for="name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre del Rol <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej: supervisor, moderador" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="name" value="{{ old('modal_type') === 'create' ? old('name') : '' }}" placeholder="Ej: supervisor, moderador" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'create')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -146,12 +140,12 @@
                 <!-- Descripción -->
                 <div>
                     <label for="description" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción del Rol</label>
-                    <input type="text" name="description" id="description" value="{{ old('modal_type') === 'create' ? old('description') : '' }}" placeholder="Ej: Permite gestionar artículos e inventarios" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="description" id="description" value="{{ old('modal_type') === 'create' ? old('description') : '' }}" placeholder="Ej: Permite gestionar artículos e inventarios" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Asignación de Permisos -->
-            <div class="border-t border-slate-100 pt-6">
+            <div class="border-t border-line pt-6">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignar Permisos</h3>
@@ -167,7 +161,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
                 <button type="button" onclick="closeModal('create-role-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
@@ -182,7 +176,7 @@
 
 <!-- MODAL DE EDICIÓN DE ROL -->
 <div id="edit-role-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-xs transition-all duration-200">
-    <div class="bg-white rounded-3xl p-8 max-w-4xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
+    <div class="bg-surface rounded-3xl p-8 max-w-4xl w-full shadow-2xl relative mx-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button type="button" onclick="closeModal('edit-role-modal')" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -208,7 +202,7 @@
                 <!-- Nombre -->
                 <div>
                     <label for="edit-name" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre del Rol <span class="text-rose-500">*</span></label>
-                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej: supervisor, moderador" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-slate-200 focus:border-[#005e66] @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
+                    <input type="text" name="name" id="edit-name" value="{{ old('modal_type') === 'edit' ? old('name') : '' }}" placeholder="Ej: supervisor, moderador" class="w-full bg-slate-50 border @error('name') border-rose-300 focus:border-rose-500 @else border-line focus:border-accent @enderror rounded-xl px-4 py-2.5 text-sm focus:outline-hidden focus:bg-white transition-all text-slate-700 font-semibold" required>
                     @error('name')
                         @if(old('modal_type') === 'edit')
                             <p class="text-rose-500 text-xs mt-1 font-semibold ml-2">{{ $message }}</p>
@@ -219,12 +213,12 @@
                 <!-- Descripción -->
                 <div>
                     <label for="edit-description" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción del Rol</label>
-                    <input type="text" name="description" id="edit-description" value="{{ old('modal_type') === 'edit' ? old('description') : '' }}" placeholder="Ej: Permite gestionar artículos e inventarios" class="w-full bg-slate-50 border border-slate-200 focus:border-[#005e66] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
+                    <input type="text" name="description" id="edit-description" value="{{ old('modal_type') === 'edit' ? old('description') : '' }}" placeholder="Ej: Permite gestionar artículos e inventarios" class="w-full bg-slate-50 border border-line focus:border-accent focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-hidden transition-all text-slate-700 font-semibold">
                 </div>
             </div>
 
             <!-- Asignación de Permisos -->
-            <div class="border-t border-slate-100 pt-6">
+            <div class="border-t border-line pt-6">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Asignar Permisos</h3>
@@ -240,7 +234,7 @@
             </div>
 
             <!-- Botones -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
                 <button type="button" onclick="closeModal('edit-role-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
