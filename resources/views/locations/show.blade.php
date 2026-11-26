@@ -124,7 +124,7 @@
                     ✏️ Editar Ubicación
                 </a>
                 <a href="{{ route('locations.index') }}"
-                    class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-bold transition">
+                    class="px-6 py-3 bg-sunken hover:brightness-95 text-body rounded-full font-bold transition">
                     Regresar
                 </a>
             </div>

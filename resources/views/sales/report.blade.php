@@ -7,7 +7,7 @@
             <h1 class="text-2xl md:text-3xl font-extrabold text-primary dark:text-accent tracking-tight">Rentabilidad de Ventas</h1>
             <p class="text-slate-400 text-sm font-semibold mt-1">Ingreso (sin IVA), costo de venta (PEPS) y utilidad de las ventas entregadas.</p>
         </div>
-        <a href="{{ route('sales.index') }}" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Volver</a>
+        <a href="{{ route('sales.index') }}" class="px-4 py-2 rounded-xl bg-sunken text-muted font-bold text-sm">Volver</a>
     </header>
 
     <form method="GET" action="{{ route('sales.report') }}" class="ui-surface p-4 mb-6 flex flex-col sm:flex-row items-end gap-4">

@@ -212,7 +212,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         <span>{{ $isEdit ? 'Guardar Cambios' : 'Guardar Orden de Compra' }}</span>
                     </button>
-                    <a href="{{ $isEdit ? route('purchase_orders.show', $purchase_order->id_purchase_order) : route('purchase_orders.index') }}" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition-all text-center">
+                    <a href="{{ $isEdit ? route('purchase_orders.show', $purchase_order->id_purchase_order) : route('purchase_orders.index') }}" class="w-full py-2.5 bg-sunken hover:brightness-95 text-body font-bold text-xs rounded-xl transition-all text-center">
                         Cancelar
                     </a>
                 </div>

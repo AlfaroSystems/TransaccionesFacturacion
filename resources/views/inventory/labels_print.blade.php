@@ -17,7 +17,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 p-6">
+<body class="bg-sunken text-body p-6">
     <div class="no-print max-w-5xl mx-auto mb-6 flex items-center justify-between gap-4">
         <div class="text-sm">
             <p class="font-extrabold">{{ $print->quantity_printed }} etiqueta(s) del lote {{ $lot->lot_code }}</p>

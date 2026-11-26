@@ -43,12 +43,12 @@
                             {{ $role->description ?? 'Sin descripción' }}
                         </td>
                         <td class="px-6 py-4 bg-surface border-y border-line text-center">
-                            <span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">
+                            <span class="px-2.5 py-1 bg-sunken text-muted rounded-full text-xs font-bold">
                                 {{ $role->permissions_count }} {{ $role->permissions_count == 1 ? 'permiso' : 'permisos' }}
                             </span>
                         </td>
                         <td class="px-6 py-4 bg-surface border-y border-line text-center">
-                            <span class="px-2.5 py-1 bg-navy-sidebar/10 text-navy-sidebar rounded-full text-xs font-bold">
+                            <span class="px-2.5 py-1 bg-primary-soft text-on-primary-soft rounded-full text-xs font-bold">
                                 {{ $role->users_count }} {{ $role->users_count == 1 ? 'usuario' : 'usuarios' }}
                             </span>
                         </td>
@@ -57,7 +57,7 @@
                                 @can('admin')
                                     @if($role->name === 'admin')
                                         <!-- Rol Admin Protegido (No editable ni eliminable) -->
-                                        <span class="px-3 py-1.5 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-not-allowed border border-line" title="Rol del sistema protegido: posee acceso total permanente y no se puede modificar ni eliminar.">
+                                        <span class="px-3 py-1.5 bg-sunken text-muted rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-not-allowed border border-line" title="Rol del sistema protegido: posee acceso total permanente y no se puede modificar ni eliminar.">
                                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                             </svg>
@@ -162,7 +162,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('create-role-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('create-role-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
@@ -235,7 +235,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('edit-role-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('edit-role-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">

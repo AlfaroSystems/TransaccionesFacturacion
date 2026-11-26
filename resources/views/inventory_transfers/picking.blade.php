@@ -14,7 +14,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-900 p-6">
+<body class="bg-sunken text-body p-6">
 @php
     $qty = fn ($value) => rtrim(rtrim(number_format((float) $value, 4, '.', ''), '0'), '.');
     // En el orden en que se recorre la bodega: por ubicación

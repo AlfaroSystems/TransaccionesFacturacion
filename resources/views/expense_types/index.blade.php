@@ -62,7 +62,7 @@
                                         Activo
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-sunken text-muted dark:bg-slate-700 dark:text-slate-300">
                                         Inactivo
                                     </span>
                                 @endif

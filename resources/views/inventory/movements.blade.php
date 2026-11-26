@@ -105,7 +105,7 @@
                                 <span class="text-xs text-slate-400 block">{{ $movement->movement_date->format('h:i A') }}</span>
                             </td>
                             <td class="py-3.5 px-5">
-                                <span class="px-2 py-1 rounded-lg text-xs font-extrabold whitespace-nowrap {{ $typeClasses[$movement->movement_type] ?? 'bg-slate-100 text-slate-600' }}">{{ $movement->typeLabel() }}</span>
+                                <span class="px-2 py-1 rounded-lg text-xs font-extrabold whitespace-nowrap {{ $typeClasses[$movement->movement_type] ?? 'bg-sunken text-muted' }}">{{ $movement->typeLabel() }}</span>
                             </td>
                             <td class="py-3.5 px-5">
                                 <span class="font-bold text-slate-800 dark:text-white block">{{ $movement->product?->name ?? 'Producto' }}</span>

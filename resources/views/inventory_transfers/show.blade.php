@@ -9,7 +9,7 @@
     $inputClass = 'w-full px-3 py-2 rounded-xl border border-line dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-sm';
     $btn = 'px-4 py-2 rounded-xl text-sm font-bold transition-all';
     $statusClasses = [
-        T::STATUS_DRAFT => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+        T::STATUS_DRAFT => 'bg-sunken text-muted dark:bg-slate-800 dark:text-slate-300',
         T::STATUS_PENDING_AUTHORIZATION => 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300',
         T::STATUS_AUTHORIZED => 'bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300',
         T::STATUS_PREPARING => 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300',

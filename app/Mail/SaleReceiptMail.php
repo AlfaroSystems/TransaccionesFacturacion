@@ -45,7 +45,9 @@ class SaleReceiptMail extends Mailable implements ShouldQueue
 
         return [
             Attachment::fromData(
-                fn () => Pdf::loadView('sales.pdf', compact('sale', 'company'))->output(),
+                // La arrow fn solo captura variables usadas literalmente; con compact('sale')
+                // no las capturaría, así que se pasan como arreglo explícito.
+                fn () => Pdf::loadView('sales.pdf', ['sale' => $sale, 'company' => $company])->output(),
                 'Comprobante-'.$sale->sale_code.'.pdf'
             )->withMime('application/pdf'),
         ];

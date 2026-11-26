@@ -8,7 +8,7 @@
             <h1 class="text-2xl md:text-3xl font-extrabold text-primary dark:text-accent tracking-tight">Mapa Visual de Bodega</h1>
             <p class="text-slate-400 text-sm font-semibold mt-1">Representación esquemática y estado de capacidad de las ubicaciones físicas.</p>
         </div>
-        <a href="{{ route('locations.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-all">
+        <a href="{{ route('locations.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sunken hover:brightness-95 text-body font-bold text-sm transition-all">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
             <span>Ver Tabla de Ubicaciones</span>
         </a>

@@ -20,7 +20,7 @@
             <div class="flex gap-2">
                 <button type="submit" class="px-5 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold rounded-xl text-sm transition-all">Buscar</button>
                 @if(request('search'))
-                    <a href="{{ route('prices.index') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-sm transition-all">Limpiar</a>
+                    <a href="{{ route('prices.index') }}" class="px-5 py-2.5 bg-sunken hover:brightness-95 text-body font-bold rounded-xl text-sm transition-all">Limpiar</a>
                 @endif
             </div>
         </form>
@@ -116,7 +116,7 @@
                             class="ui-input">
                     </div>
                     <div class="flex justify-end gap-3 pt-4 border-t">
-                        <button type="button" onclick="closeModal('change-price-modal-{{ $product->id_product }}')" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
+                        <button type="button" onclick="closeModal('change-price-modal-{{ $product->id_product }}')" class="px-5 py-2.5 rounded-xl bg-sunken text-muted font-bold text-sm">Cancelar</button>
                         <button type="submit" class="px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">Guardar</button>
                     </div>
                 </form>

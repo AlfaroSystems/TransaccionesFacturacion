@@ -18,7 +18,7 @@
                     </button>
                 </form>
             @endcan
-            <a href="{{ route('sales.index') }}" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Volver</a>
+            <a href="{{ route('sales.index') }}" class="px-4 py-2 rounded-xl bg-sunken text-muted font-bold text-sm">Volver</a>
         </div>
     </header>
 

@@ -45,7 +45,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 bg-surface border-y border-line">
-                            <span class="font-mono bg-slate-100 text-slate-800 px-3 py-1.5 rounded-lg text-sm font-semibold border border-line">
+                            <span class="font-mono bg-sunken text-body px-3 py-1.5 rounded-lg text-sm font-semibold border border-line">
                                 {{ $location->code }}
                             </span>
                         </td>
@@ -222,7 +222,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('create-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('create-location-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
@@ -343,7 +343,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('edit-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('edit-location-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
@@ -434,7 +434,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('batch-location-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('batch-location-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">

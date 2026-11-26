@@ -63,7 +63,12 @@ class SaleController extends Controller
             ])
             ->values();
 
-        return view('sales.create', compact('branches', 'customers', 'products'));
+        // Catálogos para el alta rápida de cliente desde el modal de la venta
+        $departments = \App\Models\Department::orderBy('name')->get();
+        $municipalities = \App\Models\Municipality::orderBy('name')->get();
+        $districts = \App\Models\District::orderBy('name')->get();
+
+        return view('sales.create', compact('branches', 'customers', 'products', 'departments', 'municipalities', 'districts'));
     }
 
     public function store(Request $request)
@@ -80,7 +85,7 @@ class SaleController extends Controller
             'notes' => ['nullable', 'string', 'max:500'],
             'lines' => ['required', 'array', 'min:1'],
             'lines.*.id_product' => ['required', 'integer', 'exists:products,id_product'],
-            'lines.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'lines.*.quantity' => ['required', 'integer', 'min:1'],
             'lines.*.discount' => ['nullable', 'numeric', 'min:0'],
         ], [
             'lines.required' => 'Agregue al menos un producto a la venta.',

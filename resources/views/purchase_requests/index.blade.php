@@ -35,7 +35,7 @@
             <div class="flex gap-2">
                 <button type="submit" class="w-full bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Filtrar</button>
                 @if(request('search') || request('status'))
-                    <a href="{{ route('purchase-requests.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Limpiar</a>
+                    <a href="{{ route('purchase-requests.index') }}" class="bg-sunken hover:brightness-95 text-body font-bold py-2.5 px-4 rounded-xl text-sm transition-all">Limpiar</a>
                 @endif
             </div>
         </form>

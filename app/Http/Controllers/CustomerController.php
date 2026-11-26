@@ -53,7 +53,15 @@ class CustomerController extends Controller
 
         $validated = $this->validateCustomer($request);
 
-        Customer::create($validated);
+        $customer = Customer::create($validated);
+
+        // Alta rápida desde el modal de otra pantalla (p. ej. Nueva Venta): devuelve JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'id_customer' => $customer->id_customer,
+                'name' => $customer->name,
+            ], 201);
+        }
 
         return redirect()
             ->route('customers.index')

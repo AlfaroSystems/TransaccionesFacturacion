@@ -64,7 +64,7 @@
                                     @endif
                                 </div>
                             @else
-                                <div class="w-12 h-12 mx-auto rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-lg font-bold border border-line">
+                                <div class="w-12 h-12 mx-auto rounded-xl bg-sunken text-muted flex items-center justify-center text-lg font-bold border border-line">
                                     🖼️
                                 </div>
                             @endif

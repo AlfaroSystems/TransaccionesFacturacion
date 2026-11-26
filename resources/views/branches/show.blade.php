@@ -17,7 +17,7 @@
             </div>
             <h1 class="text-3xl font-extrabold text-primary dark:text-accent dark:text-teal-400 tracking-tight mt-1">{{ $branch->name }}</h1>
             <div class="flex flex-wrap items-center gap-2 mt-2">
-                <span class="px-2 py-0.5 rounded-md text-[11px] font-bold {{ $branch->is_active ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">
+                <span class="px-2 py-0.5 rounded-md text-[11px] font-bold {{ $branch->is_active ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-sunken text-muted dark:bg-slate-800 dark:text-slate-400' }}">
                     {{ $branch->is_active ? '● Activa' : '○ Inactiva' }}
                 </span>
                 @if($branch->is_purchasing_department)

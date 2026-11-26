@@ -10,7 +10,7 @@
     $statusClasses = [
         'pending_placement' => 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800',
         'active' => 'bg-teal-50 text-primary dark:text-accent border-teal-200 dark:bg-teal-950 dark:text-teal-300 dark:border-teal-800',
-        'cancelled' => 'bg-slate-100 text-slate-500 border-line dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+        'cancelled' => 'bg-sunken text-muted border-line dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
     ];
     $tabs = \App\Models\InventoryLot::STATUS_LABELS + ['todos' => 'Todos'];
 @endphp

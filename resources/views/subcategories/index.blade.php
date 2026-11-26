@@ -27,7 +27,7 @@
             </div>
             <div class="flex gap-2">
                 <button type="submit" class="px-5 py-2.5 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm transition-all">Filtrar</button>
-                <a href="{{ route('subcategories.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm transition-all">Limpiar</a>
+                <a href="{{ route('subcategories.index') }}" class="px-5 py-2.5 rounded-xl bg-sunken hover:brightness-95 text-body font-bold text-sm transition-all">Limpiar</a>
             </div>
         </form>
     </div>
@@ -139,7 +139,7 @@
                     <label for="sub_is_active_{{ $subCategory->id_sub_category }}" class="text-sm font-semibold text-slate-700">Subcategoría Activa</label>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id_sub_category }}')" class="px-5 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
+                    <button type="button" onclick="closeModal('edit-subcategory-modal-{{ $subCategory->id_sub_category }}')" class="px-5 py-2 rounded-xl bg-sunken text-muted font-bold text-sm">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl bg-customTeal-800 text-white font-bold text-sm">Guardar Cambios</button>
                 </div>
             </form>
@@ -178,7 +178,7 @@
                 <label for="create_sub_is_active" class="text-sm font-semibold text-slate-700">Activa inmediatamente</label>
             </div>
             <div class="flex justify-end gap-3 pt-4 border-t">
-                <button type="button" onclick="closeModal('create-subcategory-modal')" class="px-5 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-sm">Cancelar</button>
+                <button type="button" onclick="closeModal('create-subcategory-modal')" class="px-5 py-2 rounded-xl bg-sunken text-muted font-bold text-sm">Cancelar</button>
                 <button type="submit" class="px-5 py-2 rounded-xl bg-customTeal-800 text-white font-bold text-sm">Crear Subcategoría</button>
             </div>
         </form>

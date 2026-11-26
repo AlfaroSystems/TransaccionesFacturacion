@@ -102,7 +102,7 @@
             @if(request()->anyFilled(['search', 'type', 'status']))
                 <div class="w-full md:w-auto">
                     <a href="{{ route('units.index') }}"
-                        class="block w-full px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
+                        class="block w-full px-5 py-2.5 bg-sunken text-muted hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
                         Limpiar
                     </a>
                 </div>
@@ -345,7 +345,7 @@
                 <div class="flex items-center justify-end gap-3 pt-5 border-t border-line">
                     <button type="button"
                             onclick="closeModal('create-unit-modal')"
-                            class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all">
+                            class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all">
                         Cancelar
                     </button>
                     <button type="submit"
@@ -466,7 +466,7 @@
                 <div class="flex items-center justify-end gap-3 pt-5 border-t border-line">
                     <button type="button"
                             onclick="closeModal('edit-unit-modal')"
-                            class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all">
+                            class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all">
                         Cancelar
                     </button>
                     <button type="submit"

@@ -62,7 +62,7 @@
             </div>
             @if(request()->anyFilled(['search', 'role', 'id_branch', 'is_active']))
                 <div class="w-full md:w-auto">
-                    <a href="{{ route('users.index') }}" class="block w-full px-5 py-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
+                    <a href="{{ route('users.index') }}" class="block w-full px-5 py-2.5 bg-sunken text-muted hover:bg-slate-200 rounded-xl text-sm font-bold transition-all text-center">
                         Limpiar
                     </a>
                 </div>
@@ -370,7 +370,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('create-user-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('create-user-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
@@ -539,7 +539,7 @@
 
             <!-- Botones -->
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-line">
-                <button type="button" onclick="closeModal('edit-user-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-sm transition-all text-center">
+                <button type="button" onclick="closeModal('edit-user-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-sm transition-all text-center">
                     Cancelar
                 </button>
                 <button type="submit" class="px-6 py-2.5 bg-customTeal-800 hover:bg-customTeal-500 text-white rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all transform active:scale-95 flex items-center gap-2">

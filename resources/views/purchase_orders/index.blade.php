@@ -506,7 +506,7 @@
                         <button
                             type="button"
                             onclick="mostrarListado()"
-                            class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
+                            class="px-5 py-2.5 rounded-xl bg-sunken hover:brightness-95 text-body text-xs font-bold transition-all">
                             Cancelar
                         </button>
                         <button

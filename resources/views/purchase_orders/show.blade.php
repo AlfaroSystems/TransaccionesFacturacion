@@ -5,7 +5,7 @@
 @php
     $purchase_order = $purchase_order ?? $purchaseOrder ?? null;
     $statusClasses = [
-        'draft' => 'bg-slate-100 text-slate-700 border-line',
+        'draft' => 'bg-sunken text-body border-line',
         'issued' => 'bg-sky-50 text-sky-700 border-sky-200',
         'partial_received' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
         'completed' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -317,7 +317,7 @@
                                     @if($expense->is_costable)
                                         <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Sí</span>
                                     @else
-                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-line">No</span>
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-sunken text-muted border border-line">No</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4 text-right font-extrabold text-amber-600">
@@ -354,7 +354,7 @@
             <input type="hidden" name="status" id="status-modal-input" value="">
 
             <div class="flex items-center justify-center gap-3 pt-2">
-                <button type="button" onclick="closeModal('status-modal')" class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full font-bold text-xs transition-all">
+                <button type="button" onclick="closeModal('status-modal')" class="px-6 py-2.5 bg-sunken hover:brightness-95 text-body rounded-full font-bold text-xs transition-all">
                     Cancelar
                 </button>
                 <button type="submit" id="status-modal-submit" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-full text-xs transition-all shadow-md">
