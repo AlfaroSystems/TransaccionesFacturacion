@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\InventoryLot;
+use App\Models\ProductPresentation;
 use App\Models\Purchase;
 use App\Models\PurchaseDetail;
 use App\Models\PurchaseOrder;
@@ -276,6 +277,11 @@ class PurchaseService
         $unidades = PurchaseOrderDetail::whereIn('id_purchase_order_detail', array_column($details, 'id_purchase_order_detail'))
             ->pluck('id_unit', 'id_purchase_order_detail');
 
+        // Presentación "Unidad" (factor 1) de cada producto: default si la línea no eligió una
+        $presentacionBase = ProductPresentation::whereIn('id_product', array_column($details, 'id_product'))
+            ->where('name', 'Unidad')
+            ->pluck('id_product_presentation', 'id_product');
+
         foreach ($details as $item) {
             $qtyReceived = (float) ($item['quantity_received'] ?? 0);
             $qtyOrdered = (float) ($item['quantity_ordered'] ?? $qtyReceived);
@@ -294,6 +300,7 @@ class PurchaseService
                 'quantity_ordered' => $qtyOrdered,
                 'quantity_received' => $qtyReceived,
                 'id_unit' => $unidades->get($item['id_purchase_order_detail'] ?? 0, $item['id_unit'] ?? null),
+                'id_product_presentation' => $item['id_product_presentation'] ?? $presentacionBase->get($item['id_product']),
                 'unit_price' => $unitPrice,
                 'discount' => $lineDiscount,
                 'subtotal' => $subtotal,

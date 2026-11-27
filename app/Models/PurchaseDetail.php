@@ -23,6 +23,7 @@ class PurchaseDetail extends Model
         'quantity_ordered',
         'quantity_received',
         'id_unit',
+        'id_product_presentation',
         'unit_price',
         'discount',
         'subtotal',
@@ -72,6 +73,15 @@ class PurchaseDetail extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'id_unit');
+    }
+
+    /**
+     * Presentación/empaque en que se recibió la línea. Su factor convierte la cantidad recibida
+     * a unidades base del inventario al crear el lote (ver InventoryService::crearLotes).
+     */
+    public function presentation(): BelongsTo
+    {
+        return $this->belongsTo(ProductPresentation::class, 'id_product_presentation', 'id_product_presentation');
     }
 
     /**

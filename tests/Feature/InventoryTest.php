@@ -422,3 +422,61 @@ test('Casa Matriz registra la recepción de la orden de una sucursal y ambas ven
     $this->get(route('purchases.show', $compra))->assertOk();
     $this->actingAs(inventarioUsuario($e->sucursal, ['purchases.ver']))->get(route('purchases.show', $compra))->assertOk();
 });
+
+test('la compra recibida en una presentación entra al inventario en unidades base (cantidad × factor)', function () {
+    $e = inventarioEscenario();
+    $this->actingAs($e->admin);
+
+    // La laptop se compra por "Caja" de 50 unidades base
+    $caja = $e->laptop->presentations()->create(['name' => 'Caja', 'factor' => 50, 'is_active' => true]);
+
+    $orden = inventarioOrden($e, $e->bodegaMatriz, [[$e->laptop, 2, 500]]);
+
+    // Recepción: 2 Cajas, eligiendo la presentación "Caja"
+    $payload = [
+        'id_purchase_order' => $orden->order->id_purchase_order,
+        'id_supplier' => $e->supplier->id_supplier,
+        'purchase_date' => now()->toDateString(),
+        'status' => 'received',
+        'details' => [[
+            'id_purchase_order_detail' => $orden->lineas[0]->id_purchase_order_detail,
+            'id_product' => $e->laptop->id_product,
+            'quantity_received' => 2,
+            'unit_price' => 500,
+            'id_product_presentation' => $caja->id_product_presentation,
+        ]],
+    ];
+    $this->post(route('purchases.store'), $payload)->assertSessionHasNoErrors();
+
+    $compra = Purchase::queryAllBranches()->latest('id_purchase')->first();
+    // La línea guarda la presentación con que se recibió
+    expect((int) $compra->details()->value('id_product_presentation'))->toBe($caja->id_product_presentation);
+
+    // Retaceo: costo puesto en bodega de 600 por Caja
+    inventarioRetaceo($e, $compra, [600]);
+
+    // 2 Cajas × 50 = 100 u. base; costo por u. base = 600 / 50 = 12; el valor del lote no cambia (1200)
+    $lote = InventoryLot::queryAllBranches()->latest('id_inventory_lot')->first();
+    expect((float) $lote->quantity_received)->toBe(100.0)
+        ->and((float) $lote->unit_cost)->toBe(12.0)
+        ->and((float) $lote->total_cost)->toBe(1200.0);
+
+    // Al ubicarlo entra al inventario y al promedio en unidades base
+    inventarioUbicar($lote, [[$e->a1, 100]], confirmar: true)->assertSessionHasNoErrors();
+    $promedio = inventarioPromedio($e, $e->laptop);
+    expect((float) $promedio->quantity_on_hand)->toBe(100.0)
+        ->and((float) $promedio->inventory_value)->toBe(1200.0);
+});
+
+test('sin presentación (o factor 1) el lote conserva la cantidad recibida tal cual', function () {
+    $e = inventarioEscenario();
+    $this->actingAs($e->admin);
+    $orden = inventarioOrden($e, $e->bodegaMatriz, [[$e->laptop, 10, 10]]);
+
+    // Recepción sin elegir presentación: se comporta como antes (factor 1)
+    $lote = inventarioLotes($e, $orden, [[$orden->lineas[0], 10, 10]], [12])->sole();
+
+    expect((float) $lote->quantity_received)->toBe(10.0)
+        ->and((float) $lote->unit_cost)->toBe(12.0)
+        ->and((float) $lote->total_cost)->toBe(120.0);
+});

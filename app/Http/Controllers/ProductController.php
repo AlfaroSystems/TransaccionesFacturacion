@@ -84,6 +84,14 @@ class ProductController extends Controller
 
             $product = Product::create($data);
 
+            // Presentación base por defecto: "Unidad" factor 1. Es la unidad base del inventario
+            // y el punto de partida para precios de venta y para la conversión en compras.
+            $product->presentations()->create([
+                'name' => 'Unidad',
+                'factor' => 1,
+                'is_active' => true,
+            ]);
+
             // Guardar imágenes si se proporcionaron
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $file) {

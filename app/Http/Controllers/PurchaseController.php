@@ -137,6 +137,51 @@ class PurchaseController extends Controller
         };
     }
 
+    /**
+     * Presentaciones activas de un producto para el selector de la recepción: la lista
+     * (id, nombre, factor) y cuál viene seleccionada por defecto ("Unidad" / menor factor).
+     *
+     * @return array{list: array<int, array{id:int, name:string, factor:float}>, default: int|null}
+     */
+    private function presentacionesDelProducto(?Product $product): array
+    {
+        $activas = $product
+            ? $product->presentations->where('is_active', true)->values()
+            : collect();
+
+        $default = $activas->firstWhere('name', 'Unidad')
+            ?? $activas->sortBy('factor')->first();
+
+        return [
+            'list' => $activas->map(fn ($p) => [
+                'id' => $p->id_product_presentation,
+                'name' => $p->name,
+                'factor' => (float) $p->factor,
+            ])->all(),
+            'default' => $default?->id_product_presentation,
+        ];
+    }
+
+    /**
+     * La presentación elegida en la recepción debe pertenecer al producto de esa misma línea.
+     */
+    private function presentacionDeSuLinea(Request $request): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) use ($request) {
+            if ($value === null || $value === '') {
+                return;
+            }
+
+            $index = explode('.', $attribute)[1] ?? null;
+            $lineProduct = $request->input("details.{$index}.id_product");
+            $presentationProduct = \App\Models\ProductPresentation::whereKey($value)->value('id_product');
+
+            if ($presentationProduct === null || (int) $presentationProduct !== (int) $lineProduct) {
+                $fail('La presentación no corresponde al producto de su línea.');
+            }
+        };
+    }
+
     public function index(Request $request)
     {
         Gate::authorize('purchases.ver');
@@ -240,7 +285,7 @@ class PurchaseController extends Controller
             'supplier',
             'branch',
             'warehouse',
-            'details.product',
+            'details.product.presentations',
             'details.unit',
         ])->findOrFail($id);
 
@@ -276,6 +321,8 @@ class PurchaseController extends Controller
                     'quantity_received' => $pending,
                     'id_unit' => $d->id_unit,
                     'unit_name' => $d->unit?->name ?? 'Unidad',
+                    'presentations' => $this->presentacionesDelProducto($d->product)['list'],
+                    'id_product_presentation' => $this->presentacionesDelProducto($d->product)['default'],
                     'unit_price' => (float) $d->unit_price,
                     'discount' => (float) $d->discount,
                     'tax_rate' => (float) $d->tax_rate,
@@ -313,6 +360,7 @@ class PurchaseController extends Controller
             'details.*.discount' => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
             'details.*.tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
+            'details.*.id_product_presentation' => ['nullable', 'integer', $this->presentacionDeSuLinea($request)],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $request->integer('id_purchase_order'))],
             'details.*.notes' => ['nullable', 'string'],
         ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_BODEGA, 'currency.in' => Moneda::MENSAJE]);
@@ -380,7 +428,7 @@ class PurchaseController extends Controller
         $purchase->load([
             'purchaseOrder',
             'supplier',
-            'details.product',
+            'details.product.presentations',
             'details.unit',
         ]);
 
@@ -408,6 +456,8 @@ class PurchaseController extends Controller
                 'quantity_received' => (float) $d->quantity_received,
                 'id_unit' => $d->id_unit,
                 'unit_name' => $d->unit?->name ?? 'Unidad',
+                'presentations' => $this->presentacionesDelProducto($d->product)['list'],
+                'id_product_presentation' => $d->id_product_presentation ?? $this->presentacionesDelProducto($d->product)['default'],
                 'unit_price' => (float) $d->unit_price,
                 'discount' => (float) $d->discount,
                 'tax_rate' => (float) $d->tax_rate,
@@ -426,7 +476,7 @@ class PurchaseController extends Controller
                 ->with('error', 'Solo las compras en estado borrador pueden ser modificadas.');
         }
 
-        $purchase->load(['details.product', 'details.unit', 'purchaseOrder']);
+        $purchase->load(['details.product.presentations', 'details.unit', 'purchaseOrder']);
 
         $suppliers = Supplier::orderBy('name')->get();
         $branches = Branch::orderBy('name')->get();
@@ -477,6 +527,7 @@ class PurchaseController extends Controller
             'details.*.discount' => ['nullable', 'numeric', 'min:0', new DiscountWithinLine('quantity_received')],
             'details.*.tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'details.*.id_unit' => ['nullable', 'exists:units,id_unit'],
+            'details.*.id_product_presentation' => ['nullable', 'integer', $this->presentacionDeSuLinea($request)],
             'details.*.id_purchase_order_detail' => ['required', 'integer', 'distinct', Rule::exists('purchase_order_details', 'id_purchase_order_detail')->where('id_purchase_order', $purchase->id_purchase_order)],
             'details.*.notes' => ['nullable', 'string'],
         ], [...self::MENSAJES_LINEAS, ...self::MENSAJES_BODEGA, 'currency.in' => Moneda::MENSAJE]);

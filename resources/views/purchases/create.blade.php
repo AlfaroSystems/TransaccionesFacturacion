@@ -208,6 +208,17 @@
                                         <input type="hidden" name="details[{{ $index }}][quantity_ordered]" value="{{ $detail->quantity_ordered }}">
                                         <div class="font-bold text-slate-800 dark:text-slate-200">{{ $detail->product->name ?? 'Producto' }}</div>
                                         <div class="text-[11px] text-slate-400 font-mono">{{ $detail->unit->name ?? 'Unidad' }}</div>
+                                        @php $presActivas = $detail->product?->presentations->where('is_active', true)->values() ?? collect(); @endphp
+                                        @if($presActivas->isNotEmpty())
+                                            <div class="mt-1.5">
+                                                <label class="block text-[9px] uppercase tracking-wider text-slate-400 font-bold">Presentación recibida</label>
+                                                <select name="details[{{ $index }}][id_product_presentation]" class="w-full px-2 py-1 text-[11px] rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700">
+                                                    @foreach($presActivas as $p)
+                                                        <option value="{{ $p->id_product_presentation }}" {{ (int) old('details.'.$index.'.id_product_presentation', $detail->id_product_presentation) === (int) $p->id_product_presentation ? 'selected' : '' }}>{{ $p->name }} (× {{ rtrim(rtrim(number_format($p->factor, 4), '0'), '.') }} u. base)</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="py-3 px-3 text-center font-mono font-bold text-slate-600 dark:text-slate-400">
                                         {{ number_format($detail->quantity_ordered, 2) }}
@@ -340,6 +351,7 @@
                                 <input type="hidden" name="details[${idx}][quantity_ordered]" value="${d.quantity_ordered}">
                                 <div class="font-bold text-slate-800 dark:text-slate-200">${escapeHtml(d.product_name)}</div>
                                 <div class="text-[11px] text-slate-400 font-mono">${escapeHtml(d.unit_name)} ${d.product_code ? '• ' + escapeHtml(d.product_code) : ''}</div>
+                                ${(d.presentations && d.presentations.length) ? `<div class="mt-1.5"><label class="block text-[9px] uppercase tracking-wider text-slate-400 font-bold">Presentación recibida</label><select name="details[${idx}][id_product_presentation]" class="pres-select w-full px-2 py-1 text-[11px] rounded-lg border-line dark:border-slate-600 bg-surface dark:bg-slate-700">${d.presentations.map(p => `<option value="${p.id}" ${String(p.id) === String(valor('id_product_presentation', d.id_product_presentation)) ? 'selected' : ''}>${escapeHtml(p.name)} (× ${p.factor} u. base)</option>`).join('')}</select></div>` : ''}
                                 ${d.already_received > 0 ? `<div class="text-[10px] text-amber-600 font-semibold">Ya recibido: ${d.already_received} · Falta: ${d.pending_quantity}</div>` : ''}
                                 ${errores.map(mensaje => `<div class="mt-1 text-[11px] font-semibold text-rose-600">${escapeHtml(mensaje)}</div>`).join('')}
                             </td>

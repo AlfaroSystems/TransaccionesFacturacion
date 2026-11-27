@@ -50,7 +50,7 @@ class InventoryService
     {
         // En el orden de las líneas: los correlativos de los lotes lo siguen
         $purchase = Purchase::queryAllBranches()
-            ->with(['details' => fn ($q) => $q->orderBy('id_purchase_detail')])
+            ->with(['details' => fn ($q) => $q->orderBy('id_purchase_detail')->with('presentation')])
             ->findOrFail($purchase->getKey());
 
         $warehouseId = $purchase->id_warehouse
@@ -77,14 +77,22 @@ class InventoryService
 
             $costo = (float) ($costos[$detail->id_purchase_detail] ?? 0);
 
+            // La compra se recibe en una presentación (empaque). El inventario se guarda en
+            // unidades base: cantidad × factor. El costo pasa a ser por unidad base (costo ÷
+            // factor), de modo que el valor del lote (total_cost = cantidad × costo) no cambia.
+            $factor = (float) ($detail->presentation->factor ?? 1);
+            $factor = $factor > 0 ? $factor : 1;
+            $cantidadBase = round($cantidad * $factor, 4);
+            $costoBase = round($costo / $factor, 4);
+
             InventoryLot::create([
                 'lot_code' => $this->codigoDeLote($fecha),
                 'id_product' => $detail->id_product,
                 'id_purchase_detail' => $detail->id_purchase_detail,
                 'id_warehouse' => $warehouseId,
                 'received_at' => $fecha,
-                'quantity_received' => $cantidad,
-                'unit_cost' => $costo,
+                'quantity_received' => $cantidadBase,
+                'unit_cost' => $costoBase,
                 'total_cost' => round($cantidad * $costo, 4),
                 'status' => InventoryLot::STATUS_PENDING,
             ]);
