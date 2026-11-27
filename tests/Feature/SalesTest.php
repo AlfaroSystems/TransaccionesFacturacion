@@ -116,6 +116,24 @@ function ventaPayload(object $e, array $override = []): array
     ], $override);
 }
 
+it('abre el POS con la caja abierta y lista los productos vendibles', function () {
+    $e = ventaEscenario();
+
+    $this->actingAs($e->vendedor)
+        ->get(route('sales.create'))
+        ->assertOk()
+        ->assertSee($e->product->name);
+});
+
+it('sin una caja abierta el POS redirige a Caja', function () {
+    $e = ventaEscenario();
+    CashShift::query()->where('id_branch', $e->sucursal->id_branch)->delete();
+
+    $this->actingAs($e->vendedor)
+        ->get(route('sales.create'))
+        ->assertRedirect(route('cash.index', ['sucursal' => $e->sucursal->id_branch]));
+});
+
 it('consume los lotes por PEPS y calcula el costo de venta', function () {
     Mail::fake();
     $e = ventaEscenario();

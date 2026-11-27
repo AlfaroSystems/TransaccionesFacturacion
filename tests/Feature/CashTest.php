@@ -41,6 +41,20 @@ it('abre una caja y bloquea una segunda en la misma sucursal', function () {
     expect(CashShift::queryAllBranches()->where('id_branch', $e->sucursal->id_branch)->count())->toBe(1);
 });
 
+it('un admin sin sucursal propia abre la caja de la sucursal elegida', function () {
+    $company = Company::create(['name' => 'Empresa '.Str::upper(Str::random(4))]);
+    $sucursal = Branch::create(['id_company' => $company->id_company, 'name' => 'Sucursal '.Str::upper(Str::random(4))]);
+    $admin = User::factory()->create(['id_branch' => null]);
+    $admin->roles()->attach(Role::firstOrCreate(['name' => 'admin'])->id_role, ['assigned_at' => now()]);
+
+    // Sin id_branch no sabe qué caja abrir
+    $this->actingAs($admin)->post(route('cash.open'), ['opening_amount' => 100])->assertSessionHasErrors('id_branch');
+
+    // Con la sucursal elegida, abre su caja
+    $this->post(route('cash.open'), ['opening_amount' => 100, 'id_branch' => $sucursal->id_branch])->assertSessionHasNoErrors();
+    expect(CashShift::openForBranch($sucursal->id_branch))->not->toBeNull();
+});
+
 it('registra egresos que restan del efectivo esperado', function () {
     $e = cajaEscenario();
     $this->actingAs($e->user)->post(route('cash.open'), ['opening_amount' => 100]);

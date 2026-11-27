@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\ProductPresentation;
 use App\Models\Sale;
 use App\Models\SaleCostDetail;
 use App\Services\SaleService;
@@ -47,14 +48,16 @@ class SaleController extends Controller
     {
         Gate::authorize('sales.crear');
 
-        // El POS exige una caja abierta en la sucursal del usuario
-        $branchId = BranchAccess::branchId();
+        $branches = $this->branchesForUser();
+
+        // El POS exige una caja abierta. Se valida la sucursal que verá seleccionada: la del
+        // usuario, o —si no tiene una asignada (p. ej. admin)— la primera del selector.
+        $branchId = BranchAccess::branchId() ?? $branches->first()?->id_branch;
         if ($branchId && ! \App\Models\CashShift::openForBranch($branchId)) {
-            return redirect()->route('cash.index')
-                ->with('info', 'Abre la caja de tu sucursal antes de registrar ventas.');
+            return redirect()->route('cash.index', ['sucursal' => $branchId])
+                ->with('info', 'Abre la caja de la sucursal antes de registrar ventas.');
         }
 
-        $branches = $this->branchesForUser();
         $customers = Customer::active()->orderBy('name')->get(['id_customer', 'name', 'customer_type', 'email']);
 
         // Productos vendibles: activos y con al menos una presentación con precio vigente

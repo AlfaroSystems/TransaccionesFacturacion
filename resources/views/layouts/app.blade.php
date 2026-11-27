@@ -60,6 +60,15 @@
         $isPrices = request()->routeIs('prices.*');
         $isCash = request()->routeIs('cash.*');
         $isSales = request()->routeIs('sales.*');
+        $isVentasModulo = $isSales || $isCustomer || $isPrices || $isCash;
+        // El módulo aterriza en el POS; si la caja está cerrada, el POS redirige a Caja para abrirla
+        $ventasRoute = $firstAllowedRoute([
+            'sales.crear' => 'sales.create',
+            'sales.ver' => 'sales.index',
+            'cash.ver' => 'cash.index',
+            'customers.ver' => 'customers.index',
+            'prices.ver' => 'prices.index',
+        ]);
 
         $isCompras = request()->routeIs('purchase-requests.*') || request()->routeIs('purchase-quotation-requests.*') || request()->routeIs('purchase_orders.*') || request()->routeIs('expense-types.*') || request()->routeIs('purchases.*') || request()->routeIs('retaceos.*');
         $comprasRoute = $firstAllowedRoute([
@@ -137,18 +146,9 @@
                 @can('suppliers.ver')
                     <x-ui.nav-item :href="route('suppliers.index')" icon="truck" label="Proveedores" :active="$isSupplier" />
                 @endcan
-                @can('customers.ver')
-                    <x-ui.nav-item :href="route('customers.index')" icon="user" label="Clientes" :active="$isCustomer" />
-                @endcan
-                @can('prices.ver')
-                    <x-ui.nav-item :href="route('prices.index')" icon="currency" label="Precios" :active="$isPrices" />
-                @endcan
-                @can('cash.ver')
-                    <x-ui.nav-item :href="route('cash.index')" icon="currency" label="Caja" :active="$isCash" />
-                @endcan
-                @can('sales.ver')
-                    <x-ui.nav-item :href="route('sales.index')" icon="cart" label="Ventas" :active="$isSales" />
-                @endcan
+                @if($ventasRoute)
+                    <x-ui.nav-item :href="route($ventasRoute)" icon="cart" label="Ventas" :active="$isVentasModulo" />
+                @endif
                 @if($comprasRoute)
                     <x-ui.nav-item :href="route($comprasRoute)" icon="bag" label="Compras" :active="$isCompras" />
                 @endif
@@ -184,6 +184,15 @@
                 @can('purchases.ver')<x-ui.tab-link :href="route('purchases.index')" :active="request()->routeIs('purchases.*')">Facturas / Compras</x-ui.tab-link>@endcan
                 @can('retaceos.ver')<x-ui.tab-link :href="route('retaceos.index')" :active="request()->routeIs('retaceos.*')">Retaceos</x-ui.tab-link>@endcan
                 @can('expense_types.ver')<x-ui.tab-link :href="route('expense-types.index')" :active="request()->routeIs('expense-types.*')">Tipos de Gastos</x-ui.tab-link>@endcan
+            </x-ui.tab-nav>
+        @endif
+        @if($isVentasModulo)
+            <x-ui.tab-nav>
+                @can('sales.crear')<x-ui.tab-link :href="route('sales.create')" :active="request()->routeIs('sales.create')">POS (Nueva venta)</x-ui.tab-link>@endcan
+                @can('sales.ver')<x-ui.tab-link :href="route('sales.index')" :active="request()->routeIs('sales.index', 'sales.show', 'sales.report', 'sales.report-lot')">Ventas</x-ui.tab-link>@endcan
+                @can('cash.ver')<x-ui.tab-link :href="route('cash.index')" :active="request()->routeIs('cash.*')">Caja</x-ui.tab-link>@endcan
+                @can('customers.ver')<x-ui.tab-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">Clientes</x-ui.tab-link>@endcan
+                @can('prices.ver')<x-ui.tab-link :href="route('prices.index')" :active="request()->routeIs('prices.*')">Precios</x-ui.tab-link>@endcan
             </x-ui.tab-nav>
         @endif
         @if($isInventario)

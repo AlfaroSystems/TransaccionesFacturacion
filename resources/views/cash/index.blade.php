@@ -7,6 +7,18 @@
         <p class="text-slate-400 text-sm font-semibold mt-1">Turno de caja y arqueo. El punto de venta exige una caja abierta.</p>
     </header>
 
+    @if($sucursales->isNotEmpty())
+        {{-- Admin: elige de qué sucursal es la caja (el cajero solo ve la suya) --}}
+        <form method="GET" action="{{ route('cash.index') }}" class="mb-5 flex items-center gap-3">
+            <label class="text-xs font-bold text-slate-500 uppercase">Sucursal</label>
+            <select name="sucursal" onchange="this.form.submit()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm bg-white">
+                @foreach($sucursales as $sucursal)
+                    <option value="{{ $sucursal->id_branch }}" {{ (int) $sucursalActual === (int) $sucursal->id_branch ? 'selected' : '' }}>{{ $sucursal->name }}</option>
+                @endforeach
+            </select>
+        </form>
+    @endif
+
     @if ($errors->any())
         <div class="mb-4 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-semibold">
             <ul class="list-disc list-inside">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
@@ -64,7 +76,7 @@
     @else
         {{-- SIN TURNO --}}
         <div class="bg-white rounded-2xl border border-slate-100 shadow-xs p-8 mb-6 text-center">
-            <p class="text-slate-500 font-semibold mb-4">No hay una caja abierta en tu sucursal.</p>
+            <p class="text-slate-500 font-semibold mb-4">No hay una caja abierta {{ $sucursales->isNotEmpty() ? 'en '.($sucursales->firstWhere('id_branch', $sucursalActual)?->name ?? 'la sucursal') : 'en tu sucursal' }}.</p>
             @can('cash.abrir')
                 <button type="button" onclick="openModal('open-modal')" class="px-6 py-3 rounded-xl bg-customTeal-800 hover:bg-customTeal-500 text-white font-bold text-sm">Abrir caja</button>
             @endcan
@@ -112,6 +124,7 @@
             <div class="flex items-center justify-between border-b pb-4 mb-5"><h3 class="text-lg font-extrabold text-slate-800">Abrir caja</h3><button type="button" onclick="closeModal('open-modal')" class="text-slate-400 text-xl">✕</button></div>
             <form action="{{ route('cash.open') }}" method="POST" class="space-y-4">
                 @csrf
+                <input type="hidden" name="id_branch" value="{{ $sucursalActual }}">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Monto de apertura *</label>
                     <input type="number" step="0.01" min="0" name="opening_amount" value="0" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">

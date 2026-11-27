@@ -102,7 +102,11 @@
 }
 
 .animate-fade-in {
-    animation: fade-in 0.3s ease-out both;
+    /* 'backwards' en vez de 'both': evita el parpadeo inicial pero NO retiene el
+       transform al terminar. Un transform residual convierte al contenedor en bloque
+       contenedor de los hijos position:fixed (los modales), que entonces se centran
+       respecto al contenedor y no a la ventana (se descuadran al hacer scroll). */
+    animation: fade-in 0.3s ease-out backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
