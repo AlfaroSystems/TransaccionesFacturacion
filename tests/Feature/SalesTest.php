@@ -192,7 +192,11 @@ it('envía el comprobante al correo del cliente al finalizar la venta', function
     $this->actingAs($e->vendedor)->post(route('sales.store'), ventaPayload($e))->assertRedirect();
 
     Mail::assertQueued(SaleReceiptMail::class);
-    expect(Sale::queryAllBranches()->latest('id_sale')->first()->emailed_at)->not->toBeNull();
+    $sale = Sale::queryAllBranches()->latest('id_sale')->firstOrFail();
+    expect($sale->emailed_at)->not->toBeNull();
+
+    // El correo (plantilla Markdown) debe renderizar sin error (regresión "No hint path for [mail]")
+    (new SaleReceiptMail($sale))->assertSeeInHtml($sale->sale_code);
 });
 
 it('acumula el total de la venta en el turno de caja abierto', function () {

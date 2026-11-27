@@ -33,7 +33,7 @@ class SaleReceiptMail extends Mailable implements ShouldQueue
     {
         $this->cargar();
 
-        return new Content(view: 'emails.sale_receipt', with: ['sale' => $this->sale]);
+        return new Content(markdown: 'emails.sale_receipt', with: ['sale' => $this->sale]);
     }
 
     public function attachments(): array
